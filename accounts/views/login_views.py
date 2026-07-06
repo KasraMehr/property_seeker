@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
-from ..serializers.user_serializers import UserSerializer
+from ..serializers.login_serializers import  *
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
@@ -33,7 +33,7 @@ def _set_jwt_cookies(response, refresh_token: RefreshToken):
         secure=simple_jwt["AUTH_COOKIE_SECURE"],
         samesite=simple_jwt["AUTH_COOKIE_SAMESITE"],
         max_age=simple_jwt["REFRESH_TOKEN_LIFETIME_SECONDS"],
-        path="/",
+        path="/api/accounts/refresh/",
     )
 
 
@@ -160,7 +160,7 @@ class RefreshTokenView(APIView):
                 secure=False,
                 samesite="Lax",
                 max_age=settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME_SECONDS"],
-                path="/",
+                path="/api/accounts/refresh/"
             )
 
         return response
