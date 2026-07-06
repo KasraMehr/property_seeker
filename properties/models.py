@@ -1,0 +1,298 @@
+from django.db import models
+
+# Create your models here.
+class Owner(models.Model):
+    full_name = models.CharField(max_length=255)
+
+    phone = models.CharField(
+        max_length=20,
+        db_index=True
+    )
+
+    alternate_phone = models.CharField(
+        max_length=20,
+        blank=True
+    )
+
+    national_id = models.CharField(
+        max_length=20,
+        blank=True
+    )
+
+    notes = models.TextField(
+        blank=True
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True
+    )
+
+    class Meta:
+        db_table = "owners"
+
+    def __str__(self):
+        return self.full_name
+
+
+class Property(models.Model):
+
+    class DealType(models.TextChoices):
+        SALE = "sale", "فروش"
+        RENT = "rent", "اجاره"
+        MORTGAGE = "mortgage", "رهن کامل"
+        EXCHANGE = "exchange","معاوضه"
+
+    class Status(models.TextChoices):
+        AVAILABLE = "available", "فعال"
+        RESERVED = "reserved", "رزرو"
+        SOLD = "sold", "فروخته شده"
+        RENTED = "rented", "اجاره داده شده"
+        ARCHIVED = "archived", "بایگانی"
+
+    property_code = models.CharField(
+        max_length=50,
+        unique=True
+    )
+
+    owner = models.ForeignKey(
+        "properties.Owner",
+        on_delete=models.PROTECT,
+        related_name="properties"
+    )
+
+    agent = models.ForeignKey(
+        "accounts.User",
+        on_delete=models.PROTECT,
+        related_name="managed_properties"
+    )
+
+    address = models.ForeignKey(
+        "locations.Address",
+        on_delete=models.PROTECT
+    )
+
+    title = models.CharField(
+        max_length=255
+    )
+
+    property_type = models.CharField(
+        max_length=30,
+    )
+
+    deal_type = models.CharField(
+        max_length=30,
+        choices=DealType.choices
+    )
+
+    area = models.PositiveIntegerField()
+
+    floor = models.PositiveIntegerField(
+        null=True,
+        blank=True
+    )
+
+    total_floors = models.PositiveIntegerField(
+        null=True,
+        blank=True
+    )
+
+    age = models.PositiveIntegerField(
+        default=0
+    )
+
+    bedrooms = models.PositiveSmallIntegerField(
+        default=0
+    )
+
+    bathrooms = models.PositiveSmallIntegerField(
+        default=0
+    )
+
+    parking_count = models.PositiveSmallIntegerField(
+        default=0
+    )
+
+    storage_count = models.PositiveSmallIntegerField(
+        default=0
+    )
+
+    orientation = models.CharField(
+        max_length=50,
+        blank=True
+    )
+
+    condition = models.CharField(
+        max_length=100,
+        blank=True
+    )
+
+    description = models.TextField(
+        blank=True
+    )
+
+    # قیمت هر متر مربع (برای فروش)
+    price_per_meter = models.BigIntegerField(
+        null=True,
+        blank=True
+    )
+
+    # قیمت کل ملک (برای فروش)
+    sale_price = models.BigIntegerField(
+        null=True,
+        blank=True
+    )
+
+    # مبلغ رهن کامل
+    mortgage_amount = models.BigIntegerField(
+        null=True,
+        blank=True
+    )
+
+    # ودیعه اجاره
+    deposit_amount = models.BigIntegerField(
+        null=True,
+        blank=True
+    )
+
+    # اجاره ماهیانه
+    monthly_rent = models.BigIntegerField(
+        null=True,
+        blank=True
+    )
+
+    status = models.CharField(
+        max_length=30,
+        choices=Status.choices,
+        default=Status.AVAILABLE
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True
+    )
+
+    class Meta:
+        db_table = "properties"
+
+    def __str__(self):
+        return self.property_code
+
+
+class Feature(models.Model):
+    title = models.CharField(
+        max_length=100,
+        unique=True
+    )
+
+    class Meta:
+        db_table = "features"
+
+    def __str__(self):
+        return self.title
+
+class PropertyFeature(models.Model):
+
+    property = models.ForeignKey(
+        Property,
+        on_delete=models.CASCADE,
+        related_name="property_features"
+    )
+
+    feature = models.ForeignKey(
+        Feature,
+        on_delete=models.CASCADE
+    )
+
+    class Meta:
+        db_table = "property_features"
+
+        unique_together = (
+            "property",
+            "feature"
+        )
+
+
+class Media(models.Model):
+
+    class MediaType(models.TextChoices):
+        IMAGE = "image", "تصویر"
+        VIDEO = "video", "ویدئو"
+
+    property = models.ForeignKey(
+        Property,
+        on_delete=models.CASCADE,
+        related_name="media"
+    )
+
+    listing = models.ForeignKey(
+        "listing.Listing",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
+    )
+
+    file = models.FileField(
+        upload_to="properties/"
+    )
+
+    media_type = models.CharField(
+        max_length=20,
+        choices=MediaType.choices
+    )
+
+    is_main = models.BooleanField(
+        default=False
+    )
+
+    sort_order = models.PositiveIntegerField(
+        default=0
+    )
+
+    alt_text = models.CharField(
+        max_length=255,
+        blank=True
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    class Meta:
+        db_table = "property_media"
+        ordering = [
+            "sort_order",
+            "-created_at"
+        ]
+
+
+class PropertyStatusHistory(models.Model):
+
+    property = models.ForeignKey(
+        Property,
+        on_delete=models.CASCADE
+    )
+
+    old_status = models.CharField(
+        max_length=30
+    )
+
+    new_status = models.CharField(
+        max_length=30
+    )
+
+    changed_by = models.ForeignKey(
+        "accounts.User",
+        on_delete=models.SET_NULL,
+        null=True
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
