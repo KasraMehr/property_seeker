@@ -1,143 +1,98 @@
-// Validation checks 
-
-
-
- //******** Phone Number Validation (Iran)
-
- //Clean phone number (remove spaces, dashes, and extra characters)
-export const cleanPhoneNumber = (phone) => {
-  if (!phone) return '';
-  return phone.trim().replace(/\s/g, '').replace(/-/g, '');
+// Helper : Convert digits in English form 
+const toEnglishDigits = (str) => {
+  if (!str) return "";
+  return str
+    .toString()
+    .replace(/[٠-٩]/g, (d) => d.charCodeAt(0) - 1632)
+    .replace(/[۰-۹]/g, (d) => d.charCodeAt(0) - 1776);
 };
 
- // Validate Iranian phone number
-export const validatePhone = (phone) => {
-  // 1. Check if empty
-  if (!phone || phone.trim() === '') {
-    return {
-      isValid: false,
-      message: 'لطفاً شماره موبایل را وارد کنید',
-    };
+// Phone Number / Username (Iranian Mobile)
+export const validatePhone = (value) => {
+  if (!value) return "شماره موبایل را وارد کنید";
+  
+  const cleanValue = toEnglishDigits(value).trim();
+  const phoneRegex = /^09[0-9]{9}$/;
+  
+  if (!phoneRegex.test(cleanValue)) {
+    return "شماره موبایل معتبر نیست (نمونه: 09123456789)";
   }
-
-  // 2. Clean the phone number
-  const cleanPhone = cleanPhoneNumber(phone);
-
-  // 3. Check if only digits
-  if (!/^\d+$/.test(cleanPhone)) {
-    return {
-      isValid: false,
-      message: 'شماره موبایل باید فقط شامل عدد باشد',
-    };
-  }
-
-  // 4. Check exact length 
-  if (cleanPhone.length !== 11) {
-    return {
-      isValid: false,
-      message: 'شماره موبایل باید ۱۱ رقم باشد',
-    };
-  }
-
-  // 5. Check if starts with 09
-  if (!cleanPhone.startsWith('09')) {
-    return {
-      isValid: false,
-      message: 'شماره موبایل باید با ۰۹ شروع شود',
-    };
-  }
-
-  // 6. All valid
-  return {
-    isValid: true,
-    message: 'شماره موبایل معتبر است',
-  };
+  return true; 
 };
 
- // Validate phone number (returns boolean only)
-export const isValidPhone = (phone) => {
-  return validatePhone(phone).isValid;
+// National Code (Iranian)
+export const validateNationalCode = (value) => {
+  if (!value) return "کد ملی را وارد کنید";
+  
+  const cleanValue = toEnglishDigits(value).trim();
+  if (!/^\d{10}$/.test(cleanValue)) {
+    return "کد ملی باید ۱۰ رقم باشد";
+  }
+
+  if (/^(\d)\1{9}$/.test(cleanValue)) {
+    return "کد ملی معتبر نیست";
+  }
+
+  const check = parseInt(cleanValue[9]);
+  let sum = 0;
+  for (let i = 0; i < 9; i++) {
+    sum += parseInt(cleanValue[i]) * (10 - i);
+  }
+  const remainder = sum % 11;
+  const isValid = (remainder < 2 && check === remainder) || (remainder >= 2 && check === 11 - remainder);
+  
+  if (!isValid) return "کد ملی وارد شده معتبر نیست";
+  return true;
 };
 
- //******  Name Validation (Persian & English)
-
- // Validate name (Persian and English letters only)
-export const validateName = (name, fieldName = 'نام') => {
-  // 1. Check if empty
-  if (!name || name.trim() === '') {
-    return {
-      isValid: false,
-      message: `لطفاً ${fieldName} را وارد کنید`,
-    };
-  }
-
-  const cleanName = name.trim();
-
-  // 2. Check minimum length (2 characters)
-  if (cleanName.length < 2) {
-    return {
-      isValid: false,
-      message: `${fieldName} باید حداقل ۲ کاراکتر باشد`,
-    };
-  }
-
-  // 3. Check maximum length (50 characters)
-  if (cleanName.length > 50) {
-    return {
-      isValid: false,
-      message: `${fieldName} نباید بیشتر از ۵۰ کاراکتر باشد`,
-    };
-  }
-
-  // 4. Check if only letters (Persian or English) and spaces
-  // Persian range: \u0600-\u06FF
-  // English range: a-zA-Z
-  const namePattern = /^[a-zA-Z\u0600-\u06FF\s]+$/;
-  if (!namePattern.test(cleanName)) {
-    return {
-      isValid: false,
-      message: `${fieldName} باید فقط شامل حروف (فارسی یا انگلیسی) باشد`,
-    };
-  }
-
-  // 5. All valid
-  return {
-    isValid: true,
-    message: `${fieldName} معتبر است`,
-  };
+// Password 
+export const validatePassword = (value) => {
+  if (!value) return "رمز عبور را وارد کنید";
+  if (value.length < 6) return "رمز عبور حداقل باید ۶ کاراکتر باشد";
+  if (value.length > 30) return "رمز عبور حداکثر می‌تواند ۳۰ کاراکتر باشد";
+  return true;
 };
 
- // Validate name (returns boolean only)
-export const isValidName = (name, fieldName = 'نام') => {
-  return validateName(name, fieldName).isValid;
-};
-
- // Full Name Validation (First Name + Last Name)
-
- //Validate first name and last name together
-export const validateFullName = (firstName, lastName) => {
-  const firstNameResult = validateName(firstName, 'نام');
-  if (!firstNameResult.isValid) {
-    return firstNameResult;
+// Email
+export const validateEmail = (value) => {
+  if (!value) return "ایمیل را وارد کنید";
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  if (!emailRegex.test(value)) {
+    return "ایمیل معتبر نیست (example@gmail.com)";
   }
+  return true;
+};
 
-  const lastNameResult = validateName(lastName, 'نام خانوادگی');
-  if (!lastNameResult.isValid) {
-    return lastNameResult;
+// Full Name
+export const validateFullName = (value) => {
+  if (!value) return "نام و نام خانوادگی را وارد کنید";
+  if (value.trim().length < 3) return "نام کامل حداقل باید ۳ کاراکتر باشد";
+  if (!/^[\u0600-\u06FF\s‌]+$/.test(value.trim())) {
+    return "فقط استفاده از حروف فارسی مجاز است";
   }
-
-  return {
-    isValid: true,
-    message: 'نام و نام خانوادگی معتبر است',
-  };
+  return true;
 };
 
- // ********** Exports
-export default {
-  validatePhone,
-  isValidPhone,
-  cleanPhoneNumber,
-  validateName,
-  isValidName,
-  validateFullName,
-};
+// // ===== Price (Number) =====
+// export const validatePrice = (value) => {
+//   if (!value && value !== 0) return "قیمت را وارد کنید";
+  
+//   // حذف کاماها (اگر قیمت ۳ رقم ۳ رقم جدا شده باشد) قبل از سنجش عددی
+//   const cleanValue = toEnglishDigits(value).toString().replace(/,/g, "");
+//   const num = Number(cleanValue);
+  
+//   if (isNaN(num) || num <= 0) {
+//     return "قیمت معتبر وارد کنید";
+//   }
+//   return true;
+// };
+
+// // ===== Postal Code =====
+// export const validatePostalCode = (value) => {
+//   if (!value) return "کد پستی را وارد کنید";
+//   const cleanValue = toEnglishDigits(value).trim();
+//   if (!/^\d{10}$/.test(cleanValue)) {
+//     return "کد پستی باید ۱۰ رقم بدون خط تیره باشد";
+//   }
+//   return true;
+// };

@@ -2,7 +2,7 @@ import React from "react";
 import IconBox from "./ui/IconBox";
 import { House } from "lucide-react";
 
-export default function Logo({labelPosition , className = ""}) {
+export default function Logo({labelPosition ,labelColor, textColor , className = ""}) {
   return (
     <div>
       <IconBox
@@ -10,6 +10,8 @@ export default function Logo({labelPosition , className = ""}) {
         iconSize={15}
         boxSize="w-7 h-7"
         label={"ملک جو"}
+        textColor={textColor}
+        labelColor={labelColor}
         labelPosition={labelPosition}
         className={className}
       />

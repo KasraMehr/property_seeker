@@ -29,13 +29,28 @@ export const Router = createBrowserRouter([
 
   // Protected
   {
-    path: "/app",
+    path: "/dashboard",
     element: <ProtectedRoute />,
     children: [
       {
         index: true,
-        element: <div>PROTECTED PAGE *Dashboard* coming soon...</div>,
-        // element: <DashboardLayout/>
+        element: (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              minHeight: "100vh",
+              color: "#38bdf8",
+              fontSize: "24px",
+              fontWeight: "bold",
+              fontFamily: "tahoma, sans-serif",
+              direction: "rtl",
+            }}
+          >
+            شما در داشبورد هستید...
+          </div>
+        ), // element: <DashboardLayout/>
         // children:[ other path in dashboard]
       },
       // TODO: Add other protected pages here
@@ -45,7 +60,7 @@ export const Router = createBrowserRouter([
   // Not found 404
   {
     path: "*",
-    element: <div>NOT FOUND PAGE !!</div>,
+    element: <div>NOT FOUND PAGE !! 404 </div>,
     // TODO: element: <NotFoundPage />,
   },
 ]);

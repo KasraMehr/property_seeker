@@ -3,7 +3,7 @@
 import React, { createContext, useState, useEffect, useCallback } from "react";
 import authService from "../services/authService";
 
-// Create Context 
+// Create Context
 export const AuthContext = createContext(null);
 
 export default function AuthProvider({ children }) {
@@ -14,8 +14,8 @@ export default function AuthProvider({ children }) {
 
   // Check Session (on mount)
   const checkSession = useCallback(async () => {
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
+    const isAuth = localStorage.getItem("isAuthenticated");
+    if (!isAuth) {
       setLoading(false);
       setIsAuthenticated(false);
       setUser(null);
@@ -23,12 +23,18 @@ export default function AuthProvider({ children }) {
     }
 
     try {
-      const userData = await authService.getCurrentUser();
-      setUser(userData);
-      setIsAuthenticated(true);
+      const response = await authService.getCurrentUser();
+      if (response.authenticated) {
+        setUser(response.user);
+        setIsAuthenticated(true);
+      } else {
+        localStorage.removeItem("isAuthenticated");
+        setUser(null);
+        setIsAuthenticated(false);
+      }
     } catch (error) {
       console.warn("Session check failed:", error.message);
-      localStorage.removeItem("accessToken");
+      localStorage.removeItem("isAuthenticated");
       setUser(null);
       setIsAuthenticated(false);
     } finally {
@@ -37,83 +43,53 @@ export default function AuthProvider({ children }) {
   }, []);
 
   // Login
-  const login = useCallback(async (phone, code) => {
+  const login = useCallback(async (username, password) => {
     try {
-      const response = await authService.verifyOTP(phone, code);
-      
-      if (response.access) {
-        localStorage.setItem("accessToken", response.access);
-        setUser(response.user);
-        setIsAuthenticated(true);
-        return { success: true, isNewUser: response.is_new_user, user: response.user };
-      }
-      return { success: false, error: "پاسخ نامعتبر از سرور" };
+      const response = await authService.login(username, password);
+
+      // Flag to stay logged in after refreshing
+      localStorage.setItem("isAuthenticated", "true");
+
+      setUser(response.user);
+      setIsAuthenticated(true);
+
+      return { success: true, user: response.user };
     } catch (error) {
       console.error("Login failed:", error.message);
-      return { success: false, error: error.message };
-    }
-  }, []);
-
-  // ===== Resend OTP =====
-  const resendOTP = useCallback(async (phone) => {
-    try {
-      const response = await authService.resendOTP(phone);
-      return { success: true, message: response.message || "کد مجدداً ارسال شد" };
-    } catch (error) {
       return {
         success: false,
-        message: error.response?.data?.message || error.message || "خطا در ارسال مجدد کد",
+        error: error.response?.data?.message || error.message || "خطا در ورود",
       };
     }
   }, []);
 
-  //Complete Profile (for new users) 
-  const completeProfile = useCallback(async (data) => {
-    try {
-      const response = await authService.completeProfile(data);
-      setUser(response.user);
-      return { success: true, user: response.user };
-    } catch (error) {
-      console.error("Profile completion failed:", error.message);
-      return { success: false, error: error.message };
-    }
-  }, []);
-
-  // Logout 
+  // Logout
   const logout = useCallback(async () => {
     try {
       await authService.logout();
     } catch (error) {
       console.warn("Logout API call failed:", error.message);
     } finally {
-      // clear local state
-      localStorage.removeItem("accessToken");
+      localStorage.removeItem("isAuthenticated");
       setUser(null);
       setIsAuthenticated(false);
     }
   }, []);
 
-  
-  // Check session on mount 
+  // Check session on mount
   useEffect(() => {
     checkSession();
   }, [checkSession]);
 
-  //Context Value 
+  //Context Value
   const value = {
     user,
     loading,
     isAuthenticated,
     login,
     logout,
-    completeProfile,
     checkSession,
-    resendOTP,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

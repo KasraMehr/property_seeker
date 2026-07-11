@@ -8,6 +8,7 @@ export default function IconBox({
   textColor = "text-white",
   shadowColor = "shadow-blue-200",
   rounded = "rounded-2xl",
+  labelColor="text-gray-900",
   labelPosition = "bottom", // "bottom" | "top" | "left" | "right"
   className = "",
 }) {
@@ -25,10 +26,10 @@ export default function IconBox({
       labelPosition === "left" ? "flex-row items-center gap-3" : 
       "flex-row-reverse items-center gap-3"} ${className}`}
     >
-      {labelPosition === "top" && <span className="text-sm text-gray-600">{label}</span>}
+      {labelPosition === "top" && <span className={`text-sm ${labelColor}`}>{label}</span>}
       {box}
-      {labelPosition === "bottom" && <span className="text-l font-bold pt-3 text-gray-600 mt-2">{label}</span>}
-      {(labelPosition === "left" || labelPosition === "right") && <span className="text-lg text-gray-600">{label}</span>}
+      {labelPosition === "bottom" && <span className={`text-lg font-bold pt-3 ${labelColor}`}>{label}</span>}
+      {(labelPosition === "left" || labelPosition === "right") && <span className={`text-lg ${labelColor}`}>{label}</span>}
     </div>
   );
 }

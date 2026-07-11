@@ -1,102 +1,95 @@
-// Fully RTL/LTR-aware input with floating label
-import { useState , useEffect } from "react";
+import { useState, forwardRef } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
-export default function Input({
+const Input = forwardRef(({
   label,
   type = "text",
   placeholder,
-  value,
-  name, // key to save in local storage
-  onChange,
   error,
-  dir = "", // "auto" | "ltr" | "rtl"
+  dir = "",
   className = "",
-  labelClassName = "",
-  errorClassName = "",
-  isValid = false,
-  showValidation = false,
+  icon: Icon,
+  onFocus,
   ...props
-}) {
-  const [isFocused, setIsFocused] = useState(false);
-  const hasValue = value && value.length > 0;
+}, ref) => {
+  const [localShowPassword, setLocalShowPassword] = useState(false);
 
-  // refactor saved values in storage
-  useEffect(() => {
-    if (name && !value) {
-      const savedValue = localStorage.getItem(`input_${name}`);
-      if (savedValue && onChange) {
-        onChange({ target: { value: savedValue } });
-      }
-    }
-  }, [name , value , onChange]);
-
-  // save the changes in local storage
-  const handleChange = (e) => {
-    if (name) {
-      localStorage.setItem(`input_${name}`, e.target.value);
-    }
-    onChange(e);
-  };
-
-  // ===== Direction Logic =====
-  const getInputDir = () => {
-    if (dir !== "auto" || "") return dir;
-    if (type === "tel" || type === "number" || type === "email") {
-      return "ltr"; 
-    }
-    return "rtl"; 
-  };
-
-  const inputDir = getInputDir();
-
+  // Set automatic text direction (LTR for phones/passwords, RTL for persian text)
+  const inputDir = dir || (type === "tel" || type === "password" || type === "email" ? "ltr" : "rtl");
   const isError = !!error;
-  const isValidState = isValid && showValidation && !isError;
-  const borderColor = isError ? "border-red-500" : 
-                      isValidState ? "border-green-500" : "border-gray-200";
+
+  // Toggle dynamic input type for password visibility
+  const isPassword = type === "password";
+  const inputType = isPassword && localShowPassword ? "text" : type;
 
   return (
     <div className="w-full relative">
       <div className="relative">
+        {/* Native HTML input field */}
         <input
-          type={type}
-          placeholder={placeholder}
-          value={value}
-          name={name}
-          onChange={handleChange}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
+          ref={ref}
+          type={inputType}
+          placeholder={placeholder || " "} 
           dir={inputDir}
+          onFocus={onFocus}
           className={`
-            w-full px-4 pt-6 pb-2 rounded-xl border transition-all duration-200
-            ${borderColor}
-            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+            peer w-full px-4 pt-5 pb-2 rounded-full border bg-white backdrop-blur-sm border-white/15
+            transition-all duration-200 ease-in-out text-gray-900 focus:outline-none focus:ring-2
+            ${isError 
+              ? "border-red-400 focus:border-red-500 focus:ring-red-100" 
+              : "border-white/15 focus:border-blue-400 focus:ring-blue-100"
+            }
+            ${Icon || isPassword ? "pl-10" : ""}
             ${className}
           `}
           {...props}
         />
-        
+
+        {/* Pure CSS floating label based on peer selectors */}
         {label && (
           <label
             className={`
-              absolute right-3 transition-all duration-200 pointer-events-none
-              ${isFocused || hasValue ? "text-xs top-1" : "text-sm top-3.5"}
-              ${isFocused ? "text-blue-600" : ""}
-              ${isError ? "text-red-500" : ""}
-              ${isValidState ? "text-green-500" : ""}
-              ${!isFocused && !hasValue && !isError && !isValidState ? "text-gray-500" : ""}
-              ${labelClassName}
+              absolute right-3 transition-all duration-200 ease-in-out pointer-events-none rounded-2xl
+              text-sm top-4 text-gray-400
+              peer-focus:text-[11px] peer-focus:-top-2.5 peer-focus:text-blue-500 peer-focus:px-1.5 peer-focus:bg-white 
+              peer-not-placeholder-shown:text-[11px] peer-not-placeholder-shown:-top-2.5 peer-not-placeholder-shown:px-1.5 peer-not-placeholder-shown:bg-white
+              ${isError ? "peer-focus:text-red-500" : ""}
             `}
           >
             {label}
           </label>
         )}
+
+        {/* Dynamic standard icon on the left side */}
+        {Icon && !isPassword && (
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+            <Icon size={18} />
+          </div>
+        )}
+
+        {/* Password visibility controller button */}
+        {isPassword && (
+          <button
+            type="button"
+            onClick={() => setLocalShowPassword(!localShowPassword)}
+            className="absolute left-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-400 hover:text-gray-600 focus:outline-none"
+          >
+            {localShowPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        )}
       </div>
-      
-      {isError && (
-        <p className={`text-red-500 text-sm mt-1 ${errorClassName || "text-right"}`}>
-          {error}
-        </p>
-      )}
+
+      {/* Field validation error rendering wrapper */}
+      <div className="h-5 mt-1 relative"> 
+        {isError && (
+          <p className="absolute right-0 top-0 text-red-500 text-xs font-medium animate-fadeIn">
+            {error}
+          </p>
+        )}
+      </div>
     </div>
   );
-}
+});
+
+Input.displayName = "Input";
+export default Input;

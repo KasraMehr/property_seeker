@@ -1,60 +1,42 @@
-// Authentication service - handles all auth-related API calls
-
 import api from "../lib/api";
 
-// Send OTP to user's phone number
-const sendOTP = async (phone) => {
-  const response = await api.post("/auth/send-otp/", { phone });
-  return response.data;
+// Login with Username/Password
+const login = async (username, password) => {
+  try {
+    const response = await api.post("/login/", { username, password });
+    return {
+      success: true,
+      user: response.data.user,
+      message: response.data.message
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error.response?.data?.error || error.response?.data?.detail || "شماره موبایل یا رمز عبور اشتباه است."
+    };
+  }
 };
 
-// Resend OTP to user's phone number
-const resendOTP = async (phone) => {  
-  const response = await api.post("/auth/send-otp/", { phone });
-  return response.data;
-};
-
-// Verify OTP code and get JWT tokens
-// { access, refresh, user, is_new_user }
-const verifyOTP = async (phone, code) => {
-  const response = await api.post("/auth/verify-otp/", { phone, code });
-  return response.data; 
-};
-
-//  Complete user profile (for new users)
-// { success, user }
-const completeProfile = async (data) => {
-  const response = await api.post("/auth/complete-profile/", data);
-  return response.data; 
-};
-
-// Get current authenticated user
-// { id, phone, first_name, last_name, ... }
+// Get current user details via token validation
 const getCurrentUser = async () => {
-  const response = await api.get("/auth/me/");
+  const response = await api.get("/verify/");
   return response.data; 
 };
 
-// Logout user (invalidate tokens)
-// { success }
+// Logout and clean up cookies
 const logout = async () => {
-  const response = await api.post("/auth/logout/");
+  const response = await api.post("/logout/");
   return response.data; 
 };
 
-//  Refresh access token (called automatically by interceptor)
-// { access }
+// Manual token refresh trigger if needed outside the interceptor
 const refreshToken = async () => {
-  const response = await api.post("/auth/token/refresh/");
+  const response = await api.post("/refresh/");
   return response.data; 
 };
 
-//----- Exports
 export default {
-  sendOTP,
-  resendOTP,
-  verifyOTP,
-  completeProfile,
+  login,
   getCurrentUser,
   logout,
   refreshToken,
