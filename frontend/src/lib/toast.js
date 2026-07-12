@@ -1,14 +1,14 @@
-import { toast } from 'react-hot-toast';
+import { toast } from "react-hot-toast";
 
 const defaultOptions = {
   duration: 3000,
-  position: 'top-center',
+  position: "top-center",
   style: {
-    direction: 'rtl',
-    fontSize: '14px',
-    padding: '12px 20px',
-    borderRadius: '12px',
-    fontWeight: '500',
+    direction: "rtl",
+    fontSize: "14px",
+    padding: "12px 20px",
+    borderRadius: "12px",
+    fontWeight: "500",
   },
 };
 
@@ -19,11 +19,11 @@ export const toastService = {
       ...options,
       style: {
         ...defaultOptions.style,
-        background: '#10B981',
-        color: '#FFFFFF',
+        background: "var(--success)",
+        color: "#FFFFFF",
         ...options.style,
       },
-      icon: '✅',
+      icon: "✅",
     });
   },
 
@@ -33,11 +33,11 @@ export const toastService = {
       ...options,
       style: {
         ...defaultOptions.style,
-        background: '#EF4444',
-        color: '#FFFFFF',
+        background: "var(--danger)",
+        color: "#FFFFFF",
         ...options.style,
       },
-      icon: '❌',
+      icon: "❌",
     });
   },
 
@@ -47,11 +47,11 @@ export const toastService = {
       ...options,
       style: {
         ...defaultOptions.style,
-        background: '#3B82F6',
-        color: '#FFFFFF',
+        background: "var(--primary)",
+        color: "#FFFFFF",
         ...options.style,
       },
-      icon: 'ℹ️',
+      icon: "ℹ️",
     });
   },
 
@@ -61,11 +61,11 @@ export const toastService = {
       ...options,
       style: {
         ...defaultOptions.style,
-        background: '#F59E0B',
-        color: '#FFFFFF',
+        background: "var(--warning)",
+        color: "#FFFFFF",
         ...options.style,
       },
-      icon: '⚠️',
+      icon: "⚠️",
     });
   },
 

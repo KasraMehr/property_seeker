@@ -29,15 +29,16 @@ const Input = forwardRef(({
         <input
           ref={ref}
           type={inputType}
-          placeholder={placeholder || " "} 
+          placeholder={placeholder || " "}
           dir={inputDir}
           onFocus={onFocus}
           className={`
-            peer w-full px-4 pt-5 pb-2 rounded-full border bg-white backdrop-blur-sm border-white/15
-            transition-all duration-200 ease-in-out text-gray-900 focus:outline-none focus:ring-2
-            ${isError 
-              ? "border-red-400 focus:border-red-500 focus:ring-red-100" 
-              : "border-white/15 focus:border-blue-400 focus:ring-blue-100"
+            peer w-full px-4 pt-5 pb-2 rounded-full border bg-surface backdrop-blur-sm
+            transition-all duration-200 ease-in-out text-foreground focus:outline-none focus:ring-2
+            ${
+              isError
+                ? "border-danger focus:border-danger focus:ring-danger/15"
+                : "border-border focus:border-primary focus:ring-primary/15"
             }
             ${Icon || isPassword ? "pl-10" : ""}
             ${className}
@@ -50,10 +51,10 @@ const Input = forwardRef(({
           <label
             className={`
               absolute right-3 transition-all duration-200 ease-in-out pointer-events-none rounded-2xl
-              text-sm top-4 text-gray-400
-              peer-focus:text-[11px] peer-focus:-top-2.5 peer-focus:text-blue-500 peer-focus:px-1.5 peer-focus:bg-white 
-              peer-not-placeholder-shown:text-[11px] peer-not-placeholder-shown:-top-2.5 peer-not-placeholder-shown:px-1.5 peer-not-placeholder-shown:bg-white
-              ${isError ? "peer-focus:text-red-500" : ""}
+              text-sm top-4 text-muted
+              peer-focus:text-[11px] peer-focus:-top-2.5 peer-focus:px-1.5 peer-focus:bg-surface
+              peer-not-placeholder-shown:text-[11px] peer-not-placeholder-shown:-top-2.5 peer-not-placeholder-shown:px-1.5 peer-not-placeholder-shown:bg-surface
+              ${isError ? "peer-focus:text-danger" : "peer-focus:text-primary"}
             `}
           >
             {label}
@@ -62,7 +63,7 @@ const Input = forwardRef(({
 
         {/* Dynamic standard icon on the left side */}
         {Icon && !isPassword && (
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted">
             <Icon size={18} />
           </div>
         )}
@@ -72,7 +73,7 @@ const Input = forwardRef(({
           <button
             type="button"
             onClick={() => setLocalShowPassword(!localShowPassword)}
-            className="absolute left-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-400 hover:text-gray-600 focus:outline-none"
+            className="absolute left-3 top-1/2 -translate-y-1/2 cursor-pointer text-muted hover:text-foreground focus:outline-none"
           >
             {localShowPassword ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
@@ -80,9 +81,9 @@ const Input = forwardRef(({
       </div>
 
       {/* Field validation error rendering wrapper */}
-      <div className="h-5 mt-1 relative"> 
+      <div className="h-5 mt-1 relative">
         {isError && (
-          <p className="absolute right-0 top-0 text-red-500 text-xs font-medium animate-fadeIn">
+          <p className="absolute right-0 top-0 text-danger text-xs font-medium animate-fadeIn">
             {error}
           </p>
         )}

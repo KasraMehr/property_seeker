@@ -1,6 +1,6 @@
 // Login form with react-hook-form validation, auto-clear errors after 5s inactivity
 
-import { useState , useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { User } from "lucide-react";
@@ -9,7 +9,7 @@ import { User } from "lucide-react";
 import Input from "../../../../shared/ui/Input";
 import Button from "../../../../shared/ui/Button";
 import useAuth from "../../../../hooks/useAuth";
-
+import { LOGIN_DIALOGS } from "../../constants/loginConstants";
 // Validators
 import { validatePhone, validatePassword } from "../../../../utils/validators";
 
@@ -39,8 +39,8 @@ export default function LoginForm() {
       }
 
       inactivityTimerRef.current = setTimeout(() => {
-        clearErrors(); 
-        setServerError(""); 
+        clearErrors();
+        setServerError("");
       }, 5000);
     }
 
@@ -52,58 +52,60 @@ export default function LoginForm() {
   // Form submit handler linked to auth context/API
   const onSubmit = async (data) => {
     setServerError("");
+
     try {
       const result = await login(data.username, data.password);
+
       if (result.success) {
-        navigate("/app");
+        navigate("/dashboard");
       } else {
-        setServerError(result.error || "نام کاربری یا رمز عبور اشتباه است");
+        setServerError(result.error || LOGIN_DIALOGS.server_error_default);
       }
-    } catch (err) {
-      setServerError("خطا در ارتباط با سرور");
+    } catch {
+      setServerError(LOGIN_DIALOGS.server_error_network);
     }
   };
 
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="flex flex-col pt-3 h-full w-full max-w-md mx-auto relative"
+      className="relative mx-auto flex h-full w-full max-w-md flex-col pt-3"
     >
       {/* Form main title */}
-      <h1 className="text-2xl font-bold text-center text-gray-800 mb-6 selection:bg-blue-200">
-        ورود به حساب کاربری
+      <h1 className="mb-6 text-center text-2xl font-bold text-foreground selection:bg-primary/20">
+        {LOGIN_DIALOGS.login_title}
       </h1>
 
       {/* Input fields wrapper */}
       <div className="flex flex-col gap-6">
         {/* Username / Phone Field */}
         <Input
-          label="شماره موبایل"
+          label={LOGIN_DIALOGS.phone_label}
           icon={User}
           autoFocus
           {...register("username", {
-            validate: validatePhone
+            validate: validatePhone,
           })}
           error={errors.username?.message}
           onFocus={() => clearErrors("username")}
         />
 
-        {/*  Password Field  */}
+        {/* Password Field */}
         <Input
-          label="رمز عبور"
+          label={LOGIN_DIALOGS.password_label}
           type="password"
           {...register("password", {
-            validate: validatePassword
+            validate: validatePassword,
           })}
           error={errors.password?.message}
-          onFocus={() => clearErrors("password")} 
+          onFocus={() => clearErrors("password")}
         />
       </div>
 
       {/* Global backend error display block */}
-      <div className="h-11 flex items-center justify-center my-3 transition-all duration-200">
+      <div className="my-3 flex h-11 items-center justify-center transition-all duration-200">
         {serverError && (
-          <p className="text-red-500 text-xs text-center bg-red-50 px-3 py-2 rounded-xl border border-red-100 w-full animate-fadeIn font-medium">
+          <p className="w-full animate-fadeIn rounded-xl border border-danger/20 bg-danger/10 px-3 py-2 text-center text-xs font-medium text-danger">
             {serverError}
           </p>
         )}
@@ -116,13 +118,13 @@ export default function LoginForm() {
           fullWidth
           size="lg"
           disabled={isSubmitting}
-          className="py-3.5 rounded-xl text-base shadow-md shadow-blue-500/10 active:scale-[0.98] transition-transform"
+          className="active:scale-[0.98] py-3.5 text-base shadow-lg shadow-primary/15 transition-transform"
         >
-          {isSubmitting ? "در حال ورود..." : "ورود"}
+          {isSubmitting
+            ? LOGIN_DIALOGS.submitting_button
+            : LOGIN_DIALOGS.submit_button}
         </Button>
       </div>
-
-      
     </form>
   );
 }

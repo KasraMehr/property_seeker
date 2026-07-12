@@ -1,8 +1,12 @@
-import React from "react";
 import IconBox from "./ui/IconBox";
 import { House } from "lucide-react";
 
-export default function Logo({labelPosition ,labelColor, textColor , className = ""}) {
+export default function Logo({
+  labelPosition,
+  labelColor = "text-foreground",
+  textColor = "text-white",
+  className = "",
+}) {
   return (
     <div>
       <IconBox

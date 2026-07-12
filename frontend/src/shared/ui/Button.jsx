@@ -2,20 +2,30 @@
 export default function Button({
   children,
   onClick,
-  type,
+  type = "button",
   variant = "primary",
   size = "md",
   fullWidth = false,
   disabled = false,
   className = "",
+  as: Component = "button",
   ...props
 }) {
-  const baseStyles = "rounded-xl cursor-pointer font-medium transition-colors inline-flex items-center justify-center";
-  
+  const baseStyles =
+    "inline-flex items-center justify-center font-medium cursor-pointer transition-all duration-200 rounded-xl disabled:cursor-not-allowed";
+
   const variants = {
-    primary: "bg-blue-600 text-white hover:bg-blue-700 disabled:bg-blue-300",
-    secondary: "bg-gray-200 text-gray-700 hover:bg-gray-300",
-    outline: "border border-gray-300 text-gray-700 hover:bg-gray-50",
+    primary:
+      "bg-primary text-white hover:bg-primary-hover disabled:opacity-60",
+
+    secondary:
+      "bg-surface text-foreground border border-border hover:bg-background",
+
+    outline:
+      "border border-border bg-transparent text-foreground hover:bg-surface",
+
+    ghost:
+      "text-foreground hover:bg-surface",
   };
 
   const sizes = {
@@ -25,16 +35,20 @@ export default function Button({
   };
 
   return (
-    <button
+    <Component
       onClick={onClick}
-      disabled={disabled}
       type={type}
-      className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${
-        fullWidth ? "w-full" : ""
-      } ${className}`}
+      disabled={disabled}
+      className={`
+        ${baseStyles}
+        ${variants[variant]}
+        ${sizes[size]}
+        ${fullWidth ? "w-full" : ""}
+        ${className}
+      `}
       {...props}
     >
       {children}
-    </button>
+    </Component>
   );
 }

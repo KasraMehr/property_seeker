@@ -5,13 +5,11 @@ import Logo from "../../../../shared/Logo";
 
 export default function LoginCard() {
   return (
-    <div className="w-full max-w-95 h-120 relative bg-white/8 backdrop-blur-xl rounded-2xl p-8 border border-white/20 shadow-2xl flex flex-col justify-between pt-16">
+    <div className="relative flex h-120 w-full max-w-95 flex-col justify-between rounded-2xl border border-border bg-card p-8 pt-16 shadow-2xl backdrop-blur-xl">
+      
       {/* Header */}
-      <div className="absolute -top-px left-1/2 -translate-x-1/2 w-32 h-11 bg-white/80 rounded-b-2xl flex items-center justify-center border-x border-b border-white/30 shadow-inner">
-        <Logo
-          labelPosition={"left"}
-          textColor={"text-white"}
-        />
+      <div className="absolute -top-px left-1/2 flex h-11 w-32 -translate-x-1/2 items-center justify-center rounded-b-2xl border-x border-b border-border bg-glass shadow-inner">
+        <Logo labelPosition="left" />
       </div>
 
       {/* Inner form */}

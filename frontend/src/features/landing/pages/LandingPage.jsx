@@ -1,12 +1,26 @@
-import React from 'react'
+import Navbar from "../components/Navbar";
+import HeroSection from "../components/sections/HeroSection";
+import ProblemSolution from "../components/sections/ProblemSolution"
+import DashboardPreview from "../components/sections/DashboardPreview"
+import Features from "../components/sections/Features"
+import Footer from "../components/sections/Footer"
 
-// Components
-import Header from './sections/Header'
 
 export default function LandingPage() {
   return (
-    <div>
-        <Header/>
+    <div className="bg-background text-foreground min-h-screen font-vazir">
+      <Navbar/>
+
+      <HeroSection/>
+
+      <ProblemSolution/>
+
+      <DashboardPreview/>
+
+      <Features/>
+
+      <Footer/>
+
     </div>
-  )
+  );
 }
