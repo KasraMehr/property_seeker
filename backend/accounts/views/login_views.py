@@ -10,7 +10,8 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from ..serializers.login_serializers import LoginSerializer
+from ..serializers.login_serializers import *
+from ..serializers.serializers import *
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 
 def _set_jwt_cookies(response, refresh_token: RefreshToken):
@@ -44,7 +45,7 @@ class LoginPasswordView(APIView):
     serializer_class = LoginSerializer
 
     def post(self, request):
-
+        print("LOGIN VIEW CALLED")
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
 

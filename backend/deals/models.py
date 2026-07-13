@@ -1,4 +1,8 @@
+from datetime import timezone
+
 from django.db import models
+
+from django.db import transaction
 
 # Create your models here.
 
@@ -25,6 +29,13 @@ class Deal(models.Model):
         related_name="deals"
     )
 
+    deal_number = models.CharField(
+        max_length=20,
+        unique=True,
+        editable=False,
+        db_index=True,
+    )
+
     listing = models.ForeignKey(
         "listing.Listing",
         on_delete=models.SET_NULL,
@@ -33,7 +44,7 @@ class Deal(models.Model):
         related_name="deals"
     )
 
-    agent = models.ForeignKey(
+    agent = models.ForeignKey(    #یعنی اگر این کاربر در معامله‌ای استفاده شده باشد، اجازه حذف او را نده.
         "accounts.User",
         on_delete=models.PROTECT,
         related_name="deals"
@@ -50,7 +61,7 @@ class Deal(models.Model):
         choices=DealType.choices
     )
 
-    price = models.BigIntegerField()
+    price = models.PositiveBigIntegerField()
 
     deposit_amount = models.BigIntegerField(
         null=True,
@@ -90,7 +101,34 @@ class Deal(models.Model):
         db_table = "deals"
         ordering = ["-created_at"]
 
+    @classmethod
+    def generate_deal_number(cls):
+        year = timezone.now().year
 
+        last_deal = (
+            cls.objects
+            .select_for_update()
+            .filter(deal_number__startswith=f"DL-{year}-")
+            .order_by("-deal_number")
+            .first()
+        )
+
+        if last_deal:
+            last_number = int(last_deal.deal_number.split("-")[-1])
+        else:
+            last_number = 0
+
+        next_number = last_number + 1
+
+        return f"DL-{year}-{next_number:06d}"
+
+    def save(self, *args, **kwargs):
+
+        if not self.deal_number:
+            with transaction.atomic():
+                self.deal_number = Deal.generate_deal_number()
+
+        super().save(*args, **kwargs)
 
 
 class Contract(models.Model):
@@ -135,8 +173,9 @@ class Contract(models.Model):
     )"""
 
     file = models.FileField(
-        null=True,
-        blank=True
+        upload_to="contracts/",
+        blank=True,
+        null=True
     )
 
     """status = models.CharField(
@@ -156,6 +195,9 @@ class Contract(models.Model):
     class Meta:
         db_table = "contracts"
         ordering = ["-created_at"]
+
+    def __str__(self):
+        return self.contract_number
 
 
 
