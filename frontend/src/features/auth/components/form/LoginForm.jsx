@@ -54,7 +54,7 @@ export default function LoginForm() {
     setServerError("");
 
     try {
-      const result = await login(data.username, data.password);
+      const result = await login(data.phone, data.password);
 
       if (result.success) {
         navigate("/dashboard");
@@ -78,16 +78,16 @@ export default function LoginForm() {
 
       {/* Input fields wrapper */}
       <div className="flex flex-col gap-6">
-        {/* Username / Phone Field */}
+        {/*  Phone Field */}
         <Input
           label={LOGIN_DIALOGS.phone_label}
           icon={User}
           autoFocus
-          {...register("username", {
+          {...register("phone", {
             validate: validatePhone,
           })}
-          error={errors.username?.message}
-          onFocus={() => clearErrors("username")}
+          error={errors.phone?.message}
+          onFocus={() => clearErrors("phone")}
         />
 
         {/* Password Field */}

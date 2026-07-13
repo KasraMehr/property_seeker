@@ -14,27 +14,19 @@ export default function AuthProvider({ children }) {
 
   // Check Session (on mount)
   const checkSession = useCallback(async () => {
-    const isAuth = localStorage.getItem("isAuthenticated");
-    if (!isAuth) {
-      setLoading(false);
-      setIsAuthenticated(false);
-      setUser(null);
-      return;
-    }
-
     try {
       const response = await authService.getCurrentUser();
+
       if (response.authenticated) {
         setUser(response.user);
         setIsAuthenticated(true);
       } else {
-        localStorage.removeItem("isAuthenticated");
         setUser(null);
         setIsAuthenticated(false);
       }
     } catch (error) {
       console.warn("Session check failed:", error.message);
-      localStorage.removeItem("isAuthenticated");
+
       setUser(null);
       setIsAuthenticated(false);
     } finally {
@@ -43,24 +35,25 @@ export default function AuthProvider({ children }) {
   }, []);
 
   // Login
-  const login = useCallback(async (username, password) => {
-    try {
-      const response = await authService.login(username, password);
+  const login = useCallback(async (phone, password) => {
+    const response = await authService.login(phone, password);
 
-      // Flag to stay logged in after refreshing
-      localStorage.setItem("isAuthenticated", "true");
-
-      setUser(response.user);
-      setIsAuthenticated(true);
-
-      return { success: true, user: response.user };
-    } catch (error) {
-      console.error("Login failed:", error.message);
+    // Not successfull login
+    if (!response.success) {
       return {
         success: false,
-        error: error.response?.data?.message || error.message || "خطا در ورود",
+        error: response.error,
       };
     }
+
+    // Sucessfull login
+    setUser(response.user);
+    setIsAuthenticated(true);
+
+    return {
+      success: true,
+      user: response.user,
+    };
   }, []);
 
   // Logout
@@ -70,7 +63,6 @@ export default function AuthProvider({ children }) {
     } catch (error) {
       console.warn("Logout API call failed:", error.message);
     } finally {
-      localStorage.removeItem("isAuthenticated");
       setUser(null);
       setIsAuthenticated(false);
     }
