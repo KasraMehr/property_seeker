@@ -61,3 +61,69 @@ class DealDetailView(APIView):
 
 
 
+
+class DealUpdateView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, pk):
+
+        deal = DealSelector.by_id(pk)
+
+        serializer = DealUpdateSerializer(
+            deal,
+            data=request.data,
+        )
+
+        serializer.is_valid(raise_exception=True)
+
+        deal = serializer.save()
+
+        return Response(
+            {
+                "message": "معامله با موفقیت بروزرسانی شد.",
+                "deal": DealDetailSerializer(deal).data,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+    def patch(self, request, pk):
+
+        deal = DealSelector.by_id(pk)
+
+        serializer = DealUpdateSerializer(
+            deal,
+            data=request.data,
+            partial=True,
+        )
+
+        serializer.is_valid(raise_exception=True)
+
+        deal = serializer.save()
+
+        return Response(
+            {
+                "message": "معامله با موفقیت بروزرسانی شد.",
+                "deal": DealDetailSerializer(deal).data,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+
+class DealDeleteView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, pk):
+
+        deal = DealSelector.by_id(pk)
+
+        deal.delete()
+
+        return Response(
+            {
+                "message": "معامله با موفقیت حذف شد."
+            },
+            status=status.HTTP_204_NO_CONTENT,
+        )

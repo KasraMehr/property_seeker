@@ -3,18 +3,23 @@ import api from "../lib/api";
 // Login with phone/password
 const login = async (phone, password) => {
   try {
-    const { data } = await api.post("/login/", {
+    const response = await api.post("/login/", {
       phone,
       password,
     });
 
+    console.log("LOGIN STATUS:", response.status);
+    console.log("LOGIN DATA:", response.data);
+
     return {
       success: true,
-      user: data.user,
-      message: data.message,
+      user: response.data.user,
+      message: response.data.message,
     };
   } catch (error) {
-    console.error("Login Error:", error);
+    console.log("STATUS:", error.response?.status);
+    console.log("DATA:", error.response?.data);
+    console.log("HEADERS:", error.response?.headers);
 
     return {
       success: false,

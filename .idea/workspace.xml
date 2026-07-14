@@ -5,10 +5,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="09d29062-37fd-4692-84ef-2f42d4153a8a" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/accounts/authenticate.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/accounts/authenticate.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/amlak/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/amlak/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/crm/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/crm/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/crm/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/crm/views/customers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/backend/db.sqlite3" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/deals/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/deals/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/deals/serializers/deal_create.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/deals/serializers/deal_create.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/deals/views/deal.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/deals/views/deal.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/context/AuthProvider.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/context/AuthProvider.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/features/auth/components/form/LoginForm.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/features/auth/components/form/LoginForm.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/lib/api.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/lib/api.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/services/authService.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/services/authService.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/utils/validators.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/utils/validators.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,7 +49,7 @@
     "RunOnceActivity.OpenDjangoStructureViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "Merging deals",
+    "git-widget-placeholder": "deals",
     "last_opened_file_path": "D:/Bokhar-Backend",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -59,11 +67,11 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\amlak\backend\crm\crm_urls" />
+      <recent name="D:\amlak\backend\crm\views" />
       <recent name="D:\amlak\backend\deals\views" />
       <recent name="D:\amlak\backend\deals\selectors" />
       <recent name="D:\amlak\accounts\views" />
-      <recent name="D:\amlak\accounts\serializers" />
-      <recent name="D:\amlak\accounts\user_serializers" />
     </key>
   </component>
   <component name="RunManager">
@@ -123,7 +131,7 @@
       <workItem from="1783520816151" duration="6502000" />
       <workItem from="1783602118055" duration="539000" />
       <workItem from="1783943834401" duration="14581000" />
-      <workItem from="1784036674808" duration="308000" />
+      <workItem from="1784036674808" duration="10164000" />
     </task>
     <servers />
   </component>

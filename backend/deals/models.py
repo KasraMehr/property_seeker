@@ -7,7 +7,7 @@ from django.db import transaction
 # Create your models here.
 
 
-class Deal(models.Model):
+class Deal(models.Model):#این مدل اطلاعات مربوط به یک معامله را نگهداری می‌کند.
 
     class DealType(models.TextChoices):
         SALE = "sale", "فروش"
@@ -131,7 +131,7 @@ class Deal(models.Model):
         super().save(*args, **kwargs)
 
 
-class Contract(models.Model):
+class Contract(models.Model):#این مدل قراردادهای مربوط به معاملات را نگهداری می‌کند.
 
     class Status(models.TextChoices):
         DRAFT = "draft", "پیش نویس"
@@ -154,7 +154,9 @@ class Contract(models.Model):
 
     contract_number = models.CharField(
         max_length=50,
-        unique=True
+        unique=True,
+        editable=False,
+        db_index=True
     )
 
     contract_type = models.CharField(
@@ -162,7 +164,7 @@ class Contract(models.Model):
         choices=ContractType.choices
     )
 
-    """start_date = models.DateField(
+    start_date = models.DateField(
         null=True,
         blank=True
     )
@@ -170,7 +172,7 @@ class Contract(models.Model):
     end_date = models.DateField(
         null=True,
         blank=True
-    )"""
+    )
 
     file = models.FileField(
         upload_to="contracts/",
@@ -178,14 +180,14 @@ class Contract(models.Model):
         null=True
     )
 
-    """status = models.CharField(
+    status = models.CharField(
         max_length=20,
         choices=Status.choices,
         default=Status.DRAFT
     )
 
     signed_by_customer = models.BooleanField(default=False)
-    signed_by_owner = models.BooleanField(default=False)"""
+    signed_by_owner = models.BooleanField(default=False)
 
     notes = models.TextField(blank=True)
 
@@ -195,6 +197,35 @@ class Contract(models.Model):
     class Meta:
         db_table = "contracts"
         ordering = ["-created_at"]
+
+    @classmethod
+    def generate_contract_number(cls):
+        year = timezone.now().year
+
+        last_contract = (
+            cls.objects
+            .select_for_update()
+            .filter(contract_number__startswith=f"DL-{year}-")
+            .order_by("-contract_number")
+            .first()
+        )
+
+        if last_contract:
+            last_number = int(last_contract.contract_number.split("-")[-1])
+        else:
+            last_number = 0
+
+        next_number = last_number + 1
+
+        return f"DL-{year}-{next_number:06d}"
+
+    def save(self, *args, **kwargs):
+
+        if not self.contract_number:
+            with transaction.atomic():
+                self.contract_number = Contract.generate_contract_number()
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.contract_number

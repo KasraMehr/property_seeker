@@ -13,6 +13,7 @@ class DealCreateSerializer(serializers.ModelSerializer):
             "agent",
             "customer",
             "deal_type",
+            "status",
             "price",
             "deposit_amount",
             "rent_amount",

@@ -29,8 +29,8 @@ DEBUG = True
 ALLOWED_HOSTS = []
 #پکیج cors برای اینکه  فرانت و بک بتونن بهم وصل بشن
 CORS_ALLOWED_ORIGINS = [
-
     "http://localhost:5173",
+
     "http://127.0.0.1:5173",
 
 ]
@@ -157,14 +157,22 @@ MEDIA_URL = "/media/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_ROOT = BASE_DIR / "media"
 #-----------------------------------------for login jwt-------------------------------------------
+
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "accounts.authenticate.CookieJWTAuthentication",  # فقط CookieJWTAuthentication
     ],
+
     # "DEFAULT_PERMISSION_CLASSES": [
     #   "rest_framework.permissions.IsAuthenticated",
     # ],
 }
+
+AUTHENTICATION_BACKENDS = [
+    "accounts.authenticate.PhoneBackend",
+    "django.contrib.auth.backends.ModelBackend",
+]
+
 CSRF_COOKIE_HTTPONLY = False
 CSRF_COOKIE_SAMESITE = "Lax"
 CSRF_COOKIE_SECURE = False

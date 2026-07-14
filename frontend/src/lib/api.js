@@ -2,11 +2,11 @@ import axios from "axios";
 
 // Base Configuration - Points to the Django account API root
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http:/localhost/api/accounts";
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api/accounts";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  withCredentials: true, 
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
@@ -31,7 +31,18 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status !== 401 || originalRequest._retry) {
+    // اگر اصلاً response وجود ندارد
+    if (!error.response) {
+      return Promise.reject(error);
+    }
+
+    // روی خود refresh دوباره refresh نزن
+    if (originalRequest.url.includes("/refresh/")) {
+      return Promise.reject(error);
+    }
+
+    // فقط روی 401
+    if (error.response.status !== 401 || originalRequest._retry) {
       return Promise.reject(error);
     }
 
@@ -40,9 +51,7 @@ api.interceptors.response.use(
     if (isRefreshing) {
       return new Promise((resolve, reject) => {
         failedQueue.push({ resolve, reject });
-      })
-        .then(() => api(originalRequest))
-        .catch((err) => Promise.reject(err));
+      }).then(() => api(originalRequest));
     }
 
     isRefreshing = true;
@@ -51,19 +60,20 @@ api.interceptors.response.use(
       await axios.post(
         `${API_BASE_URL}/refresh/`,
         {},
-        { withCredentials: true },
+        { withCredentials: true }
       );
 
       processQueue(null);
+
       return api(originalRequest);
-    } catch (refreshError) {
-      processQueue(refreshError);
-      window.location.href = "/login";
-      return Promise.reject(refreshError);
+    } catch (err) {
+      processQueue(err);
+
+      return Promise.reject(err);
     } finally {
       isRefreshing = false;
     }
-  },
+  }
 );
 
 export default api;
