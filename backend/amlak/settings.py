@@ -11,29 +11,35 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 from datetime import timedelta
 from pathlib import Path
-from decouple import config
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+from decouple import config
 
+SECRET_KEY = config("SECRET_KEY")
+print("SECRET:", SECRET_KEY)
+print(type(SECRET_KEY))
+DEBUG = True
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY =config("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
 ALLOWED_HOSTS = []
 #پکیج cors برای اینکه  فرانت و بک بتونن بهم وصل بشن
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
+
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+
 ]
 #از کوکی استفاده کنیم باید  باشد
 CORS_ALLOW_CREDENTIALS = True
 # Application definition
-
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+]
 INSTALLED_APPS = [
 "django.contrib.admin",
     'django.contrib.auth',
@@ -144,8 +150,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
+# ---------------- MEDIA & STATIC ----------------
+STATIC_URL = "/static/"
 MEDIA_URL = "/media/"
+
+STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_ROOT = BASE_DIR / "media"
 #-----------------------------------------for login jwt-------------------------------------------
 REST_FRAMEWORK = {

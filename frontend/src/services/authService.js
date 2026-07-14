@@ -1,43 +1,78 @@
 import api from "../lib/api";
 
-// Login with Username/Password
-const login = async (username, password) => {
+// Login
+const login = async (phone, password) => {
   try {
-    const response = await api.post("/login/", { username, password });
+    const { data } = await api.post("/login/", {
+      phone,
+      password,
+    });
+
     return {
       success: true,
-      user: response.data.user,
-      message: response.data.message
+      user: data.user,
+      message: data.message,
     };
   } catch (error) {
+    console.error("Login Error:", error);
+
     return {
       success: false,
-      error: error.response?.data?.error || error.response?.data?.detail || "شماره موبایل یا رمز عبور اشتباه است."
+      error:
+        error.response?.data?.message ||
+        error.response?.data?.detail ||
+        error.response?.data?.non_field_errors?.[0] ||
+        "شماره موبایل یا رمز عبور اشتباه است.",
     };
   }
 };
 
-// Get current user details via token validation
+// Verify current user
 const getCurrentUser = async () => {
-  const response = await api.get("/verify/");
-  return response.data; 
+  try {
+    const { data } = await api.get("/verify/");
+
+    return {
+      authenticated: true,
+      user: data.user,
+    };
+  } catch (error) {
+    console.error("Verify Error:", error);
+
+    return {
+      authenticated: false,
+      user: null,
+    };
+  }
 };
 
-// Logout and clean up cookies
+// Logout
 const logout = async () => {
-  const response = await api.post("/logout/");
-  return response.data; 
+  try {
+    const { data } = await api.post("/logout/");
+    return data;
+  } catch (error) {
+    console.error("Logout Error:", error);
+    throw error;
+  }
 };
 
-// Manual token refresh trigger if needed outside the interceptor
+// Refresh Access Token
 const refreshToken = async () => {
-  const response = await api.post("/refresh/");
-  return response.data; 
+  try {
+    const { data } = await api.post("/refresh/");
+    return data;
+  } catch (error) {
+    console.error("Refresh Error:", error);
+    throw error;
+  }
 };
 
-export default {
+const authService = {
   login,
   getCurrentUser,
   logout,
   refreshToken,
 };
+
+export default authService;

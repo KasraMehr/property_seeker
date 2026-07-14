@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="09d29062-37fd-4692-84ef-2f42d4153a8a" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/backend/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/.env" beforeDir="false" afterPath="$PROJECT_DIR$/backend/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/accounts.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/accounts/authenticate.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/accounts/authenticate.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/accounts/views/login_views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/accounts/views/login_views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/amlak/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/amlak/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/audit.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/crm.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/crm_system.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/backend/db.sqlite3" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/deals/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/deals/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/deals/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/deals/views/deal.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/deals_system.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/erd.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/finance.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/finance_system.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/listing.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/locations.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/property.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/property_management.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/schema.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/context/AuthProvider.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/context/AuthProvider.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/features/auth/components/form/LoginForm.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/features/auth/components/form/LoginForm.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/lib/api.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/lib/api.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/services/authService.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/services/authService.js" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="DjangoConsoleOptions" custom-start-script="import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)">
+    <option name="myCustomStartScript" value="import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 4
+}</component>
+  <component name="ProjectId" id="3ERxVWrwHjQQa1zyTXVL29TfAyw" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenDjangoStructureViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;users&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/Bokhar-Backend&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;database.query.execution&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  },
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;sqlite&quot;
+    ]
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\amlak\backend\deals\views" />
+      <recent name="D:\amlak\backend\deals\selectors" />
+      <recent name="D:\amlak\accounts\views" />
+      <recent name="D:\amlak\accounts\serializers" />
+      <recent name="D:\amlak\accounts\user_serializers" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="amlak" type="Python.DjangoServer" factoryName="Django server">
+      <module name="amlak" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="launchJavascriptDebuger" value="false" />
+      <option name="port" value="8000" />
+      <option name="host" value="localhost" />
+      <option name="additionalOptions" value="" />
+      <option name="browserUrl" value="" />
+      <option name="runTestServer" value="false" />
+      <option name="runNoReload" value="false" />
+      <option name="useCustomRunCommand" value="false" />
+      <option name="customRunCommand" value="" />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-e768b9ed790e-JavaScript-PY-243.21565.199" />
+        <option value="bundled-python-sdk-cab1f2013843-4ae2d6a61b08-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-243.21565.199" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="09d29062-37fd-4692-84ef-2f42d4153a8a" name="Changes" comment="" />
+      <created>1780155206556</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1780155206556</updated>
+      <workItem from="1780155207705" duration="1457000" />
+      <workItem from="1780203622187" duration="899000" />
+      <workItem from="1780208078339" duration="8097000" />
+      <workItem from="1780235034981" duration="15000" />
+      <workItem from="1780299217837" duration="14000" />
+      <workItem from="1780320539192" duration="96000" />
+      <workItem from="1780323309398" duration="446000" />
+      <workItem from="1780379747843" duration="5000" />
+      <workItem from="1780379765778" duration="3000" />
+      <workItem from="1780379801898" duration="14000" />
+      <workItem from="1783086649559" duration="6304000" />
+      <workItem from="1783520371264" duration="419000" />
+      <workItem from="1783520816151" duration="6502000" />
+      <workItem from="1783602118055" duration="539000" />
+      <workItem from="1783943834401" duration="14581000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/frontend/src/app/Router.jsx</url>
+          <line>3</line>
+          <properties lambdaOrdinal="-1" />
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/backend/accounts/serializers/login_serializers.py</url>
+          <option name="timeStamp" value="4" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/backend/deals/models.py</url>
+          <line>127</line>
+          <option name="timeStamp" value="5" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>

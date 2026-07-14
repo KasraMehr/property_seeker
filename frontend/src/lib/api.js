@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Base Configuration - Points to the Django account API root
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api/accounts";
+  import.meta.env.VITE_API_BASE_URL || "http:/localhost/api/accounts";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
