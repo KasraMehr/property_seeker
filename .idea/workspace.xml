@@ -5,11 +5,26 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="09d29062-37fd-4692-84ef-2f42d4153a8a" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/backend/crm/crm_urls/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/crm/crm_urls/customer.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/crm/selectors/customers.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/crm/serializers/customer update.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/crm/serializers/customer_create.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/crm/serializers/customer_detail.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/crm/serializers/customer_list.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/crm/views/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/crm/views/customers.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/deals/selectors/contract_selector.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/deals/serializers/contract_create.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/deals/serializers/contract_detail.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/deals/serializers/contract_list.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/deals/serializers/contract_update.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/deals/views/contract.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/accounts/authenticate.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/accounts/authenticate.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/amlak/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/amlak/settings.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/crm/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/crm/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/crm/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/crm/views/customers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/crm/views.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/backend/db.sqlite3" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/deals/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/deals/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/deals/serializers/deal_create.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/deals/serializers/deal_create.py" afterDir="false" />
@@ -131,7 +146,7 @@
       <workItem from="1783520816151" duration="6502000" />
       <workItem from="1783602118055" duration="539000" />
       <workItem from="1783943834401" duration="14581000" />
-      <workItem from="1784036674808" duration="10164000" />
+      <workItem from="1784036674808" duration="10758000" />
     </task>
     <servers />
   </component>
