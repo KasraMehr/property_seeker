@@ -7,7 +7,7 @@ const toEnglishDigits = (str) => {
     .replace(/[۰-۹]/g, (d) => d.charCodeAt(0) - 1776);
 };
 
-// Phone Number / Username (Iranian Mobile)
+// Phone Number (Iranian Mobile)
 export const validatePhone = (value) => {
   if (!value) return "شماره موبایل را وارد کنید";
   

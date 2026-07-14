@@ -1,6 +1,6 @@
 import api from "../lib/api";
 
-// Login
+// Login with phone/password
 const login = async (phone, password) => {
   try {
     const { data } = await api.post("/login/", {
@@ -20,6 +20,7 @@ const login = async (phone, password) => {
       success: false,
       error:
         error.response?.data?.message ||
+        error.response?.data?.error ||
         error.response?.data?.detail ||
         error.response?.data?.non_field_errors?.[0] ||
         "شماره موبایل یا رمز عبور اشتباه است.",

@@ -1,3 +1,5 @@
+// Authentication context provider - manages user state and auth functions
+
 import React, { createContext, useState, useEffect, useCallback } from "react";
 import authService from "../services/authService";
 
@@ -5,14 +7,13 @@ import authService from "../services/authService";
 export const AuthContext = createContext(null);
 
 export default function AuthProvider({ children }) {
+  // States
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // Initial check in progress
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Check current session
+  // Check Session (on mount)
   const checkSession = useCallback(async () => {
-    setLoading(true);
-
     try {
       const response = await authService.getCurrentUser();
 
@@ -24,7 +25,7 @@ export default function AuthProvider({ children }) {
         setIsAuthenticated(false);
       }
     } catch (error) {
-      console.warn("Session check failed:", error);
+      console.warn("Session check failed:", error.message);
 
       setUser(null);
       setIsAuthenticated(false);
@@ -34,17 +35,25 @@ export default function AuthProvider({ children }) {
   }, []);
 
   // Login
-  const login = useCallback(async (username, password) => {
-    const response = await authService.login(username, password);
+  const login = useCallback(async (phone, password) => {
+    const response = await authService.login(phone, password);
 
+    // Not successfull login
     if (!response.success) {
-      return response;
+      return {
+        success: false,
+        error: response.error,
+      };
     }
 
+    // Sucessfull login
     setUser(response.user);
     setIsAuthenticated(true);
 
-    return response;
+    return {
+      success: true,
+      user: response.user,
+    };
   }, []);
 
   // Logout
@@ -52,29 +61,27 @@ export default function AuthProvider({ children }) {
     try {
       await authService.logout();
     } catch (error) {
-      console.warn("Logout API failed:", error);
+      console.warn("Logout API call failed:", error.message);
     } finally {
       setUser(null);
       setIsAuthenticated(false);
     }
   }, []);
 
+  // Check session on mount
   useEffect(() => {
     checkSession();
   }, [checkSession]);
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        loading,
-        isAuthenticated,
-        login,
-        logout,
-        checkSession,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
+  //Context Value
+  const value = {
+    user,
+    loading,
+    isAuthenticated,
+    login,
+    logout,
+    checkSession,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
