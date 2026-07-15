@@ -36,7 +36,7 @@ export default function AuthProvider({ children }) {
         return response;
       }
 
-      // بعد از ست شدن Cookie، اطلاعات کاربر را دوباره بگیر
+      // get current user data after setting cookies
       const current = await authService.getCurrentUser();
 
       if (current.authenticated) {

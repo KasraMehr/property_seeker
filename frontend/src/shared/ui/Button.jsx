@@ -26,6 +26,9 @@ export default function Button({
 
     ghost:
       "text-foreground hover:bg-surface",
+    
+    danger:
+      "text-danger hover:bg-danger/10 disabled:opacity-60"
   };
 
   const sizes = {
