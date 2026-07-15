@@ -4,9 +4,9 @@ __pycache__/
 *.so
 
 # Virtual environment
-venv/
+backend/venv/
 .venv/
-.env
+../.env
 .idea
 .env.prod
 

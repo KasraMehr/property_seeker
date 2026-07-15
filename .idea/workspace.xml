@@ -4,42 +4,22 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="09d29062-37fd-4692-84ef-2f42d4153a8a" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/backend/crm/crm_urls/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/crm/crm_urls/customer.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/crm/selectors/customers.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/crm/serializers/customer update.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/crm/serializers/customer_create.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/crm/serializers/customer_detail.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/crm/serializers/customer_list.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/crm/views/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/crm/views/customers.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/deals/selectors/contract_selector.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/deals/serializers/contract_create.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/deals/serializers/contract_detail.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/deals/serializers/contract_list.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/deals/serializers/contract_update.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/deals/views/contract.py" afterDir="false" />
+    <list default="true" id="45961ccd-8f7a-4d0e-9ce7-896332c523e0" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/amlak.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/amlak.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/accounts/authenticate.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/accounts/authenticate.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/amlak/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/amlak/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/crm/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/crm/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/crm/views.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/amlak/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/amlak/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/crm/crm_urls/customer.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/crm/crm_urls/customer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/backend/db.sqlite3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/deals/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/deals/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/deals/serializers/deal_create.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/deals/serializers/deal_create.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/deals/views/deal.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/deals/views/deal.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/context/AuthProvider.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/context/AuthProvider.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/lib/api.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/lib/api.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/services/authService.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/services/authService.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/properties/views.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
-  </component>
-  <component name="DjangoConsoleOptions" custom-start-script="import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)">
-    <option name="myCustomStartScript" value="import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -51,10 +31,11 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 4
-}</component>
-  <component name="ProjectId" id="3ERxVWrwHjQQa1zyTXVL29TfAyw" />
+  <component name="ProjectColorInfo"><![CDATA[{
+  "customColor": "",
+  "associatedIndex": 4
+}]]></component>
+  <component name="ProjectId" id="3GXZW33rA2xq31PzdEw1wND4BpO" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -65,28 +46,17 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "deals",
-    "last_opened_file_path": "D:/Bokhar-Backend",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "database.query.execution",
     "vue.rearranger.settings.migration": "true"
-  },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "sqlite"
-    ]
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="D:\amlak\backend\crm\crm_urls" />
-      <recent name="D:\amlak\backend\crm\views" />
-      <recent name="D:\amlak\backend\deals\views" />
-      <recent name="D:\amlak\backend\deals\selectors" />
-      <recent name="D:\amlak\accounts\views" />
+      <recent name="D:\amlak" />
     </key>
   </component>
   <component name="RunManager">
@@ -126,51 +96,16 @@
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="09d29062-37fd-4692-84ef-2f42d4153a8a" name="Changes" comment="" />
-      <created>1780155206556</created>
+      <changelist id="45961ccd-8f7a-4d0e-9ce7-896332c523e0" name="Changes" comment="" />
+      <created>1784119905079</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1780155206556</updated>
-      <workItem from="1780155207705" duration="1457000" />
-      <workItem from="1780203622187" duration="899000" />
-      <workItem from="1780208078339" duration="8097000" />
-      <workItem from="1780235034981" duration="15000" />
-      <workItem from="1780299217837" duration="14000" />
-      <workItem from="1780320539192" duration="96000" />
-      <workItem from="1780323309398" duration="446000" />
-      <workItem from="1780379747843" duration="5000" />
-      <workItem from="1780379765778" duration="3000" />
-      <workItem from="1780379801898" duration="14000" />
-      <workItem from="1783086649559" duration="6304000" />
-      <workItem from="1783520371264" duration="419000" />
-      <workItem from="1783520816151" duration="6502000" />
-      <workItem from="1783602118055" duration="539000" />
-      <workItem from="1783943834401" duration="14581000" />
-      <workItem from="1784036674808" duration="10758000" />
+      <updated>1784119905079</updated>
+      <workItem from="1784119906360" duration="5901000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/frontend/src/app/Router.jsx</url>
-          <line>3</line>
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/backend/accounts/serializers/login_serializers.py</url>
-          <option name="timeStamp" value="4" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/backend/deals/models.py</url>
-          <line>127</line>
-          <option name="timeStamp" value="5" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>
