@@ -1,4 +1,4 @@
-import Navbar from "../components/Navbar";
+import Navbar from "../components/LandingNavbar";
 import HeroSection from "../components/sections/HeroSection";
 import ProblemSolution from "../components/sections/ProblemSolution"
 import DashboardPreview from "../components/sections/DashboardPreview"

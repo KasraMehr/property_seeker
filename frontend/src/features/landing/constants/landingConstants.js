@@ -1,27 +1,65 @@
+import { House, Sparkles, LayoutDashboard, MessageCircle } from "lucide-react";
 
 export const NAVBAR_STRINGS = {
-    menuItems: [
-    { label: "خانه", href: "#home" },
-    { label: "چالش‌ها", href: "#problem-solution" },
-    { label: "میز کار", href: "#dashboard" },
-    { label: "ویژگی‌ها", href: "#features" },
-    { label: "تماس با ما", href: "#contact" },
+  menuItems: [
+    {
+      id: "home",
+      label: "خانه",
+      href: "#home",
+      icon: House,
+      type: "scroll",
+    },
+    {
+      id: "dashboard",
+      label: "داشبورد",
+      href: "#dashboard",
+      icon: LayoutDashboard,
+      type: "scroll",
+    },
+    {
+      id: "features",
+      label: "امکانات",
+      href: "#features",
+      icon: Sparkles,
+      type: "scroll",
+    },
+    {
+      id: "contact",
+      label: "تماس",
+      href: "#contact",
+      icon: MessageCircle,
+      type: "scroll",
+    },
   ],
+
   ctaLogin: "ورود",
+
   ctaDashboard: "داشبورد",
 };
 
 export const HERO_STRINGS = {
-  badge: "پلتفرم هوشمند مدیریت و جستجوی ملک",
-  title: "آینده معاملات املاک در دستان شما",
-  subtitle: "یونیمیت به شما کمک می‌کند تا ملک ایده‌آل خود را با تکیه بر داده‌های دقیق، سرعت بالا و فرآیندی کاملاً شفاف پیدا کنید یا آژانس ملکی خود را ارتقا دهید.",
-  ctaBuy: "خرید و اجاره ملک",
-  ctaSell: "ثبت و فروش ملک",
-  stats: {
-    count: "+۱.۲ میلیون",
-    label: "کاربر فعال و آژانس ملکی همکار",
-  },
+  titleFirst: "تبدیل آگهی ها",
+  titleSecond: "به فایل‌های طلایی",
+
+  subtitle:
+    "سیستم هوشمند تولید فایل ملکی از آگهی‌های آنلاین - بدون واسطه، حرفه‌ای، سریع",
+
+  features: [
+    {
+      label: "استخراج آگهی",
+    },
+    {
+      label: "تکمیل اطلاعات",
+    },
+    {
+      label: "فایل اختصاصی",
+    },
+  ],
+
+  primaryButton: "شروع کنید",
+  secondaryButton: "مشاهده دمو",
+
+  imageAlt: "Real estate file management system",
 };
 
-
-// TODO: add more text here 
+// TODO: add more text here
