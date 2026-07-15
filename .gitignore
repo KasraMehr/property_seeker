@@ -2,14 +2,14 @@
 __pycache__/
 *.py[cod]
 *.so
-
+backend/.idea
 # Virtual environment
 backend/venv/
 .venv/
 ../.env
 .idea
 .env.prod
-
+.env
 # Django
 db.sqlite3
 media/

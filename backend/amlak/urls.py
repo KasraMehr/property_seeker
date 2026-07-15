@@ -23,6 +23,6 @@ from properties.urls import *
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/accounts/', include('accounts.urls')),
-    path('api/properties/', include('properties.urls')),
+    path('api/', include('properties.urls')),
 
 ]
