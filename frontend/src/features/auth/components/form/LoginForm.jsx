@@ -1,7 +1,7 @@
 // Login form with react-hook-form validation, auto-clear errors after 5s inactivity
 
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate , Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { User } from "lucide-react";
 
@@ -123,6 +123,18 @@ export default function LoginForm() {
           {isSubmitting
             ? LOGIN_DIALOGS.submitting_button
             : LOGIN_DIALOGS.submit_button}
+        </Button>
+      </div>
+
+      {/* Back to landing page */}
+      <div className="mt-4 flex justify-center">
+        <Button
+          as={Link}
+          to="/"
+          variant="outline"
+          className="backdrop-blur-md border border-border px-5 py-2.5 rounded-xl text-sm font-semibold shadow-sm transition-all "
+        >
+          {LOGIN_DIALOGS.back_to_landing}
         </Button>
       </div>
     </form>
