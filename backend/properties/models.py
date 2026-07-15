@@ -1,4 +1,7 @@
+from django.utils import timezone
 from django.db import models
+
+from django.db import transaction
 
 # Create your models here.
 class Owner(models.Model):
@@ -55,7 +58,7 @@ class Property(models.Model):
 
     property_code = models.CharField(
         max_length=50,
-        unique=True
+        unique=True,editable=False
     )
 
     owner = models.ForeignKey(
@@ -67,12 +70,12 @@ class Property(models.Model):
     agent = models.ForeignKey(
         "accounts.User",
         on_delete=models.PROTECT,
-        related_name="managed_properties"
+        related_name="create_by"
     )
 
     address = models.ForeignKey(
         "locations.Address",
-        on_delete=models.PROTECT
+        on_delete=models.PROTECT,null=True,blank=True
     )
 
     title = models.CharField(
@@ -80,7 +83,7 @@ class Property(models.Model):
     )
 
     property_type = models.CharField(
-        max_length=30,
+        max_length=30,null=True,blank=True
     )
 
     deal_type = models.CharField(
@@ -94,7 +97,11 @@ class Property(models.Model):
         null=True,
         blank=True
     )
-
+    create_by =  models.ForeignKey(
+        "accounts.User",
+        on_delete=models.PROTECT,
+        related_name="managed_properties",
+    )
     total_floors = models.PositiveIntegerField(
         null=True,
         blank=True
@@ -183,6 +190,36 @@ class Property(models.Model):
 
     def __str__(self):
         return self.property_code
+
+    @classmethod
+    def generate_property_code(cls):
+        year = timezone.now().year
+
+        last_deal = (
+            cls.objects
+            .select_for_update()
+            .filter(property_code__startswith=f"DL-{year}-")
+            .order_by("-property_code")
+            .first()
+        )
+
+        if last_deal:
+            last_number = int(last_deal.deal_number.split("-")[-1])
+        else:
+            last_number = 0
+
+        next_number = last_number + 1
+
+        return f"DL-{year}-{next_number:06d}"
+
+    def save(self, *args, **kwargs):
+
+        if not self.property_code:
+            with transaction.atomic():
+                self.property_code =Property.generate_property_code()
+
+        super().save(*args, **kwargs)
+
 
 
 class Feature(models.Model):
