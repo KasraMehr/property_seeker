@@ -132,6 +132,7 @@ export default function LoginForm() {
           as={Link}
           to="/"
           variant="outline"
+          size="sm"
           className="backdrop-blur-md border border-border px-5 py-2.5 rounded-xl text-sm font-semibold shadow-sm transition-all "
         >
           {LOGIN_DIALOGS.back_to_landing}

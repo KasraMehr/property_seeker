@@ -9,13 +9,19 @@ import { Link } from "react-router-dom";
 import Logo from "../../../shared/Logo";
 import Button from "../../../shared/ui/Button";
 import NavigationMenu from "../../../shared/navigation/NavigationMenu";
+import ThemeToggle from "../../../shared/ThemeToggle";
 
-export default function DashboardSidebar({ isOpen, onClose, menuItems, footer }) {
+export default function DashboardSidebar({
+  isOpen,
+  onClose,
+  menuItems,
+  footer,
+}) {
   return (
     <>
       {/* Mobile Backdrop Overlay */}
       {isOpen && (
-        <div 
+        <div
           onClick={onClose}
           className="fixed inset-0 z-40 bg-background/60 backdrop-blur-sm lg:hidden transition-opacity duration-300"
         />
@@ -43,12 +49,14 @@ export default function DashboardSidebar({ isOpen, onClose, menuItems, footer })
           >
             <X size={20} />
           </Button>
+
+          <ThemeToggle />
         </div>
 
         {/* Unified Navigation Menu using the original component */}
         <div className="flex-1 overflow-hidden">
-          <NavigationMenu 
-            items={menuItems} 
+          <NavigationMenu
+            items={menuItems}
             footer={footer}
             onItemClick={onClose}
           />

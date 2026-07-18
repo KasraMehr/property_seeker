@@ -54,7 +54,6 @@ export default function DashboardHeader({ onMenuOpen }) {
             {user?.is_owner ? DASHBOARD_STRINGS.roleOwner : user?.role?.name || "نامشخص"}
           </p>
         </div>
-        <ThemeToggle />
       </div>
     </header>
   );

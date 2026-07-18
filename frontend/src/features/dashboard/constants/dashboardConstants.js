@@ -32,6 +32,12 @@ export const DASHBOARD_MENU_ITEMS = [
   },
   {
     type: "route",
+    to: "/dashboard/listings",
+    label: "آگهی ها",
+    icon: Building2,
+  },
+  {
+    type: "route",
     to: "/dashboard/users",
     label: "مدیریت کاربران",
     icon: Users,

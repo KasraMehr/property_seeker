@@ -1,12 +1,7 @@
-import { useContext } from "react";
-import ThemeContext from "./ThemeContext";
+// custom hook to access theme store
+import useThemeStore from '../store/useThemeStore';
 
 export default function useTheme() {
-  const context = useContext(ThemeContext);
-
-  if (!context) {
-    throw new Error("useTheme must be used inside ThemeProvider");
-  }
-
-  return context;
+  const { theme, setTheme, toggleTheme, initializeTheme } = useThemeStore();
+  return { theme, setTheme, toggleTheme, initializeTheme };
 }

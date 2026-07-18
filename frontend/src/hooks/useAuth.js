@@ -1,12 +1,8 @@
-// Custom hook for accessing auth context
-
-import { useContext } from "react";
-import { AuthContext } from "../context/AuthProvider";
+// Custom hook for accessing auth store
+import useAuthStore from "../store/useAuthStore";
 
 export default function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
+  const { user, loading, isAuthenticated, login, logout, checkSession } =
+    useAuthStore();
+  return { user, loading, isAuthenticated, login, logout, checkSession };
 }
