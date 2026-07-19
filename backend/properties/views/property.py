@@ -3,6 +3,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from ..models import  *
+
 from properties.selector.property_selector import PropertySelector
 from properties.serializers.property_create import PropertyCreateSerializer
 from properties.serializers.property_update import PropertyUpdateSerializer
@@ -123,6 +125,15 @@ class PropertyDeleteView(APIView):
     def delete(self, request, pk):
 
         property = PropertySelector.by_id(pk)
+
+        PropertyHistory.objects.create(
+            property=property,
+            action=PropertyHistory.Action.DELETE,
+            field_name="property",
+            old_value=property.property_code,
+            new_value="",
+            changed_by=request.user,
+        )
 
         property.delete()
 

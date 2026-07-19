@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from ..models import Property
+from ..models import *
 
 
 
@@ -83,8 +83,30 @@ class PropertyUpdateSerializer(serializers.ModelSerializer):
         }
 
     def update(self, instance, validated_data):
-        for field, value in validated_data.items():
-            setattr(instance, field, value)
+        for field, new_value in validated_data.items():
+
+            old_value = getattr(instance, field)
+
+            if old_value != new_value:
+
+                PropertyHistory.objects.create(
+                    property=instance,
+                    action=PropertyHistory.Action.UPDATE,
+                    field_name=field,
+                    old_value=str(old_value),
+                    new_value=str(new_value),
+                    changed_by=user,
+                )
+
+                if field == "status":
+                    PropertyStatusHistory.objects.create(
+                        property=instance,
+                        old_status=old_value,
+                        new_status=new_value,
+                        changed_by=user,
+                    )
+
+            setattr(instance, field, new_value)
 
         instance.save()
 

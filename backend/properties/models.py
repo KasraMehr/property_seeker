@@ -204,7 +204,7 @@ class Property(models.Model):
         )
 
         if last_deal:
-            last_number = int(last_deal.deal_number.split("-")[-1])
+            last_number = int(last_deal.property_code.split("-")[-1])
         else:
             last_number = 0
 
@@ -317,11 +317,55 @@ class PropertyStatusHistory(models.Model):
     )
 
     old_status = models.CharField(
-        max_length=30
+        max_length=30,
+        choices=Property.Status.choices,
     )
 
     new_status = models.CharField(
-        max_length=30
+        max_length=30,
+        choices=Property.Status.choices,
+    )
+    changed_by = models.ForeignKey(
+        "accounts.User",
+        on_delete=models.SET_NULL,
+        null=True
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+
+class PropertyHistory(models.Model):
+
+    class Action(models.TextChoices):
+        CREATE = "create", "ایجاد"
+        UPDATE = "update", "ویرایش"
+        DELETE = "delete", "حذف"
+
+    property = models.ForeignKey(
+        "properties.Property",
+        on_delete=models.CASCADE,
+        related_name="history"
+    )
+
+    action = models.CharField(
+        max_length=20,
+        choices=Action.choices
+    )
+
+    field_name = models.CharField(
+        max_length=100
+    )
+
+    old_value = models.TextField(
+        null=True,
+        blank=True
+    )
+
+    new_value = models.TextField(
+        null=True,
+        blank=True
     )
 
     changed_by = models.ForeignKey(
@@ -333,3 +377,7 @@ class PropertyStatusHistory(models.Model):
     created_at = models.DateTimeField(
         auto_now_add=True
     )
+
+    class Meta:
+        db_table = "property_history"
+        ordering = ["-created_at"]
