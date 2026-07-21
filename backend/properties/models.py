@@ -256,59 +256,6 @@ class PropertyFeature(models.Model):
         )
 
 
-class Media(models.Model):
-
-    class MediaType(models.TextChoices):
-        IMAGE = "image", "تصویر"
-        VIDEO = "video", "ویدئو"
-
-    property = models.ForeignKey(
-        Property,
-        on_delete=models.CASCADE,
-        related_name="media"
-    )
-
-    listing = models.ForeignKey(
-        "listing.Listing",
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True
-    )
-
-    file = models.FileField(
-        upload_to="properties/"
-    )
-
-    media_type = models.CharField(
-        max_length=20,
-        choices=MediaType.choices
-    )
-
-    is_main = models.BooleanField(
-        default=False
-    )
-
-    sort_order = models.PositiveIntegerField(
-        default=0
-    )
-
-    alt_text = models.CharField(
-        max_length=255,
-        blank=True
-    )
-
-    created_at = models.DateTimeField(
-        auto_now_add=True
-    )
-
-    class Meta:
-        db_table = "property_media"
-        ordering = [
-            "sort_order",
-            "-created_at"
-        ]
-
-
 class PropertyStatusHistory(models.Model):
 
     property = models.ForeignKey(

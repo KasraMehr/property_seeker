@@ -54,7 +54,7 @@ class PropertyFeatureListView(APIView):
 
     def get(self, request):
 
-        property_features = PropertyFeatureSelector.all()
+        property_features = PropertyFeatureSelector.all(request.user)
 
         serializer = self.serializer_class(
             property_features,
@@ -74,7 +74,7 @@ class PropertyFeatureDetailView(APIView):
 
     def get(self, request, pk):
 
-        property_feature = PropertyFeatureSelector.by_id(pk)
+        property_feature = PropertyFeatureSelector.by_id(pk,request.user)
 
         serializer = self.serializer_class(
             property_feature
@@ -93,7 +93,7 @@ class PropertyFeatureUpdateView(APIView):
 
     def put(self, request, pk):
 
-        property_feature = PropertyFeatureSelector.by_id(pk)
+        property_feature = PropertyFeatureSelector.by_id(pk,request.user)
 
         serializer = self.serializer_class(
             property_feature,
@@ -116,7 +116,7 @@ class PropertyFeatureUpdateView(APIView):
 
     def patch(self, request, pk):
 
-        property_feature = PropertyFeatureSelector.by_id(pk)
+        property_feature = PropertyFeatureSelector.by_id(pk,request.user)
 
         serializer = PropertyFeatureUpdateSerializer(
             property_feature,
@@ -145,7 +145,7 @@ class PropertyFeatureDeleteView(APIView):
 
     def delete(self, request, pk):
 
-        property_feature = PropertyFeatureSelector.by_id(pk)
+        property_feature = PropertyFeatureSelector.by_id(pk,request.user)
 
         property_feature.delete()
 

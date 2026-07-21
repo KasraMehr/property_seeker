@@ -1,14 +1,12 @@
 from rest_framework import serializers
 
-from properties.models import PropertyFeature
-from properties.models import Property
-from properties.models import Feature
+from properties.models import PropertyFeature, Property, Feature
 
 
 class PropertyFeatureUpdateSerializer(serializers.ModelSerializer):
 
     property = serializers.PrimaryKeyRelatedField(
-        queryset=Property.objects.all(),
+        queryset=Property.objects.none(),
         required=False
     )
 
@@ -23,6 +21,15 @@ class PropertyFeatureUpdateSerializer(serializers.ModelSerializer):
             "property",
             "feature",
         )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        request = self.context.get("request")
+        if request:
+            self.fields["property"].queryset = Property.objects.filter(
+                agent=request.user
+            )
 
     def validate(self, attrs):
         property_obj = attrs.get("property", self.instance.property)
