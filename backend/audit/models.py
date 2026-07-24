@@ -53,7 +53,7 @@ class PriceLog(models.Model):
         db_table = "price_logs"
         ordering = ["-created_at"]
 
-
+#برای کارمندان ورود خروجشون ثت ش
 class ActivityLog(models.Model):
 
     class Action(models.TextChoices):

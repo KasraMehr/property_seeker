@@ -1,3 +1,5 @@
+from urllib import request
+
 from django.shortcuts import get_object_or_404
 
 from ..models import Property
@@ -6,8 +8,7 @@ from ..models import Property
 class PropertySelector:
 
     @staticmethod
-    def all():
-
+    def all(agent):
         return (
             Property.objects
             .select_related(
@@ -15,19 +16,20 @@ class PropertySelector:
                 "agent",
                 "address",
             )
+            .filter(agent=agent)
             .order_by("-created_at")
         )
 
     @staticmethod
-    def by_id(property_id):
-
+    def by_id(pk, agent):
         return get_object_or_404(
             Property.objects.select_related(
                 "owner",
                 "agent",
                 "address",
             ),
-            pk=property_id,
+            pk=pk,
+            agent=agent,
         )
 
     @staticmethod

@@ -3,6 +3,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from ..models import  *
+from accounts.permissions import *
 from properties.selector.property_selector import PropertySelector
 from properties.serializers.property_create import PropertyCreateSerializer
 from properties.serializers.property_update import PropertyUpdateSerializer
@@ -38,7 +40,7 @@ class PropertyListView(APIView):
 
     def get(self, request):
 
-        properties = PropertySelector.all()
+        properties = PropertySelector.all(request.user)
 
         serializer = self.serializer_class(
             properties,
@@ -58,7 +60,7 @@ class PropertyDetailView(APIView):
 
     def get(self, request, pk):
 
-        property = PropertySelector.by_id(pk)
+        property = PropertySelector.by_id(pk,request.user)
 
         serializer = self.serializer_class(property)
 
@@ -74,7 +76,7 @@ class PropertyUpdateView(APIView):
 
     def put(self, request, pk):
 
-        property = PropertySelector.by_id(pk)
+        property = PropertySelector.by_id(pk,request.user)
 
         serializer = self.serializer_class(
             property,
@@ -95,7 +97,7 @@ class PropertyUpdateView(APIView):
 
     def patch(self, request, pk):
 
-        property = PropertySelector.by_id(pk)
+        property = PropertySelector.by_id(pk,request.user)
 
         serializer = PropertyUpdateSerializer(
             property,
@@ -122,7 +124,16 @@ class PropertyDeleteView(APIView):
 
     def delete(self, request, pk):
 
-        property = PropertySelector.by_id(pk)
+        property = PropertySelector.by_id(pk,request.user)
+
+        PropertyHistory.objects.create(
+            property=property,
+            action=PropertyHistory.Action.DELETE,
+            field_name="property",
+            old_value=property.property_code,
+            new_value="",
+            changed_by=request.user,
+        )
 
         property.delete()
 
