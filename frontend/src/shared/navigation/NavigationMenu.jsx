@@ -10,17 +10,14 @@ export default function NavigationMenu({
   return (
     <div className={`flex h-full flex-col ${className}`}>
       {/* Header */}
-      {header && (
-        <div className="mb-6">
-          {header}
-        </div>
-      )}
+      {header && <div className="mb-6">{header}</div>}
 
-      {/* Navigation */}
+      {/* Navigation Links */}
       <nav className="flex flex-1 flex-col gap-2">
-        {items.map((item) => (
+        {items.map((item, index) => (
           <NavigationItem
-            key={item.label}
+            key={item.to || item.path || item.href || item.label || index} 
+            type="route"
             {...item}
             onClick={onItemClick}
           />

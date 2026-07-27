@@ -1,55 +1,36 @@
 import { 
   LayoutDashboard, 
-  Building2, 
-  Briefcase, 
   Users, 
-  Settings, 
-  LogOut 
+  MapPin, 
+  Building2,
+  PhoneCall,
+  FolderCheck,
+  CalendarClock,
+  Bot,
+  BarChart3
 } from "lucide-react";
 
 export const DASHBOARD_STRINGS = {
-  
   actionLogout: "خروج از حساب",
-  
-  //Header
   guestUser: "کاربر مهمان",
-  roleOwner: "مدیر آژانس / مالک",
-  roleDefault: "کارشناس",
+  roleOwner: "مدیر سیستم",
+  roleOperator: "اپراتور سیستم",
 };
 
-export const DASHBOARD_MENU_ITEMS = [
-  {
-    type: "route",
-    to: "/dashboard",
-    label: "داشبورد",
-    icon: LayoutDashboard,
-  },
-  {
-    type: "route",
-    to: "/dashboard/properties",
-    label: "املاک",
-    icon: Building2,
-  },
-  {
-    type: "route",
-    to: "/dashboard/listings",
-    label: "آگهی ها",
-    icon: Building2,
-  },
-  {
-    type: "route",
-    to: "/dashboard/users",
-    label: "مدیریت کاربران",
-    icon: Users,
-    ownerOnly: true, // Just for owner 
-  },
+// Operator menu items
+export const OPERATOR_NAV_ITEMS = [
+  { id: 'dashboard', label: 'داشبورد', path: '/operator/dashboard', icon: LayoutDashboard },
+  { id: 'leads', label: 'آگهی‌های من', path: '/operator/leads', icon: Building2 },
+  { id: 'calls', label: 'تماس‌های من', path: '/operator/calls', icon: PhoneCall },
+  { id: 'properties', label: 'فایل‌های من', path: '/operator/properties', icon: FolderCheck },
+  { id: 'followups', label: 'پیگیری‌ها', path: '/operator/followups', icon: CalendarClock },
 ];
 
-export const DASHBOARD_FOOTER_ITEMS = [
-  {
-    type: "route",
-    to: "/dashboard/settings",
-    label: "تنظیمات سیستم",
-    icon: Settings,
-  },
+// Admin menu items
+export const ADMIN_NAV_ITEMS = [
+  { id: 'dashboard', label: 'داشبورد کل', path: '/admin/dashboard', icon: LayoutDashboard },
+  { id: 'users', label: 'مدیریت کارمندان', path: '/admin/users', icon: Users },
+  { id: 'regions', label: 'مدیریت مناطق', path: '/admin/regions', icon: MapPin },
+  { id: 'scraper', label: 'مدیریت اسکرپر', path: '/admin/scraper', icon: Bot },
+  { id: 'reports', label: 'گزارش‌ها', path: '/admin/reports', icon: BarChart3 },
 ];

@@ -1,8 +1,3 @@
-/**
- * DashboardSidebar - A unified sidebar that stays open on desktop
- * and behaves as a responsive slide-over drawer on mobile viewports.
- */
-
 import { X } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -14,12 +9,12 @@ import ThemeToggle from "../../../shared/ThemeToggle";
 export default function DashboardSidebar({
   isOpen,
   onClose,
-  menuItems,
+  menuItems = [],
   footer,
 }) {
   return (
     <>
-      {/* Mobile Backdrop Overlay */}
+      {/* Mobile Backdrop */}
       {isOpen && (
         <div
           onClick={onClose}
@@ -35,13 +30,11 @@ export default function DashboardSidebar({
           ${isOpen ? "translate-x-0" : "translate-x-full"}
         `}
       >
-        {/* Sidebar Header: Logo & Mobile Close Button */}
         <div className="mb-8 flex items-center justify-between shrink-0">
           <Link to="/dashboard" onClick={onClose}>
             <Logo labelPosition="left" />
           </Link>
 
-          {/* Close button - visible only on mobile devices */}
           <Button
             onClick={onClose}
             variant="ghost"
@@ -53,8 +46,7 @@ export default function DashboardSidebar({
           <ThemeToggle />
         </div>
 
-        {/* Unified Navigation Menu using the original component */}
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 overflow-y-auto">
           <NavigationMenu
             items={menuItems}
             footer={footer}
