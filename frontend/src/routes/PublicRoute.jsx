@@ -4,13 +4,15 @@ import { Navigate, Outlet } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 
 export default function PublicRoute() {
-  const { isAuthenticated} = useAuth();
+  const { isAuthenticated, user, isLoading } = useAuth();
 
-  // Redirect to dashboard if already authenticated
+  if (isLoading) {
+    return <div className="flex h-screen items-center justify-center">در حال بارگذاری...</div>;
+  }
+
   if (isAuthenticated) {
     return <Navigate to="/dashboard" replace />;
   }
 
-  // Render child routes if not authenticated
   return <Outlet />;
 }

@@ -8,7 +8,7 @@ import useAuth from "../../../hooks/useAuth";
 import Button from "../../../shared/ui/Button"; 
 import { showSuccess } from "../../../lib/toast";
 
-import { DASHBOARD_STRINGS } from "../constants/dashboardConstants";
+import { DASHBOARD_STRINGS } from "../../dashboard/constants/dashboardConstants";
 
 export default function LogoutButton() {
   const { logout, isAuthenticated } = useAuth();
