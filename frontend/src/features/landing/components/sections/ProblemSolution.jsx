@@ -7,7 +7,7 @@ import { PROBLEM_SOLUTION_STRINGS } from "../../constants/landingConstants";
 
 export default function ProblemSolution() {
   const problems = PROBLEM_SOLUTION_STRINGS.items.map((item) => item.problem);
-
+  
   const solutions = PROBLEM_SOLUTION_STRINGS.items.map((item) => item.solution);
 
   return (

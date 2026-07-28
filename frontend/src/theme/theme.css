@@ -19,6 +19,14 @@
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-danger: var(--danger);
+
+  /* Dynamic Role Tokens for Tailwind Utility Classes */
+  --color-role-primary: var(--role-primary);
+  --color-role-primary-hover: var(--role-primary-hover);
+  --color-role-subtle: var(--role-subtle);
+  --color-role-border: var(--role-border);
+  --color-role-surface-accent: var(--role-surface-accent);
+  --color-role-text-accent: var(--role-text-accent);
 }
 
 /* ===========================
@@ -26,19 +34,18 @@
 =========================== */
 
 :root {
-
   color-scheme: light;
 
   --background: #f8fafc;
   --surface: #ffffff;
 
-  --card: rgba(255,255,255,.08);
-  --glass: rgba(255,255,255,.80);
+  --card: rgba(255, 255, 255, 0.08);
+  --glass: rgba(255, 255, 255, 0.8);
 
   --foreground: #1f2937;
   --muted: #6b7280;
 
-  --border: rgba(255,255,255,.20);
+  --border: rgba(0, 0, 0, 0.08);
 
   --primary: #2563eb;
   --primary-hover: #1d4ed8;
@@ -53,19 +60,18 @@
 =========================== */
 
 html[data-theme="dark"] {
-
   color-scheme: dark;
 
   --background: #0f172a;
   --surface: #1e293b;
 
-  --card: rgba(30,41,59,.55);
-  --glass: rgba(30,41,59,.85);
+  --card: rgba(30, 41, 59, 0.55);
+  --glass: rgba(30, 41, 59, 0.85);
 
   --foreground: #f8fafc;
   --muted: #94a3b8;
 
-  --border: rgba(255,255,255,.08);
+  --border: rgba(255, 255, 255, 0.08);
 
   --primary: #3b82f6;
   --primary-hover: #2563eb;
@@ -73,4 +79,70 @@ html[data-theme="dark"] {
   --success: #22c55e;
   --warning: #f59e0b;
   --danger: #ef4444;
+}
+
+/* ===========================
+   Role-Based Theme Overrides
+=========================== */
+
+/* Admin: Light Mode */
+[data-role="admin"],
+:has([data-role="admin"]) {
+  --role-primary: #b45309;           /* Bronze / Warm Amber */
+  --role-primary-hover: #92400e;     /* Deep Espresso Brown */
+  --role-subtle: #fef3c7;            /* Soft Amber Tint */
+  --role-border: #fde68a;            /* Light Gold Border */
+
+  --role-surface-accent: #1c1917;    /* Charcoal Black Accent */
+  --role-text-accent: #fef3c7;
+}
+
+/* Admin: Dark Mode */
+html[data-theme="dark"] [data-role="admin"],
+html[data-theme="dark"]:has([data-role="admin"]) {
+  --role-primary: #f59e0b;           /* Vibrant Amber Gold */
+  --role-primary-hover: #fbbf24;     /* Rich Gold */
+  --role-subtle: rgba(245, 158, 11, 0.12); /* Translucent Gold Accent */
+  --role-border: rgba(245, 158, 11, 0.28);
+
+  --role-surface-accent: #1c1815;    /* Dark Warm Brown-Black */
+  --role-text-accent: #f59e0b;
+
+  /* Layout Colors Override for Admin Dark */
+  --background: #000 !important;   /* Pure Rich Black */
+  --surface: #14110f !important;      /* Dark Espresso */
+  --card: #1c1815 !important;         /* Warm Dark Brown-Black */
+}
+
+/* =========================================================
+   Operator Role Theme
+========================================================= */
+
+/* Operator: Light Mode */
+[data-role="operator"],
+:has([data-role="operator"]) {
+  --role-primary: #0284c7;           /* Vibrant Sky Blue / Cyan */
+  --role-primary-hover: #0369a1;     /* Deep Cyan Blue */
+  --role-subtle: #e0f2fe;            /* Ice Blue Tint */
+  --role-border: #bae6fd;            /* Soft Cyan Border */
+
+  --role-surface-accent: #0f172a;
+  --role-text-accent: #e0f2fe;
+}
+
+/* Operator: Dark Mode */
+html[data-theme="dark"] [data-role="operator"],
+html[data-theme="dark"]:has([data-role="operator"]) {
+  --role-primary: #38bdf8;           /* Electric Turquoise Cyan */
+  --role-primary-hover: #7dd3fc;     /* Soft Cyan */
+  --role-subtle: rgba(56, 189, 248, 0.12);
+  --role-border: rgba(56, 189, 248, 0.25);
+
+  --role-surface-accent: #1a243b;
+  --role-text-accent: #38bdf8;
+
+  /* Layout Colors Override for Operator Dark */
+  --background: #0b0f19 !important;   /* Deep Violet-Black */
+  --surface: #131b2e !important;      /* Midnight Blue / Deep Violet */
+  --card: #1a243b !important;         /* Dark Slate Teal / Muted Sage Dark */
 }

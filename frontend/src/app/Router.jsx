@@ -1,27 +1,29 @@
-/**
- * Application Router Configurations - Sets up nested route hierarchy, navigation paths, public guards, and protected client/owner areas.
- */
-
+// App route configurations
 import { createBrowserRouter } from "react-router-dom";
 
 // Pages
 import LoginPage from "../features/auth/pages/LoginPage";
 import LandingPage from "../features/landing/pages/LandingPage";
 
-// Route Guards
-import ProtectedRoute from "../routes/ProtectedRoute";
+// Guards & Redirects
 import PublicRoute from "../routes/PublicRoute";
-import OwnerRoute from "../routes/OwnerRoute"
-import DashboardLayout from "../features/dashboard/layouts/DashboardLayout";
+import ProtectedRoute from "../routes/ProtectedRoute";
+import DashboardRedirect from "../routes/DashboardRedirect";
+
+// Route Modules
+import { adminRoutes } from "../routes/adminRoutes";
+import { operatorRoutes } from "../routes/operatorRoutes";
+import AdminLayout from "../features/dashboard/layouts/AdminLayout";
+import OperatorLayout from "../features/dashboard/layouts/OperatorLayout";
 
 export const Router = createBrowserRouter([
-  // Landing Page
+  // ---------- Public pages
   {
     path: "/",
     element: <LandingPage />,
   },
 
-  // Auth Routing
+  // Login page
   {
     path: "/login",
     element: <PublicRoute />,
@@ -33,56 +35,24 @@ export const Router = createBrowserRouter([
     ],
   },
 
-  // Protected Dashboard Area
+  // ------------ Protected pages
   {
-    path: "/dashboard",
     element: <ProtectedRoute />,
     children: [
       {
-        element: <DashboardLayout />,
-        children: [
-          {
-            index: true,
-            element: (
-              <div className="flex h-[60vh] items-center justify-center text-xl font-bold text-primary">
-                به پیشخوان ملک‌جو خوش آمدید
-              </div>
-            ),
-          },
-          {
-            path: "properties",
-            element: (
-              <div className="text-lg font-semibold text-foreground">
-                صفحه مدیریت املاک
-              </div>
-            ),
-          },
-          {
-            path: "settings",
-            element: (
-              <div className="text-lg font-semibold text-foreground">
-                تنظیمات سیستم
-              </div>
-            ),
-          },
-
-          // Owners-only routes
-          {
-            element: <OwnerRoute />,
-            children: [
-              {
-                path: "users",
-                element: (
-                  <div className="text-lg font-semibold text-foreground">
-                    صفحه مدیریت کاربران آژانس (فقط مخصوص مالک)
-                  </div>
-                ),
-              },
-            ],
-          },
-        ],
+        path: "/admin",
+        element: <AdminLayout />,
+        children: [...adminRoutes],
       },
-      // TODO: Add other protected pages here
+      {
+        path: "/operator",
+        element: <OperatorLayout />,
+        children: [...operatorRoutes],
+      },
+      {
+        path: "/dashboard",
+        element: <DashboardRedirect />,
+      },
     ],
   },
 
@@ -90,6 +60,5 @@ export const Router = createBrowserRouter([
   {
     path: "*",
     element: <div>NOT FOUND PAGE !! 404 </div>,
-    // TODO: element: <NotFoundPage />,
   },
 ]);

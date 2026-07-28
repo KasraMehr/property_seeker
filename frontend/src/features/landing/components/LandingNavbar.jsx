@@ -71,7 +71,7 @@ export default function LandingNavbar() {
                 <Button
                   as={Link}
                   to="/dashboard"
-                  className="bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20 shadow-sm px-5 py-2.5 rounded-full text-sm font-bold gap-2"
+                  className="bg-primary text-primary hover:bg-primary/20 border border-primary/20 shadow-sm px-5 py-2.5 rounded-full text-sm font-bold gap-2"
                 >
                   <LayoutDashboard size={16} />
                   <span>{NAVBAR_STRINGS.ctaDashboard}</span>
