@@ -74,8 +74,9 @@ class Property(models.Model):
 
     property_code = models.CharField(
         max_length=50,
-        unique=True,editable=False
+        editable=False
     )
+
     agency = models.ForeignKey(
         "accounts.Agency",
         on_delete=models.CASCADE,
@@ -211,40 +212,60 @@ class Property(models.Model):
 
         db_table = "properties"
 
-        indexes = [
-
-            models.Index(fields=["status"]),
-
-            models.Index(fields=["deal_type"]),
-
-            models.Index(fields=["owner"]),
-
-            models.Index(fields=["agent"]),
-
-            models.Index(fields=["property_code"]),
+        constraints = [
+            models.UniqueConstraint(
+                fields=[
+                    "agency",
+                    "property_code"
+                ],
+                name="unique_property_code_per_agency",
+            )
         ]
 
+        indexes = [
+            models.Index(fields=["status"]),
+            models.Index(fields=["deal_type"]),
+            models.Index(fields=["owner"]),
+            models.Index(fields=["agent"]),
+            models.Index(fields=["property_code"]),
+        ]
     def __str__(self):
         return self.property_code
 
     @classmethod
-    def generate_property_code(cls):
+    def generate_property_code(cls, agency):
+
         year = timezone.now().year
 
         last_property = (
             cls.objects
             .select_for_update()
-            .filter(property_code__startswith=f"PR-{year}-")
+            .filter(
+                agency=agency,
+                property_code__startswith=f"PR-{year}-"
+            )
             .order_by("-property_code")
             .first()
         )
 
         if last_property:
-            last_number = int(last_property.property_code.split("-")[-1])
+            last_number = int(
+                last_property.property_code.split("-")[-1]
+            )
         else:
             last_number = 0
 
         return f"PR-{year}-{last_number + 1:06d}"
+
+    def save(self, *args, **kwargs):
+
+        if not self.property_code:
+            with transaction.atomic():
+                self.property_code = self.generate_property_code(
+                    self.agency
+                )
+
+        super().save(*args, **kwargs)
 
 class Feature(models.Model):
     title = models.CharField(
