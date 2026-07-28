@@ -15,12 +15,16 @@ from properties.serializers.property_status_history_list import (
     PropertyStatusHistoryListSerializer,
 )
 
-
+from accounts.permissions import *
 
 
 class PropertyStatusHistoryListView(APIView):
+    permission_classes = (
+        IsAuthenticated,
+        HasRolePermission,
+    )
 
-    permission_classes = [IsAuthenticated]
+    required_permission = "view_property_status_history"
 
     def get(self, request):
 
@@ -38,8 +42,12 @@ class PropertyStatusHistoryListView(APIView):
 
 
 class PropertyStatusHistoryDetailView(APIView):
+    permission_classes = (
+        IsAuthenticated,
+        HasRolePermission,
+    )
 
-    permission_classes = [IsAuthenticated]
+    required_permission = "view_property_status_history"
 
     def get(self, request, pk):
 

@@ -5,7 +5,19 @@ from django.db import transaction
 
 # Create your models here.
 class Owner(models.Model):
+
+    agency = models.ForeignKey(
+        "accounts.Agency",
+        on_delete=models.CASCADE,
+        related_name="owners",
+    )
+
     full_name = models.CharField(max_length=255)
+
+    created_by = models.ForeignKey(
+        "accounts.User",related_name="owners",
+        on_delete=models.CASCADE,
+    )
 
     phone = models.CharField(
         max_length=20,
@@ -34,8 +46,12 @@ class Owner(models.Model):
         auto_now=True
     )
 
-    class Meta:
-        db_table = "owners"
+    constraints = [
+        models.UniqueConstraint(
+            fields=["agency", "phone"],
+            name="unique_owner_phone_per_agency",
+        )
+    ]
 
     def __str__(self):
         return self.full_name
@@ -60,6 +76,12 @@ class Property(models.Model):
         max_length=50,
         unique=True,editable=False
     )
+    agency = models.ForeignKey(
+        "accounts.Agency",
+        on_delete=models.CASCADE,
+        related_name="properties",
+        db_index=True,
+    )
 
     owner = models.ForeignKey(
         "properties.Owner",
@@ -70,7 +92,7 @@ class Property(models.Model):
     agent = models.ForeignKey(
         "accounts.User",
         on_delete=models.PROTECT,
-        related_name="create_by"
+        related_name="properties"
     )
 
     address = models.ForeignKey(
@@ -186,7 +208,21 @@ class Property(models.Model):
     )
 
     class Meta:
+
         db_table = "properties"
+
+        indexes = [
+
+            models.Index(fields=["status"]),
+
+            models.Index(fields=["deal_type"]),
+
+            models.Index(fields=["owner"]),
+
+            models.Index(fields=["agent"]),
+
+            models.Index(fields=["property_code"]),
+        ]
 
     def __str__(self):
         return self.property_code
@@ -195,32 +231,20 @@ class Property(models.Model):
     def generate_property_code(cls):
         year = timezone.now().year
 
-        last_deal = (
+        last_property = (
             cls.objects
             .select_for_update()
-            .filter(property_code__startswith=f"DL-{year}-")
+            .filter(property_code__startswith=f"PR-{year}-")
             .order_by("-property_code")
             .first()
         )
 
-        if last_deal:
-            last_number = int(last_deal.property_code.split("-")[-1])
+        if last_property:
+            last_number = int(last_property.property_code.split("-")[-1])
         else:
             last_number = 0
 
-        next_number = last_number + 1
-
-        return f"DL-{year}-{next_number:06d}"
-
-    def save(self, *args, **kwargs):
-
-        if not self.property_code:
-            with transaction.atomic():
-                self.property_code =Property.generate_property_code()
-
-        super().save(*args, **kwargs)
-
-
+        return f"PR-{year}-{last_number + 1:06d}"
 
 class Feature(models.Model):
     title = models.CharField(
@@ -250,17 +274,21 @@ class PropertyFeature(models.Model):
     class Meta:
         db_table = "property_features"
 
-        unique_together = (
-            "property",
-            "feature"
-        )
+        constraints = [
+    models.UniqueConstraint(
+        fields=["property", "feature"],
+        name="unique_property_feature"
+    )
+]
 
 
 class PropertyStatusHistory(models.Model):
 
     property = models.ForeignKey(
         Property,
-        on_delete=models.CASCADE
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
     )
 
     old_status = models.CharField(
@@ -282,6 +310,14 @@ class PropertyStatusHistory(models.Model):
         auto_now_add=True
     )
 
+    class Meta:
+        db_table = "property_status_history"
+
+        indexes = [
+            models.Index(fields=["property"]),
+            models.Index(fields=["created_at"]),
+        ]
+
 
 class PropertyHistory(models.Model):
 
@@ -290,9 +326,16 @@ class PropertyHistory(models.Model):
         UPDATE = "update", "ویرایش"
         DELETE = "delete", "حذف"
 
+    field_name = models.CharField(
+        max_length=100,
+        blank=True,
+    )
+
     property = models.ForeignKey(
         "properties.Property",
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
         related_name="history"
     )
 
@@ -301,9 +344,6 @@ class PropertyHistory(models.Model):
         choices=Action.choices
     )
 
-    field_name = models.CharField(
-        max_length=100
-    )
 
     old_value = models.TextField(
         null=True,
@@ -327,4 +367,10 @@ class PropertyHistory(models.Model):
 
     class Meta:
         db_table = "property_history"
+
         ordering = ["-created_at"]
+
+        indexes = [
+            models.Index(fields=["property"]),
+            models.Index(fields=["created_at"]),
+        ]

@@ -16,4 +16,5 @@ class OwnerListSerializer(serializers.ModelSerializer):
             "full_name",
             "phone",
             "properties_count",
+            "created_by",
         )

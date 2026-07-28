@@ -39,7 +39,17 @@ class PhoneBackend(BaseBackend):
 
         return user.is_active
 
+"""
 
+ن کلاس برای احراز هویت با JWT از طریق Cookie است.
+
+به طور پیش‌فرض JWTAuthentication در کتابخانه SimpleJWT توکن را از هدر Authorization می‌خواند:
+
+Authorization: Bearer eyJhbGciOi...
+
+اما تو می‌خواهی توکن داخل Cookie باشد، نه Header.
+در اخر کاربر از دیتابیس پیدا میکند و میفرستد
+"""
 class CookieJWTAuthentication(JWTAuthentication):
     def authenticate(self, request):
         cookie_name = getattr(settings, "SIMPLE_JWT", {}).get("AUTH_COOKIE", "access")

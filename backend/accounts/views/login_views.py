@@ -13,6 +13,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from ..serializers.login_serializers import *
 from ..serializers.serializers import *
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
+from audit.services.activity_log import *
+
 
 def _set_jwt_cookies(response, refresh_token: RefreshToken):
     simple_jwt = settings.SIMPLE_JWT
@@ -41,30 +43,43 @@ def _set_jwt_cookies(response, refresh_token: RefreshToken):
 @method_decorator(csrf_exempt, name="dispatch")
 class LoginPasswordView(APIView):
 
-    permission_classes = [AllowAny]
     serializer_class = LoginSerializer
 
     def post(self, request):
-        print("LOGIN VIEW CALLED")
-        serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        try:
 
-        user = serializer.validated_data["user"]
+            serializer = self.serializer_class(data=request.data)
+            serializer.is_valid(raise_exception=True)
 
-        refresh = RefreshToken.for_user(user)
+            user = serializer.validated_data["user"]
 
-        response = Response(
-            {
-                "message": "ورود با موفقیت انجام شد.",
-                "user": UserSerializer(user).data,
-            },
-            status=status.HTTP_200_OK,
-        )
+            refresh = RefreshToken.for_user(user)
 
-        _set_jwt_cookies(response, refresh)
+            response = Response(
+                {
+                    "message": "ورود با موفقیت انجام شد.",
+                    "user": UserSerializer(user).data,
+                },
+                status=status.HTTP_200_OK,
+            )
 
-        return response
+            _set_jwt_cookies(response, refresh)
 
+            ActivityLogService.login(
+                request=request,
+                user=user,
+            )
+
+            return response
+
+        except Exception:
+
+            ActivityLogService.login_failed(
+                request=request,
+                phone=request.data.get("phone", "UNKNOWN"),
+            )
+
+            raise
 
 @method_decorator(csrf_protect, name="dispatch")
 class LogOutView(APIView):
@@ -98,6 +113,8 @@ class LogOutView(APIView):
             settings.SIMPLE_JWT["AUTH_COOKIE_REFRESH"],
             path="/",
         )
+
+        ActivityLogService.logout(request)
 
         return response
 
@@ -165,13 +182,6 @@ class RefreshTokenView(APIView):
             )
 
         return response
-
-
-
-from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework import status
 
 
 class VerifyTokenView(APIView):
