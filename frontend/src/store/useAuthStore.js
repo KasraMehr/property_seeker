@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import authService from '../services/authService';
+import authService from '@/features/auth/services/authService';
 
 const useAuthStore = create(
   persist(

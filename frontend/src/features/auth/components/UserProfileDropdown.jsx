@@ -6,7 +6,7 @@ import {
   Calendar,
   LogOut,
 } from "lucide-react";
-import useAuth from "@/hooks/useAuth";
+import useAuth from "@/features/auth/hooks/useAuth";
 import LogoutButton from "./LogoutButton";
 import { DASHBOARD_STRINGS } from "../../dashboard/constants/dashboardConstants";
 

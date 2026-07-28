@@ -1,7 +1,7 @@
 import AdminDashboardPage from '@/features/dashboard/admin/AdminDashboardPage';
-import UsersPage from '@/features/users-managment/pages/UsersPage';
-import RegionsPage from '@/features/regions-managment/pages/RegionsPage';
-import ScraperPage from '@/features/scraper-managment/pages/ScraperPage';
+import UsersPage from '@/features/users-management/pages/UsersPage';
+import RegionsPage from '@/features/regions-management/pages/RegionsPage';
+import ScraperPage from '@/features/scraper-management/pages/ScraperPage';
 import ReportsPage from '@/features/reports/pages/ReportsPage';
 
 export const adminRoutes = [
