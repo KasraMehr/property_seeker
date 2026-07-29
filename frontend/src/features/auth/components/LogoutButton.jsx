@@ -4,11 +4,11 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LogOut, Home, Loader2 } from "lucide-react";
 
-import useAuth from "../../../hooks/useAuth"; 
-import Button from "../../../shared/ui/Button"; 
-import { showSuccess } from "../../../lib/toast";
+import useAuth from "@/features/auth/hooks/useAuth"; 
+import Button from "@/shared/ui/Button"; 
+import { showSuccess } from "@/lib/toast";
 
-import { DASHBOARD_STRINGS } from "../../dashboard/constants/dashboardConstants";
+import { DASHBOARD_STRINGS } from "@/features/dashboard/constants/dashboardConstants";
 
 export default function LogoutButton() {
   const { logout, isAuthenticated } = useAuth();

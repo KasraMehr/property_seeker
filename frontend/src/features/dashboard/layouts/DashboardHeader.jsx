@@ -1,9 +1,10 @@
 import { Menu } from "lucide-react";
-import useAuth from "../../../hooks/useAuth";
+import useAuth from "@/features/auth/hooks/useAuth";
 
 import Logo from "../../../shared/Logo";
 import Button from "../../../shared/ui/Button";
 import IconBox from "../../../shared/ui/IconBox";
+import UserProfileDropdown from "../../auth/components/UserProfileDropdown";
 
 import { DASHBOARD_STRINGS } from "../constants/dashboardConstants";
 
@@ -31,15 +32,7 @@ export default function DashboardHeader({ onMenuOpen }) {
       </div>
 
       <div className="flex items-center gap-6">
-        <div className="flex flex-col text-left items-end">
-          <p className="text-sm font-bold text-foreground">
-            {user?.full_name || DASHBOARD_STRINGS.guestUser}
-          </p>
-          
-          <p className="text-[10px] font-semibold text-(--role-primary) bg-(--role-subtle) border border-(--role-border) px-2.5 py-0.5 rounded-full mt-1">
-            {user?.is_owner ? DASHBOARD_STRINGS.roleOwner : user?.role?.name || "نامشخص"}
-          </p>
-        </div>
+        <UserProfileDropdown />
       </div>
     </header>
   );

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { LogIn, LayoutDashboard, Menu } from "lucide-react";
 
-import useAuth from "../../../hooks/useAuth";
+import useAuth from "@/features/auth/hooks/useAuth";
 
 import Logo from "../../../shared/Logo";
 import Button from "../../../shared/ui/Button";

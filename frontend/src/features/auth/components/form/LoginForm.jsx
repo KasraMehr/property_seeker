@@ -8,7 +8,7 @@ import { User } from "lucide-react";
 // Components
 import Input from "../../../../shared/ui/Input";
 import Button from "../../../../shared/ui/Button";
-import useAuth from "../../../../hooks/useAuth";
+import useAuth from "@/features/auth/hooks/useAuth";
 import { LOGIN_DIALOGS } from "../../constants/loginConstants";
 // Validators
 import { validatePhone, validatePassword } from "../../../../utils/validators";
