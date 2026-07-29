@@ -4,7 +4,7 @@ import useAuth from "@/features/auth/hooks/useAuth";
 export default function DashboardRedirect() {
   const { user } = useAuth();
 
-  const isAdmin = user?.is_owner || user?.role.name === "ADMIN";
+  const isAdmin = Boolean(user.is_owner);
 
   if (isAdmin) {
     return <Navigate to="/admin/dashboard" replace />;
