@@ -1,11 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import (
     AbstractBaseUser,
+
     PermissionsMixin,
     BaseUserManager,
 )
 from django.core.validators import RegexValidator
-
+from django.contrib.auth.models import Permission
 
 # =========================
 # Agency
@@ -44,13 +45,24 @@ class Agency(models.Model):
 # Role
 # =========================
 class Role(models.Model):
+    agency = models.ForeignKey(
+        Agency,
+        on_delete=models.CASCADE,
+        related_name="roles",
+    )
+
     name = models.CharField(
         max_length=100,
-        unique=True,
     )
 
     description = models.TextField(
         blank=True,
+    )
+
+    permissions = models.ManyToManyField(
+        Permission,
+        blank=True,
+        related_name="agency_roles",
     )
 
     created_at = models.DateTimeField(
@@ -63,10 +75,15 @@ class Role(models.Model):
 
     class Meta:
         db_table = "roles"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["agency", "name"],
+                name="unique_role_per_agency",
+            )
+        ]
 
     def __str__(self):
-        return self.name
-
+        return f"{self.agency.name} - {self.name}"
 
 # =========================
 # User Manager
@@ -110,10 +127,14 @@ class User(AbstractBaseUser, PermissionsMixin):
         blank=True,
     )
 
-    role = models.ForeignKey(
+    service_districts = models.ManyToManyField(
+        "locations.District",
+        related_name="agents",
+        blank=True,
+    )
+
+    role = models.ManyToManyField(
         "accounts.Role",
-        on_delete=models.PROTECT,
-        null=True,
         blank=True,
     )
 

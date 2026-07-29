@@ -13,6 +13,11 @@ class PropertyDetailSerializer(serializers.ModelSerializer):
 
     create_by = serializers.StringRelatedField()
 
+    agency = serializers.CharField(
+        source="agency.name",
+        read_only=True,
+    )
+
     class Meta:
         model = Property
         fields = (
@@ -21,6 +26,7 @@ class PropertyDetailSerializer(serializers.ModelSerializer):
             "owner",
             "agent",
             "address",
+            "agency",
             "create_by",
             "title",
             "property_type",

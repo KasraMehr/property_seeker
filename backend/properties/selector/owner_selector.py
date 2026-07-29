@@ -1,54 +1,69 @@
 from django.shortcuts import get_object_or_404
-
-
 from django.db.models import Count
 
 from ..models import Owner
 
+
 class OwnerSelector:
 
     @staticmethod
-    def all():
+    def all(agency):
         return (
             Owner.objects
-            .annotate(properties_count=Count("properties"))
+            .filter(agency=agency)
+            .annotate(
+                properties_count=Count("properties")
+            )
             .order_by("-created_at")
         )
 
     @staticmethod
-    def by_id(owner_id):
+    def by_id(owner_id, agency):
 
         return get_object_or_404(
-            Owner.objects.prefetch_related("properties"),
+            Owner.objects
+            .filter(agency=agency)
+            .prefetch_related("properties"),
             pk=owner_id,
         )
 
     @staticmethod
-    def by_phone(phone):
+    def by_phone(phone, agency):
 
         return (
             Owner.objects
-            .filter(phone=phone)
+            .filter(
+                agency=agency,
+                phone=phone,
+            )
             .first()
         )
 
     @staticmethod
-    def search(query):
+    def search(query, agency):
 
         return (
-            Owner.objects.filter(
+            Owner.objects
+            .filter(agency=agency)
+            .filter(
                 full_name__icontains=query
-            ) |
-            Owner.objects.filter(
+            )
+            |
+            Owner.objects
+            .filter(agency=agency)
+            .filter(
                 phone__icontains=query
             )
         ).distinct()
 
     @staticmethod
-    def detail(pk):
+    def detail(owner_id, agency):
+
         return get_object_or_404(
-            Owner.objects.annotate(
+            Owner.objects
+            .filter(agency=agency)
+            .annotate(
                 properties_count=Count("properties")
             ),
-            pk=pk,
+            pk=owner_id,
         )

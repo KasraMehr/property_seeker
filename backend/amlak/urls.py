@@ -19,11 +19,14 @@ from django.urls import include, path
 
 from accounts.urls import *
 from properties.urls import *
+from media.urls import *
+from audit.urls import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/accounts/', include('accounts.urls')),
     path('api/', include('properties.urls')),
     path("api/media/",include("media.urls")),
+    path("api/audit/",include("audit.urls")),
 
 ]

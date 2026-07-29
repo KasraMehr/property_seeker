@@ -22,11 +22,16 @@ class PropertyListSerializer(serializers.ModelSerializer):
 
     created_by = serializers.CharField( source="create_by.full_name",
         read_only=True)
+    agency = serializers.CharField(
+        source="agency.name",
+        read_only=True,
+    )
 
     class Meta:
         model = Property
         fields = (
             "id",
+            "agency",
             "property_code",
             "title",
             "owner",
