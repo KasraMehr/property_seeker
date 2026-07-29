@@ -1,52 +1,46 @@
-import { http, HttpResponse } from 'msw';
-import { MOCK_USERS } from '../data/mockUsers';
+import { http, HttpResponse } from "msw";
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
+import { MOCK_USERS } from "@/mocks/data/mockUsers";
 
-let loggedInUser = MOCK_USERS[0]; 
+const loginUrl = API_ENDPOINTS.AUTH.LOGIN.url;
+const logoutUrl = API_ENDPOINTS.AUTH.LOGOUT.url;
+const refreshUrl = API_ENDPOINTS.AUTH.REFRESH.url;
+const verifyUrl = API_ENDPOINTS.AUTH.VERIFY.url;
 
 export const authHandlers = [
-
-  // Verify
-  http.get('*/api/accounts/verify/', () => {
-    if (!loggedInUser) {
-      return HttpResponse.json({ message: 'Unauthenticated' }, { status: 401 });
-    }
-    return HttpResponse.json({ user: loggedInUser }, { status: 200 });
-  }),
-
-  // Login
-  http.post('*/api/accounts/login/', async ({ request }) => {
+  http.post(loginUrl, async ({ request }) => {
     const body = await request.json();
-    const phone = body.phone || body.phone_number;
-
-    const foundUser = MOCK_USERS.find((u) => u.phone === phone);
-
-    if (foundUser) {
-      loggedInUser = foundUser;
-    } else {
-      loggedInUser = {
-        ...MOCK_USERS[1],
-        id: Date.now(),
-        phone: phone,
-      };
+    const user = MOCK_USERS.find((u) => u.phone === body.phone);
+    if (!user) {
+      return HttpResponse.json(
+        { message: "phone or password is incorrect" },
+        { status: 401 }
+      );
     }
-
-    return HttpResponse.json({
-      user: loggedInUser,
-      message: 'ورود با موفقیت انجام شد.',
-    }, { status: 200 });
+    return HttpResponse.json(
+      { message: "login successful", user },
+      { status: 200 }
+    );
   }),
 
-  // Refresh Token
-  http.post('*/api/accounts/refresh/', () => {
-    if (!loggedInUser) {
-      return HttpResponse.json({ message: 'توکن نامعتبر است' }, { status: 401 });
-    }
-    return HttpResponse.json({ message: 'توکن جدید صادر شد.' }, { status: 200 });
+  http.post(logoutUrl, () => {
+    return HttpResponse.json(
+      { message: "logout successful" },
+      { status: 200 }
+    );
   }),
 
-  // Logout
-  http.post('*/api/accounts/logout/', () => {
-    loggedInUser = null;
-    return HttpResponse.json({ message: 'خروج با موفقیت انجام شد.' }, { status: 200 });
+  http.post(refreshUrl, () => {
+    return HttpResponse.json(
+      { message: "token refreshed" },
+      { status: 200 }
+    );
+  }),
+
+  http.get(verifyUrl, () => {
+    return HttpResponse.json(
+      { user: MOCK_USERS[0] },
+      { status: 200 }
+    );
   }),
 ];
