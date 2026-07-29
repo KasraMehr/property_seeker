@@ -1,77 +1,44 @@
+// location hierarchy: province -> city -> district -> neighborhood
+// focused on Karaj (Alborz province) for MVP demo data
+
 export const MOCK_PROVINCES = [
-  {
-    id: 1,
-    name: "تهران",
-    created_at: "2026-01-01T00:00:00Z",
-  },
+  { id: 1, name: "البرز", created_at: "2026-01-01T00:00:00Z" },
+  { id: 2, name: "تهران", created_at: "2026-01-01T00:00:00Z" },
 ];
 
 export const MOCK_CITIES = [
-  {
-    id: 1,
-    province: 1,
-    name: "تهران",
-  },
+  { id: 1, name: "کرج", province: 1 },
+  { id: 2, name: "ماهدشت", province: 1 },
+  { id: 3, name: "تهران", province: 2 },
 ];
 
 export const MOCK_DISTRICTS = [
-  {
-    id: 1,
-    city: 1,
-    name: "منطقه ۵",
-  },
-  {
-    id: 2,
-    city: 1,
-    name: "منطقه ۲",
-  },
+  { id: 1, name: "منطقه ۱ کرج", city: 1 },
+  { id: 2, name: "منطقه ۲ کرج", city: 1 },
+  { id: 3, name: "منطقه ۳ کرج", city: 1 },
+  { id: 4, name: "منطقه ۴ کرج", city: 1 },
+  { id: 5, name: "منطقه ۵ کرج", city: 1 },
+  { id: 6, name: "منطقه ۶ کرج", city: 1 },
+  { id: 7, name: "منطقه ۷ کرج", city: 1 },
+  { id: 8, name: "منطقه ۸ کرج", city: 1 },
+  { id: 9, name: "منطقه ۹ کرج", city: 1 },
+  { id: 10, name: "منطقه ۱۰ کرج", city: 1 },
 ];
 
 export const MOCK_NEIGHBORHOODS = [
-  {
-    id: 1,
-    district: 1,
-    name: "پونک",
-  },
-  {
-    id: 2,
-    district: 1,
-    name: "جنت‌آباد جنوبی",
-  },
-  {
-    id: 3,
-    district: 2,
-    name: "سعادت‌آباد",
-  },
-];
-
-export const MOCK_ADDRESSES = [
-  {
-    id: 1,
-    neighborhood: MOCK_NEIGHBORHOODS[0], // Pounak
-    street: "بلوار همیلا",
-    alley: "خیابان پارک",
-    plaque: "۱۲",
-    unit: "۴",
-    postal_code: "1476543210",
-    full_text: "تهران، پونک، بلوار همیلا، خیابان پارک، پلاک ۱۲، واحد ۴",
-    latitude: "35.7681",
-    longitude: "51.3364",
-    created_at: "2026-02-01T10:00:00Z",
-    updated_at: "2026-02-01T10:00:00Z",
-  },
-  {
-    id: 2,
-    neighborhood: MOCK_NEIGHBORHOODS[2], // Saadat Abad
-    street: "بلوار دریا",
-    alley: "صرافها",
-    plaque: "۴۵",
-    unit: "۲",
-    postal_code: "1998765432",
-    full_text: "تهران، سعادت‌آباد، بلوار دریا، صرافها، پلاک ۴۵، واحد ۲",
-    latitude: "35.7820",
-    longitude: "51.3712",
-    created_at: "2026-02-10T11:00:00Z",
-    updated_at: "2026-02-10T11:00:00Z",
-  },
+  { id: 1, name: "گلشهر", district: 1 },
+  { id: 2, name: "مهرشهر", district: 2 },
+  { id: 3, name: "عظیمیه", district: 3 },
+  { id: 4, name: "کرج نو", district: 4 },
+  { id: 5, name: "شاهین ویلا", district: 5 },
+  { id: 6, name: "کیانمهر", district: 6 },
+  { id: 7, name: "مهرویلا", district: 7 },
+  { id: 8, name: "اشتراکی", district: 8 },
+  { id: 9, name: "ساسانی", district: 9 },
+  { id: 10, name: "حصارک", district: 10 },
+  { id: 11, name: "باغستان", district: 3 },
+  { id: 12, name: "محمدشهر", district: 4 },
+  { id: 13, name: "فردیس", district: 5 },
+  { id: 14, name: "جهانشهر", district: 6 },
+  { id: 15, name: "سپاهدار", district: 7 },
 ];

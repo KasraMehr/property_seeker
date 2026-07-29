@@ -1,9 +1,9 @@
-import api from '@/lib/api';
+import api from "@/lib/api";
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 
-// Login with phone and password
 const login = async (phone, password) => {
   try {
-    const response = await api.post('/accounts/login/', { phone, password });
+    const response = await api.post(API_ENDPOINTS.AUTH.LOGIN.url, { phone, password });
     return {
       success: true,
       user: response.data.user,
@@ -12,34 +12,31 @@ const login = async (phone, password) => {
   } catch (error) {
     return {
       success: false,
-      error: error.response?.data?.message || 'خطا در ورود',
+      error: error.response?.data?.message || "login failed",
     };
   }
 };
 
-// Verify current user
 const getCurrentUser = async () => {
   try {
-    const { data } = await api.get('/accounts/verify/');
+    const { data } = await api.get(API_ENDPOINTS.AUTH.VERIFY.url);
     return { authenticated: true, user: data.user };
   } catch (error) {
     return { authenticated: false, user: null };
   }
 };
 
-// Refresh token
 const refreshToken = async () => {
   try {
-    const { data } = await api.post('/accounts/refresh/');
+    const { data } = await api.post(API_ENDPOINTS.AUTH.REFRESH.url);
     return { success: true, data };
   } catch (error) {
-    return { success: false, error: 'انقضای نشست کاری' };
+    return { success: false, error: "session expired" };
   }
 };
 
-// Logout
 const logout = async () => {
-  const { data } = await api.post('/accounts/logout/');
+  const { data } = await api.post(API_ENDPOINTS.AUTH.LOGOUT.url);
   return data;
 };
 

@@ -1,105 +1,34 @@
-import api from "../../../lib/api";
+import api from "@/lib/api";
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 
-// All owners
-const getOwners = async () => {
-  try {
-    const { data } = await api.get('/owners/');
-    return { success: true, data };
-  } catch (error) {
-    return { success: false, data: [] };
-  }
-};
+const getAll = () => api.get(API_ENDPOINTS.PROPERTIES.LIST.url);
 
-// New owner
-const createOwner = async (ownerData) => {
-  try {
-    const { data } = await api.post("/owners/", ownerData);
-    return {
-      success: true,
-      data,
-      message: "اطلاعات مالک با موفقیت ثبت شد",
-    };
-  } catch (error) {
-    console.error("Create Owner Error:", error);
-    return {
-      success: false,
-      error: error.response?.data?.message || "خطا در ثبت اطلاعات مالک",
-    };
-  }
-};
+const getById = (id) => api.get(API_ENDPOINTS.PROPERTIES.DETAIL(id).url);
 
-// All property files
-const getProperties = async () => {
-  try {
-    const { data } = await api.get('/properties/', { params });
-    return { success: true, data };
-  } catch (error) {
-    console.error('Get Properties Error:', error);
-    return {
-      success: false,
-      error: error.response?.data?.message || 'خطا در دریافت لیست فایل‌ها',
-      data: [],
-    };
-  }
-};
+const create = (data) => api.post(API_ENDPOINTS.PROPERTIES.CREATE.url, data);
 
-// Property details
-const getPropertyById = async (id) => {
-  try {
-    const { data } = await api.get(`/properties/${id}/`);
-    return { success: true, data };
-  } catch (error) {
-    return {
-      success: false,
-      error: error.response?.data?.message || 'فایل ملک یافت نشد',
-      data: null,
-    };
-  }
-};
+const update = (id, data) => api.put(API_ENDPOINTS.PROPERTIES.UPDATE(id).url, data);
 
-// Update property details
-const updateProperty = async (id, propertyData) => {
-  try {
-    const { data } = await api.patch(`/properties/${id}/`, propertyData);
-    return { success: true, data, message: 'اطلاعات فایل ملکی بروزرسانی شد' };
-  } catch (error) {
-    return {
-      success: false,
-      error: error.response?.data?.message || 'خطا در بروزرسانی فایل ملکی',
-    };
-  }
-};
+const remove = (id) => api.delete(API_ENDPOINTS.PROPERTIES.DELETE(id).url);
 
-// ----------- Core : convert lead to property
-const convertLeadToProperty = async (conversionData) => {
-  try {
-    const { data } = await api.post('/properties/', conversionData);
-    return { success: true, data, message: 'آگهی با موفقیت به فایل تبدیل شد' };
-  } catch (error) {
-    return {
-      success: false,
-      error: error.response?.data?.message || 'خطا در تبدیل آگهی به فایل',
-    };
-  }
-};
+const search = (query) => api.get(API_ENDPOINTS.PROPERTIES.SEARCH.url, { params: { q: query } });
 
-// Features of property (parking , ... )
-const getFeatures = async () => {
-  try {
-    const { data } = await api.get('/features/');
-    return { success: true, data };
-  } catch (error) {
-    return { success: false, data: [] };
-  }
-};
+const getByOwner = (ownerId) => api.get(API_ENDPOINTS.PROPERTIES.BY_OWNER(ownerId).url);
+
+const getByAgent = (agentId) => api.get(API_ENDPOINTS.PROPERTIES.BY_AGENT(agentId).url);
+
+const getByStatus = (status) => api.get(API_ENDPOINTS.PROPERTIES.BY_STATUS(status).url);
 
 const propertyService = {
-  getOwners,
-  createOwner,
-  getProperties,
-  getPropertyById,
-  convertLeadToProperty,
-  getFeatures,
+  getAll,
+  getById,
+  create,
+  update,
+  remove,
+  search,
+  getByOwner,
+  getByAgent,
+  getByStatus,
 };
 
 export default propertyService;
