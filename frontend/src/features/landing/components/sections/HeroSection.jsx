@@ -28,7 +28,7 @@ export default function HeroSection() {
         {/* Content */}
         <div className="relative z-10 w-full h-full flex flex-col md:flex-row items-center justify-between px-6 md:px-12 lg:px-16">
           {/* Left side - Text content */}
-          <div className="w-full md:w-1/2 flex py-2 items-center justify-center md:justify-start order-1 md:order-1">
+          <div className="w-full md:w-1/3 flex py-2 items-center justify-center md:justify-start order-1 md:order-1">
             <div className="text-center md:text-right max-w-2xl">
               {/* Title */}
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight">
@@ -86,10 +86,10 @@ export default function HeroSection() {
           </div>
 
           {/* Right side - Image */}
-          <div className="w-full md:w-1/2 h-1/2 md:h-full flex items-center justify-center order-2 md:order-2">
+          <div className="w-full md:w-2/3 h-1/2 md:h-full flex items-center justify-center order-2 md:order-2">
             <div className="relative">
               <img
-                src="/images/hero-png3.png"
+                src="/images/hero-desk-nobg.png"
                 alt={HERO_STRINGS.imageAlt}
                 className="w-full h-full max-h-[60vh] md:max-h-[80vh] object-contain"
               />

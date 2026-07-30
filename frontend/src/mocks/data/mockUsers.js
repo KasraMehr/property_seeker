@@ -6,7 +6,7 @@ export const MOCK_USERS = [
   {
     id: 1,
     phone: "09102301418",
-    full_name: "مدیر سیستم",
+    full_name: "مدیریت ملک جو",
     national_id: "0012345678",
     agency: MOCK_AGENCIES[0],
     role: [MOCK_ROLES.ADMIN],

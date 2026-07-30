@@ -6,15 +6,100 @@ import { MOCK_PROPERTIES } from "@/mocks/data/mockProperties";
 export const listingHandlers = [
   http.get("*/api/listing/list/", ({ request }) => {
     const url = new URL(request.url);
+
+    // Parse all query params
+    const search = url.searchParams.get("search");
     const status = url.searchParams.get("status");
+    const source = url.searchParams.get("source");
+    const district = url.searchParams.get("district");
+    const rooms = url.searchParams.get("rooms");
+    const priceMin = url.searchParams.get("price_min");
+    const priceMax = url.searchParams.get("price_max");
+    const areaMin = url.searchParams.get("area_min");
+    const areaMax = url.searchParams.get("area_max");
+    const scoreMin = url.searchParams.get("score_min");
+    const scoreMax = url.searchParams.get("score_max");
+    const hasPicture = url.searchParams.get("has_picture");
     const assignedTo = url.searchParams.get("assigned_to");
+
     let results = [...MOCK_LISTINGS];
-    if (status) {
-      results = results.filter((l) => l.status === status);
+
+    // Search: title, phone, description
+    if (search) {
+      const q = search.toLowerCase();
+      results = results.filter(
+        (l) =>
+          l.title?.toLowerCase().includes(q) ||
+          l.phone?.includes(q) ||
+          l.description?.toLowerCase().includes(q)
+      );
     }
+
+    // Status (single or comma-separated)
+    if (status) {
+      const statuses = status.split(",");
+      results = results.filter((l) => statuses.includes(l.status));
+    }
+
+    // Source
+    if (source) {
+      results = results.filter((l) => l.source === source);
+    }
+
+    // District (by id)
+    if (district) {
+      results = results.filter((l) => String(l.district?.id) === district);
+    }
+
+    // Rooms
+    if (rooms) {
+      results = results.filter((l) => String(l.room_count) === rooms);
+    }
+
+    // Price range (listed_sale_price or listed_rent_amount)
+    if (priceMin) {
+      const min = Number(priceMin);
+      results = results.filter(
+        (l) =>
+          (l.listed_sale_price && l.listed_sale_price >= min) ||
+          (l.listed_rent_amount && l.listed_rent_amount >= min)
+      );
+    }
+    if (priceMax) {
+      const max = Number(priceMax);
+      results = results.filter(
+        (l) =>
+          (l.listed_sale_price && l.listed_sale_price <= max) ||
+          (l.listed_rent_amount && l.listed_rent_amount <= max)
+      );
+    }
+
+    // Area range (listed_area)
+    if (areaMin) {
+      results = results.filter((l) => l.listed_area >= Number(areaMin));
+    }
+    if (areaMax) {
+      results = results.filter((l) => l.listed_area <= Number(areaMax));
+    }
+
+    // Score range
+    if (scoreMin) {
+      results = results.filter((l) => l.score >= Number(scoreMin));
+    }
+    if (scoreMax) {
+      results = results.filter((l) => l.score <= Number(scoreMax));
+    }
+
+    // Has picture
+    if (hasPicture === "true") {
+      results = results.filter((l) => !!l.hs_picture);
+    }
+
+    // Assigned to
     if (assignedTo) {
       results = results.filter((l) => l.assigned_to?.id === Number(assignedTo));
     }
+
     return HttpResponse.json(results, { status: 200 });
   }),
 
@@ -32,6 +117,12 @@ export const listingHandlers = [
     const newListing = {
       id: MOCK_LISTINGS.length + 1,
       ...body,
+      build_year: body.build_year || null,
+      room_count: body.room_count || null,
+      price_per_meter_toman: body.price_per_meter_toman || null,
+      deposit_toman: body.deposit_toman || null,
+      floor_number: body.floor_number || null,
+      hs_picture: body.hs_picture || null,
       call_count: 0,
       last_call_at: null,
       converted_to: null,
