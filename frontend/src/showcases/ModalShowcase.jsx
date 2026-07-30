@@ -4,6 +4,7 @@ import { Trash2, UserPlus, Archive, Info, FileText, CheckCircle2 } from "lucide-
 import Button from "@/shared/ui/Button";
 import Modal from "@/shared/ui/modal/Modal";
 import ConfirmModal from "@/shared/ui/modal/ConfirmModal";
+import ThemeToggle from "../shared/ThemeToggle";
 
 export default function ModalShowcase() {
   // Base Modal states
@@ -21,6 +22,7 @@ export default function ModalShowcase() {
 
   return (
     <div className="min-h-screen bg-background p-8 space-y-12">
+      <ThemeToggle/>
 
       {/* Section: Base Modal Sizes */}
       <section>

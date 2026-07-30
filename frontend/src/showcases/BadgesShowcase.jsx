@@ -1,9 +1,9 @@
 import { useState } from "react";
 import StatusBadge from "@/shared/ui/StatusBadge";
 import ScoreBadge from "@/shared/ui/ScoreBadge";
-import Select from "../../shared/ui/Select";
+import Select from "@/shared/ui/Select";
 import { getStatusesByType } from "@/constants/statusConfig";
-import ThemeToggle from "../../shared/ThemeToggle";
+import ThemeToggle from "@/shared/ThemeToggle";
 
 /**
  * visual showcase for all badge components

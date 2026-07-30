@@ -4,19 +4,20 @@ import { createBrowserRouter } from "react-router-dom";
 // Pages
 import LoginPage from "../features/auth/pages/LoginPage";
 import LandingPage from "../features/landing/pages/LandingPage";
-import BadgesShowcase from "../theme/showcases/BadgesShowcase"
+import BadgesShowcase from "@/showcases/BadgesShowcase"
 // Guards & Redirects
 import PublicRoute from "../routes/PublicRoute";
 import ProtectedRoute from "../routes/ProtectedRoute";
 import DashboardRedirect from "../routes/DashboardRedirect";
 
 // Route Modules
-import { adminRoutes } from "../routes/adminRoutes";
-import { operatorRoutes } from "../routes/operatorRoutes";
-import AdminLayout from "../features/dashboard/layouts/AdminLayout";
-import OperatorLayout from "../features/dashboard/layouts/OperatorLayout";
-import SelectShowcase from "../theme/showcases/SelectShowcase";
-import ModalShowcase from "../theme/showcases/ModalShowcase";
+import { adminRoutes } from "@/routes/adminRoutes";
+import { operatorRoutes } from "@/routes/operatorRoutes";
+import AdminLayout from "@/features/dashboard/layouts/AdminLayout";
+import OperatorLayout from "@/features/dashboard/layouts/OperatorLayout";
+import SelectShowcase from "@/showcases/SelectShowcase";
+import ModalShowcase from "@/showcases/ModalShowcase";
+import TableShowcase from "@/showcases/TableShowcase";
 
 export const Router = createBrowserRouter([
   // ---------- Public pages
@@ -71,6 +72,11 @@ export const Router = createBrowserRouter([
   {
     path: "/modal-showcase",
     element: <ModalShowcase />,
+  },
+
+  {
+    path: "/table-showcase",
+    element: <TableShowcase/>
   },
 
   // Not found 404 handler

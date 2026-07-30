@@ -4,7 +4,7 @@ import Select from "@/shared/ui/Select";
 import MultiSelect from "@/shared/ui/MultiSelect";
 import StatusBadge from "@/shared/ui/StatusBadge";
 import { getStatusesByType } from "@/constants/statusConfig";
-import ThemeToggle from "../../shared/ThemeToggle";
+import ThemeToggle from "@/shared/ThemeToggle";
 
 /**
  * SelectShowcase — visual playground for Select & MultiSelect

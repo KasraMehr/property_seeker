@@ -32,6 +32,13 @@ export const listingHandlers = [
     const newListing = {
       id: MOCK_LISTINGS.length + 1,
       ...body,
+      // NEW fields with defaults
+      build_year: body.build_year || null,
+      room_count: body.room_count || null,
+      price_per_meter_toman: body.price_per_meter_toman || null,
+      deposit_toman: body.deposit_toman || null,
+      floor_number: body.floor_number || null,
+      hs_picture: body.hs_picture || null,
       call_count: 0,
       last_call_at: null,
       converted_to: null,
