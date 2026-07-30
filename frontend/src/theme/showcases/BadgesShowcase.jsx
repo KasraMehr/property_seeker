@@ -1,7 +1,9 @@
 import { useState } from "react";
 import StatusBadge from "@/shared/ui/StatusBadge";
 import ScoreBadge from "@/shared/ui/ScoreBadge";
+import Select from "../../shared/ui/Select";
 import { getStatusesByType } from "@/constants/statusConfig";
+import ThemeToggle from "../../shared/ThemeToggle";
 
 /**
  * visual showcase for all badge components
@@ -11,7 +13,14 @@ export default function TestPage() {
   const [theme, setTheme] = useState("light");
   const [role, setRole] = useState("");
 
-  const entityTypes = ["lead", "property", "followup", "user", "call", "generic"];
+  const entityTypes = [
+    "lead",
+    "property",
+    "followup",
+    "user",
+    "call",
+    "generic",
+  ];
   const variants = ["soft", "solid", "outline", "dot"];
   const sizes = ["sm", "md", "lg"];
 
@@ -23,6 +32,7 @@ export default function TestPage() {
     { score: 30, label: "Low (30)" },
     { score: 12, label: "Critical (12)" },
   ];
+
 
   const toggleTheme = () => {
     const next = theme === "light" ? "dark" : "light";
@@ -36,7 +46,11 @@ export default function TestPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-6" data-role={role}>
+    <div
+      className="min-h-screen bg-background text-foreground p-6"
+      data-role={role}
+    >
+      
       {/* Header + Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 pb-6 border-b border-border">
         <div>
@@ -48,21 +62,7 @@ export default function TestPage() {
 
         <div className="flex items-center gap-3">
           {/* Theme Toggle */}
-          <div className="flex bg-surface border border-border rounded-xl p-1">
-            {["light", "dark"].map((t) => (
-              <button
-                key={t}
-                onClick={() => toggleTheme()}
-                className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
-                  theme === t
-                    ? "bg-foreground text-background"
-                    : "text-muted hover:text-foreground"
-                }`}
-              >
-                {t === "light" ? "☀️ Light" : "🌙 Dark"}
-              </button>
-            ))}
-          </div>
+          <ThemeToggle/>
 
           {/* Role Toggle */}
           <div className="flex bg-surface border border-border rounded-xl p-1">
@@ -90,7 +90,7 @@ export default function TestPage() {
       {/* StatusBadge Showcase */}
       <section className="mb-10">
         <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-        StatusBadge
+          StatusBadge
           <span className="text-xs font-normal text-muted">
             4 variants × 3 sizes × 7 semantic colors
           </span>
@@ -199,7 +199,12 @@ export default function TestPage() {
             </div>
             <div className="flex items-center gap-3 p-3 bg-background rounded-lg border border-border">
               <span className="text-sm flex-1">علی احمدی</span>
-              <StatusBadge status="contacted" type="lead" variant="soft" size="sm" />
+              <StatusBadge
+                status="contacted"
+                type="lead"
+                variant="soft"
+                size="sm"
+              />
               <ScoreBadge score={85} size="sm" showLabel={false} />
             </div>
           </div>
@@ -210,7 +215,13 @@ export default function TestPage() {
               Card Header
             </div>
             <div className="flex items-center gap-3 p-3 bg-background rounded-lg border border-border">
-              <StatusBadge status="sold" type="property" variant="solid" size="sm" showIcon />
+              <StatusBadge
+                status="sold"
+                type="property"
+                variant="solid"
+                size="sm"
+                showIcon
+              />
               <span className="text-sm text-muted">ویلای ۲۵۰ متری گوهردشت</span>
             </div>
           </div>
@@ -221,9 +232,27 @@ export default function TestPage() {
               Filter Chips
             </div>
             <div className="flex flex-wrap gap-2 p-3 bg-background rounded-lg border border-border">
-              <StatusBadge status="follow-up" type="lead" variant="soft" size="sm" showIcon />
-              <StatusBadge status="expired" type="property" variant="soft" size="sm" showIcon />
-              <StatusBadge status="featured" type="property" variant="soft" size="sm" showIcon />
+              <StatusBadge
+                status="follow-up"
+                type="lead"
+                variant="soft"
+                size="sm"
+                showIcon
+              />
+              <StatusBadge
+                status="expired"
+                type="property"
+                variant="soft"
+                size="sm"
+                showIcon
+              />
+              <StatusBadge
+                status="featured"
+                type="property"
+                variant="soft"
+                size="sm"
+                showIcon
+              />
             </div>
           </div>
 
@@ -233,9 +262,27 @@ export default function TestPage() {
               Toast / Alert
             </div>
             <div className="flex flex-col gap-2 p-3 bg-background rounded-lg border border-border">
-              <StatusBadge status="success" type="generic" variant="soft" size="sm" showIcon />
-              <StatusBadge status="error" type="generic" variant="soft" size="sm" showIcon />
-              <StatusBadge status="warning" type="generic" variant="soft" size="sm" showIcon />
+              <StatusBadge
+                status="success"
+                type="generic"
+                variant="soft"
+                size="sm"
+                showIcon
+              />
+              <StatusBadge
+                status="error"
+                type="generic"
+                variant="soft"
+                size="sm"
+                showIcon
+              />
+              <StatusBadge
+                status="warning"
+                type="generic"
+                variant="soft"
+                size="sm"
+                showIcon
+              />
             </div>
           </div>
         </div>
@@ -278,7 +325,10 @@ export default function TestPage() {
                   { status: "accent", type: "generic", label: "accent" },
                   { status: "special", type: "generic", label: "special" },
                 ].map((row) => (
-                  <tr key={row.label} className="border-b border-border last:border-0">
+                  <tr
+                    key={row.label}
+                    className="border-b border-border last:border-0"
+                  >
                     <td className="p-3 text-xs font-medium text-muted capitalize">
                       {row.label}
                     </td>

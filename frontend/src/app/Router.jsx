@@ -15,6 +15,7 @@ import { adminRoutes } from "../routes/adminRoutes";
 import { operatorRoutes } from "../routes/operatorRoutes";
 import AdminLayout from "../features/dashboard/layouts/AdminLayout";
 import OperatorLayout from "../features/dashboard/layouts/OperatorLayout";
+import SelectShowcase from "../theme/showcases/SelectShowcase";
 
 export const Router = createBrowserRouter([
   // ---------- Public pages
@@ -24,7 +25,12 @@ export const Router = createBrowserRouter([
   },
 
   {
-    path: "/showcase",
+    path: "/select-showcase",
+    element: <SelectShowcase/>
+
+  },
+  {
+    path: "/badge-showcase",
     element: <BadgesShowcase />,
   },
   
