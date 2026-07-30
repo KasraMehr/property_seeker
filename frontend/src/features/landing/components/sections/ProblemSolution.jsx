@@ -7,13 +7,13 @@ import { PROBLEM_SOLUTION_STRINGS } from "../../constants/landingConstants";
 
 export default function ProblemSolution() {
   const problems = PROBLEM_SOLUTION_STRINGS.items.map((item) => item.problem);
-  
+
   const solutions = PROBLEM_SOLUTION_STRINGS.items.map((item) => item.solution);
 
   return (
     <section
       id="problem-solution"
-      className="min-h-screen py-24 bg-background flex items-center"
+      className="min-h-screen py-12 bg-background flex items-center"
     >
       <div className="max-w-7xl w-full mx-auto px-6">
         {/* Header */}

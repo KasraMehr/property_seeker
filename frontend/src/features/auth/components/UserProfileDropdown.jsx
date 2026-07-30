@@ -59,7 +59,7 @@ export default function UserProfileDropdown() {
         cursor-pointer border border-transparent hover:border-border hover:bg-surface-hover transition-all duration-200 group focus:outline-none"
       >
         {/* Avatar */}
-        <div className="w-9 h-9 rounded-lg bg-surface-subtle border border-border flex items-center justify-center text-foreground font-bold text-xs tracking-wider group-hover:border-primary/40 transition-colors">
+        <div className="w-9 h-9 rounded-lg bg-role-surface border border-border flex items-center justify-center text-foreground font-bold text-xs tracking-wider group-hover:border-primary/40 transition-colors">
           {avatarLetter}
         </div>
 

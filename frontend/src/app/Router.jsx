@@ -4,7 +4,7 @@ import { createBrowserRouter } from "react-router-dom";
 // Pages
 import LoginPage from "../features/auth/pages/LoginPage";
 import LandingPage from "../features/landing/pages/LandingPage";
-
+import BadgesShowcase from "../theme/showcases/BadgesShowcase"
 // Guards & Redirects
 import PublicRoute from "../routes/PublicRoute";
 import ProtectedRoute from "../routes/ProtectedRoute";
@@ -23,6 +23,11 @@ export const Router = createBrowserRouter([
     element: <LandingPage />,
   },
 
+  {
+    path: "/showcase",
+    element: <BadgesShowcase />,
+  },
+  
   // Login page
   {
     path: "/login",
