@@ -41,7 +41,7 @@ const TableActions = forwardRef(({
         onClick={() => setOpen((p) => !p)}
         className="
           p-1.5 rounded-lg text-muted hover:text-foreground hover:bg-(--role-subtle)/30
-          transition-colors duration-150
+          transition-colors duration-150 cursor-pointer
         "
       >
         <MoreVertical size={16} />
@@ -67,7 +67,7 @@ const TableActions = forwardRef(({
                 }}
                 className={`
                   w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium
-                  transition-colors duration-150
+                  transition-colors duration-150 cursor-pointer
                   ${isDanger
                     ? "text-danger hover:bg-danger/10"
                     : "text-foreground hover:bg-(--role-subtle)/20"
