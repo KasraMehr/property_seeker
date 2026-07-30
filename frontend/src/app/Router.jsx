@@ -16,6 +16,7 @@ import { operatorRoutes } from "../routes/operatorRoutes";
 import AdminLayout from "../features/dashboard/layouts/AdminLayout";
 import OperatorLayout from "../features/dashboard/layouts/OperatorLayout";
 import SelectShowcase from "../theme/showcases/SelectShowcase";
+import ModalShowcase from "../theme/showcases/ModalShowcase";
 
 export const Router = createBrowserRouter([
   // ---------- Public pages
@@ -24,16 +25,6 @@ export const Router = createBrowserRouter([
     element: <LandingPage />,
   },
 
-  {
-    path: "/select-showcase",
-    element: <SelectShowcase/>
-
-  },
-  {
-    path: "/badge-showcase",
-    element: <BadgesShowcase />,
-  },
-  
   // Login page
   {
     path: "/login",
@@ -65,6 +56,21 @@ export const Router = createBrowserRouter([
         element: <DashboardRedirect />,
       },
     ],
+  },
+
+  // Showcases
+  {
+    path: "/select-showcase",
+    element: <SelectShowcase/>
+
+  },
+  {
+    path: "/badge-showcase",
+    element: <BadgesShowcase />,
+  },
+  {
+    path: "/modal-showcase",
+    element: <ModalShowcase />,
   },
 
   // Not found 404 handler
