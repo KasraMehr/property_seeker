@@ -1,18 +1,14 @@
 import { http, HttpResponse } from "msw";
-import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 import { MOCK_ROLES } from "@/mocks/data/mockRoles";
-
-const listUrl = API_ENDPOINTS.ACCOUNTS.ROLES.LIST.url;
-const createUrl = API_ENDPOINTS.ACCOUNTS.ROLES.CREATE.url;
 
 const rolesArray = Object.values(MOCK_ROLES);
 
 export const roleHandlers = [
-  http.get(listUrl, () => {
+  http.get("*/api/accounts/roles/", () => {
     return HttpResponse.json(rolesArray, { status: 200 });
   }),
 
-  http.get(`${API_ENDPOINTS.ACCOUNTS.ROLES.DETAIL(0).url.replace(/0\/$/, "")}:id/`, ({ params }) => {
+  http.get("*/api/accounts/roles/:id/", ({ params }) => {
     const id = Number(params.id);
     const role = rolesArray.find((r) => r.id === id);
     if (!role) {
@@ -21,7 +17,7 @@ export const roleHandlers = [
     return HttpResponse.json(role, { status: 200 });
   }),
 
-  http.post(createUrl, async ({ request }) => {
+  http.post("*/api/accounts/roles/", async ({ request }) => {
     const body = await request.json();
     const newRole = {
       id: rolesArray.length + 1,
@@ -36,7 +32,7 @@ export const roleHandlers = [
     );
   }),
 
-  http.put(`${API_ENDPOINTS.ACCOUNTS.ROLES.UPDATE(0).url.replace(/0\/$/, "")}:id/`, async ({ params, request }) => {
+  http.put("*/api/accounts/roles/:id/", async ({ params, request }) => {
     const id = Number(params.id);
     const index = rolesArray.findIndex((r) => r.id === id);
     if (index === -1) {
@@ -50,6 +46,23 @@ export const roleHandlers = [
     };
     return HttpResponse.json(
       { message: "role updated", role: rolesArray[index] },
+      { status: 200 }
+    );
+  }),
+
+  http.get("*/api/accounts/permissions/", () => {
+    return HttpResponse.json(
+      [
+        { codename: "add_property", name: "add property" },
+        { codename: "change_property", name: "change property" },
+        { codename: "delete_property", name: "delete property" },
+        { codename: "view_property", name: "view property" },
+        { codename: "add_user", name: "add user" },
+        { codename: "change_user", name: "change user" },
+        { codename: "view_user", name: "view user" },
+        { codename: "view_scraper", name: "view scraper" },
+        { codename: "manage_settings", name: "manage settings" },
+      ],
       { status: 200 }
     );
   }),

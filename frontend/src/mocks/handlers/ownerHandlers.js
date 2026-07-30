@@ -1,16 +1,12 @@
 import { http, HttpResponse } from "msw";
-import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 import { MOCK_OWNERS } from "@/mocks/data/mockOwners";
 
-const listUrl = API_ENDPOINTS.OWNERS.LIST.url;
-const createUrl = API_ENDPOINTS.OWNERS.CREATE.url;
-
 export const ownerHandlers = [
-  http.get(listUrl, () => {
+  http.get("*/api/owner/list/", () => {
     return HttpResponse.json(MOCK_OWNERS, { status: 200 });
   }),
 
-  http.get(`${API_ENDPOINTS.OWNERS.DETAIL(0).url.replace(/0\/$/, "")}:id/`, ({ params }) => {
+  http.get("*/api/owner/detail/:id/", ({ params }) => {
     const id = Number(params.id);
     const owner = MOCK_OWNERS.find((o) => o.id === id);
     if (!owner) {
@@ -19,7 +15,7 @@ export const ownerHandlers = [
     return HttpResponse.json(owner, { status: 200 });
   }),
 
-  http.post(createUrl, async ({ request }) => {
+  http.post("*/api/owner/create/", async ({ request }) => {
     const body = await request.json();
     const newOwner = {
       id: MOCK_OWNERS.length + 1,
@@ -34,7 +30,7 @@ export const ownerHandlers = [
     );
   }),
 
-  http.put(`${API_ENDPOINTS.OWNERS.UPDATE(0).url.replace(/0\/$/, "")}:id/`, async ({ params, request }) => {
+  http.put("*/api/owner/update/:id/", async ({ params, request }) => {
     const id = Number(params.id);
     const index = MOCK_OWNERS.findIndex((o) => o.id === id);
     if (index === -1) {
@@ -52,7 +48,7 @@ export const ownerHandlers = [
     );
   }),
 
-  http.delete(`${API_ENDPOINTS.OWNERS.DELETE(0).url.replace(/0\/$/, "")}:id/`, ({ params }) => {
+  http.delete("*/api/owner/delete/:id/", ({ params }) => {
     const id = Number(params.id);
     const index = MOCK_OWNERS.findIndex((o) => o.id === id);
     if (index === -1) {

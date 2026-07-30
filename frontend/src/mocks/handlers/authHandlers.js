@@ -1,14 +1,11 @@
 import { http, HttpResponse } from "msw";
-import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 import { MOCK_USERS } from "@/mocks/data/mockUsers";
 
-const loginUrl = API_ENDPOINTS.AUTH.LOGIN.url;
-const logoutUrl = API_ENDPOINTS.AUTH.LOGOUT.url;
-const refreshUrl = API_ENDPOINTS.AUTH.REFRESH.url;
-const verifyUrl = API_ENDPOINTS.AUTH.VERIFY.url;
+// track current logged in user for mock session
+let currentMockUser = MOCK_USERS[0];
 
 export const authHandlers = [
-  http.post(loginUrl, async ({ request }) => {
+  http.post("*/api/accounts/login/", async ({ request }) => {
     const body = await request.json();
     const user = MOCK_USERS.find((u) => u.phone === body.phone);
     if (!user) {
@@ -17,29 +14,31 @@ export const authHandlers = [
         { status: 401 }
       );
     }
+    currentMockUser = user;
     return HttpResponse.json(
       { message: "login successful", user },
       { status: 200 }
     );
   }),
 
-  http.post(logoutUrl, () => {
+  http.post("*/api/accounts/logout/", () => {
+    currentMockUser = MOCK_USERS[0];
     return HttpResponse.json(
       { message: "logout successful" },
       { status: 200 }
     );
   }),
 
-  http.post(refreshUrl, () => {
+  http.post("*/api/accounts/refresh/", () => {
     return HttpResponse.json(
       { message: "token refreshed" },
       { status: 200 }
     );
   }),
 
-  http.get(verifyUrl, () => {
+  http.get("*/api/accounts/verify/", () => {
     return HttpResponse.json(
-      { user: MOCK_USERS[0] },
+      { user: currentMockUser },
       { status: 200 }
     );
   }),

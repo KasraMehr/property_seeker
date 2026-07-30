@@ -1,16 +1,12 @@
 import { http, HttpResponse } from "msw";
-import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 import { MOCK_USERS } from "@/mocks/data/mockUsers";
 
-const listUrl = API_ENDPOINTS.ACCOUNTS.USERS.LIST.url;
-const createUrl = API_ENDPOINTS.ACCOUNTS.USERS.CREATE.url;
-
 export const userHandlers = [
-  http.get(listUrl, () => {
+  http.get("*/api/accounts/users/", () => {
     return HttpResponse.json(MOCK_USERS, { status: 200 });
   }),
 
-  http.get(`${API_ENDPOINTS.ACCOUNTS.USERS.DETAIL(0).url.replace(/0\/$/, "")}:id/`, ({ params }) => {
+  http.get("*/api/accounts/users/:id/", ({ params }) => {
     const id = Number(params.id);
     const user = MOCK_USERS.find((u) => u.id === id);
     if (!user) {
@@ -19,7 +15,7 @@ export const userHandlers = [
     return HttpResponse.json(user, { status: 200 });
   }),
 
-  http.post(createUrl, async ({ request }) => {
+  http.post("*/api/accounts/users/", async ({ request }) => {
     const body = await request.json();
     const newUser = {
       id: MOCK_USERS.length + 1,
@@ -34,7 +30,7 @@ export const userHandlers = [
     );
   }),
 
-  http.put(`${API_ENDPOINTS.ACCOUNTS.USERS.UPDATE(0).url.replace(/0\/$/, "")}:id/`, async ({ params, request }) => {
+  http.put("*/api/accounts/users/:id/", async ({ params, request }) => {
     const id = Number(params.id);
     const index = MOCK_USERS.findIndex((u) => u.id === id);
     if (index === -1) {
@@ -52,7 +48,7 @@ export const userHandlers = [
     );
   }),
 
-  http.delete(`${API_ENDPOINTS.ACCOUNTS.USERS.DELETE(0).url.replace(/0\/$/, "")}:id/`, ({ params }) => {
+  http.delete("*/api/accounts/users/:id/", ({ params }) => {
     const id = Number(params.id);
     const index = MOCK_USERS.findIndex((u) => u.id === id);
     if (index === -1) {

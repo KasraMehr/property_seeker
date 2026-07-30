@@ -1,12 +1,8 @@
 import { http, HttpResponse } from "msw";
-import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 import { MOCK_CALL_LOGS } from "@/mocks/data/mockCallLogs";
 
-const listUrl = API_ENDPOINTS.CRM.CALLS.LIST.url;
-const createUrl = API_ENDPOINTS.CRM.CALLS.CREATE.url;
-
 export const callHandlers = [
-  http.get(listUrl, ({ request }) => {
+  http.get("*/api/crm/calls/", ({ request }) => {
     const url = new URL(request.url);
     const listingId = url.searchParams.get("listing");
     let results = [...MOCK_CALL_LOGS];
@@ -16,7 +12,7 @@ export const callHandlers = [
     return HttpResponse.json(results, { status: 200 });
   }),
 
-  http.post(createUrl, async ({ request }) => {
+  http.post("*/api/crm/calls/create/", async ({ request }) => {
     const body = await request.json();
     const newCall = {
       id: MOCK_CALL_LOGS.length + 1,

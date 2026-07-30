@@ -1,5 +1,4 @@
 import { http, HttpResponse } from "msw";
-import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 import {
   MOCK_PROVINCES,
   MOCK_CITIES,
@@ -8,11 +7,11 @@ import {
 } from "@/mocks/data/mockLocations";
 
 export const locationHandlers = [
-  http.get(API_ENDPOINTS.LOCATIONS.PROVINCES.url, () => {
+  http.get("*/api/locations/provinces/", () => {
     return HttpResponse.json(MOCK_PROVINCES, { status: 200 });
   }),
 
-  http.get(API_ENDPOINTS.LOCATIONS.CITIES.url, ({ request }) => {
+  http.get("*/api/locations/cities/", ({ request }) => {
     const url = new URL(request.url);
     const provinceId = url.searchParams.get("province");
     let results = [...MOCK_CITIES];
@@ -22,7 +21,7 @@ export const locationHandlers = [
     return HttpResponse.json(results, { status: 200 });
   }),
 
-  http.get(API_ENDPOINTS.LOCATIONS.DISTRICTS.url, ({ request }) => {
+  http.get("*/api/locations/districts/", ({ request }) => {
     const url = new URL(request.url);
     const cityId = url.searchParams.get("city");
     let results = [...MOCK_DISTRICTS];
@@ -32,7 +31,7 @@ export const locationHandlers = [
     return HttpResponse.json(results, { status: 200 });
   }),
 
-  http.get(API_ENDPOINTS.LOCATIONS.NEIGHBORHOODS.url, ({ request }) => {
+  http.get("*/api/locations/neighborhoods/", ({ request }) => {
     const url = new URL(request.url);
     const districtId = url.searchParams.get("district");
     let results = [...MOCK_NEIGHBORHOODS];

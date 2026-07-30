@@ -1,17 +1,12 @@
 import { http, HttpResponse } from "msw";
-import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 import { MOCK_PROPERTIES } from "@/mocks/data/mockProperties";
 
-const listUrl = API_ENDPOINTS.PROPERTIES.LIST.url;
-const createUrl = API_ENDPOINTS.PROPERTIES.CREATE.url;
-const searchUrl = API_ENDPOINTS.PROPERTIES.SEARCH.url;
-
 export const propertyHandlers = [
-  http.get(listUrl, () => {
+  http.get("*/api/property/list/", () => {
     return HttpResponse.json(MOCK_PROPERTIES, { status: 200 });
   }),
 
-  http.get(`${listUrl}:id/`, ({ params }) => {
+  http.get("*/api/property/detail/:id/", ({ params }) => {
     const id = Number(params.id);
     const property = MOCK_PROPERTIES.find((p) => p.id === id);
     if (!property) {
@@ -20,16 +15,7 @@ export const propertyHandlers = [
     return HttpResponse.json(property, { status: 200 });
   }),
 
-  http.get(`${API_ENDPOINTS.PROPERTIES.DETAIL(0).url.replace(/0\/$/, "")}:id/`, ({ params }) => {
-    const id = Number(params.id);
-    const property = MOCK_PROPERTIES.find((p) => p.id === id);
-    if (!property) {
-      return HttpResponse.json({ detail: "not found" }, { status: 404 });
-    }
-    return HttpResponse.json(property, { status: 200 });
-  }),
-
-  http.post(createUrl, async ({ request }) => {
+  http.post("*/api/property/create/", async ({ request }) => {
     const body = await request.json();
     const newId = MOCK_PROPERTIES.length + 1;
     const year = new Date().getFullYear();
@@ -47,7 +33,7 @@ export const propertyHandlers = [
     );
   }),
 
-  http.put(`${API_ENDPOINTS.PROPERTIES.UPDATE(0).url.replace(/0\/$/, "")}:id/`, async ({ params, request }) => {
+  http.put("*/api/property/update/:id/", async ({ params, request }) => {
     const id = Number(params.id);
     const index = MOCK_PROPERTIES.findIndex((p) => p.id === id);
     if (index === -1) {
@@ -65,7 +51,7 @@ export const propertyHandlers = [
     );
   }),
 
-  http.delete(`${API_ENDPOINTS.PROPERTIES.DELETE(0).url.replace(/0\/$/, "")}:id/`, ({ params }) => {
+  http.delete("*/api/property/delete/:id/", ({ params }) => {
     const id = Number(params.id);
     const index = MOCK_PROPERTIES.findIndex((p) => p.id === id);
     if (index === -1) {
@@ -78,7 +64,7 @@ export const propertyHandlers = [
     );
   }),
 
-  http.get(searchUrl, ({ request }) => {
+  http.get("*/api/property/search/", ({ request }) => {
     const url = new URL(request.url);
     const q = url.searchParams.get("q")?.toLowerCase() || "";
     const results = MOCK_PROPERTIES.filter(
@@ -89,19 +75,19 @@ export const propertyHandlers = [
     return HttpResponse.json(results, { status: 200 });
   }),
 
-  http.get(`${API_ENDPOINTS.PROPERTIES.BY_OWNER(0).url.replace(/0\/$/, "")}:ownerId/`, ({ params }) => {
+  http.get("*/api/property/owner/:ownerId/", ({ params }) => {
     const ownerId = Number(params.ownerId);
     const results = MOCK_PROPERTIES.filter((p) => p.owner.id === ownerId);
     return HttpResponse.json(results, { status: 200 });
   }),
 
-  http.get(`${API_ENDPOINTS.PROPERTIES.BY_AGENT(0).url.replace(/0\/$/, "")}:agentId/`, ({ params }) => {
+  http.get("*/api/property/agent/:agentId/", ({ params }) => {
     const agentId = Number(params.agentId);
     const results = MOCK_PROPERTIES.filter((p) => p.agent.id === agentId);
     return HttpResponse.json(results, { status: 200 });
   }),
 
-  http.get(`${API_ENDPOINTS.PROPERTIES.BY_STATUS("").url.replace(/\/$/, "")}:status/`, ({ params }) => {
+  http.get("*/api/property/status/:status/", ({ params }) => {
     const status = params.status;
     const results = MOCK_PROPERTIES.filter((p) => p.status === status);
     return HttpResponse.json(results, { status: 200 });

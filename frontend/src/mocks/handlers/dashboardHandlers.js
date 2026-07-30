@@ -1,16 +1,15 @@
 import { http, HttpResponse } from "msw";
-import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 import {
   MOCK_ADMIN_DASHBOARD,
   MOCK_OPERATOR_DASHBOARD,
 } from "@/mocks/data/mockDashboardStats";
 
 export const dashboardHandlers = [
-  http.get(API_ENDPOINTS.ADMIN.DASHBOARD.STATS.url, () => {
+  http.get("*/api/admin/dashboard/stats/", () => {
     return HttpResponse.json(MOCK_ADMIN_DASHBOARD, { status: 200 });
   }),
 
-  http.get(API_ENDPOINTS.ADMIN.DASHBOARD.OPERATOR_STATS.url, () => {
+  http.get("*/api/admin/dashboard/operator/", () => {
     return HttpResponse.json(MOCK_OPERATOR_DASHBOARD, { status: 200 });
   }),
 ];

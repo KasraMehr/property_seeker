@@ -1,12 +1,8 @@
 import { http, HttpResponse } from "msw";
-import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 import { MOCK_REMINDERS } from "@/mocks/data/mockReminders";
 
-const listUrl = API_ENDPOINTS.CRM.REMINDERS.LIST.url;
-const createUrl = API_ENDPOINTS.CRM.REMINDERS.CREATE.url;
-
 export const reminderHandlers = [
-  http.get(listUrl, ({ request }) => {
+  http.get("*/api/crm/reminders/", ({ request }) => {
     const url = new URL(request.url);
     const userId = url.searchParams.get("user");
     let results = [...MOCK_REMINDERS];
@@ -16,7 +12,7 @@ export const reminderHandlers = [
     return HttpResponse.json(results, { status: 200 });
   }),
 
-  http.post(createUrl, async ({ request }) => {
+  http.post("*/api/crm/reminders/create/", async ({ request }) => {
     const body = await request.json();
     const newReminder = {
       id: MOCK_REMINDERS.length + 1,
@@ -33,7 +29,7 @@ export const reminderHandlers = [
     );
   }),
 
-  http.put(`${API_ENDPOINTS.CRM.REMINDERS.COMPLETE(0).url.replace(/0\/$/, "")}:id/`, ({ params }) => {
+  http.put("*/api/crm/reminders/:id/complete/", ({ params }) => {
     const id = Number(params.id);
     const index = MOCK_REMINDERS.findIndex((r) => r.id === id);
     if (index === -1) {
@@ -48,7 +44,7 @@ export const reminderHandlers = [
     );
   }),
 
-  http.put(`${API_ENDPOINTS.CRM.REMINDERS.CANCEL(0).url.replace(/0\/$/, "")}:id/`, ({ params }) => {
+  http.put("*/api/crm/reminders/:id/cancel/", ({ params }) => {
     const id = Number(params.id);
     const index = MOCK_REMINDERS.findIndex((r) => r.id === id);
     if (index === -1) {

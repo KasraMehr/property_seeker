@@ -1,14 +1,10 @@
 import { http, HttpResponse } from "msw";
-import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 import { MOCK_LISTINGS } from "@/mocks/data/mockListings";
 import { MOCK_OWNERS } from "@/mocks/data/mockOwners";
 import { MOCK_PROPERTIES } from "@/mocks/data/mockProperties";
 
-const listUrl = API_ENDPOINTS.LISTINGS.LIST.url;
-const createUrl = API_ENDPOINTS.LISTINGS.CREATE.url;
-
 export const listingHandlers = [
-  http.get(listUrl, ({ request }) => {
+  http.get("*/api/listing/list/", ({ request }) => {
     const url = new URL(request.url);
     const status = url.searchParams.get("status");
     const assignedTo = url.searchParams.get("assigned_to");
@@ -22,7 +18,7 @@ export const listingHandlers = [
     return HttpResponse.json(results, { status: 200 });
   }),
 
-  http.get(`${API_ENDPOINTS.LISTINGS.DETAIL(0).url.replace(/0\/$/, "")}:id/`, ({ params }) => {
+  http.get("*/api/listing/detail/:id/", ({ params }) => {
     const id = Number(params.id);
     const listing = MOCK_LISTINGS.find((l) => l.id === id);
     if (!listing) {
@@ -31,7 +27,7 @@ export const listingHandlers = [
     return HttpResponse.json(listing, { status: 200 });
   }),
 
-  http.post(createUrl, async ({ request }) => {
+  http.post("*/api/listing/create/", async ({ request }) => {
     const body = await request.json();
     const newListing = {
       id: MOCK_LISTINGS.length + 1,
@@ -51,7 +47,7 @@ export const listingHandlers = [
     );
   }),
 
-  http.put(`${API_ENDPOINTS.LISTINGS.UPDATE(0).url.replace(/0\/$/, "")}:id/`, async ({ params, request }) => {
+  http.put("*/api/listing/update/:id/", async ({ params, request }) => {
     const id = Number(params.id);
     const index = MOCK_LISTINGS.findIndex((l) => l.id === id);
     if (index === -1) {
@@ -69,7 +65,7 @@ export const listingHandlers = [
     );
   }),
 
-  http.delete(`${API_ENDPOINTS.LISTINGS.DELETE(0).url.replace(/0\/$/, "")}:id/`, ({ params }) => {
+  http.delete("*/api/listing/delete/:id/", ({ params }) => {
     const id = Number(params.id);
     const index = MOCK_LISTINGS.findIndex((l) => l.id === id);
     if (index === -1) {
@@ -82,7 +78,7 @@ export const listingHandlers = [
     );
   }),
 
-  http.put(`${API_ENDPOINTS.LISTINGS.ASSIGN(0).url.replace(/0\/$/, "")}:id/`, async ({ params, request }) => {
+  http.put("*/api/listing/assign/:id/", async ({ params, request }) => {
     const id = Number(params.id);
     const index = MOCK_LISTINGS.findIndex((l) => l.id === id);
     if (index === -1) {
@@ -97,7 +93,7 @@ export const listingHandlers = [
     );
   }),
 
-  http.post(`${API_ENDPOINTS.LISTINGS.CONVERT_TO_OWNER(0).url.replace(/0\/$/, "")}:id/`, async ({ params, request }) => {
+  http.post("*/api/listing/convert-to-owner/:id/", async ({ params, request }) => {
     const id = Number(params.id);
     const index = MOCK_LISTINGS.findIndex((l) => l.id === id);
     if (index === -1) {
@@ -120,7 +116,7 @@ export const listingHandlers = [
     );
   }),
 
-  http.post(`${API_ENDPOINTS.LISTINGS.CONVERT_TO_PROPERTY(0).url.replace(/0\/$/, "")}:id/`, async ({ params, request }) => {
+  http.post("*/api/listing/convert-to-property/:id/", async ({ params, request }) => {
     const id = Number(params.id);
     const index = MOCK_LISTINGS.findIndex((l) => l.id === id);
     if (index === -1) {
