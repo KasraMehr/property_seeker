@@ -1,22 +1,9 @@
 from rest_framework import serializers
 
-from properties.models import Owner
+from ..models import Owner
 
 
 class OwnerUpdateSerializer(serializers.ModelSerializer):
-    alternate_phone = serializers.CharField(
-        max_length=20,
-        required=False,
-    )
-    full_name = serializers.CharField(
-        required=False,
-    )
-    phone = serializers.CharField(
-        max_length=20,
-        required=False,
-    )
-    national_id =  serializers.CharField(required=False)
-    notes = serializers.CharField(required=False)
 
     class Meta:
         model = Owner
@@ -28,11 +15,25 @@ class OwnerUpdateSerializer(serializers.ModelSerializer):
             "notes",
         )
 
+        extra_kwargs = {
+            "full_name": {"required": False},
+            "phone": {"required": False},
+            "alternate_phone": {"required": False},
+            "national_id": {"required": False},
+            "notes": {"required": False},
+        }
+
     def validate_phone(self, value):
 
-        owner = self.instance
+        agency = self.context["request"].user.agency
 
-        if Owner.objects.exclude(id=owner.id).filter(phone=value).exists():
+        if Owner.objects.filter(
+            agency=agency,
+            phone=value,
+        ).exclude(
+            pk=self.instance.pk
+        ).exists():
+
             raise serializers.ValidationError(
                 "این شماره موبایل قبلاً ثبت شده است."
             )
@@ -41,8 +42,8 @@ class OwnerUpdateSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
 
-        for key, value in validated_data.items():
-            setattr(instance, key, value)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
 
         instance.save()
 

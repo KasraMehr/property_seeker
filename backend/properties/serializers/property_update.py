@@ -2,87 +2,63 @@ from rest_framework import serializers
 
 from ..models import *
 
+from .baseSerializers import BasePropertySerializer
+from ..models import (
+    Property,
+    PropertyHistory,
+    PropertyStatusHistory,
+)
 
 
-class PropertyUpdateSerializer(serializers.ModelSerializer):
+class PropertyUpdateSerializer(BasePropertySerializer):
 
     class Meta:
         model = Property
+
         exclude = (
             "id",
+            "agency",
+            "create_by",
             "property_code",
             "created_at",
             "updated_at",
         )
 
         extra_kwargs = {
-            "owner": {"required": False, },
-            "agent": {"required": False,  },
-            "address": {"required": False,  },
-
-            "title": {"required": False},
-
-            "property_type": {
-                "required": False,
-                "allow_blank": True,
-
-            },
-
-            "deal_type": {"required": False},
-
-            "area": {"required": False},
-            "floor": {"required": False,  },
-            "total_floors": {"required": False,  },
-
-            "age": {"required": False},
-            "bedrooms": {"required": False},
-            "bathrooms": {"required": False},
-            "parking_count": {"required": False},
-            "storage_count": {"required": False},
-
-            "orientation": {
-                "required": False,
-                "allow_blank": True,
-            },
-
-            "condition": {
-                "required": False,
-                "allow_blank": True,
-            },
-
-            "description": {
-                "required": False,
-                "allow_blank": True,
-            },
-
-            "price_per_meter": {
-                "required": False,
-
-            },
-
-            "sale_price": {
-                "required": False,
-
-            },
-
-            "mortgage_amount": {
-                "required": False,
-
-            },
-
-            "deposit_amount": {
-                "required": False,
-
-            },
-
-            "monthly_rent": {
+            field: {
                 "required": False
-            },
-
-            "status": {"required": False}
+            }
+            for field in (
+                "owner",
+                "agent",
+                "address",
+                "title",
+                "property_type",
+                "deal_type",
+                "area",
+                "floor",
+                "total_floors",
+                "age",
+                "bedrooms",
+                "bathrooms",
+                "parking_count",
+                "storage_count",
+                "orientation",
+                "condition",
+                "description",
+                "price_per_meter",
+                "sale_price",
+                "mortgage_amount",
+                "deposit_amount",
+                "monthly_rent",
+                "status",
+            )
         }
 
     def update(self, instance, validated_data):
+
+        user = self.context["request"].user
+
         for field, new_value in validated_data.items():
 
             old_value = getattr(instance, field)
@@ -99,6 +75,7 @@ class PropertyUpdateSerializer(serializers.ModelSerializer):
                 )
 
                 if field == "status":
+
                     PropertyStatusHistory.objects.create(
                         property=instance,
                         old_status=old_value,

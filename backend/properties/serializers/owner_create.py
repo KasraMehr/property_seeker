@@ -2,6 +2,10 @@ from rest_framework import serializers
 
 from ..models import Owner
 
+from rest_framework import serializers
+
+from ..models import Owner
+
 
 class OwnerCreateSerializer(serializers.ModelSerializer):
 
@@ -13,16 +17,33 @@ class OwnerCreateSerializer(serializers.ModelSerializer):
             "alternate_phone",
             "national_id",
             "notes",
+
         )
 
     def validate_phone(self, value):
 
-        if Owner.objects.filter(phone=value).exists():
+        agency = self.context["request"].user.agency
+
+        if Owner.objects.filter(
+            agency=agency,
+            phone=value,
+        ).exists():
             raise serializers.ValidationError(
-                "این شماره موبایل قبلاً ثبت شده است."
+                "این شماره موبایل قبلاً در آژانس شما ثبت شده است."
             )
 
         return value
 
     def create(self, validated_data):
-        return Owner.objects.create(**validated_data)
+
+        user = self.context["request"].user
+
+        print("USER:", user)
+        print("AGENCY:", user.agency)
+
+
+        return Owner.objects.create(
+            agency=user.agency,
+            created_by=user,
+            **validated_data
+        )

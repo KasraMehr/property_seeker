@@ -20,4 +20,5 @@ class OwnerDetailSerializer(serializers.ModelSerializer):
             "properties_count",
             "created_at",
             "updated_at",
+            "created_by",
         )

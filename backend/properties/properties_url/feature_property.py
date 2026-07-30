@@ -52,6 +52,11 @@ urlpatterns = [
         PropertyFeatureListView.as_view(),
         name="property-feature-list",
     ),
+path(
+        "property-features/update/<int:pk>/",
+        PropertyFeatureUpdateView.as_view(),
+        name="property-feature-detail",
+    ),
 
     path(
         "property-features/detail/<int:pk>/",

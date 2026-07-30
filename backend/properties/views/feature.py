@@ -10,20 +10,34 @@ from properties.selector.feature_selector import FeatureSelector
 from properties.serializers.feature_create import FeatureCreateSerializer
 from properties.serializers.feature_update import FeatureUpdateSerializer
 from properties.serializers.feature_list import FeatureListSerializer
+from accounts.permissions import *
+from audit.services.activity_log import ActivityLogService
 
 
 class FeatureCreateView(APIView):
 
     serializer_class = FeatureCreateSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = (
+        IsAuthenticated,
+        HasRolePermission,
+    )
+
+    required_permission = "add_feature"
 
     def post(self, request):
-
         serializer = self.serializer_class(data=request.data)
 
         serializer.is_valid(raise_exception=True)
 
         feature = serializer.save()
+
+        ActivityLogService.create(
+            request=request,
+            entity_type="Feature",
+            entity_id=feature.id,
+            new_data=FeatureListSerializer(feature).data,
+            message="ویژگی جدید ایجاد شد.",
+        )
 
         return Response(
             {
@@ -37,7 +51,12 @@ class FeatureCreateView(APIView):
 class FeatureListView(APIView):
 
     serializer_class = FeatureListSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = (
+        IsAuthenticated,
+        HasRolePermission,
+    )
+
+    required_permission = "view_feature"
 
     def get(self, request):
 
@@ -53,7 +72,12 @@ class FeatureListView(APIView):
 class FeatureDetailView(APIView):
 
     serializer_class =  FeatureListSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = (
+        IsAuthenticated,
+        HasRolePermission,
+    )
+
+    required_permission = "view_feature"
 
     def get(self, request,pk):
 
@@ -69,11 +93,17 @@ class FeatureDetailView(APIView):
 class FeatureUpdateView(APIView):
 
     serializer_class = FeatureUpdateSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = (
+        IsAuthenticated,
+        HasRolePermission,
+    )
+
+    required_permission = "change_feature"
 
     def put(self, request, pk):
-
         feature = FeatureSelector.by_id(pk)
+
+        old_data = FeatureListSerializer(feature).data
 
         serializer = self.serializer_class(
             feature,
@@ -82,7 +112,16 @@ class FeatureUpdateView(APIView):
 
         serializer.is_valid(raise_exception=True)
 
-        serializer.save()
+        feature = serializer.save()
+
+        ActivityLogService.update(
+            request=request,
+            entity_type="Feature",
+            entity_id=feature.id,
+            old_data=old_data,
+            new_data=FeatureListSerializer(feature).data,
+            message="ویژگی بروزرسانی شد.",
+        )
 
         return Response(
             {
@@ -93,12 +132,25 @@ class FeatureUpdateView(APIView):
 
 
 class FeatureDeleteView(APIView):
+    permission_classes = (
+        IsAuthenticated,
+        HasRolePermission,
+    )
 
-    permission_classes = [IsAuthenticated]
+    required_permission = "delete_feature"
 
     def delete(self, request, pk):
-
         feature = FeatureSelector.by_id(pk)
+
+        old_data = FeatureListSerializer(feature).data
+
+        ActivityLogService.delete(
+            request=request,
+            entity_type="Feature",
+            entity_id=feature.id,
+            old_data=old_data,
+            message="ویژگی حذف شد.",
+        )
 
         feature.delete()
 
