@@ -1,99 +1,95 @@
 import { http, HttpResponse } from "msw";
-import { MOCK_OWNERS } from "../data/mockOwners";
-import { MOCK_PROPERTIES, MOCK_FEATURES } from "../data/mockProperties";
-import { MOCK_LEADS } from "../data/mockLeads";
+import { MOCK_PROPERTIES } from "@/mocks/data/mockProperties";
 
 export const propertyHandlers = [
-  // Owners List
-  http.get("*/api/owners/", () => {
-    return HttpResponse.json(MOCK_OWNERS, { status: 200 });
+  http.get("*/api/property/list/", () => {
+    return HttpResponse.json(MOCK_PROPERTIES, { status: 200 });
   }),
 
-  // New owner
-  http.post("*/api/owners/", async ({ request }) => {
+  http.get("*/api/property/detail/:id/", ({ params }) => {
+    const id = Number(params.id);
+    const property = MOCK_PROPERTIES.find((p) => p.id === id);
+    if (!property) {
+      return HttpResponse.json({ detail: "not found" }, { status: 404 });
+    }
+    return HttpResponse.json(property, { status: 200 });
+  }),
+
+  http.post("*/api/property/create/", async ({ request }) => {
     const body = await request.json();
-    const newOwner = {
-      id: MOCK_OWNERS.length + 1,
-      ...body,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-    MOCK_OWNERS.push(newOwner);
-    return HttpResponse.json(newOwner, { status: 201 });
-  }),
-
-  // Properties List
-  http.get("*/api/properties/", ({ request }) => {
-    const url = new URL(request.url);
-    const createdBy = url.searchParams.get("created_by");
-    const status = url.searchParams.get("status");
-    const search = url.searchParams.get("search")?.toLowerCase();
-
-    let result = [...MOCK_PROPERTIES];
-
-    if (createdBy) {
-      result = result.filter((p) => Number(p.created_by) === Number(createdBy));
-    }
-    if (status) {
-      result = result.filter((p) => p.status === status);
-    }
-    if (search) {
-      result = result.filter(
-        (p) =>
-          p.title?.toLowerCase().includes(search) ||
-          p.property_code?.toLowerCase().includes(search),
-      );
-    }
-
-    return HttpResponse.json(result, { status: 200 });
-  }),
-
-  // Property details
-  http.get('*/api/properties/:id/', ({ params }) => {
-    const property = MOCK_PROPERTIES.find(p => p.id === Number(params.id));
-    if (property) return HttpResponse.json(property, { status: 200 });
-    return HttpResponse.json({ message: 'فایل ملک یافت نشد.' }, { status: 404 });
-  }),
-
-  // Edit / update property details 
-  http.patch('*/api/properties/:id/', async ({ params, request }) => {
-    const body = await request.json();
-    const property = MOCK_PROPERTIES.find(p => p.id === Number(params.id));
-
-    if (property) {
-      Object.assign(property, body, { updated_at: new Date().toISOString() });
-      return HttpResponse.json(property, { status: 200 });
-    }
-    return HttpResponse.json({ message: 'فایل ملک یافت نشد.' }, { status: 404 });
-  }),
-
-  // Convert Lead to Property (Core Feature)
-  http.post('*/api/properties/', async ({ request }) => {
-    const body = await request.json();
+    const newId = MOCK_PROPERTIES.length + 1;
+    const year = new Date().getFullYear();
     const newProperty = {
-      id: MOCK_PROPERTIES.length + 1,
-      property_code: `MJ-${1000 + MOCK_PROPERTIES.length + 1}`,
-      status: 'AVAILABLE',
+      id: newId,
+      property_code: `PR-${year}-${String(newId).padStart(6, "0")}`,
       ...body,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
-
     MOCK_PROPERTIES.push(newProperty);
-
-    if (body.lead_id) {
-      const lead = MOCK_LEADS.find(l => l.id === body.lead_id);
-      if (lead) {
-        lead.status = 'CONVERTED';
-        lead.property = newProperty.id;
-      }
-    }
-
-    return HttpResponse.json(newProperty, { status: 201 });
+    return HttpResponse.json(
+      { message: "property created", property: newProperty },
+      { status: 201 }
+    );
   }),
 
-  // Features of property (parking , ... )
-  http.get("*/api/features/", () => {
-    return HttpResponse.json(MOCK_FEATURES, { status: 200 });
+  http.put("*/api/property/update/:id/", async ({ params, request }) => {
+    const id = Number(params.id);
+    const index = MOCK_PROPERTIES.findIndex((p) => p.id === id);
+    if (index === -1) {
+      return HttpResponse.json({ detail: "not found" }, { status: 404 });
+    }
+    const body = await request.json();
+    MOCK_PROPERTIES[index] = {
+      ...MOCK_PROPERTIES[index],
+      ...body,
+      updated_at: new Date().toISOString(),
+    };
+    return HttpResponse.json(
+      { message: "property updated", property: MOCK_PROPERTIES[index] },
+      { status: 200 }
+    );
+  }),
+
+  http.delete("*/api/property/delete/:id/", ({ params }) => {
+    const id = Number(params.id);
+    const index = MOCK_PROPERTIES.findIndex((p) => p.id === id);
+    if (index === -1) {
+      return HttpResponse.json({ detail: "not found" }, { status: 404 });
+    }
+    MOCK_PROPERTIES.splice(index, 1);
+    return HttpResponse.json(
+      { message: "property deleted" },
+      { status: 204 }
+    );
+  }),
+
+  http.get("*/api/property/search/", ({ request }) => {
+    const url = new URL(request.url);
+    const q = url.searchParams.get("q")?.toLowerCase() || "";
+    const results = MOCK_PROPERTIES.filter(
+      (p) =>
+        p.title.toLowerCase().includes(q) ||
+        p.property_code.toLowerCase().includes(q)
+    );
+    return HttpResponse.json(results, { status: 200 });
+  }),
+
+  http.get("*/api/property/owner/:ownerId/", ({ params }) => {
+    const ownerId = Number(params.ownerId);
+    const results = MOCK_PROPERTIES.filter((p) => p.owner.id === ownerId);
+    return HttpResponse.json(results, { status: 200 });
+  }),
+
+  http.get("*/api/property/agent/:agentId/", ({ params }) => {
+    const agentId = Number(params.agentId);
+    const results = MOCK_PROPERTIES.filter((p) => p.agent.id === agentId);
+    return HttpResponse.json(results, { status: 200 });
+  }),
+
+  http.get("*/api/property/status/:status/", ({ params }) => {
+    const status = params.status;
+    const results = MOCK_PROPERTIES.filter((p) => p.status === status);
+    return HttpResponse.json(results, { status: 200 });
   }),
 ];
