@@ -1,5 +1,5 @@
 import { forwardRef } from "react";
-import { getRoleConfig } from "../../constants/roleConfig";
+import { getRoleConfig } from "../../../constants/roleConfig";
 
 /**
  * RoleBadge — role indicator with icon and color

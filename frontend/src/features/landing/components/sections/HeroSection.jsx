@@ -76,7 +76,7 @@ export default function HeroSection() {
 
                 <Button
                   variant="secondary"
-                  className="bg-glass backdrop-blur-sm border border-b-primary hover:bg-white/10 px-8 py-3.5 rounded-full text-base font-bold gap-2 transition-all hover:scale-105"
+                  className="bg-glass backdrop-blur-sm border-3 border-b-warning hover:bg-white/10 px-8 py-3.5 rounded-full text-base font-bold gap-2 transition-all hover:scale-105"
                 >
                   <ShieldCheck size={18} />
                   {HERO_STRINGS.secondaryButton}

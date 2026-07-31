@@ -2,7 +2,7 @@ import { useState } from "react";
 import { MapPin, Home, Building2, Phone, Users } from "lucide-react";
 import Select from "@/shared/ui/Select";
 import MultiSelect from "@/shared/ui/MultiSelect";
-import StatusBadge from "@/shared/ui/StatusBadge";
+import StatusBadge from "@/shared/ui/badges/StatusBadge";
 import { getStatusesByType } from "@/constants/statusConfig";
 import ThemeToggle from "@/shared/ThemeToggle";
 

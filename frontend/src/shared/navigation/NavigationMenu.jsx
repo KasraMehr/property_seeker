@@ -5,6 +5,7 @@ export default function NavigationMenu({
   header,
   footer,
   onItemClick,
+  scrollOffset,
   className = "",
 }) {
   return (
@@ -20,6 +21,7 @@ export default function NavigationMenu({
             type="route"
             {...item}
             onClick={onItemClick}
+            scrollOffset={scrollOffset}
           />
         ))}
       </nav>

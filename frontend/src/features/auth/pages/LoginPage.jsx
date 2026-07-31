@@ -11,7 +11,7 @@ export default function LoginPage() {
     <div 
       className="min-h-screen flex items-center justify-center p-4 bg-cover bg-center
         bg-[url('/images/bg-loginpage-mob.png')] 
-        md:bg-[url('/images/bg-loginpage.png')]"
+        md:bg-[url('/images/login-bg.png')]"
     >
       <LoginCard />
     </div>

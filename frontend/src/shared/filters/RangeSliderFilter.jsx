@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback, forwardRef } from "react";
 
 /**
- * RangeSliderFilter — dual range with real-time updates, no apply button
+ * RangeSliderFilter — dual range with APPLY button
+ * TODO: Fix direction for track
  */
 const RangeSliderFilter = forwardRef(({
   min,
@@ -28,16 +29,16 @@ const RangeSliderFilter = forwardRef(({
 
   const handleMin = (e) => {
     const v = Math.min(Number(e.target.value), local.max - step);
-    const next = { ...local, min: Math.max(min, v) };
-    setLocal(next);
-    onChange?.(next);
+    setLocal((prev) => ({ ...prev, min: Math.max(min, v) }));
   };
 
   const handleMax = (e) => {
     const v = Math.max(Number(e.target.value), local.min + step);
-    const next = { ...local, max: Math.min(max, v) };
-    setLocal(next);
-    onChange?.(next);
+    setLocal((prev) => ({ ...prev, max: Math.min(max, v) }));
+  };
+
+  const handleApply = () => {
+    onChange?.(local);
   };
 
   const minPct = ((local.min - min) / (max - min)) * 100;
@@ -45,7 +46,7 @@ const RangeSliderFilter = forwardRef(({
 
   return (
     <div ref={ref} className={`space-y-3 ${className}`}>
-      {/* Values display */}
+      {/* Values */}
       <div className="flex items-center justify-between">
         <div className="text-center">
           <span className="text-[10px] text-muted">حداقل</span>
@@ -58,50 +59,41 @@ const RangeSliderFilter = forwardRef(({
         </div>
       </div>
 
-      {/* Track */}
-      <div className="relative h-1.5 bg-border rounded-full">
-        {/* Active range fill */}
+      {/* Track  */}
+      <div className="relative h-1.5 bg-border rounded-full" dir="rtl">
         <div
           className="absolute h-full rounded-full bg-(--role-primary)"
           style={{ left: `${minPct}%`, right: `${100 - maxPct}%` }}
         />
-
-        {/* Min range input (invisible, for interaction) */}
         <input
-          type="range"
-          min={min}
-          max={max}
-          step={step}
-          value={local.min}
-          onChange={handleMin}
+          type="range" min={min} max={max} step={step}
+          value={local.min} onChange={handleMin}
           className="absolute w-full h-full opacity-0 cursor-pointer z-20"
           style={{ top: -6 }}
         />
-
-        {/* Max range input (invisible, for interaction) */}
         <input
-          type="range"
-          min={min}
-          max={max}
-          step={step}
-          value={local.max}
-          onChange={handleMax}
+          type="range" min={min} max={max} step={step}
+          value={local.max} onChange={handleMax}
           className="absolute w-full h-full opacity-0 cursor-pointer z-20"
           style={{ top: -6 }}
         />
-
-        {/* Visual min thumb */}
         <div
           className="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-(--role-primary) border-2 border-surface shadow-sm z-10 pointer-events-none"
           style={{ left: `calc(${minPct}% - 8px)` }}
         />
-
-        {/* Visual max thumb */}
         <div
           className="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-(--role-primary) border-2 border-surface shadow-sm z-10 pointer-events-none"
           style={{ left: `calc(${maxPct}% - 8px)` }}
         />
       </div>
+
+      {/* Apply button */}
+      <button
+        onClick={handleApply}
+        className="w-full py-2 bg-(--role-primary) text-white rounded-lg hover:bg-(--role-primary)/90 transition-colors text-sm font-medium"
+      >
+        اعمال {unit ? `(${unit})` : "فیلتر"}
+      </button>
     </div>
   );
 });

@@ -80,23 +80,24 @@ export default function FilterBar({
           </div>
         );
 
-      case "range":
-        return (
-          <div key={field.key} className="space-y-2">
-            <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-              <Icon size={14} className="text-muted" />
-              {field.label}
-            </div>
-            <RangeSliderFilter
-              min={field.min}
-              max={field.max}
-              step={field.step}
-              value={value || { min: field.min, max: field.max }}
-              onChange={(v) => onChange(field.key, v)}
-              unit={field.unit}
-            />
-          </div>
-        );
+        // TODO: Add range filter here
+      // case "range":
+      //   return (
+      //     <div key={field.key} className="space-y-2">
+      //       <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+      //         <Icon size={14} className="text-muted" />
+      //         {field.label}
+      //       </div>
+      //       <RangeSliderFilter
+      //         min={field.min}
+      //         max={field.max}
+      //         step={field.step}
+      //         value={value || { min: field.min, max: field.max }}
+      //         onChange={(v) => onChange(field.key, v)}
+      //         unit={field.unit}
+      //       />
+      //     </div>
+      //   );
 
       case "toggle":
         return (

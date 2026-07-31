@@ -10,7 +10,7 @@ import {
 
 import useAuth from "@/features/auth/hooks/useAuth";
 import LogoutButton from "./LogoutButton";
-import StatusBadge from "@/shared/ui/StatusBadge";
+import StatusBadge from "@/shared/ui/badges/StatusBadge";
 import { DASHBOARD_STRINGS } from "../../dashboard/constants/dashboardConstants";
 
 const toPersianDigits = (str) => {
@@ -75,7 +75,7 @@ export default function UserProfileDropdown() {
         onClick={() => setIsOpen((p) => !p)}
         className={`
           flex items-center gap-2.5 p-1.5 pr-2.5 rounded-xl
-          border transition-all duration-200 ease-in-out
+          border transition-all duration-200 ease-in-out cursor-pointer
           focus:outline-none focus:ring-2 focus:ring-(--role-primary)/20
           ${isOpen
             ? "border-(--role-primary)/30 bg-(--role-subtle)/20 shadow-sm"
