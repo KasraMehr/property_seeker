@@ -7,8 +7,9 @@ import {
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
-import Button from "../../../../shared/ui/Button";
+import Button from "@/shared/ui/Button";
 import { HERO_STRINGS } from "../../constants/landingConstants";
+import { MotionHover } from "@/animations/MotionElements";
 import { Link } from "react-router-dom";
 
 export default function HeroSection() {
@@ -86,7 +87,7 @@ export default function HeroSection() {
           </div>
 
           {/* Right side - Image */}
-          <div className="w-full md:w-2/3 h-1/2 md:h-full flex items-center justify-center order-2 md:order-2">
+          <MotionHover className="w-full md:w-2/3 h-1/2 md:h-full flex items-center justify-center order-2 md:order-2">
             <div className="relative">
               <img
                 src="/images/hero-desk-nobg.png"
@@ -94,7 +95,7 @@ export default function HeroSection() {
                 className="w-full h-full max-h-[60vh] md:max-h-[80vh] object-contain"
               />
             </div>
-          </div>
+          </MotionHover>
         </div>
       </div>
     </section>

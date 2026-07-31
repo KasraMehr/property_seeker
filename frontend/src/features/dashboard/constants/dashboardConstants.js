@@ -7,6 +7,7 @@ import {
   FolderCheck,
   CalendarClock,
   Bot,
+  NotebookTabs,
   BarChart3
 } from "lucide-react";
 
@@ -29,6 +30,7 @@ export const OPERATOR_NAV_ITEMS = [
 // Admin menu items
 export const ADMIN_NAV_ITEMS = [
   { id: 'dashboard', label: 'داشبورد کل', path: '/admin/dashboard', icon: LayoutDashboard },
+  { id: 'listings', label: 'آگهی ها', path: '/admin/listings', icon: NotebookTabs},
   { id: 'users', label: 'مدیریت کارمندان', path: '/admin/users', icon: Users },
   { id: 'regions', label: 'مدیریت مناطق', path: '/admin/regions', icon: MapPin },
   { id: 'scraper', label: 'مدیریت اسکرپر', path: '/admin/scraper', icon: Bot },

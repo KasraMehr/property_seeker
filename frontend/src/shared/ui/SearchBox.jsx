@@ -1,6 +1,6 @@
-import { forwardRef, useState, useEffect } from "react";
+import { forwardRef, useState, useEffect, useRef } from "react";
 import { Search, X } from "lucide-react";
-import useDebounce from "../useDebounce";
+import useDebounce from "@/shared/useDebounce";
 
 const SearchBox = forwardRef(({
   value: controlledValue,
@@ -20,7 +20,13 @@ const SearchBox = forwardRef(({
   const displayValue = isControlled ? controlledValue : internal;
   const debouncedValue = useDebounce(displayValue, debounce);
 
-  useEffect(() => { onSearch?.(debouncedValue); }, [debouncedValue, onSearch]);
+  // Use ref to avoid infinite loop when onSearch is not wrapped in useCallback
+  const onSearchRef = useRef(onSearch);
+  onSearchRef.current = onSearch;
+
+  useEffect(() => {
+    onSearchRef.current?.(debouncedValue);
+  }, [debouncedValue]);
 
   const handleChange = (e) => {
     const v = e.target.value;
@@ -47,7 +53,6 @@ const SearchBox = forwardRef(({
   return (
     <div className={`w-full relative ${className}`}>
       <div className="relative">
-        {/* Input with floating label peer */}
         <input
           ref={ref}
           type="text"
@@ -67,12 +72,10 @@ const SearchBox = forwardRef(({
           `}
           {...props}
         />
-
-        {/* Floating label — exactly like Input */}
         <label
           className="
             absolute right-3 transition-all duration-200 ease-in-out pointer-events-none rounded-2xl
-            text-sm top-4 text-muted ps-6
+            text-sm top-4 text-muted ps-5
             peer-focus:text-[11px] peer-focus:-top-2.5 peer-focus:px-1.5 peer-focus:bg-surface
             peer-not-placeholder-shown:text-[11px] peer-not-placeholder-shown:-top-2.5 peer-not-placeholder-shown:px-1.5 peer-not-placeholder-shown:bg-surface
             peer-focus:text-(--role-primary)
@@ -80,13 +83,9 @@ const SearchBox = forwardRef(({
         >
           {floatingLabel}
         </label>
-
-        {/* Search icon on the right */}
         <div className="absolute right-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none">
           <Search size={iconSize} />
         </div>
-
-        {/* Clear button on the left */}
         {displayValue && !disabled && (
           <button
             type="button"
