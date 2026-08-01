@@ -2,6 +2,7 @@
 export default function Button({
   children,
   onClick,
+   icon: Icon,
   type = "button",
   variant = "primary",
   size = "md",
@@ -51,6 +52,7 @@ export default function Button({
       `}
       {...props}
     >
+      {Icon && <Icon className="w-4 h-4" />}
       {children}
     </Component>
   );

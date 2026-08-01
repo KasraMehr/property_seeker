@@ -30,7 +30,8 @@ export default function ListingDetailModal({ isOpen, onClose, listing }) {
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg" title="جزئیات آگهی">
-      <div className="space-y-4" dir="rtl">
+      {/* ✅ Scrollable content body */}
+      <div className="overflow-y-auto max-h-[60vh] pr-1 space-y-4" dir="rtl">
         {/* Picture */}
         {listing.hs_picture ? (
           <div className="w-full h-48 rounded-xl overflow-hidden bg-muted">
@@ -78,6 +79,7 @@ export default function ListingDetailModal({ isOpen, onClose, listing }) {
         </div>
       </div>
 
+      {/* Footer — stays fixed at bottom */}
       <div className="flex justify-end gap-2 mt-5 pt-4 border-t border-border">
         <Button variant="outline" size="sm" onClick={onClose}>بستن</Button>
         {listing.url && (

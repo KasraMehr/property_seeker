@@ -58,7 +58,9 @@ function SortHeader({ colKey, children, align = "right", sort }) {
       {children}
       <ArrowUpDown
         size={12}
-        className={sort.isActive(colKey) ? "text-(--role-primary)" : "text-muted/40"}
+        className={
+          sort.isActive(colKey) ? "text-(--role-primary)" : "text-muted/40"
+        }
       />
     </button>
   );
@@ -85,12 +87,26 @@ function Thumbnail({ src, alt }) {
 function SourceTag({ source }) {
   const map = {
     divar: { bg: "bg-purple-500/10", text: "text-purple-500", label: "دیوار" },
-    sheypoor: { bg: "bg-orange-500/10", text: "text-orange-500", label: "شیپور" },
-    internal: { bg: "bg-(--role-primary)/10", text: "text-(--role-primary)", label: "داخلی" },
+    sheypoor: {
+      bg: "bg-orange-500/10",
+      text: "text-orange-500",
+      label: "شیپور",
+    },
+    internal: {
+      bg: "bg-(--role-primary)/10",
+      text: "text-(--role-primary)",
+      label: "داخلی",
+    },
   };
-  const s = map[source] || { bg: "bg-muted/10", text: "text-muted", label: source || "—" };
+  const s = map[source] || {
+    bg: "bg-muted/10",
+    text: "text-muted",
+    label: source || "—",
+  };
   return (
-    <span className={`inline-flex px-2 py-0.5 rounded-md text-[10px] font-medium ${s.bg} ${s.text}`}>
+    <span
+      className={`inline-flex px-2 py-0.5 rounded-md text-[10px] font-medium ${s.bg} ${s.text}`}
+    >
       {s.label}
     </span>
   );
@@ -102,10 +118,18 @@ function SourceTag({ source }) {
 
 export default function ListingsPage() {
   const {
-    listings, loading, error,
-    page, setPage,
-    filters, setFilter, clearFilter, clearAll, activeChips,
-    handleSearch, refresh,
+    listings,
+    loading,
+    error,
+    page,
+    setPage,
+    filters,
+    setFilter,
+    clearFilter,
+    clearAll,
+    activeChips,
+    handleSearch,
+    refresh,
   } = useListingQuery();
 
   const sort = useListingSort(listings);
@@ -125,7 +149,9 @@ export default function ListingsPage() {
       <div className="flex items-center justify-center h-full">
         <div className="text-center space-y-3">
           <p className="text-danger font-medium">{error}</p>
-          <Button variant="outline" size="sm" onClick={refresh}>تلاش مجدد</Button>
+          <Button variant="outline" size="sm" onClick={refresh}>
+            تلاش مجدد
+          </Button>
         </div>
       </div>
     );
@@ -136,7 +162,9 @@ export default function ListingsPage() {
       {/* Header */}
       <div className="flex items-center justify-between shrink-0">
         <div>
-          <h1 className="text-xl font-bold text-foreground tracking-tight">مدیریت آگهی‌ها</h1>
+          <h1 className="text-xl font-bold text-foreground tracking-tight">
+            مدیریت آگهی‌ها
+          </h1>
           <p className="text-sm text-muted mt-1">
             {sort.sorted.length.toLocaleString("fa-IR")} آگهی
             {selection.selected.length > 0 && (
@@ -152,28 +180,30 @@ export default function ListingsPage() {
         </Button>
       </div>
 
-      {/* Search */}
-      <div className="shrink-0">
-        <SearchBox
-          label="جستجو"
-          placeholder="عنوان، شماره تلفن، توضیحات..."
-          debounce={400}
-          onSearch={handleSearch}
-          className="max-w-sm"
-        />
-      </div>
+      <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+        {/* Search */}
+        <div className="shrink-0">
+          <SearchBox
+            label="جستجو"
+            placeholder="عنوان، شماره تلفن، توضیحات..."
+            debounce={400}
+            onSearch={handleSearch}
+            className="max-w-sm"
+          />
+        </div>
 
-      {/* Filters */}
-      <div className="shrink-0">
-        <FilterBar
-          schema={FILTER_SCHEMA_NO_SEARCH}
-          options={FILTER_OPTIONS}
-          filters={filters}
-          onChange={setFilter}
-          onClear={clearFilter}
-          onClearAll={clearAll}
-          activeChips={activeChips}
-        />
+        {/* Filters */}
+        <div className="shrink-0">
+          <FilterBar
+            schema={FILTER_SCHEMA_NO_SEARCH}
+            options={FILTER_OPTIONS}
+            filters={filters}
+            onChange={setFilter}
+            onClear={clearFilter}
+            onClearAll={clearAll}
+            activeChips={activeChips}
+          />
+        </div>
       </div>
 
       {/* Table wrapper */}
@@ -205,35 +235,51 @@ export default function ListingsPage() {
               </Table.Column>
 
               <Table.Column width="260px">
-                <SortHeader colKey="title" sort={sort}>عنوان</SortHeader>
+                <SortHeader colKey="title" sort={sort}>
+                  عنوان
+                </SortHeader>
               </Table.Column>
 
               <Table.Column align="center" width="90px">
-                <SortHeader colKey="status" align="center" sort={sort}>وضعیت</SortHeader>
+                <SortHeader colKey="status" align="center" sort={sort}>
+                  وضعیت
+                </SortHeader>
               </Table.Column>
 
               <Table.Column align="center" width="80px">
-                <SortHeader colKey="score" align="center" sort={sort}>امتیاز</SortHeader>
+                <SortHeader colKey="score" align="center" sort={sort}>
+                  امتیاز
+                </SortHeader>
               </Table.Column>
 
               <Table.Column width="140px">
-                <SortHeader colKey="district" sort={sort}>منطقه</SortHeader>
+                <SortHeader colKey="district" sort={sort}>
+                  منطقه
+                </SortHeader>
               </Table.Column>
 
               <Table.Column width="130px">
-                <SortHeader colKey="price" sort={sort}>قیمت</SortHeader>
+                <SortHeader colKey="price" sort={sort}>
+                  قیمت
+                </SortHeader>
               </Table.Column>
 
               <Table.Column align="center" width="120px">
-                <SortHeader colKey="info" align="center" sort={sort}>سال / اتاق / طبقه</SortHeader>
+                <SortHeader colKey="info" align="center" sort={sort}>
+                  سال / اتاق / طبقه
+                </SortHeader>
               </Table.Column>
 
               <Table.Column align="center" width="80px">
-                <SortHeader colKey="source" align="center" sort={sort}>منبع</SortHeader>
+                <SortHeader colKey="source" align="center" sort={sort}>
+                  منبع
+                </SortHeader>
               </Table.Column>
 
               <Table.Column align="center" width="60px">
-                <span className="text-xs font-medium text-muted uppercase tracking-wide">عملیات</span>
+                <span className="text-xs font-medium text-muted uppercase tracking-wide">
+                  عملیات
+                </span>
               </Table.Column>
             </Table.Header>
 
@@ -267,7 +313,12 @@ export default function ListingsPage() {
 
                   {/* Status */}
                   <Table.Cell align="center">
-                    <StatusBadge status={row.status} type="property" variant="soft" size="sm" />
+                    <StatusBadge
+                      status={row.status}
+                      type="property"
+                      variant="soft"
+                      size="sm"
+                    />
                   </Table.Cell>
 
                   {/* Score */}
@@ -286,10 +337,15 @@ export default function ListingsPage() {
                   {/* Price */}
                   <Table.Cell>
                     <div className="flex flex-col gap-0.5">
-                      <span className="text-sm font-medium text-foreground">{fmtPrice(row)}</span>
+                      <span className="text-sm font-medium text-foreground">
+                        {fmtPrice(row)}
+                      </span>
                       {row.price_per_meter_toman && (
                         <span className="text-[10px] text-(--role-primary)">
-                          متری: {new Intl.NumberFormat("fa-IR").format(row.price_per_meter_toman)}
+                          متری:{" "}
+                          {new Intl.NumberFormat("fa-IR").format(
+                            row.price_per_meter_toman,
+                          )}
                         </span>
                       )}
                     </div>
@@ -297,7 +353,9 @@ export default function ListingsPage() {
 
                   {/* Year / Rooms / Floor */}
                   <Table.Cell align="center">
-                    <span className="text-xs text-muted font-mono">{fmtYearRoomsFloor(row)}</span>
+                    <span className="text-xs text-muted font-mono">
+                      {fmtYearRoomsFloor(row)}
+                    </span>
                   </Table.Cell>
 
                   {/* Source */}
@@ -309,20 +367,20 @@ export default function ListingsPage() {
                   <Table.Cell align="center">
                     <TableActions
                       onView={() => modals.openDetail(row)}
-                      onEdit={() => console.log("edit", row.id)}
-                      onDelete={() => actions.remove(row.id)}
+                      // onEdit={() => console.log("edit", row.id)}
                       actions={[
                         row.url && {
-                          label: "مشاهده در منبع",
-                          icon: ExternalLink,
-                          onClick: () => window.open(row.url, "_blank"),
-                        },
-                        {
                           label: "تخصیص به کارشناس",
                           icon: UserPlus,
                           onClick: () => modals.openAssign(row.id),
                         },
+                        {
+                          label: "مشاهده در منبع",
+                          icon: ExternalLink,
+                          onClick: () => window.open(row.url, "_blank"),
+                        },
                       ].filter(Boolean)}
+                      // onDelete={() => actions.remove(row.id)}
                     />
                   </Table.Cell>
                 </Table.Row>
@@ -333,7 +391,11 @@ export default function ListingsPage() {
 
         {/* Pagination */}
         <div className="shrink-0 pt-3">
-          <TablePagination page={page} totalPages={totalPages} onChange={setPage} />
+          <TablePagination
+            page={page}
+            totalPages={totalPages}
+            onChange={setPage}
+          />
         </div>
       </div>
 

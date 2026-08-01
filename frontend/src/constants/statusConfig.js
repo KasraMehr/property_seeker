@@ -18,6 +18,12 @@ import {
   Hash,
   VolumeX,
   TrendingUp,
+  Calendar,
+  Flag,
+  Search,
+  Loader2,
+  ThumbsDown,
+  Radio,
 } from "lucide-react";
 
 // Types of status
@@ -99,6 +105,10 @@ const STATUS_MAP = {
     pending: { label: "در انتظار تأیید", icon: PauseCircle, color: "warning" },
     archived: { label: "بایگانی", icon: Archive, color: "neutral" },
     featured: { label: "ویژه", icon: Sparkles, color: "accent" },
+    // NEW — aligned with expanded mock data
+    pending_review: { label: "در انتظار بررسی", icon: Search, color: "warning" },
+    flagged: { label: "علامت‌گذاری شده", icon: Flag, color: "danger" },
+    converted: { label: "تبدیل شده", icon: TrendingUp, color: "success" },
   },
 
   followup: {
@@ -107,6 +117,8 @@ const STATUS_MAP = {
     overdue: { label: "تأخیر", icon: AlertCircle, color: "danger" },
     cancelled: { label: "لغو شده", icon: Ban, color: "neutral" },
     rescheduled: { label: "تغییر زمان", icon: RotateCcw, color: "warning" },
+    // NEW
+    in_progress: { label: "در حال انجام", icon: Loader2, color: "accent" },
   },
 
   user: {
@@ -123,6 +135,14 @@ const STATUS_MAP = {
     callback: { label: "تماس مجدد", icon: RotateCcw, color: "warning" },
     voicemail: { label: "صندوق صوتی", icon: VolumeX, color: "neutral" },
     wrong: { label: "شماره اشتباه", icon: XCircle, color: "neutral" },
+    interested: { label: "علاقه‌مند", icon: TrendingUp, color: "success" },
+    visit_booked: { label: "قرار بازدید", icon: Calendar, color: "accent" },
+    follow_up: { label: "پیگیری", icon: RotateCcw, color: "warning" },
+    // NEW — aligned with expanded mock data
+    converted: { label: "تبدیل شده", icon: CheckCircle2, color: "success" },
+    rejected: { label: "رد شده", icon: ThumbsDown, color: "neutral" },
+    unreachable: { label: "دسترسی ناپذیر", icon: Radio, color: "danger" },
+    callback_requested: { label: "درخواست تماس مجدد", icon: Phone, color: "special" },
   },
 
   generic: {

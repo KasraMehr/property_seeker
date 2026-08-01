@@ -5,7 +5,12 @@ import Button from "@/shared/ui/Button";
 import SearchBox from "@/shared/ui/SearchBox";
 import userService from "@/features/users-management/services/userService";
 
-export default function AssignOperatorModal({ isOpen, onClose, listingId, onAssign }) {
+export default function AssignOperatorModal({
+  isOpen,
+  onClose,
+  listingId,
+  onAssign,
+}) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
@@ -20,7 +25,9 @@ export default function AssignOperatorModal({ isOpen, onClose, listingId, onAssi
       setLoading(true);
       try {
         const res = await userService.getAll();
-        const list = Array.isArray(res.data) ? res.data : res.data?.results || [];
+        const list = Array.isArray(res.data)
+          ? res.data
+          : res.data?.results || [];
         if (!cancelled) setUsers(list);
       } catch {
         if (!cancelled) setUsers([]);
@@ -29,7 +36,9 @@ export default function AssignOperatorModal({ isOpen, onClose, listingId, onAssi
       }
     };
     fetchUsers();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [isOpen]);
 
   // Reset on close
@@ -43,10 +52,11 @@ export default function AssignOperatorModal({ isOpen, onClose, listingId, onAssi
   const filtered = useMemo(() => {
     if (!search.trim()) return users;
     const q = search.trim().toLowerCase();
-    return users.filter((u) =>
-      (u.full_name || "").toLowerCase().includes(q) ||
-      (u.phone || "").includes(q) ||
-      (u.email || "").toLowerCase().includes(q)
+    return users.filter(
+      (u) =>
+        (u.full_name || "").toLowerCase().includes(q) ||
+        (u.phone || "").includes(q) ||
+        (u.email || "").toLowerCase().includes(q),
     );
   }, [users, search]);
 
@@ -78,9 +88,13 @@ export default function AssignOperatorModal({ isOpen, onClose, listingId, onAssi
         <div className="border border-border rounded-xl overflow-hidden">
           <div className="max-h-64 overflow-y-auto">
             {loading ? (
-              <div className="p-6 text-center text-sm text-muted">در حال بارگذاری...</div>
+              <div className="p-6 text-center text-sm text-muted">
+                در حال بارگذاری...
+              </div>
             ) : filtered.length === 0 ? (
-              <div className="p-6 text-center text-sm text-muted">کارشناسی یافت نشد</div>
+              <div className="p-6 text-center text-sm text-muted">
+                کارشناسی یافت نشد
+              </div>
             ) : (
               filtered.map((user) => {
                 const isSelected = selectedUserId === user.id;
@@ -93,20 +107,26 @@ export default function AssignOperatorModal({ isOpen, onClose, listingId, onAssi
                       isSelected ? "bg-(--role-primary)/10" : ""
                     }`}
                   >
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                      isSelected ? "border-(--role-primary) bg-(--role-primary)" : "border-border"
-                    }`}>
+                    <div
+                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                        isSelected
+                          ? "border-(--role-primary) bg-(--role-primary)"
+                          : "border-border"
+                      }`}
+                    >
                       {isSelected && <Check size={12} className="text-white" />}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-foreground truncate">
                         {user.full_name || user.phone || `کاربر ${user.id}`}
                       </p>
-                      <p className="text-xs text-muted">{user.phone || user.email || ""}</p>
+                      <p className="text-xs text-muted">
+                        {user.phone || user.email || ""}
+                      </p>
                     </div>
                     {user.role && (
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-(--role-subtle)/30 text-muted">
-                        {user.role}
+                      <span className="...">
+                        {user.role?.map?.((r) => r.name || r).join("، ") || ""}
                       </span>
                     )}
                   </button>
@@ -118,7 +138,12 @@ export default function AssignOperatorModal({ isOpen, onClose, listingId, onAssi
 
         {/* Actions */}
         <div className="flex justify-end gap-2 pt-2">
-          <Button variant="outline" size="sm" onClick={onClose} disabled={submitting}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onClose}
+            disabled={submitting}
+          >
             انصراف
           </Button>
           <Button

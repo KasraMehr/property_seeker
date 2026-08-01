@@ -7,7 +7,7 @@ import ListingsPage from '@/features/listings/pages/ListingsPage'
 
 export const adminRoutes = [
   { path: 'dashboard', element: <AdminDashboardPage /> },
-  { path: 'listings' , element: <ListingsPage/>},
+  { path: 'listings', element: <ListingsPage /> },
   { path: 'users', element: <UsersPage /> },
   { path: 'regions', element: <RegionsPage /> },
   { path: 'scraper', element: <ScraperPage /> },

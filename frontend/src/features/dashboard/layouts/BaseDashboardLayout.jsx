@@ -40,7 +40,7 @@ export default function BaseDashboardLayout({
         <DashboardHeader onMenuOpen={openSidebar} />
 
         {/* Main Content uses --background */}
-        <main className="flex-1 overflow-y-auto p-6 bg-background text-foreground transition-colors duration-300">
+        <main className="flex-1 overflow-y-auto p-6 bg-(--role-primary)/10 text-foreground transition-colors duration-300">
           <Outlet />
         </main>
       </div>

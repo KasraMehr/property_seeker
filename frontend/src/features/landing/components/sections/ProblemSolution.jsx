@@ -17,7 +17,7 @@ export default function ProblemSolution() {
       <div className="max-w-7xl w-full mx-auto px-6">
         {/* Header*/}
         <MotionDiv delay={0.1} className="text-center max-w-3xl mx-auto mb-16">
-          <span className="inline-flex items-center px-4 py-2 rounded-full bg-primary/10 text-primary text-lg font-semibold border border-primary/20 mb-6">
+          <span className="inline-flex items-center px-4 py-2 rounded-full bg-warning/10 text-warning text-lg font-semibold border border-warning/20 mb-6">
             {PROBLEM_SOLUTION_STRINGS.badge}
           </span>
 
