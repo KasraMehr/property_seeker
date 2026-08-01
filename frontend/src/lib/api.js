@@ -1,8 +1,8 @@
 import axios from "axios";
 
-// Base Configuration - Points to the Django account API root
+// Root API URL (without /accounts)
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api/accounts";
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -31,17 +31,14 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // اگر اصلاً response وجود ندارد
     if (!error.response) {
       return Promise.reject(error);
     }
 
-    // روی خود refresh دوباره refresh نزن
-    if (originalRequest.url.includes("/refresh/")) {
+    if (originalRequest.url.includes("/accounts/refresh/")) {
       return Promise.reject(error);
     }
 
-    // فقط روی 401
     if (error.response.status !== 401 || originalRequest._retry) {
       return Promise.reject(error);
     }
@@ -58,7 +55,7 @@ api.interceptors.response.use(
 
     try {
       await axios.post(
-        `${API_BASE_URL}/refresh/`,
+        `${API_BASE_URL}/accounts/refresh/`,
         {},
         { withCredentials: true }
       );

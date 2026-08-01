@@ -25,32 +25,40 @@ export default function DashboardSidebar({
       {/* Main Sidebar Container */}
       <aside
         className={`
-          fixed inset-y-0 right-0 z-50 flex w-72 flex-col border-l border-border bg-surface p-6 transition-transform duration-300 ease-in-out
+          fixed inset-y-0 right-0 z-50 flex w-72 flex-col 
+          border-l border-border bg-surface p-5
+          transition-transform duration-300 ease-in-out
           lg:static lg:z-0 lg:flex lg:translate-x-0
           ${isOpen ? "translate-x-0" : "translate-x-full"}
         `}
       >
-        <div className="mb-8 flex items-center justify-between shrink-0">
-          <Link to="/dashboard" onClick={onClose}>
-            <Logo labelPosition="left" />
+        {/* Header: Logo + Close + Theme */}
+        <div className="mb-6 flex items-center justify-between shrink-0 gap-3">
+          <Link to="/dashboard" onClick={onClose} className="shrink-0">
+            <Logo size="sm" labelPosition="left" />
           </Link>
 
-          <Button
-            onClick={onClose}
-            variant="ghost"
-            className="flex lg:hidden w-10 h-10 p-0 rounded-xl"
-          >
-            <X size={20} />
-          </Button>
+          <div className="flex items-center gap-2">
+            <ThemeToggle size="sm" />
 
-          <ThemeToggle />
+            <Button
+              onClick={onClose}
+              variant="ghost"
+              size="icon"
+              className="lg:hidden w-9 h-9 rounded-lg"
+            >
+              <X size={18} />
+            </Button>
+          </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto">
+        {/* ── Navigation ── */}
+        <div className="flex-1 overflow-y-auto -mx-1 px-1">
           <NavigationMenu
             items={menuItems}
             footer={footer}
             onItemClick={onClose}
+            className="gap-1"
           />
         </div>
       </aside>

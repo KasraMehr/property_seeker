@@ -27,6 +27,22 @@
   --color-role-border: var(--role-border);
   --color-role-surface-accent: var(--role-surface-accent);
   --color-role-text-accent: var(--role-text-accent);
+
+   /* Semantic Status Colors */
+  --color-status-info: var(--status-info);
+  --color-status-info-soft: var(--status-info-soft);
+  --color-status-success: var(--status-success);
+  --color-status-success-soft: var(--status-success-soft);
+  --color-status-warning: var(--status-warning);
+  --color-status-warning-soft: var(--status-warning-soft);
+  --color-status-danger: var(--status-danger);
+  --color-status-danger-soft: var(--status-danger-soft);
+  --color-status-neutral: var(--status-neutral);
+  --color-status-neutral-soft: var(--status-neutral-soft);
+  --color-status-accent: var(--status-accent);
+  --color-status-accent-soft: var(--status-accent-soft);
+  --color-status-special: var(--status-special);
+  --color-status-special-soft: var(--status-special-soft);
 }
 
 /* ===========================
@@ -53,6 +69,28 @@
   --success: #22c55e;
   --warning: #f59e0b;
   --danger: #ef4444;
+
+  --status-info: #0ea5e9;        /* Sky 500 */
+  --status-info-soft: #f0f9ff;
+  --status-success: #10b981;     /* Emerald 500 */
+  --status-success-soft: #ecfdf5;
+  --status-warning: #f59e0b;     /* Amber 500 */
+  --status-warning-soft: #fffbeb;
+  --status-danger: #f43f5e;      /* Rose 500 */
+  --status-danger-soft: #fff1f2;
+  --status-neutral: #64748b;     /* Slate 500 */
+  --status-neutral-soft: #f8fafc;
+  --status-accent: #8b5cf6;      /* Violet 500 */
+  --status-accent-soft: #f5f3ff;
+  --status-special: #06b6d4;     /* Cyan 500 */
+  --status-special-soft: #ecfeff;
+
+  --role-primary: var(--primary);
+  --role-primary-hover: var(--primary-hover);
+  --role-subtle: rgba(37, 99, 235, 0.08);
+  --role-border: rgba(37, 99, 235, 0.2);
+  --role-surface-accent: #eff6ff;
+  --role-text-accent: #2563eb;
 }
 
 /* ===========================
@@ -79,6 +117,21 @@ html[data-theme="dark"] {
   --success: #22c55e;
   --warning: #f59e0b;
   --danger: #ef4444;
+
+  --status-info: #38bdf8;
+  --status-info-soft: rgba(56, 189, 248, 0.12);
+  --status-success: #34d399;
+  --status-success-soft: rgba(52, 211, 153, 0.12);
+  --status-warning: #fbbf24;
+  --status-warning-soft: rgba(251, 191, 36, 0.12);
+  --status-danger: #fb7185;
+  --status-danger-soft: rgba(251, 113, 133, 0.12);
+  --status-neutral: #94a3b8;
+  --status-neutral-soft: rgba(148, 163, 184, 0.12);
+  --status-accent: #a78bfa;
+  --status-accent-soft: rgba(167, 139, 250, 0.12);
+  --status-special: #22d3ee;
+  --status-special-soft: rgba(34, 211, 238, 0.12);
 }
 
 /* ===========================
@@ -95,6 +148,13 @@ html[data-theme="dark"] {
 
   --role-surface-accent: #1c1917;    /* Charcoal Black Accent */
   --role-text-accent: #fef3c7;
+
+  --status-info: #3b82f6;        /* Blue - for informational */
+  --status-success: #22c55e;     /* Green - for successful/completed */
+  --status-warning: #f59e0b;     /* Amber - for warnings/pending */
+  --status-danger: #ef4444;      /* Red - for errors/rejected */
+  --status-accent: #b45309;      /* Bronze - matching admin primary */
+
 }
 
 /* Admin: Dark Mode */
@@ -112,6 +172,12 @@ html[data-theme="dark"]:has([data-role="admin"]) {
   --background: #000 !important;   /* Pure Rich Black */
   --surface: #14110f !important;      /* Dark Espresso */
   --card: #1c1815 !important;         /* Warm Dark Brown-Black */
+
+  --status-info: #fbbf24;        /* Amber Gold */
+  --status-success: #a3e635;     /* Lime */
+  --status-warning: #f97316;     /* Orange */
+  --status-danger: #ef4444;
+  --status-accent: #f59e0b;      /* Gold */
 }
 
 /* =========================================================
@@ -128,6 +194,12 @@ html[data-theme="dark"]:has([data-role="admin"]) {
 
   --role-surface-accent: #0f172a;
   --role-text-accent: #e0f2fe;
+
+  --status-info: #0284c7;        /* Cyan - matching operator primary */
+  --status-success: #22c55e;     /* Green */
+  --status-warning: #f59e0b;     /* Amber */
+  --status-danger: #ef4444;      /* Red */
+  --status-accent: #0284c7;      /* Cyan */
 }
 
 /* Operator: Dark Mode */
@@ -145,4 +217,12 @@ html[data-theme="dark"]:has([data-role="operator"]) {
   --background: #0b0f19 !important;   /* Deep Violet-Black */
   --surface: #131b2e !important;      /* Midnight Blue / Deep Violet */
   --card: #1a243b !important;         /* Dark Slate Teal / Muted Sage Dark */
+
+  --status-info: #38bdf8;        /* Electric Cyan */
+  --status-success: #2dd4bf;     /* Teal */
+  --status-warning: #fbbf24;
+  --status-danger: #f43f5e;
+  --status-accent: #818cf8;      /* Indigo */
 }
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
