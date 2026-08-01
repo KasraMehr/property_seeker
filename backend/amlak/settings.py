@@ -10,15 +10,25 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 from datetime import timedelta
+import os
 from pathlib import Path
+from celery.schedules import crontab
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 from decouple import config
 
-SECRET_KEY = config("SECRET_KEY")
-print("SECRET:", SECRET_KEY)
-print(type(SECRET_KEY))
-DEBUG = True
+
+def env_bool(name, default=False):
+    value = os.environ.get(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on", "debug", "development"}
+
+SECRET_KEY = config(
+    "SECRET_KEY",
+    default="unsafe-development-only-key-change-before-any-deployment-2026",
+)
+DEBUG = env_bool("DEBUG", default=True)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
@@ -26,7 +36,11 @@ DEBUG = True
 # SECURITY WARNING: keep the secret key used in production secret!
 
 # SECURITY WARNING: don't run with debug turned on in production!
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in config("ALLOWED_HOSTS", default="localhost,127.0.0.1").split(",")
+    if host.strip()
+]
 #پکیج cors برای اینکه  فرانت و بک بتونن بهم وصل بشن
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
@@ -50,9 +64,7 @@ INSTALLED_APPS = [
     "audit",
     "accounts",
     "crm",
-    "deals",
-    "finance",
-    "media",
+    "ingestion",
     "listing",
     "locations",
     "properties",
@@ -64,6 +76,13 @@ INSTALLED_APPS = [
 
 
 ]
+
+# These apps are referenced by the legacy project but are gitignored/absent in
+# some checkouts. Re-enable them automatically when their source is present.
+if (BASE_DIR / "deals" / "apps.py").exists():
+    INSTALLED_APPS.extend(["deals", "finance"])
+if (BASE_DIR / "media" / "apps.py").exists():
+    INSTALLED_APPS.append("media")
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -97,26 +116,31 @@ TEMPLATES = [
 WSGI_APPLICATION = 'amlak.wsgi.application'
 
 AUTH_USER_MODEL = 'accounts.User'
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+DB_ENGINE = config("DB_ENGINE", default="django.db.backends.sqlite3")
+if DB_ENGINE == "django.db.backends.postgresql":
+    DATABASES = {
+        "default": {
+            "ENGINE": DB_ENGINE,
+            "NAME": config("DB_NAME", default="property_seeker"),
+            "USER": config("DB_USER", default="property_seeker"),
+            "PASSWORD": config("DB_PASSWORD", default="property_seeker"),
+            "HOST": config("DB_HOST", default="localhost"),
+            "PORT": config("DB_PORT", default="5432"),
+            "CONN_MAX_AGE": config("DB_CONN_MAX_AGE", default=60, cast=int),
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": config("SQLITE_PATH", default=BASE_DIR / "db.sqlite3"),
+        }
+    }
 
-"""DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'realestate_db',
-        'USER': 'realestate_user',
-        'PASSWORD': '123456',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
-}"""
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 
@@ -141,7 +165,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = config("TIME_ZONE", default="Asia/Tehran")
 
 USE_I18N = True
 
@@ -176,7 +200,20 @@ AUTHENTICATION_BACKENDS = [
 
 CSRF_COOKIE_HTTPONLY = False
 CSRF_COOKIE_SAMESITE = "Lax"
-CSRF_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = env_bool("CSRF_COOKIE_SECURE", default=not DEBUG)
+SESSION_COOKIE_SECURE = env_bool("SESSION_COOKIE_SECURE", default=not DEBUG)
+SECURE_SSL_REDIRECT = env_bool("SECURE_SSL_REDIRECT", default=not DEBUG)
+SECURE_HSTS_SECONDS = config(
+    "SECURE_HSTS_SECONDS",
+    default=31536000 if not DEBUG else 0,
+    cast=int,
+)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool(
+    "SECURE_HSTS_INCLUDE_SUBDOMAINS",
+    default=not DEBUG,
+)
+SECURE_HSTS_PRELOAD = env_bool("SECURE_HSTS_PRELOAD", default=not DEBUG)
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
@@ -191,7 +228,7 @@ SIMPLE_JWT = {
     "AUTH_COOKIE_REFRESH": "refresh",
 
     "AUTH_COOKIE_HTTP_ONLY": True,
-    "AUTH_COOKIE_SECURE": False,      # Local
+    "AUTH_COOKIE_SECURE": env_bool("AUTH_COOKIE_SECURE", default=not DEBUG),
     "AUTH_COOKIE_SAMESITE": "Lax",
 
     "ACCESS_TOKEN_LIFETIME_SECONDS": 3600,
@@ -219,3 +256,40 @@ LOGGING = {
         "level": "DEBUG" if DEBUG else "INFO",
     },
 }
+
+# ---------------- BACKGROUND INGESTION ----------------
+REDIS_URL = config("REDIS_URL", default="redis://localhost:6379/0")
+CELERY_BROKER_URL = REDIS_URL
+CELERY_RESULT_BACKEND = None
+CELERY_TIMEZONE = config("CELERY_TIMEZONE", default="Asia/Tehran")
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = config("CELERY_TASK_TIME_LIMIT", default=3600, cast=int)
+CELERY_TASK_SOFT_TIME_LIMIT = config("CELERY_TASK_SOFT_TIME_LIMIT", default=3300, cast=int)
+CELERY_WORKER_MAX_TASKS_PER_CHILD = config(
+    "CELERY_WORKER_MAX_TASKS_PER_CHILD", default=10, cast=int
+)
+CELERY_WORKER_PREFETCH_MULTIPLIER = 1
+CELERY_TASK_REJECT_ON_WORKER_LOST = True
+CELERY_TASK_ALWAYS_EAGER = env_bool("CELERY_TASK_ALWAYS_EAGER", default=False)
+CELERY_TASK_EAGER_PROPAGATES = True
+CELERY_TASK_ROUTES = {
+    "ingestion.tasks.discover_run": {"queue": "scraping"},
+    "ingestion.tasks.process_run_batch": {"queue": "scraping"},
+}
+CELERY_BEAT_SCHEDULE = {
+    "divar-discovery-every-15-minutes": {
+        "task": "ingestion.tasks.dispatch_incremental_discovery",
+        "schedule": timedelta(minutes=15),
+    },
+    "divar-refresh-dispatch-every-15-minutes": {
+        "task": "ingestion.tasks.dispatch_due_refreshes",
+        "schedule": timedelta(minutes=15),
+    },
+    "divar-daily-token-reconciliation": {
+        "task": "ingestion.tasks.dispatch_daily_reconciliation",
+        "schedule": crontab(hour=2, minute=0),
+    },
+}
+DIVAR_REQUEST_INTERVAL_SECONDS = config(
+    "DIVAR_REQUEST_INTERVAL_SECONDS", default=2.5, cast=float
+)

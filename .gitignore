@@ -18,6 +18,7 @@ staticfiles/
 static/
 
 backend/db.sqlite3
+backend/Data_log/
 
 .env.*.local
 
