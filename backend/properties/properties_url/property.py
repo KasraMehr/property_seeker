@@ -3,8 +3,6 @@ from django.urls import path
 from ..views.property import *
 
 
-app_name = "properties"
-
 urlpatterns = [
 
   path("property/list",PropertyListView.as_view(), name="property-list"),

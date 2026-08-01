@@ -3,8 +3,6 @@ from django.urls import path
 from ..views.owner import *
 
 
-app_name = "properties"
-
 urlpatterns = [
 
     path("owner/create/",OwnerCreateView.as_view(),name="owner_create"),
