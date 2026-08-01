@@ -78,6 +78,12 @@ class Address(models.Model):
         related_name="addresses"
     )
 
+    agency = models.ForeignKey(
+        "accounts.Agency",
+        on_delete=models.CASCADE,
+        related_name="addresses",
+    )
+
     street = models.CharField(
         max_length=255,
         blank=True
