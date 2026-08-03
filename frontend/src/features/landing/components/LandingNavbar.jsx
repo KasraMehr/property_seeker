@@ -18,13 +18,13 @@ export default function LandingNavbar() {
   const openMenu = () => setIsMenuOpen(true);
   const closeMenu = () => setIsMenuOpen(false);
 
-  // Smooth scroll with header offset 
+  // Smooth scroll with header offset
   const scrollToSection = useCallback((href) => {
     if (!href?.startsWith("#")) return false;
     const el = document.querySelector(href);
     if (!el) return false;
 
-    const headerOffset = 112; 
+    const headerOffset = 112;
     const top = el.getBoundingClientRect().top + window.scrollY - headerOffset;
     window.scrollTo({ top, behavior: "smooth" });
     return true;
@@ -39,7 +39,7 @@ export default function LandingNavbar() {
     [scrollToSection],
   );
 
-  // Prepare nav items for NavigationMenu 
+  // Prepare nav items for NavigationMenu
   const navItems = NAVBAR_STRINGS.menuItems.map((item) => ({
     ...item,
     type: item.href?.startsWith("#") ? "anchor" : "route",
@@ -130,11 +130,12 @@ export default function LandingNavbar() {
         onClose={closeMenu}
         header={<Logo size="md" labelPosition="left" />}
       >
-        <NavigationMenu
-          items={navItems}
-          onItemClick={closeMenu}
-          scrollOffset={112}
-        />
+        <div className="flex h-full flex-col items-center px-6 py-8">
+            <NavigationMenu
+              items={navItems}
+              onItemClick={closeMenu}
+            />
+        </div>
       </Drawer>
     </>
   );

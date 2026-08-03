@@ -75,8 +75,8 @@ export const MOCK_LISTINGS = [
     floor_number: 4, hs_picture: "https://images.unsplash.com/photo-1484154218962-a1c002085d2f?w=400",
   },
   {
-    id: 6, title: "آپارتمان ۱۳۰ متری کیانمهر",
-    external_id: "divar_krj_006", source: "divar", url: "https://divar.ir/v/krj_006",
+    id: 6, title:"فروش آپارتمان 130 متری ، مهرشهر کیانمهر گلستان",
+    external_id: "divar_krj_006", source: "divar", url: "https://divar.ir/v/%D9%81%D8%B1%D9%88%D8%B4-%D8%A2%D9%BE%D8%A7%D8%B1%D8%AA%D9%85%D8%A7%D9%86-130-%D9%85%D8%AA%D8%B1%DB%8C-%D9%85%D9%87%D8%B1%D8%B4%D9%87%D8%B1-%DA%A9%DB%8C%D8%A7%D9%86%D9%85%D9%87%D8%B1-%DA%AF%D9%84%D8%B3%D8%AA%D8%A7%D9%86/gaHFXZK6?tracker_session_id=b9be422f-9e3c-4ad1-a246-9c1ac204f57b_gaHFXZK6_N",
     status: "active", score: 95, phone: "09126667788",
     description: "آپارتمان نوساز کیانمهر با پارکینگ",
     listed_sale_price: 1100000000, listed_deposit_amount: null, listed_rent_amount: null,

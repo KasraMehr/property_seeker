@@ -1,5 +1,6 @@
 import { forwardRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { createPortal } from "react-dom"
 import {
   AlertTriangle, CheckCircle2, Info, Trash2, X , User
 } from "lucide-react";
@@ -79,7 +80,7 @@ const ConfirmModal = forwardRef(({
   const style = styleMap[variant] || styleMap.danger;
   const Icon = style.icon;
 
-  return (
+  const modal = (
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" {...props}>
@@ -151,7 +152,8 @@ const ConfirmModal = forwardRef(({
         </div>
       )}
     </AnimatePresence>
-  );
+  )
+  return createPortal(modal , document.body);
 });
 
 ConfirmModal.displayName = "ConfirmModal";

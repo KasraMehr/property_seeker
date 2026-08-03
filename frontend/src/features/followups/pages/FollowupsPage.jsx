@@ -17,10 +17,14 @@ import {toastService} from "@/lib/toast";
 
 const PAGE_SIZE = 10;
 
+
 const STATUS_OPTIONS = [
   { value: "pending", label: "در انتظار" },
   { value: "done", label: "انجام شده" },
   { value: "cancelled", label: "لغو شده" },
+{value: "overdue" , label:"تاخیر"},
+{value:"in_progress" , label:"درحال انجام"},
+{value: "rescheduled" , label:"تغییر زمان"},
 ];
 
 const SortHeader = ({ label, column, sort, onToggle }) => {
