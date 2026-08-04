@@ -21,7 +21,11 @@ import Button from "@/shared/ui/Button";
 import SearchBox from "@/shared/ui/SearchBox";
 import FilterBar from "@/shared/filters/FilterBar";
 import ConfirmModal from "@/shared/ui/modal/ConfirmModal";
-import { LISTING_FILTERS, FILTER_OPTIONS } from "@/constants/filterConfig";
+import {
+  LISTING_STATUS_CONFIG,
+  LISTING_FILTERS,
+  LISTING_TABLE_COLUMNS,
+} from "@/features/listings/config";
 
 import useListingQuery from "@/features/listings/hooks/useListingQuery";
 import useListingSort from "@/features/listings/hooks/useListingSort";
@@ -35,7 +39,7 @@ import {
   fmtPrice,
   fmtYearRoomsFloor,
   fmtSource,
-} from "@/features/listings/config/listingTableConfig";
+} from "@/features/listings/config";
 
 import ListingDetailModal from "@/features/listings/components/ListingDetailModal";
 import AssignOperatorModal from "@/features/listings/components/AssignOperatorModal";

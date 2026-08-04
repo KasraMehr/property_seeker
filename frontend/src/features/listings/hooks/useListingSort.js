@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from "react";
-import { DEFAULT_SORT } from "@/features/listings/config/listingTableConfig";
+import { DEFAULT_SORT } from "@/features/listings/config";
 
 const sortFn = (data, col, dir) => {
   const sorted = [...data];

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Button from "@/shared/ui/Button";
-import Select from "@/shared/ui/Select";
-import Input from "@/shared/ui/Input";
+import Select from "@/shared/ui/selectors/Select";
+import DatePicker from "@/shared/ui/selectors/DatePicker";
 
 const RESULT_OPTIONS = [
   { value: "interested", label: "علاقه‌مند" },
@@ -17,7 +17,12 @@ const FOLLOWUP_STATUS_OPTIONS = [
 ];
 
 export default function RegisterCallForm({ onSubmit, onCancel }) {
-  const [form, setForm] = useState({ result: "", followupStatus: "", nextDate: "", notes: "" });
+  const [form, setForm] = useState({
+    result: "",
+    followupStatus: "",
+    nextDate: "",
+    notes: "",
+  });
 
   const update = (key, value) => setForm((p) => ({ ...p, [key]: value }));
 
@@ -28,11 +33,29 @@ export default function RegisterCallForm({ onSubmit, onCancel }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <Select label="نتیجه تماس" value={form.result} onChange={(v) => update("result", v)} options={RESULT_OPTIONS} placeholder="" />
-      <Select label="وضعیت پیگیری" value={form.followupStatus} onChange={(v) => update("followupStatus", v)} options={FOLLOWUP_STATUS_OPTIONS} placeholder="" />
-      <Input label="تاریخ پیگیری بعدی" type="date" value={form.nextDate} onChange={(v) => update("nextDate", v)} />
+      <Select
+        label="نتیجه تماس"
+        value={form.result}
+        onChange={(v) => update("result", v)}
+        options={RESULT_OPTIONS}
+        placeholder=""
+      />
+      <Select
+        label="وضعیت پیگیری"
+        value={form.followupStatus}
+        onChange={(v) => update("followupStatus", v)}
+        options={FOLLOWUP_STATUS_OPTIONS}
+        placeholder=""
+      />
+      <DatePicker
+        label="تاریخ پیگیری بعدی"
+        value={form.nextDate}
+        onChange={(v) => update("nextDate", v)}
+      />
       <div className="space-y-1.5">
-        <label className="block text-sm font-medium text-foreground">یادداشت</label>
+        <label className="block text-sm font-medium text-foreground">
+          یادداشت
+        </label>
         <textarea
           value={form.notes}
           onChange={(e) => update("notes", e.target.value)}
@@ -41,9 +64,14 @@ export default function RegisterCallForm({ onSubmit, onCancel }) {
           placeholder="جزئیات تماس..."
         />
       </div>
+      ‍
       <div className="flex items-center justify-end gap-2 pt-2">
-        <Button type="button" variant="ghost" onClick={onCancel}>انصراف</Button>
-        <Button type="submit" variant="primary">ثبت تماس</Button>
+        <Button type="button" variant="ghost" onClick={onCancel}>
+          انصراف
+        </Button>
+        <Button type="submit" variant="primary">
+          ثبت تماس
+        </Button>
       </div>
     </form>
   );

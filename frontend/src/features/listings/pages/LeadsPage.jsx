@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Eye, Pencil, Trash2, Home, Plus, Search } from "lucide-react";
-import PageHeader from "@/shared/ui/PageHeader";
+import PageHeader from "@/shared/page/PageHeader";
 import Button from "@/shared/ui/Button";
 import SearchBox from "@/shared/ui/SearchBox";
 import Table from "@/shared/table/Table";

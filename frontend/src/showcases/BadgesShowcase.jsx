@@ -1,7 +1,7 @@
 import { useState } from "react";
 import StatusBadge from "@/shared/ui/badges/StatusBadge";
 import ScoreBadge from "@/shared/ui/badges/ScoreBadge";
-import Select from "@/shared/ui/Select";
+import Select from "@/shared/ui/selectors/Select";
 import { getStatusesByType } from "@/constants/statusConfig";
 import ThemeToggle from "@/shared/ThemeToggle";
 

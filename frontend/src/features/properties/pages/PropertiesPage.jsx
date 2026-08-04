@@ -1,9 +1,9 @@
 import { useState, useMemo } from "react";
 import { Eye, Pencil, Trash2, Home, Search, Plus } from "lucide-react";
-import PageHeader from "@/shared/ui/PageHeader";
+import PageHeader from "@/shared/page/PageHeader";
 import Button from "@/shared/ui/Button";
 import SearchBox from "@/shared/ui/SearchBox";
-import Select from "@/shared/ui/Select";
+import Select from "@/shared/ui/selectors/Select";
 import Table from "@/shared/table/Table";
 import TablePagination from "@/shared/table/TablePagination";
 import TableActions from "@/shared/table/TableActions";

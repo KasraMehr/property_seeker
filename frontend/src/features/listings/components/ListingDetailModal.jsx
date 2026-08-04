@@ -3,7 +3,7 @@ import Modal from "@/shared/ui/modal/Modal";
 import Button from "@/shared/ui/Button";
 import StatusBadge from "@/shared/ui/badges/StatusBadge";
 import ScoreBadge from "@/shared/ui/badges/ScoreBadge";
-import { DETAIL_FIELDS, fmtSource } from "@/features/listings/config/listingTableConfig";
+import { DETAIL_FIELDS, fmtSource } from "@/features/listings/config";
 
 const ICON_MAP = {
   id: Hash, title: FileText, phone: Phone, source: ExternalLink,

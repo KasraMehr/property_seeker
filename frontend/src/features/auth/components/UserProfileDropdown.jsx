@@ -86,7 +86,7 @@ export default function UserProfileDropdown({
     group flex items-center
     ${showInfo ? "justify-between gap-3" : "justify-center gap-2"}
     rounded-2xl border border-transparent
-    px-3 py-3
+    px-3 py-3 cursor-pointer
     transition-all duration-200
     hover:bg-(--role-subtle)/10
     ${fullWidth ? "w-full" : "w-fit"}

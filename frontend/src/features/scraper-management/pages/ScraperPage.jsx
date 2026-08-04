@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Activity, Play, Square, RefreshCw, AlertTriangle, CheckCircle2, Clock, Zap, FileText } from "lucide-react";
-import PageHeader from "@/shared/ui/PageHeader";
+import PageHeader from "@/shared/page/PageHeader";
 import Button from "@/shared/ui/Button";
 import Table from "@/shared/table/Table";
 import StatusBadge from "@/shared/ui/badges/StatusBadge";

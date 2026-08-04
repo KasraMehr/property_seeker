@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Button from "@/shared/ui/Button";
-import Select from "@/shared/ui/Select";
+import Select from "@/shared/ui/selectors/Select";
 import Input from "@/shared/ui/Input";
 
 const REGION_OPTIONS = [

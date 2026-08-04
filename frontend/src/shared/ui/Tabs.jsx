@@ -2,40 +2,40 @@ import { createContext, useContext, useState, forwardRef } from "react";
 
 const TabsContext = createContext(null);
 
-/**
- * Tabs — compound component for role-aware tab navigation
- *
- *   <Tabs defaultValue="info">
- *     <Tabs.List>
- *       <Tabs.Trigger value="info" icon={User}>اطلاعات</Tabs.Trigger>
- *       <Tabs.Trigger value="calls" icon={Phone}>تماس‌ها</Tabs.Trigger>
- *     </Tabs.List>
- *     <Tabs.Content value="info">...</Tabs.Content>
- *     <Tabs.Content value="calls">...</Tabs.Content>
- *   </Tabs>
- */
 const Tabs = forwardRef(
   (
     {
       defaultValue,
-      value: controlledValue,
+      value,
       onValueChange,
+      variant = "underline",
+      orientation = "horizontal",
+      keepMounted = false,
       children,
       className = "",
       ...props
     },
     ref,
   ) => {
-    const [internal, setInternal] = useState(defaultValue);
+    const [internalValue, setInternalValue] = useState(defaultValue);
 
-    const active = controlledValue !== undefined ? controlledValue : internal;
-    const setActive = (v) => {
-      if (controlledValue === undefined) setInternal(v);
-      onValueChange?.(v);
+    const activeValue = value !== undefined ? value : internalValue;
+
+    const setValue = (next) => {
+      if (value === undefined) setInternalValue(next);
+      onValueChange?.(next);
     };
 
     return (
-      <TabsContext.Provider value={{ active, setActive }}>
+      <TabsContext.Provider
+        value={{
+          activeValue,
+          setValue,
+          variant,
+          orientation,
+          keepMounted,
+        }}
+      >
         <div ref={ref} className={`w-full ${className}`} {...props}>
           {children}
         </div>
@@ -46,106 +46,146 @@ const Tabs = forwardRef(
 
 Tabs.displayName = "Tabs";
 
-/* Tab List */
-const List = forwardRef(
+// ---------------- LIST ----------------
+
+const List = forwardRef(({ children, className = "", ...props }, ref) => {
+  const { variant, orientation } = useContext(TabsContext);
+
+  return (
+    <div
+      ref={ref}
+      role="tablist"
+      className={`
+          flex
+          ${orientation === "vertical" ? "flex-col" : "items-center"}
+          ${
+            variant === "underline"
+              ? "border-b border-border gap-1"
+              : "gap-2 p-1 bg-background rounded-xl"
+          }
+          ${className}
+        `}
+      {...props}
+    >
+      {children}
+    </div>
+  );
+});
+
+List.displayName = "Tabs.List";
+
+// ---------------- TRIGGER ----------------
+
+const Trigger = forwardRef(
   (
     {
+      value,
       children,
-      variant = "underline", // "underline" | "pills"
+      icon: Icon,
+      badge,
+      disabled = false,
       className = "",
       ...props
     },
     ref,
   ) => {
-    const variantStyles = {
-      underline: "border-b border-border gap-1",
-      pills: "gap-2 p-1 bg-background rounded-xl",
-    };
+    const { activeValue, setValue, variant } = useContext(TabsContext);
 
-    return (
-      <div
-        ref={ref}
-        role="tablist"
-        className={`flex items-center ${variantStyles[variant]} ${className}`}
-        {...props}
-      >
-        {children}
-      </div>
-    );
-  },
-);
-
-List.displayName = "TabsList";
-
-/* Tab Trigger */
-const Trigger = forwardRef(
-  (
-    { value, children, icon: Icon, disabled = false, className = "", ...props },
-    ref,
-  ) => {
-    const ctx = useContext(TabsContext);
-    const isActive = ctx?.active === value;
-
-    const base = `
-    group relative flex items-center justify-center gap-2
-    text-sm font-medium whitespace-nowrap
-    transition-all duration-200 ease-[cubic-bezier(0.4,0,0.2,1)]
-    disabled:opacity-40 disabled:cursor-not-allowed
-  `;
-
-    const variants = {
-      underline: isActive
-        ? "px-4 py-2.5 text-(--role-primary)"
-        : "px-4 py-2.5 text-muted hover:text-foreground hover:bg-(--role-subtle)/20 rounded-t-lg",
-      pills: isActive
-        ? "px-4 py-2 bg-(--role-primary) text-white shadow-sm rounded-lg"
-        : "px-4 py-2 text-muted hover:text-foreground hover:bg-(--role-subtle)/20 rounded-lg",
-    };
+    const active = activeValue === value;
 
     return (
       <button
         ref={ref}
         type="button"
         role="tab"
-        aria-selected={isActive}
+        aria-selected={active}
         disabled={disabled}
-        onClick={() => ctx?.setActive(value)}
-        className={`${base} ${variants.underline} ${className}`}
+        onClick={() => !disabled && setValue(value)}
+        className={`
+          group relative
+          flex items-center justify-center gap-2
+          text-sm font-medium whitespace-nowrap
+          transition-all duration-200
+          disabled:opacity-40 disabled:cursor-not-allowed
+
+          ${
+            variant === "underline"
+              ? active
+                ? "px-4 py-2.5 text-(--role-primary)"
+                : "px-4 py-2.5 text-muted hover:text-foreground hover:bg-(--role-subtle)/20 rounded-t-lg"
+              : active
+                ? "px-4 py-2 rounded-lg bg-(--role-primary) text-white shadow-sm"
+                : "px-4 py-2 rounded-lg text-muted hover:text-foreground hover:bg-(--role-subtle)/20"
+          }
+
+          ${className}
+        `}
         {...props}
       >
         {Icon && (
           <Icon
             size={16}
-            strokeWidth={isActive ? 2.5 : 2}
-            className="transition-transform duration-200 group-hover:scale-110"
+            strokeWidth={active ? 2.5 : 2}
+            className="transition-transform group-hover:scale-110"
           />
         )}
+
         <span>{children}</span>
 
-        {/* Underline indicator */}
-        {isActive && (
-          <span className="absolute bottom-0 left-2 right-2 h-0.5 bg-(--role-primary) rounded-t-full" />
+        {badge !== undefined && (
+          <span
+            className={`
+              min-w-5 h-5 px-1 rounded-full
+              flex items-center justify-center
+              text-[11px] font-semibold
+
+              ${
+                active
+                  ? "bg-white/20 text-white"
+                  : "bg-(--role-primary)/10 text-(--role-primary)"
+              }
+            `}
+          >
+            {badge}
+          </span>
+        )}
+
+        {variant === "underline" && active && (
+          <span
+            className="
+              absolute bottom-0 left-2 right-2
+              h-0.5 rounded-full
+              bg-(--role-primary)
+            "
+          />
         )}
       </button>
     );
   },
 );
 
-Trigger.displayName = "TabsTrigger";
+Trigger.displayName = "Tabs.Trigger";
 
-/*  Tab Content */
+// ---------------- CONTENT ----------------
+
 const Content = forwardRef(
   ({ value, children, className = "", ...props }, ref) => {
-    const ctx = useContext(TabsContext);
-    const isActive = ctx?.active === value;
+    const { activeValue, keepMounted } = useContext(TabsContext);
 
-    if (!isActive) return null;
+    const active = activeValue === value;
+
+    if (!active && !keepMounted) return null;
 
     return (
       <div
         ref={ref}
         role="tabpanel"
-        className={`mt-4 animate-in fade-in duration-200 ${className}`}
+        hidden={!active}
+        className={`
+          mt-4
+          animate-in fade-in duration-200
+          ${className}
+        `}
         {...props}
       >
         {children}
@@ -154,8 +194,9 @@ const Content = forwardRef(
   },
 );
 
-Content.displayName = "TabsContent";
+Content.displayName = "Tabs.Content";
 
+// Attach
 Tabs.List = List;
 Tabs.Trigger = Trigger;
 Tabs.Content = Content;

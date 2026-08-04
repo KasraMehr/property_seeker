@@ -1,7 +1,6 @@
 import { useState } from "react";
 import Button from "@/shared/ui/Button";
-import Select from "@/shared/ui/Select";
-import Input from "@/shared/ui/Input";
+import Select from "@/shared/ui/selectors/Select";
 
 const OPERATOR_OPTIONS = [
   { value: "1", label: "علی احمدی" },

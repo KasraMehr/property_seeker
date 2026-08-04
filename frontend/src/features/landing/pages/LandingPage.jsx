@@ -4,7 +4,6 @@ import ProblemSolution from "../components/sections/ProblemSolution"
 import DashboardPreview from "../components/sections/DashboardPreview"
 import Features from "../components/sections/Features"
 import Footer from "../components/sections/Footer"
-import PageHeader from "../../../shared/ui/PageHeader";
 
 
 export default function LandingPage() {

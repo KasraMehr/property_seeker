@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { BarChart3, FileText, Calendar, TrendingUp, Users, Phone, Home, Clock } from "lucide-react";
-import PageHeader from "@/shared/ui/PageHeader";
+import PageHeader from "@/shared/page/PageHeader";
 import Tabs from "@/shared/ui/Tabs";
 import { MotionDiv } from "@/animations/MotionElements";
 
