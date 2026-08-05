@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@radix-ui/react-slider": "^1.4.7",
     "@tailwindcss/vite": "^4.3.2",
     "axios": "^1.18.1",
     "framer-motion": "^12.42.2",
@@ -18,6 +19,7 @@
     "react-dom": "^19.2.7",
     "react-hook-form": "^7.81.0",
     "react-hot-toast": "^2.6.0",
+    "react-multi-date-picker": "^4.5.2",
     "react-router-dom": "^7.18.1",
     "tailwindcss": "^4.3.2",
     "zustand": "^5.0.14"

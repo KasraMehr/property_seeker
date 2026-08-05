@@ -1,12 +1,11 @@
-import BaseDashboardLayout from "./BaseDashboardLayout";
+import DashboardLayout from "../../../shared/layout/DashboardLayout";
 import { ADMIN_NAV_ITEMS } from "../constants/dashboardConstants";
 
 export default function AdminLayout() {
   return (
-    <BaseDashboardLayout
+    <DashboardLayout
       role="admin"
       menuItems={ADMIN_NAV_ITEMS}
-      // footerItems={ADMIN_CONSTANTS.footerItems}
     />
   );
 }

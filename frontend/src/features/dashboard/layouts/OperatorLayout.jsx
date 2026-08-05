@@ -1,12 +1,11 @@
-import BaseDashboardLayout from "./BaseDashboardLayout";
+import DashboardLayout from "../../../shared/layout/DashboardLayout";
 import { OPERATOR_NAV_ITEMS } from "../constants/dashboardConstants";
 
 export default function OperatorLayout() {
   return (
-    <BaseDashboardLayout
+    <DashboardLayout
       role="operator"
       menuItems={OPERATOR_NAV_ITEMS}
-      // footerItems={OPERATOR_CONSTANTS.footerItems}
     />
   );
 }

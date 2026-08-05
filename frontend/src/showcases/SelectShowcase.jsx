@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { MapPin, Home, Building2, Phone, Users } from "lucide-react";
-import Select from "@/shared/ui/Select";
-import MultiSelect from "@/shared/ui/MultiSelect";
-import StatusBadge from "@/shared/ui/StatusBadge";
+import Select from "@/shared/ui/selectors/Select";
+import MultiSelect from "@/shared/ui/selectors/MultiSelect";
+import RangeSelect from "../shared/ui/selectors/RangeSelect";
+import StatusBadge from "@/shared/ui/badges/StatusBadge";
 import { getStatusesByType } from "@/constants/statusConfig";
 import ThemeToggle from "@/shared/ThemeToggle";
 
@@ -24,6 +25,14 @@ export default function SelectShowcase() {
   const [regionValue, setRegionValue] = useState("");
   const [typeValue, setTypeValue] = useState([]);
   const [statusValue, setStatusValue] = useState([]);
+  const [priceRange, setPriceRange] = useState({
+    min: 500000000,
+    max: 2500000000,
+  });
+  const [areaRange, setAreaRange] = useState({
+    min: 80,
+    max: 220,
+  });
 
   const toggleTheme = () => {
     const next = theme === "light" ? "dark" : "light";
@@ -79,19 +88,25 @@ export default function SelectShowcase() {
   const card = "bg-surface border border-border rounded-xl p-5";
   const sectionTitle = "text-lg font-semibold mb-4";
   const subtitle = "text-xs font-normal text-muted mr-2";
-  const label = "text-[10px] font-semibold text-muted uppercase tracking-wider mb-3";
+  const label =
+    "text-[10px] font-semibold text-muted uppercase tracking-wider mb-3";
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-6" data-role={role}>
+    <div
+      className="min-h-screen bg-background text-foreground p-6"
+      data-role={role}
+    >
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 pb-6 border-b border-border">
         <div>
           <h1 className="text-2xl font-bold">Component Showcase</h1>
-          <p className="text-sm text-muted mt-1">Select & MultiSelect — All sizes, states & patterns</p>
+          <p className="text-sm text-muted mt-1">
+            Select & MultiSelect — All sizes, states & patterns
+          </p>
         </div>
 
         <div className="flex items-center gap-3">
-          <ThemeToggle/>
+          <ThemeToggle />
           <div className="flex bg-surface border border-border rounded-xl p-1">
             {[
               { key: "", label: "Default" },
@@ -102,7 +117,9 @@ export default function SelectShowcase() {
                 key={r.key}
                 onClick={() => toggleRole(r.key)}
                 className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
-                  role === r.key ? "bg-foreground text-background" : "text-muted hover:text-foreground"
+                  role === r.key
+                    ? "bg-foreground text-background"
+                    : "text-muted hover:text-foreground"
                 }`}
               >
                 {r.label}
@@ -122,7 +139,13 @@ export default function SelectShowcase() {
           {["sm", "md", "lg"].map((sz) => (
             <div key={sz} className={card}>
               <div className={label}>size="{sz}"</div>
-              <Select label="منطقه" size={sz} options={regions.slice(0, 3)} value={singleValue} onChange={setSingleValue} />
+              <Select
+                label="منطقه"
+                size={sz}
+                options={regions.slice(0, 3)}
+                value={singleValue}
+                onChange={setSingleValue}
+              />
             </div>
           ))}
         </div>
@@ -132,24 +155,49 @@ export default function SelectShowcase() {
       <section className="mb-10">
         <h2 className={sectionTitle}>
           Select Features
-          <span className={subtitle}>searchable | clearable | error | icons</span>
+          <span className={subtitle}>
+            searchable | clearable | error | icons
+          </span>
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className={card}>
             <div className={label}>searchable</div>
-            <Select label="اپراتور" searchable options={operators} value={searchableValue} onChange={setSearchableValue} />
+            <Select
+              label="اپراتور"
+              searchable
+              options={operators}
+              value={searchableValue}
+              onChange={setSearchableValue}
+            />
           </div>
           <div className={card}>
             <div className={label}>clearable</div>
-            <Select label="منطقه" clearable options={regions} value={clearableValue} onChange={setClearableValue} />
+            <Select
+              label="منطقه"
+              clearable
+              options={regions}
+              value={clearableValue}
+              onChange={setClearableValue}
+            />
           </div>
           <div className={card}>
             <div className={label}>with icons</div>
-            <Select label="نوع ملک" options={propertyTypes} value={iconValue} onChange={setIconValue} />
+            <Select
+              label="نوع ملک"
+              options={propertyTypes}
+              value={iconValue}
+              onChange={setIconValue}
+            />
           </div>
           <div className={card}>
             <div className={label}>error state</div>
-            <Select label="وضعیت" error={!errorValue ? "لطفا یک گزینه انتخاب کنید" : ""} options={leadStatuses.slice(0, 3)} value={errorValue} onChange={setErrorValue} />
+            <Select
+              label="وضعیت"
+              error={!errorValue ? "لطفا یک گزینه انتخاب کنید" : ""}
+              options={leadStatuses.slice(0, 3)}
+              value={errorValue}
+              onChange={setErrorValue}
+            />
           </div>
         </div>
       </section>
@@ -158,26 +206,52 @@ export default function SelectShowcase() {
       <section className="mb-10">
         <h2 className={sectionTitle}>
           MultiSelect
-          <span className={subtitle}>chips | checkboxes | select all / clear</span>
+          <span className={subtitle}>
+            chips | checkboxes | select all / clear
+          </span>
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div className={card}>
             <div className={label}>basic — from statusConfig</div>
-            <MultiSelect label="وضعیت لید" options={leadStatuses} value={multiValue} onChange={setMultiValue} />
+            <MultiSelect
+              label="وضعیت لید"
+              options={leadStatuses}
+              value={multiValue}
+              onChange={setMultiValue}
+            />
             {/* Selected badges */}
             <div className="mt-3 flex flex-wrap gap-1.5">
               {multiValue.map((v) => (
-                <StatusBadge key={v} status={v} type="lead" variant="soft" size="sm" />
+                <StatusBadge
+                  key={v}
+                  status={v}
+                  type="lead"
+                  variant="soft"
+                  size="sm"
+                />
               ))}
             </div>
           </div>
           <div className={card}>
             <div className={label}>searchable + maxDisplay=3</div>
-            <MultiSelect label="اپراتورها" searchable maxDisplay={3} options={operators} value={multiSearchValue} onChange={setMultiSearchValue} />
+            <MultiSelect
+              label="اپراتورها"
+              searchable
+              maxDisplay={3}
+              options={operators}
+              value={multiSearchValue}
+              onChange={setMultiSearchValue}
+            />
           </div>
           <div className={card}>
             <div className={label}>with icons + size="sm"</div>
-            <MultiSelect label="نوع ملک" size="sm" options={propertyTypes} value={typeValue} onChange={setTypeValue} />
+            <MultiSelect
+              label="نوع ملک"
+              size="sm"
+              options={propertyTypes}
+              value={typeValue}
+              onChange={setTypeValue}
+            />
           </div>
         </div>
       </section>
@@ -193,13 +267,35 @@ export default function SelectShowcase() {
           <div className={label}>Filter Bar (Leads Page)</div>
           <div className="flex flex-wrap items-end gap-3">
             <div className="w-48">
-              <Select label="منطقه" clearable size="sm" options={regions} value={regionValue} onChange={setRegionValue} />
+              <Select
+                label="منطقه"
+                clearable
+                size="sm"
+                options={regions}
+                value={regionValue}
+                onChange={setRegionValue}
+              />
             </div>
             <div className="w-56">
-              <MultiSelect label="وضعیت" size="sm" maxDisplay={2} options={leadStatuses} value={statusValue} onChange={setStatusValue} />
+              <MultiSelect
+                label="وضعیت"
+                size="sm"
+                maxDisplay={2}
+                options={leadStatuses}
+                value={statusValue}
+                onChange={setStatusValue}
+              />
             </div>
             <div className="w-48">
-              <Select label="اپراتور" clearable searchable size="sm" options={operators} value={searchableValue} onChange={setSearchableValue} />
+              <Select
+                label="اپراتور"
+                clearable
+                searchable
+                size="sm"
+                options={operators}
+                value={searchableValue}
+                onChange={setSearchableValue}
+              />
             </div>
             <button className="h-9 px-4 rounded-lg bg-(--role-primary) text-white text-sm font-medium hover:bg-(--role-primary-hover) transition-colors">
               اعمال فیلتر
@@ -209,7 +305,14 @@ export default function SelectShowcase() {
           {statusValue.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-1.5">
               {statusValue.map((v) => (
-                <StatusBadge key={v} status={v} type="lead" variant="soft" size="sm" showIcon />
+                <StatusBadge
+                  key={v}
+                  status={v}
+                  type="lead"
+                  variant="soft"
+                  size="sm"
+                  showIcon
+                />
               ))}
             </div>
           )}
@@ -219,24 +322,54 @@ export default function SelectShowcase() {
           <div className={card}>
             <div className={label}>New Lead Form</div>
             <div className="space-y-4">
-              <Select label="منطقه" options={regions} value={regionValue} onChange={setRegionValue} />
-              <Select label="وضعیت اولیه" options={leadStatuses.slice(0, 3)} value={singleValue} onChange={setSingleValue} />
-              <MultiSelect label="علاقه‌مندی‌ها" options={propertyTypes} value={typeValue} onChange={setTypeValue} />
+              <Select
+                label="منطقه"
+                options={regions}
+                value={regionValue}
+                onChange={setRegionValue}
+              />
+              <Select
+                label="وضعیت اولیه"
+                options={leadStatuses.slice(0, 3)}
+                value={singleValue}
+                onChange={setSingleValue}
+              />
+              <MultiSelect
+                label="علاقه‌مندی‌ها"
+                options={propertyTypes}
+                value={typeValue}
+                onChange={setTypeValue}
+              />
             </div>
           </div>
 
           <div className={card}>
             <div className={label}>Property Form</div>
             <div className="space-y-4">
-              <Select label="نوع ملک" options={propertyTypes} value={iconValue} onChange={setIconValue} />
-              <Select label="وضعیت" options={propertyStatuses} value={errorValue} onChange={setErrorValue} />
-              <MultiSelect label="امکانات" options={[
-                { value: "parking", label: "پارکینگ" },
-                { value: "elevator", label: "آسانسور" },
-                { value: "pool", label: "استخر" },
-                { value: "garden", label: "حیاط" },
-                { value: "security", label: "نگهبان" },
-              ]} value={statusValue} onChange={setStatusValue} />
+              <Select
+                label="نوع ملک"
+                options={propertyTypes}
+                value={iconValue}
+                onChange={setIconValue}
+              />
+              <Select
+                label="وضعیت"
+                options={propertyStatuses}
+                value={errorValue}
+                onChange={setErrorValue}
+              />
+              <MultiSelect
+                label="امکانات"
+                options={[
+                  { value: "parking", label: "پارکینگ" },
+                  { value: "elevator", label: "آسانسور" },
+                  { value: "pool", label: "استخر" },
+                  { value: "garden", label: "حیاط" },
+                  { value: "security", label: "نگهبان" },
+                ]}
+                value={statusValue}
+                onChange={setStatusValue}
+              />
             </div>
           </div>
         </div>
@@ -253,35 +386,135 @@ export default function SelectShowcase() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border bg-background/50">
-                  <th className="text-right p-3 text-xs font-semibold text-muted uppercase">State</th>
-                  <th className="text-right p-3 text-xs font-semibold text-muted uppercase">Select</th>
-                  <th className="text-right p-3 text-xs font-semibold text-muted uppercase">MultiSelect</th>
+                  <th className="text-right p-3 text-xs font-semibold text-muted uppercase">
+                    State
+                  </th>
+                  <th className="text-right p-3 text-xs font-semibold text-muted uppercase">
+                    Select
+                  </th>
+                  <th className="text-right p-3 text-xs font-semibold text-muted uppercase">
+                    MultiSelect
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {[
-                  { name: "Empty", sel: { value: "", opts: regions.slice(0, 3) }, mul: { value: [], opts: leadStatuses.slice(0, 3) } },
-                  { name: "Selected", sel: { value: "gohardasht", opts: regions.slice(0, 3) }, mul: { value: ["new"], opts: leadStatuses.slice(0, 3) } },
-                  { name: "Multiple", sel: null, mul: { value: ["new", "contacted", "qualified"], opts: leadStatuses } },
-                  { name: "Error", sel: { value: "", opts: regions.slice(0, 3), err: "الزامی" }, mul: { value: [], opts: leadStatuses.slice(0, 3), err: "حداقل یک مورد" } },
-                  { name: "Disabled", sel: { value: "", opts: regions.slice(0, 3), dis: true }, mul: { value: [], opts: leadStatuses.slice(0, 3), dis: true } },
+                  {
+                    name: "Empty",
+                    sel: { value: "", opts: regions.slice(0, 3) },
+                    mul: { value: [], opts: leadStatuses.slice(0, 3) },
+                  },
+                  {
+                    name: "Selected",
+                    sel: { value: "gohardasht", opts: regions.slice(0, 3) },
+                    mul: { value: ["new"], opts: leadStatuses.slice(0, 3) },
+                  },
+                  {
+                    name: "Multiple",
+                    sel: null,
+                    mul: {
+                      value: ["new", "contacted", "qualified"],
+                      opts: leadStatuses,
+                    },
+                  },
+                  {
+                    name: "Error",
+                    sel: {
+                      value: "",
+                      opts: regions.slice(0, 3),
+                      err: "الزامی",
+                    },
+                    mul: {
+                      value: [],
+                      opts: leadStatuses.slice(0, 3),
+                      err: "حداقل یک مورد",
+                    },
+                  },
+                  {
+                    name: "Disabled",
+                    sel: { value: "", opts: regions.slice(0, 3), dis: true },
+                    mul: {
+                      value: [],
+                      opts: leadStatuses.slice(0, 3),
+                      dis: true,
+                    },
+                  },
                 ].map((row, i, arr) => (
-                  <tr key={row.name} className={i < arr.length - 1 ? "border-b border-border" : ""}>
-                    <td className="p-3 text-xs font-medium text-muted">{row.name}</td>
+                  <tr
+                    key={row.name}
+                    className={
+                      i < arr.length - 1 ? "border-b border-border" : ""
+                    }
+                  >
+                    <td className="p-3 text-xs font-medium text-muted">
+                      {row.name}
+                    </td>
                     <td className="p-3">
                       {row.sel ? (
-                        <Select options={row.sel.opts} value={row.sel.value} onChange={() => {}} size="sm" error={row.sel.err} disabled={row.sel.dis} />
+                        <Select
+                          options={row.sel.opts}
+                          value={row.sel.value}
+                          onChange={() => {}}
+                          size="sm"
+                          error={row.sel.err}
+                          disabled={row.sel.dis}
+                        />
                       ) : (
                         <span className="text-muted text-xs">—</span>
                       )}
                     </td>
                     <td className="p-3">
-                      <MultiSelect options={row.mul.opts} value={row.mul.value} onChange={() => {}} size="sm" error={row.mul.err} disabled={row.mul.dis} maxDisplay={2} />
+                      <MultiSelect
+                        options={row.mul.opts}
+                        value={row.mul.value}
+                        onChange={() => {}}
+                        size="sm"
+                        error={row.mul.err}
+                        disabled={row.mul.dis}
+                        maxDisplay={2}
+                      />
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
+          </div>
+        </div>
+      </section>
+
+      <section className="mb-10">
+        <h2 className={sectionTitle}>
+          RangeSelect
+          <span className={subtitle}>price | area | filters</span>
+        </h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className={card}>
+            <div className={label}>Price Range</div>
+
+            <RangeSelect
+              label="بازه قیمت"
+              min={0}
+              max={10000000000}
+              step={50000000}
+              unit="تومان"
+              value={priceRange}
+              onChange={setPriceRange}
+            />
+          </div>
+
+          <div className={card}>
+            <div className={label}>Area Range</div>
+
+            <RangeSelect
+              label="متراژ"
+              min={30}
+              max={500}
+              step={5}
+              unit="متر"
+              value={areaRange}
+              onChange={setAreaRange}
+            />
           </div>
         </div>
       </section>

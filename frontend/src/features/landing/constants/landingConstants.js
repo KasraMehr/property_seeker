@@ -1,4 +1,5 @@
-import { House, Sparkles, LayoutDashboard, MessageCircle } from "lucide-react";
+import { House, Sparkles, LayoutDashboard, MessageCircle , Rocket } from "lucide-react";
+import { href } from "react-router-dom";
 
 export const NAVBAR_STRINGS = {
   menuItems: [
@@ -10,22 +11,29 @@ export const NAVBAR_STRINGS = {
       type: "scroll",
     },
     {
+      id:"problem-solution",
+      label:"مشکلات و راه‌حل‌ها",
+      href: "#problem-solution",
+      icon: Rocket,
+      type:"scroll",
+    },
+    {
       id: "dashboard",
-      label: "داشبورد",
+      label: "پیش نمایش",
       href: "#dashboard",
       icon: LayoutDashboard,
       type: "scroll",
     },
     {
       id: "features",
-      label: "امکانات",
+      label: "قابلیت ها",
       href: "#features",
       icon: Sparkles,
       type: "scroll",
     },
     {
       id: "contact",
-      label: "تماس",
+      label: " تماس با ما",
       href: "#contact",
       icon: MessageCircle,
       type: "scroll",

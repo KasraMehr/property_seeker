@@ -1,17 +1,38 @@
 import { useState, useMemo } from "react";
 import {
-   X, Filter,Search , Star, MapPin, Home, DollarSign, Ruler, Shield, Circle, Image, SlidersHorizontal,
+  X,
+  Filter,
+  Search,
+  Star,
+  MapPin,
+  Home,
+  DollarSign,
+  Ruler,
+  Shield,
+  Circle,
+  Image,
+  SlidersHorizontal,
 } from "lucide-react";
 
 import Input from "../ui/Input";
-import Select from "../ui/Select";
-import MultiSelect from "../ui/MultiSelect";
-import RangeSliderFilter from "./RangeSliderFilter";
+import Select from "../ui/selectors/Select";
+import MultiSelect from "../ui/selectors/MultiSelect";
+import RangeSelect from "../ui/selectors/RangeSelect";
 import Button from "../ui/Button";
 import Drawer from "../ui/Drawer";
 
 const ICONS = {
-  Search , Star, Filter, MapPin, Home, DollarSign, Ruler, Shield, Circle, Image, SlidersHorizontal,
+  Search,
+  Star,
+  Filter,
+  MapPin,
+  Home,
+  DollarSign,
+  Ruler,
+  Shield,
+  Circle,
+  Image,
+  SlidersHorizontal,
 };
 
 /**
@@ -42,7 +63,10 @@ export default function FilterBar({
       case "search":
         return (
           <div key={field.key} className="relative flex-1 min-w-50">
-            <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none z-10" />
+            <Search
+              size={16}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none z-10"
+            />
             <Input
               value={value || ""}
               onChange={(e) => onChange(field.key, e.target.value)}
@@ -82,25 +106,26 @@ export default function FilterBar({
 
       case "range":
         return (
-          <div key={field.key} className="space-y-2">
-            <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-              <Icon size={14} className="text-muted" />
-              {field.label}
-            </div>
-            <RangeSliderFilter
+          <div key={field.key} className="min-w-44">
+            <RangeSelect
+              label={field.label}
+              value={value || { min: field.min, max: field.max }}
+              onChange={(v) => onChange(field.key, v)}
               min={field.min}
               max={field.max}
               step={field.step}
-              value={value || { min: field.min, max: field.max }}
-              onChange={(v) => onChange(field.key, v)}
               unit={field.unit}
+              size="sm"
             />
           </div>
         );
 
       case "toggle":
         return (
-          <label key={field.key} className="flex items-center gap-2 cursor-pointer">
+          <label
+            key={field.key}
+            className="flex items-center gap-2 cursor-pointer"
+          >
             <input
               type="checkbox"
               checked={!!value}
@@ -158,7 +183,10 @@ export default function FilterBar({
               onClick={() => {
                 if (chip.type === "multiselect") {
                   const current = filters[chip.key] || [];
-                  onChange(chip.key, current.filter((v) => String(v) !== String(chip.value)));
+                  onChange(
+                    chip.key,
+                    current.filter((v) => String(v) !== String(chip.value)),
+                  );
                 } else {
                   onClear(chip.key);
                 }
@@ -176,22 +204,34 @@ export default function FilterBar({
       <Drawer
         isOpen={drawerOpen}
         onClose={() => setDrawerOpen(false)}
-        header={<span className="text-base font-bold text-foreground">فیلترهای پیشرفته</span>}
+        header={
+          <span className="text-base font-bold text-foreground">
+            فیلترهای پیشرفته
+          </span>
+        }
         position="right"
         footer={
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" fullWidth onClick={() => setDrawerOpen(false)}>
+            <Button
+              variant="outline"
+              size="sm"
+              fullWidth
+              onClick={() => setDrawerOpen(false)}
+            >
               بستن
             </Button>
-            <Button variant="primary" size="sm" fullWidth onClick={() => setDrawerOpen(false)}>
+            <Button
+              variant="primary"
+              size="sm"
+              fullWidth
+              onClick={() => setDrawerOpen(false)}
+            >
               اعمال
             </Button>
           </div>
         }
       >
-        <div className="space-y-5">
-          {drawerFields.map(renderField)}
-        </div>
+        <div className="space-y-5">{drawerFields.map(renderField)}</div>
       </Drawer>
     </div>
   );

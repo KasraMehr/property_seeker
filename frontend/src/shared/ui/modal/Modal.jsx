@@ -1,5 +1,6 @@
 import { forwardRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
 /**
@@ -42,7 +43,7 @@ const Modal = forwardRef(({
     full: "max-w-[95vw] h-[90vh]",
   };
 
-  return (
+  const modal = (
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6" {...props}>
@@ -104,8 +105,10 @@ const Modal = forwardRef(({
         </div>
       )}
     </AnimatePresence>
-  );
+  )
+return createPortal(modal , document.body);
 });
 
 Modal.displayName = "Modal";
 export default Modal;
+  

@@ -138,50 +138,57 @@ html[data-theme="dark"] {
    Role-Based Theme Overrides
 =========================== */
 
+/* =========================================================
+   Admin Role Theme — Purple/Violet
+========================================================= */
+
 /* Admin: Light Mode */
 [data-role="admin"],
 :has([data-role="admin"]) {
-  --role-primary: #b45309;           /* Bronze / Warm Amber */
-  --role-primary-hover: #92400e;     /* Deep Espresso Brown */
-  --role-subtle: #fef3c7;            /* Soft Amber Tint */
-  --role-border: #fde68a;            /* Light Gold Border */
+  /* ✅ Purple Primary */
+  --role-primary: #7c3aed;           /* Violet 600 */
+  --role-primary-hover: #6d28d9;     /* Violet 700 */
+  --role-subtle: #ede9fe;            /* Violet 100 */
+  --role-border: #c4b5fd;            /* Violet 300 */
 
-  --role-surface-accent: #1c1917;    /* Charcoal Black Accent */
-  --role-text-accent: #fef3c7;
+  --role-surface-accent: #5b21b6;    /* Violet 800 */
+  --role-text-accent: #ede9fe;
 
-  --status-info: #3b82f6;        /* Blue - for informational */
-  --status-success: #22c55e;     /* Green - for successful/completed */
-  --status-warning: #f59e0b;     /* Amber - for warnings/pending */
-  --status-danger: #ef4444;      /* Red - for errors/rejected */
-  --status-accent: #b45309;      /* Bronze - matching admin primary */
-
+  /* Status Colors for Admin Light */
+  --status-info: #3b82f6;        /* Blue */
+  --status-success: #22c55e;     /* Green */
+  --status-warning: #f59e0b;     /* Amber */
+  --status-danger: #ef4444;      /* Red */
+  --status-accent: #7c3aed;      /* Purple - matching admin primary */
 }
 
 /* Admin: Dark Mode */
 html[data-theme="dark"] [data-role="admin"],
 html[data-theme="dark"]:has([data-role="admin"]) {
-  --role-primary: #f59e0b;           /* Vibrant Amber Gold */
-  --role-primary-hover: #fbbf24;     /* Rich Gold */
-  --role-subtle: rgba(245, 158, 11, 0.12); /* Translucent Gold Accent */
-  --role-border: rgba(245, 158, 11, 0.28);
+  /* ✅ Purple Primary */
+  --role-primary: #8b5cf6;           /* Violet 500 */
+  --role-primary-hover: #a78bfa;     /* Violet 400 */
+  --role-subtle: rgba(139, 92, 246, 0.15);
+  --role-border: rgba(139, 92, 246, 0.30);
 
-  --role-surface-accent: #1c1815;    /* Dark Warm Brown-Black */
-  --role-text-accent: #f59e0b;
+  --role-surface-accent: #2e1065;    /* Violet 950 */
+  --role-text-accent: #8b5cf6;
 
   /* Layout Colors Override for Admin Dark */
-  --background: #000 !important;   /* Pure Rich Black */
-  --surface: #14110f !important;      /* Dark Espresso */
-  --card: #1c1815 !important;         /* Warm Dark Brown-Black */
+  --background: #0a0515 !important;   /* Deep Violet-Black */
+  --surface: #1a0f2e !important;      /* Dark Violet */
+  --card: #2e1a4a !important;         /* Violet-Brown */
 
-  --status-info: #fbbf24;        /* Amber Gold */
-  --status-success: #a3e635;     /* Lime */
-  --status-warning: #f97316;     /* Orange */
-  --status-danger: #ef4444;
-  --status-accent: #f59e0b;      /* Gold */
+  /* Status Colors for Admin Dark */
+  --status-info: #60a5fa;        /* Light Blue */
+  --status-success: #4ade80;     /* Light Green */
+  --status-warning: #fbbf24;     /* Amber Gold */
+  --status-danger: #f87171;      /* Light Red */
+  --status-accent: #8b5cf6;      /* Violet */
 }
 
 /* =========================================================
-   Operator Role Theme
+   Operator Role Theme — Blue/Cyan (Unchanged)
 ========================================================= */
 
 /* Operator: Light Mode */

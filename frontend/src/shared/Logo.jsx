@@ -71,7 +71,7 @@ const Logo = forwardRef(({
         {/* <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-(--role-primary) shadow-[0_0_6px_2px_var(--role-primary)]" /> */}
       {/* </span> */} 
 
-      {/* ── Wordmark: ملک جو ── */}
+      {/* Wordmark: ملک جو */}
       {showLabel && (
         <span
           className={`

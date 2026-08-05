@@ -1,233 +1,181 @@
-import { createContext, useContext, useState, forwardRef } from "react";
+import { useMemo, useState } from "react";
 import { ChevronDown, ChevronUp, ChevronsUpDown, Loader2 } from "lucide-react";
 
-// Context 
-const TableContext = createContext({});
-const useTable = () => useContext(TableContext);
-
-// Root Table 
-const Table = forwardRef(({
-  children,
-  className = "",
-  selectable = false,
-  sortable = false,
-  onSort,
-  sortState = { key: null, dir: "asc" },
+export default function Table({
+  data = [],
+  columns = [],
   loading = false,
+  selectable = false,
+  actions,
   emptyState,
-  ...props
-}, ref) => {
-  return (
-    <TableContext.Provider value={{ selectable, sortable, onSort, sortState }}>
-      <div
-        ref={ref}
-        className={`
-          bg-surface rounded-2xl border border-border shadow-sm overflow-hidden
-          ${className}
-        `}
-        {...props}
-      >
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm min-w-160">
-            {children}
-          </table>
-        </div>
-
-        {/* Loading overlay */}
-        {loading && (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 size={24} className="text-(--role-primary) animate-spin" />
-          </div>
-        )}
-      </div>
-    </TableContext.Provider>
-  );
-});
-Table.displayName = "Table";
-
-//  Header 
-const Header = forwardRef(({ children, className = "", ...props }, ref) => (
-  <thead ref={ref} className={className} {...props}>
-    <tr className="border-b border-border bg-background/50">
-      {children}
-    </tr>
-  </thead>
-));
-Header.displayName = "Table.Header";
-
-// Column (th)
-const Column = forwardRef(({
-  children,
+  onSelectionChange,
   className = "",
-  align = "right",
-  width,
-  sortKey,
-  ...props
-}, ref) => {
-  const { sortable, onSort, sortState } = useTable();
-  const isSorted = sortState?.key === sortKey;
-  const isAsc = sortState?.dir === "asc";
+}) {
+  const [selected, setSelected] = useState([]);
+  const [sort, setSort] = useState({ key: null, dir: "asc" });
 
-  const alignMap = { right: "text-right", center: "text-center", left: "text-left" };
+  const sortedData = useMemo(() => {
+    if (!sort.key) return data;
+
+    return [...data].sort((a, b) => {
+      const av = a[sort.key] ?? "";
+      const bv = b[sort.key] ?? "";
+
+      if (av < bv) return sort.dir === "asc" ? -1 : 1;
+      if (av > bv) return sort.dir === "asc" ? 1 : -1;
+      return 0;
+    });
+  }, [data, sort]);
+
+  const toggleSort = (key) => {
+    setSort((prev) => ({
+      key,
+      dir: prev.key === key && prev.dir === "asc" ? "desc" : "asc",
+    }));
+  };
+
+  const toggle = (id) => {
+    const next = selected.includes(id)
+      ? selected.filter((x) => x !== id)
+      : [...selected, id];
+
+    setSelected(next);
+    onSelectionChange?.(next);
+  };
+
+  const toggleAll = () => {
+    const ids = data.map((x) => x.id);
+
+    const next = selected.length === ids.length ? [] : ids;
+
+    setSelected(next);
+    onSelectionChange?.(next);
+  };
+
+  const allSelected =
+    data.length > 0 && data.every((x) => selected.includes(x.id));
 
   return (
-    <th
-      ref={ref}
-      className={`
-        p-3 text-xs font-semibold text-muted uppercase tracking-wider whitespace-nowrap
-        ${alignMap[align] || "text-right"}
-        ${sortable && sortKey ? "cursor-pointer select-none hover:text-foreground transition-colors" : ""}
-        ${className}
-      `}
-      style={width ? { width, minWidth: width } : undefined}
-      onClick={() => sortable && sortKey && onSort?.(sortKey)}
-      {...props}
+    <div
+      className={`bg-surface rounded-2xl border border-border shadow-sm overflow-hidden ${className}`}
     >
-      <span className="inline-flex items-center gap-1">
-        {children}
-        {sortable && sortKey && (
-          <span className="inline-flex flex-col text-[10px] leading-none text-muted">
-            {isSorted ? (
-              isAsc ? <ChevronDown size={14} className="text-(--role-primary)" /> : <ChevronUp size={14} className="text-(--role-primary)" />
-            ) : (
-              <ChevronsUpDown size={14} className="opacity-40" />
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm min-w-160">
+          <thead>
+            <tr className="border-b border-border bg-background/50">
+              {selectable && (
+                <th className="p-3 text-center w-12">
+                  <input
+                    type="checkbox"
+                    checked={allSelected}
+                    onChange={toggleAll}
+                    className="w-4 h-4 rounded border-border accent-primary"
+                  />
+                </th>
+              )}
+
+              {columns.map((col) => {
+                const active = sort.key === col.key;
+
+                return (
+                  <th
+                    key={col.key}
+                    style={{ width: col.width }}
+                    onClick={() => col.sortable && toggleSort(col.key)}
+                    className={`
+                      p-3 text-xs font-semibold text-muted whitespace-nowrap
+                      ${col.align === "center" ? "text-center" : "text-right"}
+                      ${col.sortable ? "cursor-pointer hover:text-foreground" : ""}
+                    `}
+                  >
+                    <span className="inline-flex items-center gap-1">
+                      {col.title}
+
+                      {col.sortable &&
+                        (active ? (
+                          sort.dir === "asc" ? (
+                            <ChevronDown size={14} />
+                          ) : (
+                            <ChevronUp size={14} />
+                          )
+                        ) : (
+                          <ChevronsUpDown size={14} className="opacity-40" />
+                        ))}
+                    </span>
+                  </th>
+                );
+              })}
+
+              {actions && (
+                <th className="p-3 text-center text-xs text-muted">عملیات</th>
+              )}
+            </tr>
+          </thead>
+
+          <tbody className="divide-y divide-border">
+            {loading && (
+              <tr>
+                <td colSpan="100">
+                  <div className="flex justify-center py-12">
+                    <Loader2
+                      className="animate-spin text-(--role-primary)"
+                      size={24}
+                    />
+                  </div>
+                </td>
+              </tr>
             )}
-          </span>
-        )}
-      </span>
-    </th>
-  );
-});
-Column.displayName = "Table.Column";
 
-// Body
-const Body = forwardRef(({ children, className = "", empty, ...props }, ref) => {
-  const hasChildren = Array.isArray(children) ? children.length > 0 : !!children;
+            {!loading && sortedData.length === 0 && (
+              <tr>
+                <td colSpan="100">{emptyState}</td>
+              </tr>
+            )}
 
-  return (
-    <tbody ref={ref} className={`divide-y divide-border ${className}`} {...props}>
-      {!hasChildren && empty ? (
-        <tr>
-          <td colSpan={100} className="p-0">
-            {empty}
-          </td>
-        </tr>
-      ) : (
-        children
-      )}
-    </tbody>
-  );
-});
-Body.displayName = "Table.Body";
+            {!loading &&
+              sortedData.map((row) => (
+                <tr
+                  key={row.id}
+                  className={`
+                  transition-colors
+                  ${
+                    selected.includes(row.id)
+                      ? "bg-(--role-primary)/5"
+                      : "hover:bg-(--role-subtle)/20"
+                  }
+                `}
+                >
+                  {selectable && (
+                    <td className="p-3 text-center">
+                      <input
+                        type="checkbox"
+                        checked={selected.includes(row.id)}
+                        onChange={() => toggle(row.id)}
+                        className="w-4 h-4 rounded border-border accent-primary"
+                      />
+                    </td>
+                  )}
 
-// Row
-const Row = forwardRef(({
-  children,
-  className = "",
-  selected = false,
-  onClick,
-  ...props
-}, ref) => (
-  <tr
-    ref={ref}
-    onClick={onClick}
-    className={`
-      transition-colors duration-150
-      ${selected
-        ? "bg-(--role-primary)/5 hover:bg-(--role-primary)/8"
-        : "hover:bg-(--role-subtle)/20 even:bg-background/40"
-      }
-      ${onClick ? "cursor-pointer" : ""}
-      ${className}
-    `}
-    {...props}
-  >
-    {children}
-  </tr>
-));
-Row.displayName = "Table.Row";
+                  {columns.map((col) => (
+                    <td
+                      key={col.key}
+                      className={`
+                      p-3 text-sm text-foreground whitespace-nowrap
+                      ${col.align === "center" ? "text-center" : "text-right"}
+                    `}
+                    >
+                      {col.render ? col.render(row) : row[col.key]}
+                    </td>
+                  ))}
 
-// Cell
-const Cell = forwardRef(({
-  children,
-  className = "",
-  align = "right",
-  width,
-  colSpan,
-  ...props
-}, ref) => {
-  const alignMap = { right: "text-right", center: "text-center", left: "text-left" };
-
-  return (
-    <td
-      ref={ref}
-      colSpan={colSpan}
-      className={`
-        p-3 text-sm text-foreground whitespace-nowrap
-        ${alignMap[align] || "text-right"}
-        ${className}
-      `}
-      style={width ? { width, minWidth: width } : undefined}
-      {...props}
-    >
-      {children}
-    </td>
-  );
-});
-Cell.displayName = "Table.Cell";
-
-// EmptyState
-const EmptyState = forwardRef(({
-  icon: Icon,
-  title = "داده‌ای یافت نشد",
-  description = "هنوز موردی ثبت نشده است.",
-  action,
-  className = "",
-}, ref) => (
-  <div
-    ref={ref}
-    className={`
-      flex flex-col items-center justify-center py-14 px-4 text-center
-      ${className}
-    `}
-  >
-    {Icon && (
-      <div className="w-14 h-14 rounded-2xl bg-(--role-subtle)/30 border border-(--role-border) flex items-center justify-center mb-4">
-        <Icon size={28} className="text-(--role-primary)/60" />
+                  {actions && (
+                    <td className="p-3 text-center">{actions(row)}</td>
+                  )}
+                </tr>
+              ))}
+          </tbody>
+        </table>
       </div>
-    )}
-    <h3 className="text-base font-semibold text-foreground mb-1">{title}</h3>
-    <p className="text-sm text-muted max-w-xs">{description}</p>
-    {action && <div className="mt-4">{action}</div>}
-  </div>
-));
-EmptyState.displayName = "Table.EmptyState";
-
-// Skeleton
-const Skeleton = forwardRef(({ rows = 5, columns = 4, className = "" }, ref) => (
-  <div ref={ref} className={className}>
-    {Array.from({ length: rows }).map((_, ri) => (
-      <div key={ri} className="flex items-center gap-3 p-3 border-b border-border animate-pulse">
-        {Array.from({ length: columns }).map((_, ci) => (
-          <div
-            key={ci}
-            className="h-4 bg-muted/20 rounded-md"
-            style={{ width: `${Math.random() * 40 + 40}%` }}
-          />
-        ))}
-      </div>
-    ))}
-  </div>
-));
-Skeleton.displayName = "Table.Skeleton";
-
-// Attach sub-components
-Table.Header = Header;
-Table.Column = Column;
-Table.Body = Body;
-Table.Row = Row;
-Table.Cell = Cell;
-Table.EmptyState = EmptyState;
-Table.Skeleton = Skeleton;
-
-export default Table;
+    </div>
+  );
+}
