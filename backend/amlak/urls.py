@@ -29,6 +29,8 @@ urlpatterns = [
     path('api/', include('properties.urls')),
     path("api/",include("media.urls")),
     path("api/audit/",include("audit.urls")),
-    path("api/",include("locations.urls"))
+    path("api/",include("locations.urls")),
+    path("api/",include("deals.urls")),
+    path("api/",include("crm.urls")),
 
 ]

@@ -94,9 +94,10 @@ class PropertyDetailView(APIView):
             status=status.HTTP_200_OK,
         )
 
-
 class PropertyUpdateView(APIView):
+
     serializer_class = PropertyUpdateSerializer
+
     permission_classes = (
         IsAuthenticated,
         HasRolePermission,
@@ -104,19 +105,37 @@ class PropertyUpdateView(APIView):
 
     required_permission = "change_property"
 
-    def put(self, request, pk):
 
-        property = PropertySelector.by_id(pk,request.user)
-        old_data = PropertyDetailSerializer(property).data
+    def patch(self, request, pk):
+
+        property = PropertySelector.by_id(
+            pk,
+            request.user
+        )
+
+
+        old_data = PropertyDetailSerializer(
+            property
+        ).data
+
+
         serializer = self.serializer_class(
             property,
             data=request.data,
-            context={"request": request},
+            partial=True,
+            context={
+                "request":request
+            }
         )
 
-        serializer.is_valid(raise_exception=True)
+
+        serializer.is_valid(
+            raise_exception=True
+        )
+
 
         property = serializer.save()
+
 
         ActivityLogService.update(
             request=request,
@@ -124,15 +143,18 @@ class PropertyUpdateView(APIView):
             entity_id=property.id,
             old_data=old_data,
             new_data=PropertyDetailSerializer(property).data,
-            message="اطلاعات ملک بروزرسانی شد.",
+            message="اطلاعات ملک بروزرسانی شد."
         )
+
 
         return Response(
             {
-                "message": "ملک با موفقیت بروزرسانی شد.",
-                "property": PropertyDetailSerializer(property).data,
-            },
-            status=status.HTTP_200_OK,
+                "message":
+                "ملک بروزرسانی شد",
+
+                "property":
+                PropertyDetailSerializer(property).data
+            }
         )
 
 

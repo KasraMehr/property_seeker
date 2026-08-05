@@ -30,7 +30,7 @@ class UserViewSet(viewsets.ModelViewSet):
                     "agency",
                 )
                 .prefetch_related(
-                    "service_districts",
+                    "service_neighborhoods",
                     "role",
                     "role__permissions",
                 )
@@ -44,7 +44,7 @@ class UserViewSet(viewsets.ModelViewSet):
                 "agency",
             )
             .prefetch_related(
-                "service_districts",
+                "service_neighborhoods",
                 "role",
                 "role__permissions",
             )

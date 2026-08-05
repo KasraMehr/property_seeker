@@ -10,11 +10,11 @@ class Commission(models.Model):
         PAID = "paid", "پرداخت شده"
         REJECTED = "rejected", "رد شده"
 
-    deal = models.ForeignKey(
+    """deal = models.ForeignKey(
         "deals.Deal",
         on_delete=models.CASCADE,
         related_name="commissions"
-    )
+    )"""
 
     agent = models.ForeignKey(
         "accounts.User",

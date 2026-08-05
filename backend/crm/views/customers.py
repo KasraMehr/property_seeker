@@ -1,104 +1,191 @@
-from django.shortcuts import render
-
-# Create your views here.
-from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
 
-from ..serializers.customer_create import CustomerCreateSerializer
+
+from crm.selectors.customers import CustomerSelector
 
 
-class CustomerCreateView(APIView):
+from crm.serializers.customer_create import CustomerCreateSerializer
+from crm.serializers.customer_list import CustomerListSerializer
+from crm.serializers.customer_detail import CustomerDetailSerializer
+from crm.serializers.customer_update import CustomerUpdateSerializer
+from accounts.permissions import *
 
-    permission_classes = [IsAuthenticated]
 
-    def post(self, request):
+class CustomerListCreateView(APIView):
 
-        serializer = CustomerCreateSerializer(data=request.data)
+    permission_classes = [
+        IsAuthenticated,
+        HasRolePermission
+    ]
 
-        serializer.is_valid(raise_exception=True)
+    required_permission = "create_customer"
 
-        customer = serializer.save()
 
-        return Response(
-            CustomerCreateSerializer(customer).data,
-            status=status.HTTP_201_CREATED
+
+    def get(self,request):
+
+        customers = CustomerSelector.all(
+            request.user
         )
 
-
-from ..selectors.customer_selector import CustomerSelector
-from ..serializers.customer_list import CustomerListSerializer
-
-
-class CustomerListView(APIView):
-
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-
-        customers = CustomerSelector.get_customers()
 
         serializer = CustomerListSerializer(
             customers,
             many=True
         )
 
-        return Response(serializer.data)
+
+        return Response(
+            serializer.data
+        )
 
 
-from django.shortcuts import get_object_or_404
 
-from ..models import Customer
-from ..serializers.customer_detail import CustomerDetailSerializer
+    def post(self,request):
+
+        serializer = CustomerCreateSerializer(
+            data=request.data,
+            context={
+                "request":request
+            }
+        )
+
+
+        serializer.is_valid(
+            raise_exception=True
+        )
+
+
+        customer = serializer.save()
+
+
+        return Response(
+            {
+                "message":"مشتری ایجاد شد",
+                "customer":
+                    CustomerDetailSerializer(customer).data
+            },
+            status=status.HTTP_201_CREATED
+        )
+
+
 
 
 class CustomerDetailView(APIView):
+    permission_classes = [
+        IsAuthenticated,
+        HasRolePermission
+    ]
 
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request, pk):
-
-        customer = CustomerSelector.get_customer(pk)
-
-        serializer = CustomerDetailSerializer(customer)
-
-        return Response(serializer.data)
+    required_permission = "view_customer"
 
 
-from ..serializers.customer_update import CustomerUpdateSerializer
+
+    def get(self,request,pk):
+
+        customer = CustomerSelector.by_id(
+            pk,
+            request.user
+        )
 
 
-class CustomerUpdateView(APIView):
+        serializer = CustomerDetailSerializer(
+            customer
+        )
 
-    permission_classes = [IsAuthenticated]
 
-    def put(self, request, pk):
+        return Response(
+            serializer.data
+        )
 
-        customer = CustomerSelector.get_customer(pk)
+
+
+    def put(self,request,pk):
+
+        customer = CustomerSelector.by_id(
+            pk,
+            request.user
+        )
+
 
         serializer = CustomerUpdateSerializer(
             customer,
-            data=request.data
+            data=request.data,
+            context={
+                "request":request
+            }
         )
 
-        serializer.is_valid(raise_exception=True)
+
+        serializer.is_valid(
+            raise_exception=True
+        )
+
 
         serializer.save()
 
-        return Response(serializer.data)
-
-
-class CustomerDeleteView(APIView):
-
-    permission_classes = [IsAuthenticated]
-
-    def delete(self, request, pk):
-
-        customer = CustomerSelector.get_customer(pk)
-
-        customer.delete()
 
         return Response(
-            status=status.HTTP_204_NO_CONTENT
+            {
+                "message":"مشتری بروزرسانی شد"
+            }
+        )
+
+
+
+    def patch(self,request,pk):
+
+        customer = CustomerSelector.by_id(
+            pk,
+            request.user
+        )
+
+
+        serializer = CustomerUpdateSerializer(
+            customer,
+            data=request.data,
+            partial=True,
+            context={
+                "request":request
+            }
+        )
+
+
+        serializer.is_valid(
+            raise_exception=True
+        )
+
+
+        serializer.save()
+
+
+        return Response(
+            {
+                "message":"مشتری بروزرسانی شد"
+            }
+        )
+
+
+
+    def delete(self,request,pk):
+
+        customer = CustomerSelector.by_id(
+            pk,
+            request.user
+        )
+
+
+        customer.is_deleted=True
+
+        customer.save()
+
+
+        return Response(
+            {
+                "message":"مشتری حذف شد"
+            },
+            status=204
         )

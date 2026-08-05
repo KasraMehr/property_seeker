@@ -1,20 +1,38 @@
-from ..models import Customer
+from crm.models import Customer
 
 
 class CustomerSelector:
 
-    @staticmethod
-    def get_customer(customer_id):
-        return (
-            Customer.objects
-            .select_related("assigned_agent")
-            .get(id=customer_id)
-        )
 
     @staticmethod
-    def get_customers():
+    def all(user):
+
         return (
             Customer.objects
-            .select_related("assigned_agent")
+            .filter(
+                agency=user.agency,
+                is_deleted=False
+            )
+            .select_related(
+                "agency",
+                "assigned_agent"
+            )
             .order_by("-created_at")
+        )
+
+
+    @staticmethod
+    def by_id(pk,user):
+
+        return (
+            Customer.objects
+            .select_related(
+                "agency",
+                "assigned_agent"
+            )
+            .get(
+                id=pk,
+                agency=user.agency,
+                is_deleted=False
+            )
         )

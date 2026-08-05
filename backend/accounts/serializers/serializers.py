@@ -5,10 +5,27 @@ from locations.models import *
 
 
 from django.contrib.auth.models import Permission
-from rest_framework import serializers
 from ..models import Agency, Role
 from accounts.models import User
 from locations.models import District
+
+from locations.models import Neighborhood
+
+
+class NeighborhoodSimpleSerializer(serializers.ModelSerializer):
+
+    district_name = serializers.CharField(
+        source="district.name",
+        read_only=True
+    )
+
+    class Meta:
+        model = Neighborhood
+        fields = (
+            "id",
+            "name",
+            "district_name",
+        )
 
 
 class AgencySerializer(serializers.ModelSerializer):
@@ -206,9 +223,9 @@ class UserSerializer(serializers.ModelSerializer):
 
     agency = AgencySerializer(read_only=True)
     role = RoleSerializer(read_only=True,many=True)
-    service_districts = DistrictSimpleSerializer(
+    service_neighborhoods = NeighborhoodSimpleSerializer(
         many=True,
-        read_only=True,
+        read_only=True
     )
 
     class Meta:
@@ -220,7 +237,7 @@ class UserSerializer(serializers.ModelSerializer):
             "national_id",
             "agency",
             "role",
-            "service_districts",
+            "service_neighborhoods",
             "is_owner",
             "is_active",
             "created_at",
@@ -235,6 +252,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
+
     password = serializers.CharField(
         write_only=True,
         min_length=8,
@@ -244,8 +262,8 @@ class UserCreateSerializer(serializers.ModelSerializer):
         queryset=Role.objects.none(),
     )
 
-    service_districts = serializers.PrimaryKeyRelatedField(
-        queryset=District.objects.all(),
+    service_neighborhoods = serializers.PrimaryKeyRelatedField(
+        queryset=Neighborhood.objects.all(),
         many=True,
         required=False,
     )
@@ -258,7 +276,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
             "national_id",
             "role",
             "password",
-            "service_districts",
+            "service_neighborhoods",
         )
 
     def __init__(self, *args, **kwargs):
@@ -279,19 +297,20 @@ class UserCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         password = validated_data.pop("password")
-        districts = validated_data.pop("service_districts", [])
-
+        neighborhoods = validated_data.pop(
+            "service_neighborhoods",
+            []
+        )
         owner = self.context["request"].user
-
         user = User.objects.create_user(
             agency=owner.agency,
-            is_owner=False,
             password=password,
             **validated_data
         )
 
-        user.service_districts.set(districts)
-
+        user.service_neighborhoods.set(
+            neighborhoods
+        )
         return user
 
 class UserUpdateSerializer(serializers.ModelSerializer):
@@ -306,8 +325,8 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         required=False,
     )
 
-    service_districts = serializers.PrimaryKeyRelatedField(
-        queryset=District.objects.all(),
+    service_neighborhoods = serializers.PrimaryKeyRelatedField(
+        queryset=Neighborhood.objects.all(),
         many=True,
         required=False,
     )
@@ -324,7 +343,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             "role",
             "password",
             "is_active",
-            "service_districts",
+            "service_neighborhoods",
         )
 
     def __init__(self, *args, **kwargs):
@@ -346,7 +365,10 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
 
         password = validated_data.pop("password", None)
-        districts = validated_data.pop("service_districts", None)
+        neighborhoods = validated_data.pop(
+            "service_neighborhoods",
+            None
+        )
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
@@ -356,8 +378,10 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
         instance.save()
 
-        if districts is not None:
-            instance.service_districts.set(districts)
+        if neighborhoods is not None:
+            instance.service_neighborhoods.set(
+                neighborhoods
+            )
 
         return instance
 
