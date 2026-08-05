@@ -30,7 +30,7 @@ export default function ListingDetailModal({ isOpen, onClose, listing }) {
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg" title="جزئیات آگهی">
-      {/* ✅ Scrollable content body */}
+      {/*  Scrollable content body */}
       <div className="overflow-y-auto max-h-[60vh] pr-1 space-y-4" dir="rtl">
         {/* Picture */}
         {listing.hs_picture ? (

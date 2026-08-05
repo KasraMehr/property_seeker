@@ -49,7 +49,6 @@ export default function ResourceTemplate({
   onSelectionChange,
 
   // Table: row + bulk actions
-  rowActions,
   onRowAction,
   onBulkAction,
 
@@ -86,7 +85,7 @@ export default function ResourceTemplate({
           selectable={selectable}
           selected={selected}
           onSelectionChange={onSelectionChange}
-          actions={rowActions}
+          actions={actions}
           onRowAction={onRowAction}
         />
 

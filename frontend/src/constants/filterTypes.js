@@ -5,4 +5,7 @@ export const FILTER_TYPES = {
   RANGE: "range",
   DATE_RANGE: "date_range",
   TOGGLE: "toggle",
+  NUMBER: "number",
+  TEXT: "text",
+  DATE: "date",
 };

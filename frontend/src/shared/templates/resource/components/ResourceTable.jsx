@@ -36,7 +36,9 @@ export default function ResourceTable({
   rowKey = "id",
   className = "",
 }) {
-  const rowActions = actions.filter((action) => !action.scope || action.scope === "row");
+  const rowActions = actions.filter(
+    (action) => !action.scope || action.scope === "row",
+  );
   const hasActionsColumn = rowActions.length > 0;
 
   const isSelected = (row) => selected.includes(row[rowKey]);
@@ -58,14 +60,16 @@ export default function ResourceTable({
     onSelectionChange(
       selected.includes(id)
         ? selected.filter((x) => x !== id)
-        : [...selected, id]
+        : [...selected, id],
     );
   };
 
   const isEmpty = !loading && data.length === 0;
 
   return (
-    <div className={`overflow-x-auto rounded-xl border border-border bg-surface ${className}`}>
+    <div
+      className={`overflow-x-auto rounded-xl border border-border bg-surface ${className}`}
+    >
       <Table
         loading={loading}
         sortable
@@ -102,9 +106,14 @@ export default function ResourceTable({
           )}
         </Table.Header>
 
-        <Table.Body empty={isEmpty ? <Table.EmptyState {...emptyState} /> : undefined}>
+        <Table.Body
+          empty={isEmpty ? <Table.EmptyState {...emptyState} /> : undefined}
+        >
           {data.map((row) => (
-            <Table.Row key={row[rowKey]} selected={selectable && isSelected(row)}>
+            <Table.Row
+              key={row[rowKey]}
+              selected={selectable && isSelected(row)}
+            >
               {selectable && (
                 <Table.Cell align="center">
                   <input
@@ -117,7 +126,11 @@ export default function ResourceTable({
               )}
 
               {columns.map((column) => (
-                <Table.Cell key={column.key} align={column.align} width={column.width}>
+                <Table.Cell
+                  key={column.key}
+                  align={column.align}
+                  width={column.width}
+                >
                   {column.render(row)}
                 </Table.Cell>
               ))}
@@ -126,7 +139,9 @@ export default function ResourceTable({
                 <Table.Cell align="center">
                   <TableActions
                     actions={rowActions
-                      .filter((action) => !action.visible || action.visible(row))
+                      .filter(
+                        (action) => !action.visible || action.visible(row),
+                      )
                       .map((action) => ({
                         label: action.label,
                         icon: action.icon,
