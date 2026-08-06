@@ -1,0 +1,37 @@
+@import url("https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css");
+
+@import "tailwindcss";
+
+@import "./theme/theme.css";
+
+* {
+  direction: rtl;
+}
+
+html,
+body,
+#root {
+  font-family: "Vazirmatn", sans-serif;
+
+  min-height: 100vh;
+
+  overflow-x: hidden;
+}
+
+body {
+  background: var(--background);
+
+  color: var(--foreground);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+
+    -webkit-font-smoothing: antialiased;
+
+    -moz-osx-font-smoothing: grayscale;
+
+    text-rendering: optimizeLegibility;
+  }
+}

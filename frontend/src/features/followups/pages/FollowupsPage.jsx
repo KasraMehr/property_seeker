@@ -1,0 +1,283 @@
+import { useMemo, useState, useCallback, useEffect } from "react";
+import { Plus, Eye, CheckCircle2, XCircle, Inbox, Clock } from "lucide-react";
+import useAuth from "@/features/auth/hooks/useAuth";
+import ResourceTemplate from "@/shared/templates/resource/ResourceTemplate";
+import useFollowup from "@/features/followups/hooks/useFollowup";
+import {
+  FOLLOWUP_FILTERS,
+  FOLLOWUP_STATUS_CONFIG,
+  FOLLOWUP_TABLE_COLUMNS,
+} from "@/features/followups/config";
+import useDebounce from "@/shared/useDebounce";
+import ConfirmModal from "@/shared/ui/modal/ConfirmModal";
+import Button from "@/shared/ui/Button";
+import FollowupDetailModal from "@/features/followups/components/FollowupDetailModal";
+
+/* ─── Row Actions ───
+ * complete / cancel فقط وقتی نمایش داده می‌شن که status === "pending" باشه
+ */
+const FOLLOWUP_ROW_ACTIONS = {
+  admin: [
+    { key: "view", label: "مشاهده", icon: Eye },
+    {
+      key: "complete",
+      label: "انجام شد",
+      icon: CheckCircle2,
+      visible: (row) => row.status === "pending",
+    },
+    {
+      key: "cancel",
+      label: "لغو",
+      icon: XCircle,
+      visible: (row) => row.status === "pending",
+      variant: "danger",
+    },
+  ],
+  operator: [
+    { key: "view", label: "مشاهده", icon: Eye },
+    {
+      key: "complete",
+      label: "انجام شد",
+      icon: CheckCircle2,
+      visible: (row) => row.status === "pending",
+    },
+    {
+      key: "cancel",
+      label: "لغو",
+      icon: XCircle,
+      visible: (row) => row.status === "pending",
+      variant: "danger",
+    },
+  ],
+};
+
+export default function FollowupsPage() {
+  const { user } = useAuth();
+  const isAdmin = Boolean(user?.is_owner);
+  const role = isAdmin ? "admin" : "operator";
+
+  const {
+    data,
+    loading,
+    meta,
+    filters: filterValues,
+    setFilter,
+    clearFilter,
+    clearAll,
+    activeChips,
+    sort,
+    setOrdering,
+    page,
+    setPage,
+    totalPages,
+    complete,
+    cancel,
+  } = useFollowup();
+
+  const [selected, setSelected] = useState([]);
+  const [pendingComplete, setPendingComplete] = useState(null);
+  const [pendingCancel, setPendingCancel] = useState(null);
+  const [detailFollowup, setDetailFollowup] = useState(null);
+
+  /* ─── Search ─── */
+  const [searchInput, setSearchInput] = useState(filterValues.search || "");
+  const debouncedSearch = useDebounce(searchInput, 400);
+
+  useEffect(() => {
+    if (filterValues.search !== searchInput)
+      setSearchInput(filterValues.search || "");
+  }, [filterValues.search]);
+
+  useEffect(() => {
+    if (debouncedSearch !== filterValues.search)
+      setFilter("search", debouncedSearch);
+  }, [debouncedSearch, filterValues.search, setFilter]);
+
+  /* ─── Sort ─── */
+  const handleSort = useCallback(
+    (key) => {
+      const dir = sort?.key === key && sort?.dir === "asc" ? "desc" : "asc";
+      setOrdering(`${dir === "desc" ? "-" : ""}${key}`);
+    },
+    [sort, setOrdering],
+  );
+
+  /* ─── Row actions ─── */
+  const handleRowAction = useCallback((actionKey, row) => {
+    switch (actionKey) {
+      case "view":
+      case "view":
+        setDetailFollowup(row);
+        break;
+      case "complete":
+        setPendingComplete(row);
+        break;
+      case "cancel":
+        setPendingCancel(row);
+        break;
+      default:
+        break;
+    }
+  }, []);
+
+  /* ─── Confirm handlers ─── */
+  const confirmComplete = useCallback(async () => {
+    if (!pendingComplete) return;
+    await complete(pendingComplete.id);
+    setPendingComplete(null);
+  }, [pendingComplete, complete]);
+
+  const confirmCancel = useCallback(async () => {
+    if (!pendingCancel) return;
+    await cancel(pendingCancel.id);
+    setPendingCancel(null);
+  }, [pendingCancel, cancel]);
+
+  /* ─── Filter options ─── */
+  const filterOptions = useMemo(() => {
+    const statusFilter = FOLLOWUP_FILTERS.find((f) => f.key === "status");
+    const typeFilter = FOLLOWUP_FILTERS.find((f) => f.key === "type");
+    const userFilter = FOLLOWUP_FILTERS.find((f) => f.key === "user");
+    return {
+      statuses: statusFilter?.options || [],
+      types: typeFilter?.options || [],
+      users: userFilter?.options || [],
+    };
+  }, []);
+
+  const filters = useMemo(
+    () => ({
+      schema: FOLLOWUP_FILTERS.filter((f) => f.type !== "search"),
+      options: filterOptions,
+      values: filterValues,
+      onChange: setFilter,
+      onClear: clearFilter,
+      onClearAll: clearAll,
+      activeChips,
+    }),
+    [
+      filterOptions,
+      filterValues,
+      setFilter,
+      clearFilter,
+      clearAll,
+      activeChips,
+    ],
+  );
+
+  const pagination = useMemo(
+    () => ({ page, totalPages: totalPages(meta?.count) }),
+    [page, meta?.count, totalPages],
+  );
+
+  const searchConfig = useMemo(
+    () => ({
+      value: searchInput,
+      onChange: setSearchInput,
+      label: "جستجو",
+      placeholder: "عنوان، توضیحات، نام مشتری...",
+    }),
+    [searchInput],
+  );
+
+  /* ─── Header ─── */
+  const customHeader = useMemo(
+    () => (
+      <div className="flex items-center justify-between shrink-0">
+        <div>
+          <h1 className="text-xl font-bold text-foreground tracking-tight">
+            مدیریت پیگیری‌ها
+          </h1>
+          <p className="text-sm text-muted mt-1">
+            {(meta?.count || 0).toLocaleString("fa-IR")} پیگیری
+            {selected.length > 0 && (
+              <span className="mr-2 text-(--role-primary)">
+                ({selected.length.toLocaleString("fa-IR")} انتخاب شده)
+              </span>
+            )}
+          </p>
+        </div>
+        <Button variant="primary" size="sm" className="gap-1.5">
+          <Plus size={16} />
+          پیگیری جدید
+        </Button>
+      </div>
+    ),
+    [meta?.count, selected.length],
+  );
+
+  /* ─── Empty ─── */
+  const emptyState = useMemo(
+    () => (
+      <div className="py-12 text-center space-y-3">
+        <Clock size={48} className="mx-auto text-muted/40" />
+        <div>
+          <p className="text-sm font-medium text-foreground">
+            پیگیری‌ای یافت نشد
+          </p>
+          <p className="text-xs text-muted mt-1">
+            با فیلترهای انتخابی هیچ پیگیری‌ای پیدا نشد.
+          </p>
+        </div>
+        <Button variant="outline" size="sm" onClick={clearAll}>
+          حذف فیلترها
+        </Button>
+      </div>
+    ),
+    [clearAll],
+  );
+
+  return (
+    <>
+      <ResourceTemplate
+        header={customHeader}
+        search={searchConfig}
+        filters={filters}
+        columns={FOLLOWUP_TABLE_COLUMNS}
+        data={data}
+        loading={loading}
+        emptyState={emptyState}
+        sort={sort}
+        onSort={handleSort}
+        selectable={true}
+        selected={selected}
+        onSelectionChange={setSelected}
+        rowActions={FOLLOWUP_ROW_ACTIONS[role]}
+        onRowAction={handleRowAction}
+        pagination={pagination}
+        onPageChange={setPage}
+      />
+
+      {/* ─── Confirm: Complete ─── */}
+      <ConfirmModal
+        isOpen={pendingComplete !== null}
+        onClose={() => setPendingComplete(null)}
+        onConfirm={confirmComplete}
+        title="تکمیل پیگیری"
+        message={`پیگیری "${pendingComplete?.title || ""}" به وضعیت "انجام شده" تغییر خواهد کرد.`}
+        variant="primary"
+        confirmLabel="تکمیل"
+      />
+
+      {/* ─── Confirm: Cancel ─── */}
+      <ConfirmModal
+        isOpen={pendingCancel !== null}
+        onClose={() => setPendingCancel(null)}
+        onConfirm={confirmCancel}
+        title="لغو پیگیری"
+        message={`پیگیری "${pendingCancel?.title || ""}" لغو خواهد شد. آیا مطمئن هستید؟`}
+        variant="danger"
+        confirmLabel="لغو"
+      />
+      
+      {detailFollowup && (
+        <FollowupDetailModal
+          isOpen={!!detailFollowup}
+          onClose={() => setDetailFollowup(null)}
+          followup={detailFollowup}
+          followupCount={detailFollowup._followupCount || 0} // اگه API بده، وگرنه 0
+        />
+      )}
+    </>
+  );
+}

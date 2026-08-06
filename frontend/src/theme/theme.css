@@ -1,0 +1,235 @@
+/* ===========================
+   Theme Tokens
+=========================== */
+
+@theme {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-card: var(--card);
+  --color-glass: var(--glass);
+
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+
+  --color-border: var(--border);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+
+  /* Dynamic Role Tokens for Tailwind Utility Classes */
+  --color-role-primary: var(--role-primary);
+  --color-role-primary-hover: var(--role-primary-hover);
+  --color-role-subtle: var(--role-subtle);
+  --color-role-border: var(--role-border);
+  --color-role-surface-accent: var(--role-surface-accent);
+  --color-role-text-accent: var(--role-text-accent);
+
+   /* Semantic Status Colors */
+  --color-status-info: var(--status-info);
+  --color-status-info-soft: var(--status-info-soft);
+  --color-status-success: var(--status-success);
+  --color-status-success-soft: var(--status-success-soft);
+  --color-status-warning: var(--status-warning);
+  --color-status-warning-soft: var(--status-warning-soft);
+  --color-status-danger: var(--status-danger);
+  --color-status-danger-soft: var(--status-danger-soft);
+  --color-status-neutral: var(--status-neutral);
+  --color-status-neutral-soft: var(--status-neutral-soft);
+  --color-status-accent: var(--status-accent);
+  --color-status-accent-soft: var(--status-accent-soft);
+  --color-status-special: var(--status-special);
+  --color-status-special-soft: var(--status-special-soft);
+}
+
+/* ===========================
+   Light Theme
+=========================== */
+
+:root {
+  color-scheme: light;
+
+  --background: #f8fafc;
+  --surface: #ffffff;
+
+  --card: rgba(255, 255, 255, 0.08);
+  --glass: rgba(255, 255, 255, 0.8);
+
+  --foreground: #1f2937;
+  --muted: #6b7280;
+
+  --border: rgba(0, 0, 0, 0.08);
+
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+
+  --status-info: #0ea5e9;        /* Sky 500 */
+  --status-info-soft: #f0f9ff;
+  --status-success: #10b981;     /* Emerald 500 */
+  --status-success-soft: #ecfdf5;
+  --status-warning: #f59e0b;     /* Amber 500 */
+  --status-warning-soft: #fffbeb;
+  --status-danger: #f43f5e;      /* Rose 500 */
+  --status-danger-soft: #fff1f2;
+  --status-neutral: #64748b;     /* Slate 500 */
+  --status-neutral-soft: #f8fafc;
+  --status-accent: #8b5cf6;      /* Violet 500 */
+  --status-accent-soft: #f5f3ff;
+  --status-special: #06b6d4;     /* Cyan 500 */
+  --status-special-soft: #ecfeff;
+
+  --role-primary: var(--primary);
+  --role-primary-hover: var(--primary-hover);
+  --role-subtle: rgba(37, 99, 235, 0.08);
+  --role-border: rgba(37, 99, 235, 0.2);
+  --role-surface-accent: #eff6ff;
+  --role-text-accent: #2563eb;
+}
+
+/* ===========================
+   Dark Theme
+=========================== */
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+
+  --background: #0f172a;
+  --surface: #1e293b;
+
+  --card: rgba(30, 41, 59, 0.55);
+  --glass: rgba(30, 41, 59, 0.85);
+
+  --foreground: #f8fafc;
+  --muted: #94a3b8;
+
+  --border: rgba(255, 255, 255, 0.08);
+
+  --primary: #3b82f6;
+  --primary-hover: #2563eb;
+
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+
+  --status-info: #38bdf8;
+  --status-info-soft: rgba(56, 189, 248, 0.12);
+  --status-success: #34d399;
+  --status-success-soft: rgba(52, 211, 153, 0.12);
+  --status-warning: #fbbf24;
+  --status-warning-soft: rgba(251, 191, 36, 0.12);
+  --status-danger: #fb7185;
+  --status-danger-soft: rgba(251, 113, 133, 0.12);
+  --status-neutral: #94a3b8;
+  --status-neutral-soft: rgba(148, 163, 184, 0.12);
+  --status-accent: #a78bfa;
+  --status-accent-soft: rgba(167, 139, 250, 0.12);
+  --status-special: #22d3ee;
+  --status-special-soft: rgba(34, 211, 238, 0.12);
+}
+
+/* ===========================
+   Role-Based Theme Overrides
+=========================== */
+
+/* =========================================================
+   Admin Role Theme — Purple/Violet
+========================================================= */
+
+/* Admin: Light Mode */
+[data-role="admin"],
+:has([data-role="admin"]) {
+  /* ✅ Purple Primary */
+  --role-primary: #7c3aed;           /* Violet 600 */
+  --role-primary-hover: #6d28d9;     /* Violet 700 */
+  --role-subtle: #ede9fe;            /* Violet 100 */
+  --role-border: #c4b5fd;            /* Violet 300 */
+
+  --role-surface-accent: #5b21b6;    /* Violet 800 */
+  --role-text-accent: #ede9fe;
+
+  /* Status Colors for Admin Light */
+  --status-info: #3b82f6;        /* Blue */
+  --status-success: #22c55e;     /* Green */
+  --status-warning: #f59e0b;     /* Amber */
+  --status-danger: #ef4444;      /* Red */
+  --status-accent: #7c3aed;      /* Purple - matching admin primary */
+}
+
+/* Admin: Dark Mode */
+html[data-theme="dark"] [data-role="admin"],
+html[data-theme="dark"]:has([data-role="admin"]) {
+  /* ✅ Purple Primary */
+  --role-primary: #8b5cf6;           /* Violet 500 */
+  --role-primary-hover: #a78bfa;     /* Violet 400 */
+  --role-subtle: rgba(139, 92, 246, 0.15);
+  --role-border: rgba(139, 92, 246, 0.30);
+
+  --role-surface-accent: #2e1065;    /* Violet 950 */
+  --role-text-accent: #8b5cf6;
+
+  /* Layout Colors Override for Admin Dark */
+  --background: #0a0515 !important;   /* Deep Violet-Black */
+  --surface: #1a0f2e !important;      /* Dark Violet */
+  --card: #2e1a4a !important;         /* Violet-Brown */
+
+  /* Status Colors for Admin Dark */
+  --status-info: #60a5fa;        /* Light Blue */
+  --status-success: #4ade80;     /* Light Green */
+  --status-warning: #fbbf24;     /* Amber Gold */
+  --status-danger: #f87171;      /* Light Red */
+  --status-accent: #8b5cf6;      /* Violet */
+}
+
+/* =========================================================
+   Operator Role Theme — Blue/Cyan (Unchanged)
+========================================================= */
+
+/* Operator: Light Mode */
+[data-role="operator"],
+:has([data-role="operator"]) {
+  --role-primary: #0284c7;           /* Vibrant Sky Blue / Cyan */
+  --role-primary-hover: #0369a1;     /* Deep Cyan Blue */
+  --role-subtle: #e0f2fe;            /* Ice Blue Tint */
+  --role-border: #bae6fd;            /* Soft Cyan Border */
+
+  --role-surface-accent: #0f172a;
+  --role-text-accent: #e0f2fe;
+
+  --status-info: #0284c7;        /* Cyan - matching operator primary */
+  --status-success: #22c55e;     /* Green */
+  --status-warning: #f59e0b;     /* Amber */
+  --status-danger: #ef4444;      /* Red */
+  --status-accent: #0284c7;      /* Cyan */
+}
+
+/* Operator: Dark Mode */
+html[data-theme="dark"] [data-role="operator"],
+html[data-theme="dark"]:has([data-role="operator"]) {
+  --role-primary: #38bdf8;           /* Electric Turquoise Cyan */
+  --role-primary-hover: #7dd3fc;     /* Soft Cyan */
+  --role-subtle: rgba(56, 189, 248, 0.12);
+  --role-border: rgba(56, 189, 248, 0.25);
+
+  --role-surface-accent: #1a243b;
+  --role-text-accent: #38bdf8;
+
+  /* Layout Colors Override for Operator Dark */
+  --background: #0b0f19 !important;   /* Deep Violet-Black */
+  --surface: #131b2e !important;      /* Midnight Blue / Deep Violet */
+  --card: #1a243b !important;         /* Dark Slate Teal / Muted Sage Dark */
+
+  --status-info: #38bdf8;        /* Electric Cyan */
+  --status-success: #2dd4bf;     /* Teal */
+  --status-warning: #fbbf24;
+  --status-danger: #f43f5e;
+  --status-accent: #818cf8;      /* Indigo */
+}
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));

@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+backend/.idea
+# Virtual environment
+backend/venv/
+.venv/
+../.env
+.idea
+.env.prod
+.env
+venv
+# Django
+db.sqlite3
+media/
+staticfiles/
+static/
+
+backend/db.sqlite3
+
+.env.*.local
+
+# Docker
+docker-compose.override.yml
+
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Node / React
+node_modules/
+build/
+dist/
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+backend/deals
+#repomix
+repomix-output.xml
