@@ -36,7 +36,7 @@ export default function DashboardSidebar({
         <div className="flex h-full flex-col w-full">
           {navigation}
 
-          <div className="mt-auto border-t border-border p-3">
+          <div className="mt-auto flex items-center justify-center border-t border-border p-3">
             <ThemeToggle/>
             <UserProfileDropdown fullWidth={false} showInfo={false}/>
           </div>

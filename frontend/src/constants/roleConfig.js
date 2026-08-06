@@ -75,7 +75,7 @@ export const getRoleConfig = (role) => {
   const paletteKey = lookup.key || key.toLowerCase();
   const palette = PALETTE[paletteKey] || PALETTE.default;
 
-  return { label: lookup.label, icon: lookup.icon, ...palette };
+  return { label: lookup.label, key:paletteKey ,icon: lookup.icon, ...palette };
 };
 
 export const getRoleLabel = (role) => getRoleConfig(role).label;

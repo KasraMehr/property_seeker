@@ -1,188 +1,128 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 
 /**
- * useResource
+ * useResource — generic CRUD state management.
  *
- * Generic resource management hook.
- *
- * This hook does NOT know anything about a specific resource.
- * It only handles common CRUD operations and async states.
- *
- * Example:
- *
- * const resource = useResource({
- *   service: listingService
- * });
- *
- * Then feature hooks can extend it:
- *
- * useListing -> useResource + listing specific actions
- *
+ * Handles async state for any service with getAll/getById/create/update/remove.
+ * Supports both axios responses (with .data) and raw payloads.
  */
-
-export default function useResource({ service }) {
-  // Resource data state
+export default function useResource(service) {
   const [data, setData] = useState([]);
-
-  // Loading and error states
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-
-  // Pagination metadata
-  //
-  // Django REST Framework response:
-  //
-  // {
-  //   count: 150,
-  //   next: "...",
-  //   previous: "...",
-  //   results: []
-  // }
-  //
-
-  const [meta, setMeta] = useState({
-    count: 0,
-    next: null,
-    previous: null,
-  });
-
-  // Fetch resource list
-  //
-  // params are converted to query params
-  // by the service layer.
-  //
-  // Example:
-  //
-  // fetchList({
-  //   search:"apartment",
-  //   status:"active",
-  //   page:1
-  // })
-  //
+  const [meta, setMeta] = useState({ count: 0 });
 
   const fetchList = useCallback(
     async (params = {}) => {
+      setLoading(true);
+      setError(null);
       try {
-        setLoading(true);
-        setError(null);
-
         const response = await service.getAll(params);
 
-        const payload = response.data;
+        // 🔴 KEY FIX: extract .data from axios response, or use raw payload
+        const payload = response?.data ?? response;
 
-        // Support both:
-        //
-        // DRF pagination:
-        // {results:[]}
-        //
-        // Simple array response:
-        // []
-        //
+        const results = Array.isArray(payload)
+          ? payload
+          : payload?.results ?? [];
 
-        const items = payload?.results ?? payload ?? [];
+        const count = Array.isArray(payload)
+          ? payload.length
+          : payload?.count ?? 0;
 
-        setData(items);
-
-        // Save pagination information
-        if (payload?.results) {
-          setMeta({
-            count: payload.count ?? 0,
-            next: payload.next,
-            previous: payload.previous,
-          });
-        }
-
-        return items;
+        setData(results);
+        setMeta({ count });
+        return { data: results, count };
       } catch (err) {
-        setError(
-          err?.response?.data?.detail ||
-            err.message ||
-            "Failed to fetch resource",
-        );
-
+        setError(err);
         throw err;
       } finally {
         setLoading(false);
       }
     },
-    [service],
+    [service]
   );
 
-  // Get single resource item
   const getById = useCallback(
     async (id) => {
-      const response = await service.getById(id);
-
-      return response.data;
+      setLoading(true);
+      try {
+        const response = await service.getById(id);
+        return response?.data ?? response;
+      } catch (err) {
+        setError(err);
+        throw err;
+      } finally {
+        setLoading(false);
+      }
     },
-    [service],
+    [service]
   );
 
-  // Create resource item
   const create = useCallback(
     async (payload) => {
-      const response = await service.create(payload);
-
-      return response.data;
+      setLoading(true);
+      try {
+        const response = await service.create(payload);
+        return response?.data ?? response;
+      } catch (err) {
+        setError(err);
+        throw err;
+      } finally {
+        setLoading(false);
+      }
     },
-    [service],
+    [service]
   );
 
-  // Update resource item
   const update = useCallback(
     async (id, payload) => {
-      const response = await service.update(id, payload);
-
-      return response.data;
+      setLoading(true);
+      try {
+        const response = await service.update(id, payload);
+        return response?.data ?? response;
+      } catch (err) {
+        setError(err);
+        throw err;
+      } finally {
+        setLoading(false);
+      }
     },
-    [service],
+    [service]
   );
 
-  // Delete resource item
   const remove = useCallback(
     async (id) => {
-      const response = await service.remove(id);
-
-      return response.data;
+      setLoading(true);
+      try {
+        await service.remove(id);
+        setData((prev) => prev.filter((item) => item.id !== id));
+        setMeta((prev) => ({ ...prev, count: Math.max(0, prev.count - 1) }));
+      } catch (err) {
+        setError(err);
+        throw err;
+      } finally {
+        setLoading(false);
+      }
     },
-    [service],
+    [service]
   );
 
-  // Refresh helper
-  // Feature hooks can store the
-  // latest query params and call this.
-  // Example:
-  //
-  // after delete:
-  // await remove(id)
-  // refresh()
-  
-  const refresh = useCallback(() => {
-    // intentionally empty
-    //
-    // The feature hook should provide
-    // the last query params.
-    //
-    // This keeps useResource generic.
-  }, []);
+  const refresh = useCallback(() => {}, []);
 
-  return {
-    // state
-    data,
-    loading,
-    error,
-
-    // pagination
-    meta,
-
-    // CRUD
-    fetchList,
-    getById,
-    create,
-    update,
-    remove,
-
-    // helper
-    refresh,
-  };
+  return useMemo(
+    () => ({
+      data,
+      loading,
+      error,
+      meta,
+      fetchList,
+      getById,
+      create,
+      update,
+      remove,
+      refresh,
+    }),
+    [data, loading, error, meta, fetchList, getById, create, update, remove, refresh]
+  );
 }

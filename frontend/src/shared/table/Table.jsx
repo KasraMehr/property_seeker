@@ -6,61 +6,49 @@ export default function Table({
   columns = [],
   loading = false,
   selectable = false,
+  selected = [],
+  onSelectionChange,
+  sortKey = null,
+  sortDir = "asc",
+  onSort,
   actions,
   emptyState,
-  onSelectionChange,
   className = "",
 }) {
-  const [selected, setSelected] = useState([]);
-  const [sort, setSort] = useState({ key: null, dir: "asc" });
+  const hasFixedWidth = columns.some((c) => c.width);
+  const minWidth = columns.reduce(
+    (sum, col) => sum + (parseInt(col.width) || 100),
+    0,
+  );
+  const allSelected =
+    data.length > 0 && data.every((row) => selected.includes(row.id));
 
-  const sortedData = useMemo(() => {
-    if (!sort.key) return data;
-
-    return [...data].sort((a, b) => {
-      const av = a[sort.key] ?? "";
-      const bv = b[sort.key] ?? "";
-
-      if (av < bv) return sort.dir === "asc" ? -1 : 1;
-      if (av > bv) return sort.dir === "asc" ? 1 : -1;
-      return 0;
-    });
-  }, [data, sort]);
-
-  const toggleSort = (key) => {
-    setSort((prev) => ({
-      key,
-      dir: prev.key === key && prev.dir === "asc" ? "desc" : "asc",
-    }));
+  const toggleAll = () => {
+    const ids = data.map((r) => r.id);
+    const next = allSelected ? [] : ids;
+    onSelectionChange?.(next);
   };
 
-  const toggle = (id) => {
+  const toggleRow = (id) => {
     const next = selected.includes(id)
       ? selected.filter((x) => x !== id)
       : [...selected, id];
-
-    setSelected(next);
     onSelectionChange?.(next);
   };
-
-  const toggleAll = () => {
-    const ids = data.map((x) => x.id);
-
-    const next = selected.length === ids.length ? [] : ids;
-
-    setSelected(next);
-    onSelectionChange?.(next);
-  };
-
-  const allSelected =
-    data.length > 0 && data.every((x) => selected.includes(x.id));
 
   return (
     <div
-      className={`bg-surface rounded-2xl border border-border shadow-sm overflow-hidden ${className}`}
+      className={`bg-surface rounded-2xl border border-border shadow-sm h-full flex flex-col ${className}`}
     >
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm min-w-160">
+      <div className="overflow-auto flex-1">
+        <table
+          className={`text-sm ${hasFixedWidth ? "table-fixed" : "min-w-160 w-full"}`}
+          style={
+            hasFixedWidth
+              ? { minWidth: `${minWidth}px`, width: `${minWidth}px` }
+              : {}
+          }
+        >
           <thead>
             <tr className="border-b border-border bg-background/50">
               {selectable && (
@@ -73,15 +61,13 @@ export default function Table({
                   />
                 </th>
               )}
-
               {columns.map((col) => {
-                const active = sort.key === col.key;
-
+                const active = sortKey === col.key;
                 return (
                   <th
                     key={col.key}
                     style={{ width: col.width }}
-                    onClick={() => col.sortable && toggleSort(col.key)}
+                    onClick={() => col.sortable && onSort?.(col.key)}
                     className={`
                       p-3 text-xs font-semibold text-muted whitespace-nowrap
                       ${col.align === "center" ? "text-center" : "text-right"}
@@ -90,10 +76,9 @@ export default function Table({
                   >
                     <span className="inline-flex items-center gap-1">
                       {col.title}
-
                       {col.sortable &&
                         (active ? (
-                          sort.dir === "asc" ? (
+                          sortDir === "asc" ? (
                             <ChevronDown size={14} />
                           ) : (
                             <ChevronUp size={14} />
@@ -105,7 +90,6 @@ export default function Table({
                   </th>
                 );
               })}
-
               {actions && (
                 <th className="p-3 text-center text-xs text-muted">عملیات</th>
               )}
@@ -115,7 +99,7 @@ export default function Table({
           <tbody className="divide-y divide-border">
             {loading && (
               <tr>
-                <td colSpan="100">
+                <td colSpan={100}>
                   <div className="flex justify-center py-12">
                     <Loader2
                       className="animate-spin text-(--role-primary)"
@@ -126,48 +110,48 @@ export default function Table({
               </tr>
             )}
 
-            {!loading && sortedData.length === 0 && (
+            {!loading && data.length === 0 && (
               <tr>
-                <td colSpan="100">{emptyState}</td>
+                <td colSpan={100}>
+                  {emptyState || (
+                    <div className="py-12 text-center text-sm text-muted">
+                      داده‌ای یافت نشد
+                    </div>
+                  )}
+                </td>
               </tr>
             )}
 
             {!loading &&
-              sortedData.map((row) => (
+              data.map((row) => (
                 <tr
                   key={row.id}
                   className={`
-                  transition-colors
-                  ${
-                    selected.includes(row.id)
-                      ? "bg-(--role-primary)/5"
-                      : "hover:bg-(--role-subtle)/20"
-                  }
-                `}
+                    transition-colors
+                    ${selected.includes(row.id) ? "bg-(--role-primary)/5" : "hover:bg-(--role-subtle)/20"}
+                  `}
                 >
                   {selectable && (
                     <td className="p-3 text-center">
                       <input
                         type="checkbox"
                         checked={selected.includes(row.id)}
-                        onChange={() => toggle(row.id)}
+                        onChange={() => toggleRow(row.id)}
                         className="w-4 h-4 rounded border-border accent-primary"
                       />
                     </td>
                   )}
-
                   {columns.map((col) => (
                     <td
                       key={col.key}
                       className={`
-                      p-3 text-sm text-foreground whitespace-nowrap
-                      ${col.align === "center" ? "text-center" : "text-right"}
-                    `}
+                        p-3 text-sm text-foreground
+                        ${col.align === "center" ? "text-center" : "text-right"}
+                      `}
                     >
                       {col.render ? col.render(row) : row[col.key]}
                     </td>
                   ))}
-
                   {actions && (
                     <td className="p-3 text-center">{actions(row)}</td>
                   )}

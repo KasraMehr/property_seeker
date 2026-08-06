@@ -109,3 +109,9 @@ export const formatValue = (value) => {
 
   return value;
 };
+
+export const fmtSource = (source) => {
+  if (!source) return "-";
+  if (typeof source === "string") return source;
+  return source.name || source.label || "-";
+};

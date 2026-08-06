@@ -4,7 +4,7 @@ import { Home, Phone, Clock, TrendingUp, ArrowLeft, Eye, CalendarCheck } from "l
 import { Link } from "react-router-dom";
 import reportService from "@/features/reports/services/reportService";
 import listingService from "@/features/listings/services/listingService";
-import reminderService from "@/features/followups/services/reminderService";
+import followupService from "@/features/followups/services/followupService";
 import Table from "@/shared/table/Table";
 import StatusBadge from "@/shared/ui/badges/StatusBadge";
 import ScoreBadge from "@/shared/ui/badges/ScoreBadge";

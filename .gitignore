@@ -48,3 +48,5 @@ celerybeat-schedule
 celerybeat.pid
 
 backend/deals
+#repomix
+repomix-output.xml

@@ -1,172 +1,261 @@
-import { useEffect, useState, useMemo } from "react";
-import { MapPin, Search, Plus, Eye, Pencil, Trash2 } from "lucide-react";
-import PageHeader from "@/shared/page/PageHeader";
+import { useMemo, useState, useCallback, useEffect } from "react";
+import { Plus, Eye, Inbox, MapPin } from "lucide-react";
+import useAuth from "@/features/auth/hooks/useAuth";
+import ResourceTemplate from "@/shared/templates/resource/ResourceTemplate";
+import PageTabs from "@/shared/page/PageTabs";
+import useRegion from "@/features/regions-management/hooks/useRegion";
+import {
+  REGION_FILTERS,
+  REGION_TABLE_COLUMNS,
+} from "@/features/regions-management/config";
+import useDebounce from "@/shared/useDebounce";
 import Button from "@/shared/ui/Button";
-import SearchBox from "@/shared/ui/SearchBox";
-import Select from "@/shared/ui/selectors/Select";
-import Table from "@/shared/table/Table";
-import TablePagination from "@/shared/table/TablePagination";
-import TableActions from "@/shared/table/TableActions";
-import ConfirmModal from "@/shared/ui/modal/ConfirmModal";
-import { MotionDiv } from "@/animations/MotionElements";
-import useTableSelection from "@/shared/table/useTableSelection";
-import locationService from "@/features/regions-management/services/locationService";
+import RegionDetailModal from "@/features/regions-management/components/RegionDetailModal";
 
-const PAGE_SIZE = 10;
-
-const CITY_OPTIONS = [
-  { value: 1, label: "کرج" },
-  { value: 2, label: "ماهدشت" },
-  { value: 3, label: "تهران" },
+/* ─── City Tabs ─── */
+const CITY_TABS = [
+  { id: "all", label: "همه مناطق" },
+  { id: "1", label: "کرج" },
+  { id: "2", label: "ماهدشت" },
+  { id: "3", label: "تهران" },
 ];
 
-const SortHeader = ({ label, column, sort, onToggle }) => {
-  const active = sort.column === column;
-  return (
-    <button onClick={() => onToggle(column)} className="flex items-center gap-1 w-full justify-center hover:text-primary transition-colors">
-      {label}
-      {active && <span className="text-primary">{sort.direction === "asc" ? "↑" : "↓"}</span>}
-    </button>
-  );
+const REGION_ROW_ACTIONS = {
+  admin: [{ key: "view", label: "مشاهده", icon: Eye }],
+  operator: [{ key: "view", label: "مشاهده", icon: Eye }],
 };
 
 export default function RegionsPage() {
-  const [districts, setDistricts] = useState([]);
-  const [cities, setCities] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(1);
-  const [sort, setSort] = useState({ column: "id", direction: "asc" });
-  const [search, setSearch] = useState("");
-  const [cityFilter, setCityFilter] = useState("");
-  const [pendingDeleteId, setPendingDeleteId] = useState(null);
+  const { user } = useAuth();
+  const isAdmin = Boolean(user?.is_owner);
+  const role = isAdmin ? "admin" : "operator";
+
+  const {
+    data,
+    loading,
+    meta,
+    filters: filterValues,
+    setFilter,
+    clearFilter,
+    clearAll,
+    activeChips,
+    sort,
+    setOrdering,
+    page,
+    setPage,
+    totalPages,
+    fetchList,
+  } = useRegion();
+
+  const [selected, setSelected] = useState([]);
+  const [detailRegion, setDetailRegion] = useState(null);
+  const [activeTab, setActiveTab] = useState("all");
+
+  /* ─── Tab Change → Server-side filter ─── */
+  const handleTabChange = useCallback(
+    (tabId) => {
+      setActiveTab(tabId);
+      if (tabId === "all") {
+        clearFilter("city");
+      } else {
+        setFilter("city", tabId);
+      }
+      setPage(1);
+    },
+    [setFilter, clearFilter, setPage],
+  );
+
+  /* ─── Search ─── */
+  const [searchInput, setSearchInput] = useState(filterValues.search || "");
+  const debouncedSearch = useDebounce(searchInput, 400);
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        setLoading(true);
-        const [dRes, cRes] = await Promise.all([
-          locationService.getDistricts(),
-          locationService.getCities(),
-        ]);
-        setDistricts(dRes.data ?? []);
-        setCities(cRes.data ?? []);
-      } catch {
-        // silently fail
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
+    if (filterValues.search !== searchInput)
+      setSearchInput(filterValues.search || "");
+  }, [filterValues.search]);
+
+  useEffect(() => {
+    if (debouncedSearch !== filterValues.search)
+      setFilter("search", debouncedSearch);
+  }, [debouncedSearch, filterValues.search, setFilter]);
+
+  /* ─── Sort ─── */
+  const handleSort = useCallback(
+    (key) => {
+      const dir = sort?.key === key && sort?.dir === "asc" ? "desc" : "asc";
+      setOrdering(`${dir === "desc" ? "-" : ""}${key}`);
+    },
+    [sort, setOrdering],
+  );
+
+  /* ─── Row actions ─── */
+  const handleRowAction = useCallback((actionKey, row) => {
+    if (actionKey === "view") setDetailRegion(row);
   }, []);
 
-  const cityMap = useMemo(() => {
-    const map = {};
-    cities.forEach((c) => { map[c.id] = c.name; });
-    return map;
-  }, [cities]);
-
-  const filtered = useMemo(() => {
-    let res = [...districts];
-    if (cityFilter) res = res.filter((d) => d.city === Number(cityFilter));
-    if (search) {
-      const q = search.toLowerCase();
-      res = res.filter((d) => d.name.toLowerCase().includes(q));
-    }
-    if (sort.column) {
-      const d = sort.direction === "asc" ? 1 : -1;
-      res.sort((a, b) => {
-        let av = a[sort.column];
-        let bv = b[sort.column];
-        if (typeof av === "string") av = av.toLowerCase();
-        if (typeof bv === "string") bv = bv.toLowerCase();
-        if (av < bv) return -1 * d;
-        if (av > bv) return 1 * d;
-        return 0;
+  /* ─── Tab badge counts (fetch all once for counts) ─── */
+  const [allDistricts, setAllDistricts] = useState([]);
+  useEffect(() => {
+    import("@/features/regions-management/services/locationService")
+      .then((mod) => mod.default.getDistricts())
+      .then((res) => {
+        // Paginated response: { count, next, previous, results: [...] }
+        const list = res.data?.results || res.data || [];
+        setAllDistricts(list);
       });
-    }
-    return res;
-  }, [districts, cityFilter, search, sort.column, sort.direction]);
+  }, []);
 
-  const totalPages = Math.ceil(filtered.length / PAGE_SIZE) || 1;
-  const displayPage = Math.min(page, totalPages);
-  const displayItems = filtered.slice((displayPage - 1) * PAGE_SIZE, displayPage * PAGE_SIZE);
+  const tabItems = useMemo(() => {
+    const counts = {
+      all: allDistricts.length,
+      "1": allDistricts.filter((d) => d.city?.id === 1 || d.city === 1).length,
+      "2": allDistricts.filter((d) => d.city?.id === 2 || d.city === 2).length,
+      "3": allDistricts.filter((d) => d.city?.id === 3 || d.city === 3).length,
+    };
+    return CITY_TABS.map((t) => ({
+      ...t,
+      badge: counts[t.id] || 0,
+    }));
+  }, [allDistricts]);
 
-  const { selected, toggle, toggleAll, isSelected, allSelectedOnPage } = useTableSelection(displayItems);
-  const allIds = useMemo(() => displayItems.map((d) => d.id), [displayItems]);
+  /* ─── Filter options (hide city from FilterBar, controlled by tabs) ─── */
+  const filterOptions = useMemo(() => {
+    const listingFilter = REGION_FILTERS.find((f) => f.key === "has_listings");
+    return {
+      listingStatuses: listingFilter?.options || [],
+    };
+  }, []);
 
-  const toggleSort = (col) => {
-    setSort((prev) => (prev.column === col ? { ...prev, direction: prev.direction === "asc" ? "desc" : "asc" } : { column: col, direction: "asc" }));
-  };
+  const filters = useMemo(
+    () => ({
+      schema: REGION_FILTERS.filter(
+        (f) => f.type !== "search" && f.key !== "city",
+      ),
+      options: filterOptions,
+      values: filterValues,
+      onChange: setFilter,
+      onClear: clearFilter,
+      onClearAll: clearAll,
+      activeChips: activeChips.filter((c) => c.key !== "city"), // hide city chip
+    }),
+    [
+      filterOptions,
+      filterValues,
+      setFilter,
+      clearFilter,
+      clearAll,
+      activeChips,
+    ],
+  );
 
-  return (
-    <MotionDiv className="space-y-6" delay={0.1}>
-      <PageHeader
-        title="مدیریت مناطق"
-        subtitle="مشاهده و مدیریت مناطق و محله‌ها"
-        backTo="/admin/dashboard"
-        actions={
-          <Button variant="primary" size="sm" icon={Plus}>
+  const pagination = useMemo(
+    () => ({ page, totalPages: totalPages(meta?.count) }),
+    [page, meta?.count, totalPages],
+  );
+
+  const searchConfig = useMemo(
+    () => ({
+      value: searchInput,
+      onChange: setSearchInput,
+      label: "جستجو",
+      placeholder: "نام منطقه، محله...",
+    }),
+    [searchInput],
+  );
+
+  /* ─── Header ─── */
+  const customHeader = useMemo(
+    () => (
+      <div className="space-y-4 shrink-0">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-bold text-foreground tracking-tight">
+              مدیریت مناطق
+            </h1>
+            <p className="text-sm text-muted mt-1">
+              {(meta?.count || 0).toLocaleString("fa-IR")} منطقه
+              {selected.length > 0 && (
+                <span className="mr-2 text-(--role-primary)">
+                  ({selected.length.toLocaleString("fa-IR")} انتخاب شده)
+                </span>
+              )}
+            </p>
+          </div>
+          <Button variant="primary" size="sm" className="gap-1.5">
+            <Plus size={16} />
             منطقه جدید
           </Button>
-        }
-      />
-
-      <div className="bg-surface rounded-2xl border border-border shadow-sm p-5 space-y-5">
-        <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-          <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
-            <SearchBox value={search} onChange={setSearch} placeholder="جستجو در نام منطقه..." className="w-full md:w-64" />
-            <Select value={cityFilter} onChange={setCityFilter} options={CITY_OPTIONS} placeholder="شهر" clearable size="sm" className="w-full md:w-40" />
-          </div>
-          <span className="text-sm text-muted">{filtered.length.toLocaleString("fa-IR")} مورد</span>
         </div>
 
-        <div className="overflow-x-auto rounded-xl border border-border">
-          <Table loading={loading}>
-            <Table.Header>
-              <Table.Column width="40px">
-                <input type="checkbox" className="w-4 h-4 rounded border-border accent-primary cursor-pointer" checked={allSelectedOnPage(allIds)} onChange={() => toggleAll(allIds)} />
-              </Table.Column>
-              <Table.Column align="center" width="80px">
-                <SortHeader label="شناسه" column="id" sort={sort} onToggle={toggleSort} />
-              </Table.Column>
-              <Table.Column align="right">
-                <SortHeader label="نام منطقه" column="name" sort={sort} onToggle={toggleSort} />
-              </Table.Column>
-              <Table.Column align="right" width="140px">شهر</Table.Column>
-              <Table.Column align="center" width="120px">عملیات</Table.Column>
-            </Table.Header>
-
-            <Table.Body emptyState={<Table.EmptyState icon={MapPin} title="منطقه‌ای یافت نشد" description="با فیلترهای دیگر امتحان کنید" />}>
-              {displayItems.map((d) => (
-                <Table.Row key={d.id} selected={isSelected(d.id)}>
-                  <Table.Cell>
-                    <input type="checkbox" className="w-4 h-4 rounded border-border accent-primary cursor-pointer" checked={isSelected(d.id)} onChange={() => toggle(d.id)} />
-                  </Table.Cell>
-                  <Table.Cell align="center"><span className="text-sm font-mono text-muted">{d.id}</span></Table.Cell>
-                  <Table.Cell align="right"><span className="text-sm font-medium">{d.name}</span></Table.Cell>
-                  <Table.Cell align="right"><span className="text-sm">{cityMap[d.city] || "—"}</span></Table.Cell>
-                  <Table.Cell align="center">
-                    <TableActions onView={() => {}} onEdit={() => {}} onDelete={() => setPendingDeleteId(d.id)} />
-                  </Table.Cell>
-                </Table.Row>
-              ))}
-            </Table.Body>
-          </Table>
-        </div>
-
-        <TablePagination page={displayPage} totalPages={totalPages} onChange={setPage} />
+        <PageTabs
+          items={tabItems}
+          value={activeTab}
+          onChange={handleTabChange}
+        />
       </div>
+    ),
+    [meta?.count, selected.length, tabItems, activeTab],
+  );
 
-      <ConfirmModal
-        isOpen={pendingDeleteId !== null}
-        onClose={() => setPendingDeleteId(null)}
-        onConfirm={() => setPendingDeleteId(null)}
-        title="حذف منطقه"
-        message="آیا از حذف این منطقه اطمینان دارید؟"
-        confirmText="حذف"
-        cancelText="انصراف"
-        variant="danger"
+  /* ─── Empty ─── */
+  const emptyState = useMemo(
+    () => (
+      <div className="py-12 text-center space-y-3">
+        <MapPin size={48} className="mx-auto text-muted/40" />
+        <div>
+          <p className="text-sm font-medium text-foreground">
+            منطقه‌ای یافت نشد
+          </p>
+          <p className="text-xs text-muted mt-1">
+            با فیلترهای انتخابی هیچ منطقه‌ای پیدا نشد.
+          </p>
+        </div>
+        <Button variant="outline" size="sm" onClick={clearAll}>
+          حذف فیلترها
+        </Button>
+      </div>
+    ),
+    [clearAll],
+  );
+
+  return (
+    <>
+      <ResourceTemplate
+        header={customHeader}
+        search={searchConfig}
+        filters={filters}
+        columns={REGION_TABLE_COLUMNS}
+        data={data}
+        loading={loading}
+        emptyState={emptyState}
+        sort={sort}
+        onSort={handleSort}
+        selectable={true}
+        selected={selected}
+        onSelectionChange={setSelected}
+        rowActions={REGION_ROW_ACTIONS[role]}
+        onRowAction={handleRowAction}
+        pagination={pagination}
+        onPageChange={setPage}
       />
-    </MotionDiv>
+
+      {detailRegion && (
+        <RegionDetailModal
+          isOpen={!!detailRegion}
+          onClose={() => setDetailRegion(null)}
+          region={detailRegion}
+          agents={detailRegion._agents || []}
+          stats={{
+            listings_count: detailRegion.listings_count || 0,
+            properties_count: detailRegion.properties_count || 0,
+            calls_count: detailRegion.calls_count || 0,
+            followups_count: detailRegion.followups_count || 0,
+            neighborhoods_count: detailRegion.neighborhoods_count || 0,
+            addresses_count: detailRegion.addresses_count || 0,
+            agents_count: detailRegion.agents_count || 0,
+          }}
+        />
+      )}
+    </>
   );
 }

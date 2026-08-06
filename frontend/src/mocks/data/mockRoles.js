@@ -1,4 +1,5 @@
 // roles with permissions for RBAC mock
+// Role model: id, agency(FK), name, description, permissions(M2M), created_at, updated_at
 export const MOCK_ROLES = {
   ADMIN: {
     id: 1,
@@ -14,6 +15,8 @@ export const MOCK_ROLES = {
       "view_scraper", "manage_scraper", "manage_settings", "view_reports",
       "view_dashboard", "export_data", "import_data",
     ],
+    created_at: "2026-01-01T00:00:00Z",
+    updated_at: "2026-01-01T00:00:00Z",
   },
   SUPERVISOR: {
     id: 2,
@@ -27,6 +30,8 @@ export const MOCK_ROLES = {
       "add_followup", "change_followup", "view_followup",
       "view_scraper", "view_reports", "view_dashboard",
     ],
+    created_at: "2026-01-01T00:00:00Z",
+    updated_at: "2026-01-01T00:00:00Z",
   },
   OPERATOR: {
     id: 3,
@@ -39,6 +44,8 @@ export const MOCK_ROLES = {
       "add_followup", "view_followup", "change_followup",
       "view_owner", "add_owner",
     ],
+    created_at: "2026-01-01T00:00:00Z",
+    updated_at: "2026-01-01T00:00:00Z",
   },
   AGENT: {
     id: 4,
@@ -51,6 +58,8 @@ export const MOCK_ROLES = {
       "add_followup", "view_followup",
       "view_owner",
     ],
+    created_at: "2026-01-01T00:00:00Z",
+    updated_at: "2026-01-01T00:00:00Z",
   },
   VIEWER: {
     id: 5,
@@ -60,5 +69,7 @@ export const MOCK_ROLES = {
     permissions: [
       "view_property", "view_call", "view_followup", "view_dashboard", "view_reports",
     ],
+    created_at: "2026-01-01T00:00:00Z",
+    updated_at: "2026-01-01T00:00:00Z",
   },
 };

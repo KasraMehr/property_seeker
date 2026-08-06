@@ -2,6 +2,7 @@ import { MOCK_AGENCIES } from "./mockAgencies";
 import { MOCK_ROLES } from "./mockRoles";
 
 // system users mock - agency scoped
+// User model: id, agency(FK), service_neighborhoods(M2M), role(M2M), full_name, phone, national_id, is_owner, is_active, is_staff, created_at, updated_at
 export const MOCK_USERS = [
   {
     id: 1,
@@ -10,10 +11,10 @@ export const MOCK_USERS = [
     national_id: "0012345678",
     agency: MOCK_AGENCIES[0],
     role: [MOCK_ROLES.ADMIN],
-    service_districts: [
-      { id: 1, name: "منطقه ۱" }, { id: 2, name: "منطقه ۲" },
-      { id: 3, name: "منطقه ۳" }, { id: 4, name: "منطقه ۴" },
-      { id: 5, name: "منطقه ۵" }, { id: 6, name: "منطقه ۶" },
+    service_neighborhoods: [
+      { id: 1, name: "گلشهر" }, { id: 2, name: "مهرشهر" },
+      { id: 3, name: "عظیمیه" }, { id: 4, name: "کرج نو" },
+      { id: 5, name: "شاهین ویلا" }, { id: 6, name: "کیانمهر" },
     ],
     is_owner: true,
     is_active: true,
@@ -28,8 +29,8 @@ export const MOCK_USERS = [
     national_id: "0087654321",
     agency: MOCK_AGENCIES[0],
     role: [MOCK_ROLES.OPERATOR],
-    service_districts: [
-      { id: 1, name: "منطقه ۱" }, { id: 2, name: "منطقه ۲" },
+    service_neighborhoods: [
+      { id: 1, name: "گلشهر" }, { id: 2, name: "مهرشهر" },
     ],
     is_owner: false,
     is_active: true,
@@ -44,8 +45,8 @@ export const MOCK_USERS = [
     national_id: "0077112233",
     agency: MOCK_AGENCIES[0],
     role: [MOCK_ROLES.OPERATOR],
-    service_districts: [
-      { id: 3, name: "منطقه ۳" }, { id: 4, name: "منطقه ۴" },
+    service_neighborhoods: [
+      { id: 3, name: "عظیمیه" }, { id: 4, name: "کرج نو" },
     ],
     is_owner: false,
     is_active: true,
@@ -60,8 +61,8 @@ export const MOCK_USERS = [
     national_id: "0066554433",
     agency: MOCK_AGENCIES[0],
     role: [MOCK_ROLES.OPERATOR],
-    service_districts: [
-      { id: 5, name: "منطقه ۵" }, { id: 6, name: "منطقه ۶" },
+    service_neighborhoods: [
+      { id: 5, name: "شاهین ویلا" }, { id: 6, name: "کیانمهر" },
     ],
     is_owner: false,
     is_active: true,
@@ -76,10 +77,10 @@ export const MOCK_USERS = [
     national_id: "0055443322",
     agency: MOCK_AGENCIES[0],
     role: [MOCK_ROLES.SUPERVISOR],
-    service_districts: [
-      { id: 1, name: "منطقه ۱" }, { id: 2, name: "منطقه ۲" },
-      { id: 3, name: "منطقه ۳" }, { id: 4, name: "منطقه ۴" },
-      { id: 5, name: "منطقه ۵" }, { id: 6, name: "منطقه ۶" },
+    service_neighborhoods: [
+      { id: 1, name: "گلشهر" }, { id: 2, name: "مهرشهر" },
+      { id: 3, name: "عظیمیه" }, { id: 4, name: "کرج نو" },
+      { id: 5, name: "شاهین ویلا" }, { id: 6, name: "کیانمهر" },
     ],
     is_owner: false,
     is_active: true,
@@ -94,8 +95,8 @@ export const MOCK_USERS = [
     national_id: "0044332211",
     agency: MOCK_AGENCIES[0],
     role: [MOCK_ROLES.AGENT],
-    service_districts: [
-      { id: 2, name: "منطقه ۲" }, { id: 3, name: "منطقه ۳" },
+    service_neighborhoods: [
+      { id: 2, name: "مهرشهر" }, { id: 3, name: "عظیمیه" },
     ],
     is_owner: false,
     is_active: true,
@@ -110,8 +111,8 @@ export const MOCK_USERS = [
     national_id: "0033221100",
     agency: MOCK_AGENCIES[0],
     role: [MOCK_ROLES.AGENT],
-    service_districts: [
-      { id: 4, name: "منطقه ۴" }, { id: 5, name: "منطقه ۵" },
+    service_neighborhoods: [
+      { id: 4, name: "کرج نو" }, { id: 5, name: "شاهین ویلا" },
     ],
     is_owner: false,
     is_active: true,
@@ -126,8 +127,8 @@ export const MOCK_USERS = [
     national_id: "0022110099",
     agency: MOCK_AGENCIES[0],
     role: [MOCK_ROLES.OPERATOR],
-    service_districts: [
-      { id: 6, name: "منطقه ۶" },
+    service_neighborhoods: [
+      { id: 6, name: "کیانمهر" },
     ],
     is_owner: false,
     is_active: false,
@@ -142,7 +143,7 @@ export const MOCK_USERS = [
     national_id: "0011009988",
     agency: MOCK_AGENCIES[0],
     role: [MOCK_ROLES.VIEWER],
-    service_districts: [],
+    service_neighborhoods: [],
     is_owner: false,
     is_active: true,
     is_staff: true,

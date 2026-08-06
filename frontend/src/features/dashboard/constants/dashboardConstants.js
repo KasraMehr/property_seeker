@@ -21,7 +21,7 @@ export const DASHBOARD_STRINGS = {
 // Operator menu items
 export const OPERATOR_NAV_ITEMS = [
   { id: 'dashboard', label: 'داشبورد', path: '/operator/dashboard', icon: LayoutDashboard },
-  { id: 'leads', label: 'لیدهای من',path: '/operator/leads', icon: Building2 },
+  { id: 'listings', label: 'لیدهای من',path: '/operator/listings', icon: Building2 },
   { id: 'calls', label: 'تماس‌های من', path: '/operator/calls', icon: PhoneCall },
   { id: 'properties', label: 'فایل‌های من', path: '/operator/properties', icon: FolderCheck },
   { id: 'followups', label: 'پیگیری‌ها', path: '/operator/followups', icon: CalendarClock },

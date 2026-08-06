@@ -1,23 +1,15 @@
-/**
- * فیلترها بر اساس فیلدهای مدل Listing
- * نکته: Listing هنوز view/serializer ندارد → همه backendSupported: false
- * score / assigned_to / district حذف شدند چون در مدل نیستند.
- */
 export const LISTING_FILTERS = [
   {
     key: "search",
     type: "search",
     label: "جستجو",
-    placeholder: "عنوان، شناسه خارجی یا کد ملک...",
-    backendField: "title,external_id",
-    backendSupported: false,
+    placeholder: "عنوان، شماره تلفن، توضیحات...",
   },
   {
     key: "status",
     type: "select",
     label: "وضعیت",
-    backendField: "status",
-    backendSupported: false,
+    optionsKey: "statuses",
     options: [
       { value: "draft", label: "پیش نویس" },
       { value: "active", label: "فعال" },
@@ -25,34 +17,39 @@ export const LISTING_FILTERS = [
       { value: "sold", label: "فروخته شده" },
       { value: "rented", label: "اجاره داده شده" },
       { value: "expired", label: "منقضی شده" },
-      { value: "archived", label: "آرشیو" },
+      { value: "archived", label: "آرشیو شده" },
     ],
   },
   {
     key: "source",
     type: "select",
     label: "منبع",
-    backendField: "source_id",
-    backendSupported: false,
-    async: true,
-    endpoint: "/api/sources/", // پیشنهادی: API مدل Source
+    optionsKey: "sources",
+    options: [
+      { value: "divar", label: "دیوار" },
+      { value: "sheypoor", label: "شیپور" },
+      { value: "other", label: "سایر" },
+    ],
   },
   {
     key: "listed_area",
     type: "range",
     label: "متراژ",
+    unit: "متر",
     min: 0,
-    max: 1000,
-    backendSupported: false,
+    max: 10000,
+    step: 10,
   },
   {
     key: "created_by",
     type: "select",
-    label: "ایجاد کننده",
-    backendField: "created_by_id",
-    backendSupported: false,
-    async: true,
-    //TODO: endpoint: "/api/accounts/users/",
-    endpoint:"",
+    label: "ثبت کننده",
+    optionsKey: "users",
+    options: [
+      { value: "1", label: "مدیریت ملک جو" },
+      { value: "2", label: "کارشناس ۱ - علی رضایی" },
+      { value: "3", label: "کارشناس ۲ - سارا محمدی" },
+      { value: "4", label: "کارشناس ۳ - حسن کریمی" },
+    ],
   },
 ];

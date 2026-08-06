@@ -52,7 +52,7 @@ INSTALLED_APPS = [
     "crm",
     "deals",
     "finance",
-    "media",
+    # "media",
     "listing",
     "locations",
     "properties",

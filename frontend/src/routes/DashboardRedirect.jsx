@@ -4,6 +4,10 @@ import useAuth from "@/features/auth/hooks/useAuth";
 export default function DashboardRedirect() {
   const { user } = useAuth();
 
+   if (!user) {
+    return null;
+  }
+
   const isAdmin = Boolean(user.is_owner);
 
   if (isAdmin) {

@@ -1,134 +1,128 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useRef } from "react";
 
 /**
  * useResourceFilter
  *
  * Generic filter state manager.
- *
- * Responsibilities:
- * - Build initial filter state from schema
- * - Update filters
- * - Clear single/all filters
- * - Generate active chips
- * - Convert filters to backend query params
  */
-
 export default function useResourceFilter(schema = [], optionsData = {}) {
-  const getInitialState = useCallback(() => {
-    const state = {};
+  const schemaRef = useRef(schema);
+  schemaRef.current = schema;
 
-    schema.forEach((field) => {
+  const optionsRef = useRef(optionsData);
+  optionsRef.current = optionsData;
+
+  const buildInitialState = useCallback(() => {
+    const state = {};
+    const currentSchema = schemaRef.current;
+
+    currentSchema.forEach((field) => {
       switch (field.type) {
         case "search":
           state[field.key] = "";
           break;
-
         case "select":
           state[field.key] = null;
           break;
-
         case "multiselect":
           state[field.key] = [];
           break;
-
         case "range":
-          state[field.key] = {
-            min: field.min,
-            max: field.max,
-          };
+          state[field.key] = { min: field.min, max: field.max };
           break;
-
         case "date_range":
-          state[field.key] = {
-            from: null,
-            to: null,
-          };
+          state[field.key] = { from: null, to: null };
           break;
-
         case "toggle":
           state[field.key] = false;
           break;
-
         default:
           state[field.key] = null;
       }
     });
 
     return state;
-  }, [schema]);
-
-  const [filters, setFilters] = useState(getInitialState);
-
-  const setFilter = useCallback((key, value) => {
-    setFilters((prev) => ({
-      ...prev,
-      [key]: value === "" ? null : value,
-    }));
   }, []);
 
-  const clearFilter = useCallback(
-    (key) => {
-      const field = schema.find((f) => f.key === key);
+  const [filters, setFilters] = useState(buildInitialState);
 
-      if (!field) return;
+  // 🔴 KEY FIX: bail out if value hasn't changed
+  const setFilter = useCallback((key, value) => {
+    setFilters((prev) => {
+      const newValue = value === "" ? null : value;
 
+      // If value is the same reference or primitive, return prev to bail out
+      if (prev[key] === newValue) return prev;
+
+      // For arrays/objects, do shallow comparison
+      if (
+        Array.isArray(prev[key]) &&
+        Array.isArray(newValue) &&
+        prev[key].length === newValue.length &&
+        prev[key].every((v, i) => v === newValue[i])
+      ) {
+        return prev;
+      }
+
+      return { ...prev, [key]: newValue };
+    });
+  }, []);
+
+  const clearFilter = useCallback((key) => {
+    const field = schemaRef.current.find((f) => f.key === key);
+    if (!field) return;
+
+    setFilters((prev) => {
+      let defaultValue;
       switch (field.type) {
         case "search":
-          setFilter(key, "");
+          defaultValue = "";
           break;
-
         case "select":
-          setFilter(key, null);
+          defaultValue = null;
           break;
-
         case "multiselect":
-          setFilter(key, []);
+          defaultValue = [];
           break;
-
         case "range":
-          setFilter(key, {
-            min: field.min,
-            max: field.max,
-          });
+          defaultValue = { min: field.min, max: field.max };
           break;
-
         case "date_range":
-          setFilter(key, {
-            from: null,
-            to: null,
-          });
+          defaultValue = { from: null, to: null };
           break;
-
         case "toggle":
-          setFilter(key, false);
+          defaultValue = false;
           break;
-
         default:
-          setFilter(key, null);
+          defaultValue = null;
       }
-    },
-    [schema, setFilter],
-  );
+
+      if (prev[key] === defaultValue) return prev;
+      return { ...prev, [key]: defaultValue };
+    });
+  }, []);
 
   const clearAll = useCallback(() => {
-    setFilters(getInitialState());
-  }, [getInitialState]);
+    setFilters((prev) => {
+      const next = buildInitialState();
+      // Shallow compare
+      if (JSON.stringify(prev) === JSON.stringify(next)) return prev;
+      return next;
+    });
+  }, [buildInitialState]);
 
   const activeChips = useMemo(() => {
     const chips = [];
+    const currentSchema = schemaRef.current;
+    const currentOptions = optionsRef.current;
 
-    schema.forEach((field) => {
+    currentSchema.forEach((field) => {
       const value = filters[field.key];
-      const options = optionsData[field.optionsKey] || [];
-
+      const options = currentOptions[field.optionsKey] || field.options || [];
       switch (field.type) {
         case "search":
           if (value) {
-            chips.push({
-              key: field.key,
-              label: value,
-              type: "search",
-            });
+            chips.push({ key: field.key, label: value, type: "search" });
           }
           break;
 
@@ -137,7 +131,6 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
             const option = options.find(
               (o) => String(o.value) === String(value),
             );
-
             chips.push({
               key: field.key,
               label: option?.label || value,
@@ -149,7 +142,6 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
         case "multiselect":
           value.forEach((v) => {
             const option = options.find((o) => String(o.value) === String(v));
-
             chips.push({
               key: field.key,
               value: v,
@@ -181,23 +173,23 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
 
         case "toggle":
           if (value) {
-            chips.push({
-              key: field.key,
-              label: field.label,
-              type: "toggle",
-            });
+            chips.push({ key: field.key, label: field.label, type: "toggle" });
           }
+          break;
+
+        default:
           break;
       }
     });
 
     return chips;
-  }, [filters, schema, optionsData]);
+  }, [filters]);
 
   const queryParams = useMemo(() => {
     const params = {};
+    const currentSchema = schemaRef.current;
 
-    schema.forEach((field) => {
+    currentSchema.forEach((field) => {
       const value = filters[field.key];
 
       switch (field.type) {
@@ -207,9 +199,7 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
           break;
 
         case "multiselect":
-          if (value.length) {
-            params[field.key] = value;
-          }
+          if (value.length) params[field.key] = value;
           break;
 
         case "range":
@@ -220,36 +210,29 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
           break;
 
         case "date_range":
-          if (value.from) {
-            params[`${field.key}_from`] = value.from;
-          }
-
-          if (value.to) {
-            params[`${field.key}_to`] = value.to;
-          }
+          if (value.from) params[`${field.key}_from`] = value.from;
+          if (value.to) params[`${field.key}_to`] = value.to;
           break;
 
         case "toggle":
-          if (value) {
-            params[field.key] = true;
-          }
+          if (value) params[field.key] = true;
+          break;
+
+        default:
           break;
       }
     });
 
     return params;
-  }, [filters, schema]);
+  }, [filters]);
 
   return {
     filters,
-
     setFilter,
     clearFilter,
     clearAll,
-
     activeChips,
     activeCount: activeChips.length,
-
     queryParams,
   };
 }

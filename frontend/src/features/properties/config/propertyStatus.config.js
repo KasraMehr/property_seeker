@@ -1,18 +1,26 @@
-import { Eye, PauseCircle, CheckCircle2, Home, Archive } from "lucide-react";
+import {
+  Eye,
+  CheckCircle2,
+  Home,
+  PauseCircle,
+  XCircle,
+  FileText,
+  Clock,
+} from "lucide-react";
 
 /**
- * Property.Status (models(1).py)
- * choices = [available, reserved, sold, rented, archived]
+ * Property.Status (models.py)
+ * choices = [available, reserved, sold, rented, unavailable, draft]
  */
 export const PROPERTY_STATUS_CONFIG = {
   available: {
-    label: "فعال",
+    label: "موجود",
     icon: Eye,
     color: "success",
   },
   reserved: {
-    label: "رزرو",
-    icon: PauseCircle,
+    label: "رزرو شده",
+    icon: Clock,
     color: "warning",
   },
   sold: {
@@ -25,9 +33,14 @@ export const PROPERTY_STATUS_CONFIG = {
     icon: Home,
     color: "success",
   },
-  archived: {
-    label: "بایگانی",
-    icon: Archive,
+  unavailable: {
+    label: "غیرقابل دسترس",
+    icon: XCircle,
+    color: "danger",
+  },
+  draft: {
+    label: "پیش نویس",
+    icon: FileText,
     color: "neutral",
   },
 };

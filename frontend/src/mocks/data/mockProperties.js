@@ -1,119 +1,11 @@
 import { MOCK_OWNERS } from "./mockOwners";
 import { MOCK_USERS } from "./mockUsers";
-
-// address helpers - all Karaj neighborhoods
-const addrGolshahr = {
-  id: 1, neighborhood: { id: 1, name: "گلشهر", district: { id: 1, name: "منطقه ۱ کرج", city: { id: 1, name: "کرج", province: { id: 1, name: "البرز" } } } },
-  street: "خیابان گلشهر", alley: "کوچه ۱۵", plaque: "۴۲", unit: "۳", postal_code: "3145687412",
-  latitude: "35.8325000", longitude: "50.9912000",
-  full_text: "البرز، کرج، منطقه ۱، گلشهر، خیابان گلشهر، کوچه ۱۵، پلاک ۴۲، واحد ۳",
-};
-const addrMehrshahr = {
-  id: 2, neighborhood: { id: 2, name: "مهرشهر", district: { id: 2, name: "منطقه ۲ کرج", city: { id: 1, name: "کرج", province: { id: 1, name: "البرز" } } } },
-  street: "بلوار مهرشهر", alley: "کوچه ۸", plaque: "۱۲۵", unit: "۲", postal_code: "3145698523",
-  latitude: "35.8050000", longitude: "50.9650000",
-  full_text: "البرز، کرج، منطقه ۲، مهرشهر، بلوار مهرشهر، کوچه ۸، پلاک ۱۲۵، واحد ۲",
-};
-const addrAzimieh = {
-  id: 3, neighborhood: { id: 3, name: "عظیمیه", district: { id: 3, name: "منطقه ۳ کرج", city: { id: 1, name: "کرج", province: { id: 1, name: "البرز" } } } },
-  street: "خیابان عظیمیه", alley: "کوچه ۲۲", plaque: "۸۸", unit: "۵", postal_code: "3145612345",
-  latitude: "35.8200000", longitude: "51.0100000",
-  full_text: "البرز، کرج، منطقه ۳، عظیمیه، خیابان عظیمیه، کوچه ۲۲، پلاک ۸۸، واحد ۵",
-};
-const addrKarajNo = {
-  id: 4, neighborhood: { id: 4, name: "کرج نو", district: { id: 4, name: "منطقه ۴ کرج", city: { id: 1, name: "کرج", province: { id: 1, name: "البرز" } } } },
-  street: "خیابان کرج نو", alley: "کوچه ۵", plaque: "۳۰", unit: "۱", postal_code: "3145632145",
-  latitude: "35.8450000", longitude: "51.0250000",
-  full_text: "البرز، کرج، منطقه ۴، کرج نو، خیابان کرج نو، کوچه ۵، پلاک ۳۰، واحد ۱",
-};
-const addrShahin = {
-  id: 5, neighborhood: { id: 5, name: "شاهین ویلا", district: { id: 5, name: "منطقه ۵ کرج", city: { id: 1, name: "کرج", province: { id: 1, name: "البرز" } } } },
-  street: "خیابان شاهین ویلا", alley: "کوچه ۱۰", plaque: "۶۰", unit: "۲", postal_code: "3145645678",
-  latitude: "35.8600000", longitude: "51.0000000",
-  full_text: "البرز، کرج، منطقه ۵، شاهین ویلا، خیابان شاهین ویلا، کوچه ۱۰، پلاک ۶۰، واحد ۲",
-};
-const addrKianmehr = {
-  id: 6, neighborhood: { id: 6, name: "کیانمهر", district: { id: 6, name: "منطقه ۶ کرج", city: { id: 1, name: "کرج", province: { id: 1, name: "البرز" } } } },
-  street: "خیابان کیانمهر", alley: "کوچه ۱۸", plaque: "۷۵", unit: "۴", postal_code: "3145656789",
-  latitude: "35.7900000", longitude: "50.9800000",
-  full_text: "البرز، کرج، منطقه ۶، کیانمهر، خیابان کیانمهر، کوچه ۱۸، پلاک ۷۵، واحد ۴",
-};
-const addrMahroila = {
-  id: 7, neighborhood: { id: 7, name: "مهرویلا", district: { id: 7, name: "منطقه ۷ کرج", city: { id: 1, name: "کرج", province: { id: 1, name: "البرز" } } } },
-  street: "بلوار مهرویلا", alley: "کوچه ۱۲", plaque: "۹۰", unit: "۱", postal_code: "3145667890",
-  latitude: "35.8150000", longitude: "50.9700000",
-  full_text: "البرز، کرج، منطقه ۷، مهرویلا، بلوار مهرویلا، کوچه ۱۲، پلاک ۹۰، واحد ۱",
-};
-const addrEshtraki = {
-  id: 8, neighborhood: { id: 8, name: "اشتراکی", district: { id: 8, name: "منطقه ۸ کرج", city: { id: 1, name: "کرج", province: { id: 1, name: "البرز" } } } },
-  street: "خیابان اشتراکی", alley: "کوچه ۳", plaque: "۲۵", unit: "۲", postal_code: "3145678901",
-  latitude: "35.8500000", longitude: "51.0150000",
-  full_text: "البرز، کرج، منطقه ۸، اشتراکی، خیابان اشتراکی، کوچه ۳، پلاک ۲۵، واحد ۲",
-};
-const addrSasani = {
-  id: 9, neighborhood: { id: 9, name: "ساسانی", district: { id: 9, name: "منطقه ۹ کرج", city: { id: 1, name: "کرج", province: { id: 1, name: "البرز" } } } },
-  street: "بلوار ساسانی", alley: "کوچه ۷", plaque: "۵۵", unit: "۳", postal_code: "3145689012",
-  latitude: "35.8750000", longitude: "50.9950000",
-  full_text: "البرز، کرج، منطقه ۹، ساسانی، بلوار ساسانی، کوچه ۷، پلاک ۵۵، واحد ۳",
-};
-const addrHesarak = {
-  id: 10, neighborhood: { id: 10, name: "حصارک", district: { id: 10, name: "منطقه ۱۰ کرج", city: { id: 1, name: "کرج", province: { id: 1, name: "البرز" } } } },
-  street: "خیابان حصارک", alley: "کوچه ۲۰", plaque: "۱۱۰", unit: "۱", postal_code: "3145690123",
-  latitude: "35.7800000", longitude: "50.9600000",
-  full_text: "البرز، کرج، منطقه ۱۰، حصارک، خیابان حصارک، کوچه ۲۰، پلاک ۱۱۰، واحد ۱",
-};
-const addrBaghestan = {
-  id: 11, neighborhood: { id: 11, name: "باغستان", district: { id: 3, name: "منطقه ۳ کرج", city: { id: 1, name: "کرج", province: { id: 1, name: "البرز" } } } },
-  street: "خیابان باغستان", alley: "کوچه ۹", plaque: "۷۰", unit: "۲", postal_code: "3145701234",
-  latitude: "35.8250000", longitude: "51.0050000",
-  full_text: "البرز، کرج، منطقه ۳، باغستان، خیابان باغستان، کوچه ۹، پلاک ۷۰، واحد ۲",
-};
-const addrMohammadshahr = {
-  id: 12, neighborhood: { id: 12, name: "محمدشهر", district: { id: 4, name: "منطقه ۴ کرج", city: { id: 1, name: "کرج", province: { id: 1, name: "البرز" } } } },
-  street: "بلوار محمدشهر", alley: "کوچه ۱۴", plaque: "۳۵", unit: "۱", postal_code: "3145712345",
-  latitude: "35.8400000", longitude: "51.0300000",
-  full_text: "البرز، کرج، منطقه ۴، محمدشهر، بلوار محمدشهر، کوچه ۱۴، پلاک ۳۵، واحد ۱",
-};
-const addrFardis = {
-  id: 13, neighborhood: { id: 13, name: "فردیس", district: { id: 5, name: "منطقه ۵ کرج", city: { id: 1, name: "کرج", province: { id: 1, name: "البرز" } } } },
-  street: "خیابان فردیس", alley: "کوچه ۶", plaque: "۴۵", unit: "۳", postal_code: "3145723456",
-  latitude: "35.8650000", longitude: "50.9850000",
-  full_text: "البرز، کرج، منطقه ۵، فردیس، خیابان فردیس، کوچه ۶، پلاک ۴۵، واحد ۳",
-};
-const addrJahanshahr = {
-  id: 14, neighborhood: { id: 14, name: "جهانشهر", district: { id: 6, name: "منطقه ۶ کرج", city: { id: 1, name: "کرج", province: { id: 1, name: "البرز" } } } },
-  street: "بلوار جهانشهر", alley: "کوچه ۱۱", plaque: "۸۰", unit: "۲", postal_code: "3145734567",
-  latitude: "35.7950000", longitude: "50.9750000",
-  full_text: "البرز، کرج، منطقه ۶، جهانشهر، بلوار جهانشهر، کوچه ۱۱، پلاک ۸۰، واحد ۲",
-};
-const addrSepahdar = {
-  id: 15, neighborhood: { id: 15, name: "سپاهدار", district: { id: 7, name: "منطقه ۷ کرج", city: { id: 1, name: "کرج", province: { id: 1, name: "البرز" } } } },
-  street: "خیابان سپاهدار", alley: "کوچه ۴", plaque: "۲۰", unit: "۱", postal_code: "3145745678",
-  latitude: "35.8100000", longitude: "50.9550000",
-  full_text: "البرز، کرج، منطقه ۷، سپاهدار، خیابان سپاهدار، کوچه ۴، پلاک ۲۰، واحد ۱",
-};
-const addrGolestan = {
-  id: 16, neighborhood: { id: 16, name: "گلستان", district: { id: 1, name: "منطقه ۱ کرج", city: { id: 1, name: "کرج", province: { id: 1, name: "البرز" } } } },
-  street: "بلوار گلستان", alley: "کوچه ۱۶", plaque: "۵۰", unit: "۲", postal_code: "3145756789",
-  latitude: "35.8350000", longitude: "50.9980000",
-  full_text: "البرز، کرج، منطقه ۱، گلستان، بلوار گلستان، کوچه ۱۶، پلاک ۵۰، واحد ۲",
-};
-const addrBlaverEmam = {
-  id: 17, neighborhood: { id: 17, name: "بلوار امام", district: { id: 2, name: "منطقه ۲ کرج", city: { id: 1, name: "کرج", province: { id: 1, name: "البرز" } } } },
-  street: "بلوار امام خمینی", alley: "کوچه ۲", plaque: "۱۵", unit: "۱", postal_code: "3145767890",
-  latitude: "35.8000000", longitude: "50.9600000",
-  full_text: "البرز، کرج، منطقه ۲، بلوار امام، بلوار امام خمینی، کوچه ۲، پلاک ۱۵، واحد ۱",
-};
-const addrMashkindasht = {
-  id: 18, neighborhood: { id: 18, name: "مشکین دشت", district: { id: 3, name: "منطقه ۳ کرج", city: { id: 1, name: "کرج", province: { id: 1, name: "البرز" } } } },
-  street: "خیابان مشکین دشت", alley: "کوچه ۱۳", plaque: "۹۵", unit: "۳", postal_code: "3145778901",
-  latitude: "35.8180000", longitude: "51.0200000",
-  full_text: "البرز، کرج، منطقه ۳، مشکین دشت، خیابان مشکین دشت، کوچه ۱۳، پلاک ۹۵، واحد ۳",
-};
+import { MOCK_AGENCIES } from "./mockAgencies";
 
 // properties mock - all in Karaj area - covering all states
+// Property model: id, property_code, agency(FK), owner(FK), agent(FK), address(FK, nullable), title, property_type, deal_type, area, floor, total_floors, age, bedrooms, bathrooms, parking_count, storage_count, orientation, condition, description, price_per_meter, sale_price, mortgage_amount, deposit_amount, monthly_rent, status, create_by(FK User), created_at, updated_at
+
 export const MOCK_PROPERTIES = [
-  // === SALE / APARTMENT ===
   {
     id: 1, property_code: "PR-2026-000001",
     title: "آپارتمان ۱۲۰ متری در گلشهر",
@@ -123,7 +15,7 @@ export const MOCK_PROPERTIES = [
     description: "آپارتمان لوکس گلشهر با نور عالی و دسترسی به مترو",
     price_per_meter: 8500000, sale_price: 1020000000,
     mortgage_amount: null, deposit_amount: null, monthly_rent: null,
-    owner: MOCK_OWNERS[0], agent: MOCK_USERS[1], address: addrGolshahr,
+    agency: MOCK_AGENCIES[0], owner: MOCK_OWNERS[0], agent: MOCK_USERS[1], address: 1,
     create_by: 2, created_at: "2026-07-20T09:00:00Z", updated_at: "2026-07-20T09:00:00Z",
   },
   {
@@ -135,7 +27,7 @@ export const MOCK_PROPERTIES = [
     description: "آپارتمان نوساز مهرشهر نزدیک پارک",
     price_per_meter: null, sale_price: null,
     mortgage_amount: 300000000, deposit_amount: 300000000, monthly_rent: 10000000,
-    owner: MOCK_OWNERS[1], agent: MOCK_USERS[2], address: addrMehrshahr,
+    agency: MOCK_AGENCIES[0], owner: MOCK_OWNERS[1], agent: MOCK_USERS[2], address: 2,
     create_by: 3, created_at: "2026-07-22T10:30:00Z", updated_at: "2026-07-22T10:30:00Z",
   },
   {
@@ -147,7 +39,7 @@ export const MOCK_PROPERTIES = [
     description: "ویلای لوکس عظیمیه با استخر و محوطه سازی",
     price_per_meter: 15000000, sale_price: 4500000000,
     mortgage_amount: null, deposit_amount: null, monthly_rent: null,
-    owner: MOCK_OWNERS[2], agent: MOCK_USERS[1], address: addrAzimieh,
+    agency: MOCK_AGENCIES[0], owner: MOCK_OWNERS[2], agent: MOCK_USERS[1], address: 3,
     create_by: 2, created_at: "2026-07-25T14:00:00Z", updated_at: "2026-07-26T09:00:00Z",
   },
   {
@@ -159,7 +51,7 @@ export const MOCK_PROPERTIES = [
     description: "دفتر کار اداری کرج نو مناسب مشاور املاک",
     price_per_meter: null, sale_price: null,
     mortgage_amount: 150000000, deposit_amount: 150000000, monthly_rent: 8000000,
-    owner: MOCK_OWNERS[0], agent: MOCK_USERS[2], address: addrKarajNo,
+    agency: MOCK_AGENCIES[0], owner: MOCK_OWNERS[0], agent: MOCK_USERS[2], address: 4,
     create_by: 3, created_at: "2026-07-27T08:00:00Z", updated_at: "2026-07-27T08:00:00Z",
   },
   {
@@ -171,7 +63,7 @@ export const MOCK_PROPERTIES = [
     description: "آپارتمان شاهین ویلا نیاز به بازسازی",
     price_per_meter: null, sale_price: null,
     mortgage_amount: 500000000, deposit_amount: null, monthly_rent: null,
-    owner: MOCK_OWNERS[1], agent: MOCK_USERS[1], address: addrShahin,
+    agency: MOCK_AGENCIES[0], owner: MOCK_OWNERS[1], agent: MOCK_USERS[1], address: 5,
     create_by: 2, created_at: "2026-07-28T11:00:00Z", updated_at: "2026-07-28T11:00:00Z",
   },
   {
@@ -183,7 +75,7 @@ export const MOCK_PROPERTIES = [
     description: "آپارتمان نوساز کیانمهر با پارکینگ اختصاصی",
     price_per_meter: 9200000, sale_price: 1242000000,
     mortgage_amount: null, deposit_amount: null, monthly_rent: null,
-    owner: MOCK_OWNERS[2], agent: MOCK_USERS[2], address: addrKianmehr,
+    agency: MOCK_AGENCIES[0], owner: MOCK_OWNERS[2], agent: MOCK_USERS[2], address: 6,
     create_by: 3, created_at: "2026-07-28T15:00:00Z", updated_at: "2026-07-28T15:00:00Z",
   },
   {
@@ -195,7 +87,7 @@ export const MOCK_PROPERTIES = [
     description: "ویلای باغدار مهرویلا با حیاط بزرگ",
     price_per_meter: 11000000, sale_price: 1980000000,
     mortgage_amount: null, deposit_amount: null, monthly_rent: null,
-    owner: MOCK_OWNERS[3], agent: MOCK_USERS[1], address: addrMahroila,
+    agency: MOCK_AGENCIES[0], owner: MOCK_OWNERS[3], agent: MOCK_USERS[1], address: 7,
     create_by: 2, created_at: "2026-06-15T09:00:00Z", updated_at: "2026-07-10T10:00:00Z",
   },
   {
@@ -207,7 +99,7 @@ export const MOCK_PROPERTIES = [
     description: "مغازه تجاری اشتراکی مناسب خرده‌فروشی",
     price_per_meter: null, sale_price: null,
     mortgage_amount: 200000000, deposit_amount: 200000000, monthly_rent: 15000000,
-    owner: MOCK_OWNERS[4], agent: MOCK_USERS[2], address: addrEshtraki,
+    agency: MOCK_AGENCIES[0], owner: MOCK_OWNERS[4], agent: MOCK_USERS[2], address: 8,
     create_by: 3, created_at: "2026-06-20T11:00:00Z", updated_at: "2026-07-15T09:00:00Z",
   },
   {
@@ -219,7 +111,7 @@ export const MOCK_PROPERTIES = [
     description: "آپارتمان قدیمی ساسانی - نیاز به بازسازی کامل",
     price_per_meter: null, sale_price: null,
     mortgage_amount: 100000000, deposit_amount: 100000000, monthly_rent: 5000000,
-    owner: MOCK_OWNERS[5], agent: MOCK_USERS[1], address: addrSasani,
+    agency: MOCK_AGENCIES[0], owner: MOCK_OWNERS[5], agent: MOCK_USERS[1], address: 9,
     create_by: 2, created_at: "2026-07-01T10:00:00Z", updated_at: "2026-07-20T09:00:00Z",
   },
   {
@@ -231,7 +123,7 @@ export const MOCK_PROPERTIES = [
     description: "زمین مسکونی حصارک با مجوز ساخت ۳ طبقه",
     price_per_meter: 3500000, sale_price: 1750000000,
     mortgage_amount: null, deposit_amount: null, monthly_rent: null,
-    owner: MOCK_OWNERS[6], agent: MOCK_USERS[2], address: addrHesarak,
+    agency: MOCK_AGENCIES[0], owner: MOCK_OWNERS[6], agent: MOCK_USERS[2], address: 10,
     create_by: 3, created_at: "2026-07-05T09:00:00Z", updated_at: "2026-07-05T09:00:00Z",
   },
   {
@@ -243,7 +135,7 @@ export const MOCK_PROPERTIES = [
     description: "آپارتمان بازسازی‌شده باغستان با کابینت مدرن",
     price_per_meter: 9800000, sale_price: 1470000000,
     mortgage_amount: null, deposit_amount: null, monthly_rent: null,
-    owner: MOCK_OWNERS[7], agent: MOCK_USERS[1], address: addrBaghestan,
+    agency: MOCK_AGENCIES[0], owner: MOCK_OWNERS[7], agent: MOCK_USERS[1], address: 11,
     create_by: 2, created_at: "2026-07-10T11:00:00Z", updated_at: "2026-07-25T10:00:00Z",
   },
   {
@@ -255,7 +147,7 @@ export const MOCK_PROPERTIES = [
     description: "دفتر کار اداری محمدشهر با پارکینگ",
     price_per_meter: null, sale_price: null,
     mortgage_amount: 400000000, deposit_amount: 400000000, monthly_rent: 20000000,
-    owner: MOCK_OWNERS[8], agent: MOCK_USERS[2], address: addrMohammadshahr,
+    agency: MOCK_AGENCIES[0], owner: MOCK_OWNERS[8], agent: MOCK_USERS[2], address: 12,
     create_by: 3, created_at: "2026-07-12T09:00:00Z", updated_at: "2026-07-12T09:00:00Z",
   },
   {
@@ -267,7 +159,7 @@ export const MOCK_PROPERTIES = [
     description: "آپارتمان فردیس مناسب خانواده‌های کوچک",
     price_per_meter: null, sale_price: null,
     mortgage_amount: 350000000, deposit_amount: null, monthly_rent: null,
-    owner: MOCK_OWNERS[9], agent: MOCK_USERS[1], address: addrFardis,
+    agency: MOCK_AGENCIES[0], owner: MOCK_OWNERS[9], agent: MOCK_USERS[1], address: 13,
     create_by: 2, created_at: "2026-07-15T10:00:00Z", updated_at: "2026-07-15T10:00:00Z",
   },
   {
@@ -279,7 +171,7 @@ export const MOCK_PROPERTIES = [
     description: "ویلای در حال ساخت جهانشهر - تحویل ۳ ماه آینده",
     price_per_meter: 13000000, sale_price: 3250000000,
     mortgage_amount: null, deposit_amount: null, monthly_rent: null,
-    owner: MOCK_OWNERS[10], agent: MOCK_USERS[2], address: addrJahanshahr,
+    agency: MOCK_AGENCIES[0], owner: MOCK_OWNERS[10], agent: MOCK_USERS[2], address: 14,
     create_by: 3, created_at: "2026-07-18T09:00:00Z", updated_at: "2026-07-18T09:00:00Z",
   },
   {
@@ -291,7 +183,7 @@ export const MOCK_PROPERTIES = [
     description: "آپارتمان سپاهدار نزدیک مدرسه",
     price_per_meter: null, sale_price: null,
     mortgage_amount: 200000000, deposit_amount: 200000000, monthly_rent: 7500000,
-    owner: MOCK_OWNERS[11], agent: MOCK_USERS[1], address: addrSepahdar,
+    agency: MOCK_AGENCIES[0], owner: MOCK_OWNERS[11], agent: MOCK_USERS[1], address: 15,
     create_by: 2, created_at: "2026-07-21T11:00:00Z", updated_at: "2026-07-21T11:00:00Z",
   },
   {
@@ -303,7 +195,7 @@ export const MOCK_PROPERTIES = [
     description: "آپارتمان لوکس گلستان با ویو کوه",
     price_per_meter: 10500000, sale_price: 1680000000,
     mortgage_amount: null, deposit_amount: null, monthly_rent: null,
-    owner: MOCK_OWNERS[0], agent: MOCK_USERS[2], address: addrGolestan,
+    agency: MOCK_AGENCIES[0], owner: MOCK_OWNERS[0], agent: MOCK_USERS[2], address: 16,
     create_by: 3, created_at: "2026-07-23T09:00:00Z", updated_at: "2026-07-23T09:00:00Z",
   },
   {
@@ -315,7 +207,7 @@ export const MOCK_PROPERTIES = [
     description: "مغازه تجاری بلوار امام با ویترین بزرگ",
     price_per_meter: null, sale_price: null,
     mortgage_amount: 500000000, deposit_amount: 500000000, monthly_rent: 25000000,
-    owner: MOCK_OWNERS[3], agent: MOCK_USERS[1], address: addrBlaverEmam,
+    agency: MOCK_AGENCIES[0], owner: MOCK_OWNERS[3], agent: MOCK_USERS[1], address: 17,
     create_by: 2, created_at: "2026-07-24T10:00:00Z", updated_at: "2026-07-24T10:00:00Z",
   },
   {
@@ -327,7 +219,7 @@ export const MOCK_PROPERTIES = [
     description: "آپارتمان بازسازی‌شده مشکین دشت با کف سرامیک",
     price_per_meter: 7800000, sale_price: 780000000,
     mortgage_amount: null, deposit_amount: null, monthly_rent: null,
-    owner: MOCK_OWNERS[4], agent: MOCK_USERS[2], address: addrMashkindasht,
+    agency: MOCK_AGENCIES[0], owner: MOCK_OWNERS[4], agent: MOCK_USERS[2], address: 18,
     create_by: 3, created_at: "2026-07-26T09:00:00Z", updated_at: "2026-07-26T09:00:00Z",
   },
 ];

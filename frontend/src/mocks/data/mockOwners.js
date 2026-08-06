@@ -1,6 +1,7 @@
 import { MOCK_AGENCIES } from "./mockAgencies";
 
 // property owners mock - scoped to agency
+// Owner model: id, agency(FK), full_name, created_by(FK User), phone, alternate_phone, national_id, notes, created_at, updated_at
 export const MOCK_OWNERS = [
   {
     id: 1,
