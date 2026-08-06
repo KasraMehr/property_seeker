@@ -1,0 +1,150 @@
+from django.shortcuts import render
+
+# Create your views here.
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from media.selector.media_selector import MediaSelector
+
+from media.serializers.media_create import MediaCreateSerializer
+from media.serializers.media_update import MediaUpdateSerializer
+from media.serializers.media_detail import MediaDetailSerializer
+from media.serializers.media_list import MediaListSerializer
+from media.services.update_service import UpdateService
+from media.services.upload_service import UploadService
+from media.services.delete_service import DeleteService
+
+
+class MediaCreateView(APIView):
+
+    serializer_class = MediaCreateSerializer
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+
+        serializer = self.serializer_class(
+            data=request.data
+        )
+
+        serializer.is_valid(raise_exception=True)
+
+        media = UploadService.create(
+            uploaded_by=request.user,
+            **serializer.validated_data
+        )
+
+        return Response(
+            {
+                "message": "رسانه با موفقیت ایجاد شد.",
+                "media": MediaDetailSerializer(media).data,
+            },
+            status=status.HTTP_201_CREATED,
+        )
+
+
+class MediaListView(APIView):
+
+    serializer_class = MediaListSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+
+        queryset = MediaSelector.all()
+
+        serializer = self.serializer_class(
+            queryset,
+            many=True,
+        )
+
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK,
+        )
+
+
+class MediaDetailView(APIView):
+
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+
+        media = MediaSelector.by_id(pk)
+
+        serializer = MediaDetailSerializer(media)
+
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK,
+        )
+
+
+class MediaUpdateView(APIView):
+
+    serializer_class = MediaUpdateSerializer
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, pk):
+        media = MediaSelector.by_id(pk)
+
+        serializer = self.serializer_class(
+            media,
+            data=request.data,
+        )
+
+        serializer.is_valid(raise_exception=True)
+
+        media = UpdateService.update(
+            media=media,
+            **serializer.validated_data,
+        )
+
+        return Response(
+            {
+                "message": "رسانه بروزرسانی شد.",
+                "media": MediaDetailSerializer(media).data,
+            }
+        )
+
+    def patch(self, request, pk):
+        media = MediaSelector.by_id(pk)
+
+        serializer = MediaUpdateSerializer(
+            media,
+            data=request.data,
+            partial=True,
+        )
+
+        serializer.is_valid(raise_exception=True)
+
+        media = UpdateService.update(
+            media=media,
+            **serializer.validated_data,
+        )
+
+        return Response(
+            {
+                "message": "رسانه بروزرسانی شد.",
+                "media": MediaDetailSerializer(media).data,
+            }
+        )
+
+
+class MediaDeleteView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, pk):
+
+        media = MediaSelector.by_id(pk)
+
+        DeleteService.delete(media)
+
+        return Response(
+            {
+                "message": "رسانه با موفقیت حذف شد."
+            },
+            status=status.HTTP_204_NO_CONTENT,
+        )
