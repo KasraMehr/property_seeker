@@ -19,6 +19,11 @@ const getByAgent = (agentId) => api.get(API_ENDPOINTS.PROPERTIES.BY_AGENT(agentI
 
 const getByStatus = (status) => api.get(API_ENDPOINTS.PROPERTIES.BY_STATUS(status).url);
 
+const bulkChangeStatus = (ids, status, note) => 
+  api.put(API_ENDPOINTS.PROPERTIES.bulkChangeStatus, { ids, status, note });
+const bulkAssignAgent = (ids, agentId, note) => 
+  api.put(API_ENDPOINTS.PROPERTIES.bulkAssignAgent, { ids, agent_id: agentId, note });
+
 const propertyService = {
   getAll,
   getById,
@@ -29,6 +34,8 @@ const propertyService = {
   getByOwner,
   getByAgent,
   getByStatus,
+  bulkAssignAgent,
+  bulkChangeStatus,
 };
 
 export default propertyService;

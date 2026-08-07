@@ -187,4 +187,35 @@ export const scraperHandlers = [
     const results = MOCK_TARGET_LISTINGS.filter((t) => t.listing?.id === listingId);
     return HttpResponse.json(results, { status: 200 });
   }),
+
+    //  TRIGGER RUN 
+  http.post("*/api/ingestion/targets/:id/trigger/", async ({ params, request }) => {
+    const id = Number(params.id);
+    const target = MOCK_SCRAPE_TARGETS.find((t) => t.id === id);
+    if (!target) {
+      return HttpResponse.json({ detail: "not found" }, { status: 404 });
+    }
+    const body = await request.json();
+    const newRun = {
+      id: crypto.randomUUID(),
+      target: { id: target.id, name: target.name },
+      mode: body.mode || "incremental",
+      status: "queued",
+      discovered_count: 0,
+      queued_count: 0,
+      processed_count: 0,
+      new_count: 0,
+      changed_count: 0,
+      failed_count: 0,
+      removed_count: 0,
+      error_summary: "",
+      configuration: {},
+      note: body.note || "",
+      started_at: null,
+      finished_at: null,
+      created_at: new Date().toISOString(),
+    };
+    MOCK_INGESTION_RUNS.push(newRun);
+    return HttpResponse.json(newRun, { status: 201 });
+  }),
 ];

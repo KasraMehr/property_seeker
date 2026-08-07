@@ -16,6 +16,12 @@ const update = (id, data) =>
 const remove = (id) =>
   api.delete(API_ENDPOINTS.ACCOUNTS.USERS.DELETE(id).url);
 
+const bulkChangeRole = (ids, roleId) =>
+  api.put(API_ENDPOINTS.ACCOUNTS.USERS.bulkChangeRole, { ids, role: roleId });
+
+const bulkToggleActive = (ids, isActive, note) =>
+  api.put(API_ENDPOINTS.ACCOUNTS.USERS.bulkToggleActive, { ids, is_active: isActive, note });
+
 const userService = {
   getAll,
   getById,

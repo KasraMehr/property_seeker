@@ -15,6 +15,12 @@ const getById = async (id) => {
   return { data: district };
 };
 
+const create = (data) => api.post(API_ENDPOINTS.LOCATIONS.DISTRICTS.url, data);
+
+const update = (id, data) => api.put(`${API_BASE}/locations/districts/${id}/`, data);
+
+const remove = (id) => api.delete(`${API_BASE}/locations/districts/${id}/`);
+
 const regionService = {
   getAll,
   getById,

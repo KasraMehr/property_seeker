@@ -38,6 +38,9 @@ const convertToProperty = (id, propertyData) =>
     property_data: propertyData,
   });
 
+  const bulkChangeReviewStatus = (ids, reviewStatus, note) =>
+  api.put(API_ENDPOINTS.LISTINGS.bulkChangeReviewStatus, { ids, review_status: reviewStatus, note });
+
 const listingService = {
   getAll,
   getById,
@@ -47,6 +50,7 @@ const listingService = {
   assign,
   convertToOwner,
   convertToProperty,
+  bulkChangeReviewStatus,
 };
 
 export default listingService;

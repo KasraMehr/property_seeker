@@ -44,6 +44,8 @@ const getSnapshots = (listingId) =>
 const getTargetListings = (listingId) =>
   api.get(API_ENDPOINTS.INGESTION.TARGET_LISTINGS.LIST(listingId).url);
 
+const triggerRun = (targetId, mode, note) =>
+  api.post(API_ENDPOINTS.INGESTION.TARGETS.TRIGGER_RUN(targetId).url, { mode, note });
 const scraperService = {
   // legacy (dashboard)
   getStatus,
@@ -61,6 +63,7 @@ const scraperService = {
   getRunItems,
   getSnapshots,
   getTargetListings,
+  triggerRun,
 };
 
 export default scraperService;

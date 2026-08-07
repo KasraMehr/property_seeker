@@ -48,17 +48,25 @@ export const locationHandlers = [
 
     let results = MOCK_DISTRICTS.map((district) => {
       const city = MOCK_CITIES.find((c) => c.id === district.city);
-      const province = city ? MOCK_PROVINCES.find((p) => p.id === city.province) : null;
-      const neighborhoods = MOCK_NEIGHBORHOODS.filter((n) => n.district === district.id);
+      const province = city
+        ? MOCK_PROVINCES.find((p) => p.id === city.province)
+        : null;
+      const neighborhoods = MOCK_NEIGHBORHOODS.filter(
+        (n) => n.district === district.id,
+      );
       const neighborhoodIds = neighborhoods.map((n) => n.id);
-      const addresses = MOCK_ADDRESSES.filter((a) => neighborhoodIds.includes(a.neighborhood));
+      const addresses = MOCK_ADDRESSES.filter((a) =>
+        neighborhoodIds.includes(a.neighborhood),
+      );
 
       /* Active agents serving this district's neighborhoods */
       const agents = MOCK_USERS.filter(
         (u) =>
           u.is_active &&
           !u.is_owner &&
-          u.service_neighborhoods?.some((sn) => neighborhoodIds.includes(sn.id))
+          u.service_neighborhoods?.some((sn) =>
+            neighborhoodIds.includes(sn.id),
+          ),
       );
 
       /* Mock stats */
@@ -70,7 +78,13 @@ export const locationHandlers = [
       return {
         ...district,
         city: city
-          ? { id: city.id, name: city.name, province: province ? { id: province.id, name: province.name } : null }
+          ? {
+              id: city.id,
+              name: city.name,
+              province: province
+                ? { id: province.id, name: province.name }
+                : null,
+            }
           : null,
         neighborhoods,
         neighborhoods_count: neighborhoods.length,
@@ -101,12 +115,14 @@ export const locationHandlers = [
         (d) =>
           d.name?.toLowerCase().includes(q) ||
           d.city?.name?.toLowerCase().includes(q) ||
-          d.top_neighborhoods?.some((n) => n.name?.toLowerCase().includes(q))
+          d.top_neighborhoods?.some((n) => n.name?.toLowerCase().includes(q)),
       );
     }
 
     /* ─── FIXED: return paginated format ─── */
-    return HttpResponse.json(paginate(results, { page, pageSize }), { status: 200 });
+    return HttpResponse.json(paginate(results, { page, pageSize }), {
+      status: 200,
+    });
   }),
 
   /* ─── Neighborhoods ─── */
@@ -118,5 +134,67 @@ export const locationHandlers = [
       results = results.filter((n) => n.district === Number(districtId));
     }
     return HttpResponse.json(results, { status: 200 });
+  }),
+
+  /* ─── District Detail ─── */
+  http.get("*/api/locations/districts/:id/", ({ params }) => {
+    const id = Number(params.id);
+    const district = MOCK_DISTRICTS.find((d) => d.id === id);
+    if (!district) {
+      return HttpResponse.json({ detail: "not found" }, { status: 404 });
+    }
+    const city = MOCK_CITIES.find((c) => c.id === district.city);
+    const province = city
+      ? MOCK_PROVINCES.find((p) => p.id === city.province)
+      : null;
+    return HttpResponse.json(
+      {
+        ...district,
+        city: city
+          ? {
+              id: city.id,
+              name: city.name,
+              province: province
+                ? { id: province.id, name: province.name }
+                : null,
+            }
+          : null,
+      },
+      { status: 200 },
+    );
+  }),
+
+  /* ─── District Create ─── */
+  http.post("*/api/locations/districts/", async ({ request }) => {
+    const body = await request.json();
+    const newDistrict = {
+      id: Math.max(...MOCK_DISTRICTS.map((d) => d.id), 0) + 1,
+      ...body,
+    };
+    MOCK_DISTRICTS.push(newDistrict);
+    return HttpResponse.json(newDistrict, { status: 201 });
+  }),
+
+  /* ─── District Update ─── */
+  http.put("*/api/locations/districts/:id/", async ({ params, request }) => {
+    const id = Number(params.id);
+    const index = MOCK_DISTRICTS.findIndex((d) => d.id === id);
+    if (index === -1) {
+      return HttpResponse.json({ detail: "not found" }, { status: 404 });
+    }
+    const body = await request.json();
+    MOCK_DISTRICTS[index] = { ...MOCK_DISTRICTS[index], ...body };
+    return HttpResponse.json(MOCK_DISTRICTS[index], { status: 200 });
+  }),
+
+  /* ─── District Delete ─── */
+  http.delete("*/api/locations/districts/:id/", ({ params }) => {
+    const id = Number(params.id);
+    const index = MOCK_DISTRICTS.findIndex((d) => d.id === id);
+    if (index === -1) {
+      return HttpResponse.json({ detail: "not found" }, { status: 404 });
+    }
+    MOCK_DISTRICTS.splice(index, 1);
+    return HttpResponse.json({ detail: "deleted" }, { status: 204 });
   }),
 ];

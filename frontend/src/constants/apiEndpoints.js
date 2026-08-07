@@ -65,6 +65,16 @@ export const API_ENDPOINTS = {
         method: "DELETE",
         status: "[OK]",
       }),
+      BULK_CHANGE_ROLE: {
+        url: `${API_BASE}/accounts/users/bulk-change-role/`,
+        method: "PUT",
+        status: "[PEND]",
+      },
+      BULK_TOGGLE_ACTIVE: {
+        url: `${API_BASE}/accounts/users/bulk-toggle-active/`,
+        method: "PUT",
+        status: "[PEND]",
+      },
     },
     AGENCIES: {
       LIST: {
@@ -142,6 +152,27 @@ export const API_ENDPOINTS = {
       method: "GET",
       status: "[PEND]",
     },
+
+    DISTRICT_DETAIL: (id) => ({
+      url: `${API_BASE}/locations/districts/${id}/`,
+      method: "GET",
+      status: "[PEND]",
+    }),
+    DISTRICT_CREATE: {
+      url: `${API_BASE}/locations/districts/`,
+      method: "POST",
+      status: "[PEND]",
+    },
+    DISTRICT_UPDATE: (id) => ({
+      url: `${API_BASE}/locations/districts/${id}/`,
+      method: "PUT",
+      status: "[PEND]",
+    }),
+    DISTRICT_DELETE: (id) => ({
+      url: `${API_BASE}/locations/districts/${id}/`,
+      method: "DELETE",
+      status: "[PEND]",
+    }),
   },
 
   // 4. OWNERS
@@ -212,6 +243,16 @@ export const API_ENDPOINTS = {
       method: "GET",
       status: "[OK]",
     }),
+    BULK_CHANGE_STATUS: {
+      url: `${API_BASE}/property/bulk-change-status/`,
+      method: "PUT",
+      status: "[PEND]",
+    },
+    BULK_ASSIGN_AGENT: {
+      url: `${API_BASE}/property/bulk-assign-agent/`,
+      method: "PUT",
+      status: "[PEND]",
+    },
   },
 
   // 6. LISTINGS = LEADS (backend model exists, views pending)
@@ -252,6 +293,11 @@ export const API_ENDPOINTS = {
       method: "POST",
       status: "[PEND]",
     }),
+    BULK_CHANGE_REVIEW_STATUS: {
+      url: `${API_BASE}/listing/bulk-change-review-status/`,
+      method: "PUT",
+      status: "[PEND]",
+    },
   },
 
   // 7. CRM (call logs, reminders / follow-ups)
@@ -290,6 +336,21 @@ export const API_ENDPOINTS = {
         method: "POST",
         status: "[PEND]",
       },
+      DETAIL: (id) => ({
+        url: `${API_BASE}/crm/reminders/${id}/`,
+        method: "GET",
+        status: "[PEND]",
+      }),
+      UPDATE: (id) => ({
+        url: `${API_BASE}/crm/reminders/${id}/`,
+        method: "PUT",
+        status: "[PEND]",
+      }),
+      DELETE: (id) => ({
+        url: `${API_BASE}/crm/reminders/${id}/`,
+        method: "DELETE",
+        status: "[PEND]",
+      }),
       COMPLETE: (id) => ({
         url: `${API_BASE}/crm/reminders/${id}/complete/`,
         method: "PUT",
@@ -380,6 +441,11 @@ export const API_ENDPOINTS = {
         method: "DELETE",
         status: "[PEND]",
       }),
+      TRIGGER_RUN: (id) => ({
+        url: `${API_BASE}/ingestion/targets/${id}/trigger/`,
+        method: "POST",
+        status: "[PEND]",
+      }),
     },
     RUNS: {
       LIST: {
@@ -415,6 +481,18 @@ export const API_ENDPOINTS = {
         url: `${API_BASE}/ingestion/listings/${listingId}/target-listings/`,
         method: "GET",
         status: "[PEND]",
+      }),
+    },
+    ACTIVITY_LOG: {
+      LIST: {
+        url: `${API_BASE}/activity/list/`,
+        method: "GET",
+        status: "[OK]",
+      },
+      DETAIL: (id) => ({
+        url: `${API_BASE}/activity/detail/${id}/`,
+        method: "GET",
+        status: "[OK]",
       }),
     },
   },

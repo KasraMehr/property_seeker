@@ -138,4 +138,32 @@ export const propertyHandlers = [
     const results = MOCK_PROPERTIES.filter((p) => p.status === status);
     return HttpResponse.json(results, { status: 200 });
   }),
+
+    //  BULK CHANGE STATUS 
+  http.put("*/api/property/bulk-change-status/", async ({ request }) => {
+    const body = await request.json();
+    const { ids, status, note } = body;
+    ids.forEach((id) => {
+      const idx = MOCK_PROPERTIES.findIndex((p) => p.id === id);
+      if (idx !== -1) {
+        MOCK_PROPERTIES[idx].status = status;
+        MOCK_PROPERTIES[idx].updated_at = new Date().toISOString();
+      }
+    });
+    return HttpResponse.json({ updated: ids.length, status, note }, { status: 200 });
+  }),
+
+  // NEW: BULK ASSIGN AGENT 
+  http.put("*/api/property/bulk-assign-agent/", async ({ request }) => {
+    const body = await request.json();
+    const { ids, agent_id, note } = body;
+    ids.forEach((id) => {
+      const idx = MOCK_PROPERTIES.findIndex((p) => p.id === id);
+      if (idx !== -1) {
+        MOCK_PROPERTIES[idx].agent = { id: agent_id };
+        MOCK_PROPERTIES[idx].updated_at = new Date().toISOString();
+      }
+    });
+    return HttpResponse.json({ updated: ids.length, agent_id, note }, { status: 200 });
+  }),
 ];

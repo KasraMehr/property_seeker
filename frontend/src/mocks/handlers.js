@@ -9,6 +9,7 @@ import { reminderHandlers } from "./handlers/reminderHandlers";
 import { roleHandlers } from "./handlers/roleHandlers";
 import { scraperHandlers } from "./handlers/scraperHandlers";
 import { userHandlers } from "./handlers/userHandlers";
+import { activityLogHandlers } from "./activityLogHandlers";
 
 export const handlers = [
   ...authHandlers,
@@ -22,4 +23,5 @@ export const handlers = [
   ...roleHandlers,
   ...scraperHandlers,
   ...userHandlers,
+  ...activityLogHandlers,
 ];

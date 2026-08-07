@@ -209,9 +209,26 @@ export const listingHandlers = [
       };
       MOCK_PROPERTIES.push(newProperty);
       MOCK_LISTINGS[index].property = newProperty;
-      MOCK_LISTINGS[index].review_status = "promoted"; 
+      MOCK_LISTINGS[index].review_status = "promoted";
       MOCK_LISTINGS[index].updated_at = new Date().toISOString();
       return HttpResponse.json({ property: newProperty }, { status: 200 });
     },
   ),
+
+  //  BULK CHANGE REVIEW STATUS
+  http.put("*/api/listing/bulk-change-review-status/", async ({ request }) => {
+    const body = await request.json();
+    const { ids, review_status, note } = body;
+    ids.forEach((id) => {
+      const idx = MOCK_LISTINGS.findIndex((l) => l.id === id);
+      if (idx !== -1) {
+        MOCK_LISTINGS[idx].review_status = review_status;
+        MOCK_LISTINGS[idx].updated_at = new Date().toISOString();
+      }
+    });
+    return HttpResponse.json(
+      { updated: ids.length, review_status, note },
+      { status: 200 },
+    );
+  }),
 ];

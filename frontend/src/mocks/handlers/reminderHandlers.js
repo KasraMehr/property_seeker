@@ -108,4 +108,15 @@ export const reminderHandlers = [
     MOCK_REMINDERS[index].updated_at = new Date().toISOString();
     return HttpResponse.json(MOCK_REMINDERS[index], { status: 200 });
   }),
+
+    //  DELETE 
+  http.delete("*/api/crm/reminders/:id/", ({ params }) => {
+    const id = Number(params.id);
+    const index = MOCK_REMINDERS.findIndex((r) => r.id === id);
+    if (index === -1) {
+      return HttpResponse.json({ detail: "not found" }, { status: 404 });
+    }
+    MOCK_REMINDERS.splice(index, 1);
+    return HttpResponse.json({ detail: "deleted" }, { status: 204 });
+  }),
 ];
