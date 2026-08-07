@@ -1,25 +1,25 @@
 import { authHandlers } from "./handlers/authHandlers";
-import { propertyHandlers } from "./handlers/propertyHandlers";
-import { ownerHandlers } from "./handlers/ownerHandlers";
-import { listingHandlers } from "./handlers/listingHandlers";
 import { callHandlers } from "./handlers/callHandlers";
-import { reminderHandlers } from "./handlers/reminderHandlers";
-import { locationHandlers } from "./handlers/locationHandlers";
-import { userHandlers } from "./handlers/userHandlers";
-import { roleHandlers } from "./handlers/roleHandlers";
 import { dashboardHandlers } from "./handlers/dashboardHandlers";
+import { listingHandlers } from "./handlers/listingHandlers";
+import { locationHandlers } from "./handlers/locationHandlers";
+import { ownerHandlers } from "./handlers/ownerHandlers";
+import { propertyHandlers } from "./handlers/propertyHandlers";
+import { reminderHandlers } from "./handlers/reminderHandlers";
+import { roleHandlers } from "./handlers/roleHandlers";
 import { scraperHandlers } from "./handlers/scraperHandlers";
+import { userHandlers } from "./handlers/userHandlers";
 
 export const handlers = [
   ...authHandlers,
-  ...propertyHandlers,
-  ...ownerHandlers,
-  ...listingHandlers,
   ...callHandlers,
-  ...reminderHandlers,
-  ...locationHandlers,
-  ...userHandlers,
-  ...roleHandlers,
   ...dashboardHandlers,
+  ...listingHandlers,
+  ...locationHandlers,
+  ...ownerHandlers,
+  ...propertyHandlers,
+  ...reminderHandlers,
+  ...roleHandlers,
   ...scraperHandlers,
+  ...userHandlers,
 ];

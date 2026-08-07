@@ -96,7 +96,7 @@ export const LISTING_TABLE_COLUMNS = [
     align: "center",
     sortable: false,
     render: (row) => {
-      const s = typeof row.source === "string" ? row.source : row.source?.name;
+      const s = typeof row.source === "string" ? row.source : row.source?.description;
       return <SourceBadge source={s} size="sm" />;
     },
   },

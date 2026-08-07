@@ -4,14 +4,12 @@ import "./index.css";
 import App from "./app/App.jsx";
 
 async function enableMocking() {
-  if (import.meta.env.VITE_ENABLE_MOCK !== "true") {
+  if (process.env.NODE_ENV !== "development") {
     return;
   }
-
   const { worker } = await import("./mocks/browser");
-
   return worker.start({
-    onUnhandledRequest: "bypass",
+    onUnhandledRequest: "bypass", // یا "warn" برای دیباگ
   });
 }
 // createRoot(document.getElementById("root")).render(

@@ -145,7 +145,7 @@ html[data-theme="dark"] {
 /* Admin: Light Mode */
 [data-role="admin"],
 :has([data-role="admin"]) {
-  /* ✅ Purple Primary */
+  /*  Purple Primary */
   --role-primary: #7c3aed;           /* Violet 600 */
   --role-primary-hover: #6d28d9;     /* Violet 700 */
   --role-subtle: #ede9fe;            /* Violet 100 */
@@ -153,6 +153,8 @@ html[data-theme="dark"] {
 
   --role-surface-accent: #5b21b6;    /* Violet 800 */
   --role-text-accent: #ede9fe;
+
+  --background: #E8D7FF !important;
 
   /* Status Colors for Admin Light */
   --status-info: #3b82f6;        /* Blue */
@@ -165,7 +167,7 @@ html[data-theme="dark"] {
 /* Admin: Dark Mode */
 html[data-theme="dark"] [data-role="admin"],
 html[data-theme="dark"]:has([data-role="admin"]) {
-  /* ✅ Purple Primary */
+  /*  Purple Primary */
   --role-primary: #8b5cf6;           /* Violet 500 */
   --role-primary-hover: #a78bfa;     /* Violet 400 */
   --role-subtle: rgba(139, 92, 246, 0.15);
@@ -201,6 +203,8 @@ html[data-theme="dark"]:has([data-role="admin"]) {
 
   --role-surface-accent: #0f172a;
   --role-text-accent: #e0f2fe;
+
+  --background:#E0EDFF !important;
 
   --status-info: #0284c7;        /* Cyan - matching operator primary */
   --status-success: #22c55e;     /* Green */
