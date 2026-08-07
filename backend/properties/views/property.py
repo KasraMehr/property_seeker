@@ -12,7 +12,7 @@ from properties.serializers.property_update import PropertyUpdateSerializer
 from properties.serializers.property_list import PropertyListSerializer
 from properties.serializers.property_detail import PropertyDetailSerializer
 from accounts.permissions import *
-from audit.services.activity_log import ActivityLogService
+
 
 
 class PropertyCreateView(APIView):
@@ -32,14 +32,6 @@ class PropertyCreateView(APIView):
         serializer.is_valid(raise_exception=True)
 
         property = serializer.save()
-
-        ActivityLogService.create(
-            request=request,
-            entity_type="Property",
-            entity_id=property.id,
-            new_data=PropertyDetailSerializer(property).data,
-            message="ملک جدید ایجاد شد.",
-        )
 
         return Response(
             {
@@ -136,17 +128,6 @@ class PropertyUpdateView(APIView):
 
         property = serializer.save()
 
-
-        ActivityLogService.update(
-            request=request,
-            entity_type="Property",
-            entity_id=property.id,
-            old_data=old_data,
-            new_data=PropertyDetailSerializer(property).data,
-            message="اطلاعات ملک بروزرسانی شد."
-        )
-
-
         return Response(
             {
                 "message":
@@ -169,7 +150,6 @@ class PropertyDeleteView(APIView):
     def delete(self, request, pk):
 
         property = PropertySelector.by_id(pk,request.user)
-        old_data = PropertyDetailSerializer(property).data
         PropertyHistory.objects.create(
             property=property,
             action=PropertyHistory.Action.DELETE,
@@ -177,14 +157,6 @@ class PropertyDeleteView(APIView):
             old_value=property.property_code,
             new_value="",
             changed_by=request.user,
-        )
-
-        ActivityLogService.delete(
-            request=request,
-            entity_type="Property",
-            entity_id=property.id,
-            old_data=old_data,
-            message="ملک حذف شد.",
         )
 
         property.delete()

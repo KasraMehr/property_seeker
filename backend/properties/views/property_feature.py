@@ -22,7 +22,6 @@ from properties.serializers.property_feature_list import (
 )
 
 from accounts.permissions import *
-from audit.services.activity_log import *
 
 
 class PropertyFeatureCreateView(APIView):
@@ -43,16 +42,6 @@ class PropertyFeatureCreateView(APIView):
         serializer.is_valid(raise_exception=True)
 
         property_feature = serializer.save()
-
-        ActivityLogService.create(
-            request=request,
-            entity_type="PropertyFeature",
-            entity_id=property_feature.id,
-            new_data=PropertyFeatureDetailSerializer(
-                property_feature
-            ).data,
-            message="ویژگی به ملک اضافه شد.",
-        )
 
         return Response(
             {
@@ -128,9 +117,6 @@ class PropertyFeatureUpdateView(APIView):
     def put(self, request, pk):
 
         property_feature = PropertyFeatureSelector.by_id(pk,request.user)
-        old_data = PropertyFeatureDetailSerializer(
-            property_feature
-        ).data
         serializer = self.serializer_class(
             property_feature,
             data=request.data,context={"request": request},
@@ -139,17 +125,6 @@ class PropertyFeatureUpdateView(APIView):
         serializer.is_valid(raise_exception=True)
 
         property_feature = serializer.save()
-
-        ActivityLogService.update(
-            request=request,
-            entity_type="PropertyFeature",
-            entity_id=property_feature.id,
-            old_data=old_data,
-            new_data=PropertyFeatureDetailSerializer(
-                property_feature
-            ).data,
-            message="ویژگی ملک ویرایش شد.",
-        )
 
         return Response(
             {
@@ -174,18 +149,6 @@ class PropertyFeatureDeleteView(APIView):
     def delete(self, request, pk):
 
         property_feature = PropertyFeatureSelector.by_id(pk,request.user)
-
-        old_data = PropertyFeatureDetailSerializer(
-            property_feature
-        ).data
-
-        ActivityLogService.delete(
-            request=request,
-            entity_type="PropertyFeature",
-            entity_id=property_feature.id,
-            old_data=old_data,
-            message="ویژگی از ملک حذف شد.",
-        )
 
         property_feature.delete()
 

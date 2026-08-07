@@ -9,7 +9,7 @@ from ..serializers.owner_update import OwnerUpdateSerializer
 from ..serializers.owner_list import OwnerListSerializer
 from ..serializers.owner_detail import OwnerDetailSerializer
 from accounts.permissions import *
-from audit.services.activity_log import *
+
 
 class OwnerCreateView(APIView):
 
@@ -32,13 +32,7 @@ class OwnerCreateView(APIView):
 
         owner = serializer.save()
 
-        ActivityLogService.create(
-            request=request,
-            entity_type="Owner",
-            entity_id=owner.id,
-            new_data=OwnerDetailSerializer(owner).data,
-            message="مالک جدید ایجاد شد.",
-        )
+
 
         return Response(
             {
@@ -110,7 +104,7 @@ class OwnerUpdateView(APIView):
             owner_id=pk,
             agency=request.user.agency,
         )
-        old_data = OwnerDetailSerializer(owner).data
+
         serializer = self.serializer_class(
             owner,
             data=request.data,
@@ -121,14 +115,6 @@ class OwnerUpdateView(APIView):
 
         owner = serializer.save()
 
-        ActivityLogService.update(
-            request=request,
-            entity_type="Owner",
-            entity_id=owner.id,
-            old_data=old_data,
-            new_data=OwnerDetailSerializer(owner).data,
-            message="اطلاعات مالک بروزرسانی شد.",
-        )
 
         return Response(
             {
@@ -145,7 +131,7 @@ class OwnerUpdateView(APIView):
             owner_id=pk,
             agency=request.user.agency,
         )
-        old_data = OwnerDetailSerializer(owner).data
+
         serializer = self.serializer_class(
             owner,
             data=request.data,
@@ -155,15 +141,6 @@ class OwnerUpdateView(APIView):
 
         serializer.is_valid(raise_exception=True)
         owner = serializer.save()
-
-        ActivityLogService.update(
-            request=request,
-            entity_type="Owner",
-            entity_id=owner.id,
-            old_data=old_data,
-            new_data=OwnerDetailSerializer(owner).data,
-            message="اطلاعات مالک بروزرسانی شد.",
-        )
 
         return Response(
             {
@@ -183,16 +160,6 @@ class OwnerDeleteView(APIView):
         owner = OwnerSelector.by_id(
             owner_id=pk,
             agency=request.user.agency,
-        )
-
-        old_data = OwnerDetailSerializer(owner).data
-
-        ActivityLogService.delete(
-            request=request,
-            entity_type="Owner",
-            entity_id=owner.id,
-            old_data=old_data,
-            message="مالک حذف شد.",
         )
 
         owner.delete()

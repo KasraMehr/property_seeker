@@ -11,7 +11,7 @@ from properties.serializers.feature_create import FeatureCreateSerializer
 from properties.serializers.feature_update import FeatureUpdateSerializer
 from properties.serializers.feature_list import FeatureListSerializer
 from accounts.permissions import *
-from audit.services.activity_log import ActivityLogService
+
 
 
 class FeatureCreateView(APIView):
@@ -30,14 +30,6 @@ class FeatureCreateView(APIView):
         serializer.is_valid(raise_exception=True)
 
         feature = serializer.save()
-
-        ActivityLogService.create(
-            request=request,
-            entity_type="Feature",
-            entity_id=feature.id,
-            new_data=FeatureListSerializer(feature).data,
-            message="ویژگی جدید ایجاد شد.",
-        )
 
         return Response(
             {
@@ -103,8 +95,6 @@ class FeatureUpdateView(APIView):
     def put(self, request, pk):
         feature = FeatureSelector.by_id(pk)
 
-        old_data = FeatureListSerializer(feature).data
-
         serializer = self.serializer_class(
             feature,
             data=request.data,
@@ -113,15 +103,6 @@ class FeatureUpdateView(APIView):
         serializer.is_valid(raise_exception=True)
 
         feature = serializer.save()
-
-        ActivityLogService.update(
-            request=request,
-            entity_type="Feature",
-            entity_id=feature.id,
-            old_data=old_data,
-            new_data=FeatureListSerializer(feature).data,
-            message="ویژگی بروزرسانی شد.",
-        )
 
         return Response(
             {
@@ -141,16 +122,6 @@ class FeatureDeleteView(APIView):
 
     def delete(self, request, pk):
         feature = FeatureSelector.by_id(pk)
-
-        old_data = FeatureListSerializer(feature).data
-
-        ActivityLogService.delete(
-            request=request,
-            entity_type="Feature",
-            entity_id=feature.id,
-            old_data=old_data,
-            message="ویژگی حذف شد.",
-        )
 
         feature.delete()
 
