@@ -1,136 +1,100 @@
-import { formatDate, formatDateTime } from "@/utils/formatters";
-import { FOLLOWUP_STATUS_CONFIG, FOLLOWUP_TYPE_CONFIG } from "./followupStatus.config";
-import StatusBadge from "@/shared/ui/badges/StatusBadge";
-import { Clock, MapPin, Users, FileText, Phone, User, Home, Calendar, CheckCircle2 } from "lucide-react";
+import { StatusBadge } from "@/shared/ui/badges/StatusBadge";
+import { FOLLOWUP_STATUS_CONFIG, FOLLOWUP_TYPE_CONFIG } from "@/constants/followupStatus.config";
+import { formatDate } from "@/utils/formatters";
 
-/* ─── Helper: TypeTag ─── */
-function TypeTag({ type }) {
-  const cfg = FOLLOWUP_TYPE_CONFIG[type];
-  if (!cfg) return <span className="text-xs text-muted">—</span>;
-  const Icon = cfg.icon;
-  return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium ${cfg.bg} ${cfg.text}`}>
-      <Icon size={12} />
-      {cfg.label}
-    </span>
-  );
-}
-
-/* ─── Columns ─── */
+/**
+ * Reminder (Follow-up) Table Columns
+ * Backend: crm.Reminder
+ */
 export const FOLLOWUP_TABLE_COLUMNS = [
   {
     key: "id",
-    title: "شناسه",
-    width: "60px",
-    align: "center",
-    sortable: true,
-    render: (row) => (
-      <span className="text-xs font-mono text-muted dir-ltr">#{row.id}</span>
-    ),
+    header: "شناسه",
+    width: "w-14",
+    cell: ({ id }) => <span className="text-xs text-muted-foreground font-mono">#{id}</span>,
   },
   {
     key: "title",
-    title: "عنوان",
-    width: "220px",
-    sortable: true,
-    render: (row) => (
-      <div className="flex flex-col gap-0.5 min-w-0">
-        <span className="text-sm font-medium text-foreground truncate">
-          {row.title}
-        </span>
-        {row.description && (
-          <p className="text-[11px] text-muted truncate" title={row.description}>
-            {row.description}
-          </p>
-        )}
+    header: "عنوان وظیفه",
+    width: "w-48",
+    searchable: true,
+    cell: ({ title, description }) => (
+      <div className="flex flex-col">
+        <span className="font-medium text-sm truncate max-w-45" title={title}>{title}</span>
+        <span className="text-xs text-muted-foreground truncate max-w-45">{description}</span>
       </div>
     ),
   },
   {
     key: "type",
-    title: "نوع",
-    width: "80px",
-    align: "center",
-    sortable: true,
-    render: (row) => <TypeTag type={row.type} />,
-  },
-  {
-    key: "customer",
-    title: "مشتری",
-    width: "130px",
-    sortable: false,
-    render: (row) => (
-      <div className="flex items-center gap-1.5 text-sm text-foreground">
-        <User size={13} className="text-muted" />
-        <span className="truncate">{row.customer?.full_name || "—"}</span>
-      </div>
-    ),
-  },
-  {
-    key: "property",
-    title: "ملک",
-    width: "160px",
-    sortable: false,
-    render: (row) =>
-      row.property ? (
-        <div className="flex items-center gap-1.5 text-sm text-foreground">
-          <Home size={13} className="text-(--role-primary)" />
-          <span className="truncate">{row.property.title}</span>
-        </div>
-      ) : (
-        <span className="text-xs text-muted">—</span>
-      ),
-  },
-  {
-    key: "user",
-    title: "مسئول",
-    width: "130px",
-    sortable: false,
-    render: (row) => (
-      <span className="text-xs text-muted">{row.user?.full_name || "—"}</span>
-    ),
-  },
-  {
-    key: "status",
-    title: "وضعیت",
-    width: "100px",
-    align: "center",
-    sortable: true,
-    render: (row) => {
-      const cfg = FOLLOWUP_STATUS_CONFIG[row.status];
-      return cfg ? (
-        <StatusBadge config={cfg} variant="soft" size="sm" />
-      ) : (
-        <span className="text-xs text-muted">—</span>
+    header: "نوع",
+    width: "w-24",
+    filterKey: "type",
+    cell: ({ type }) => {
+      const cfg = FOLLOWUP_TYPE_CONFIG[type];
+      if (!cfg) return <span className="text-muted-foreground text-xs">—</span>;
+      return (
+        <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2 py-0.5 rounded-full ${cfg.bg} ${cfg.text}`}>
+          <cfg.icon className="w-3 h-3" />
+          {cfg.label}
+        </span>
       );
     },
   },
   {
-    key: "due_at",
-    title: "سررسید",
-    width: "110px",
-    align: "center",
-    sortable: true,
-    render: (row) => (
-      <div className="flex flex-col items-center gap-0.5">
-        <span className="text-xs text-foreground">{formatDate(row.due_at)}</span>
-        {row.status === "completed" && row.completed_at && (
-          <span className="text-[10px] text-emerald-500">
-            <CheckCircle2 size={10} className="inline ml-0.5" />
-            {formatDate(row.completed_at)}
-          </span>
-        )}
-      </div>
+    key: "status",
+    header: "وضعیت",
+    width: "w-24",
+    filterKey: "status",
+    cell: ({ status }) => <StatusBadge status={status} config={FOLLOWUP_STATUS_CONFIG} />,
+  },
+  {
+    key: "user",
+    header: "مسئول",
+    width: "w-32",
+    cell: ({ user }) => (
+      <span className="text-sm">{user?.full_name || "—"}</span>
     ),
   },
   {
+    key: "customer",
+    header: "مشتری / ملک",
+    width: "w-40",
+    cell: ({ customer, property }) => {
+      if (customer) return (
+        <div className="flex flex-col">
+          <span className="text-sm">{customer.full_name}</span>
+          <span className="text-xs text-muted-foreground font-mono ltr">{customer.phone}</span>
+        </div>
+      );
+      if (property) return <span className="text-xs font-mono text-primary">{property.property_code}</span>;
+      return <span className="text-muted-foreground text-xs">—</span>;
+    },
+  },
+  {
+    key: "due_at",
+    header: "موعد انجام",
+    width: "w-32",
+    cell: ({ due_at, status }) => {
+      const isOverdue = status === "pending" && new Date(due_at) < new Date();
+      return (
+        <span className={`text-sm ${isOverdue ? "text-danger font-semibold" : ""}`}>
+          {formatDate(due_at, "short")}
+          {isOverdue && <span className="text-xs text-danger mr-1">(گذشته)</span>}
+        </span>
+      );
+    },
+  },
+  {
     key: "created_at",
-    title: "تاریخ ثبت",
-    width: "100px",
-    align: "center",
-    sortable: true,
-    render: (row) => (
-      <span className="text-xs text-muted">{formatDate(row.created_at)}</span>
-    ),
+    header: "تاریخ ایجاد",
+    width: "w-28",
+    cell: ({ created_at }) => formatDate(created_at, "short"),
+  },
+  {
+    key: "actions",
+    header: "",
+    width: "w-20",
+    actions: true,
   },
 ];

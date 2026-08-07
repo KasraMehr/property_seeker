@@ -1,100 +1,79 @@
-import { MapPin, Home, Building2, Users, FileText } from "lucide-react";
+import { MapPin, Building2, Users } from "lucide-react";
 
+/**
+ * Region (District) Table Columns
+ * Backend: locations.District
+ */
 export const REGION_TABLE_COLUMNS = [
   {
+    key: "id",
+    header: "شناسه",
+    width: "w-14",
+    cell: ({ id }) => <span className="text-xs text-muted-foreground font-mono">#{id}</span>,
+  },
+  {
     key: "name",
-    title: "منطقه",
-    width: "200px",
-    sortable: true,
-    render: (row) => (
-      <div className="flex items-center gap-2.5 min-w-0">
-        <div className="w-9 h-9 rounded-lg bg-(--role-subtle)/20 flex items-center justify-center text-(--role-primary) shrink-0">
-          <MapPin size={16} />
-        </div>
-        <div className="flex flex-col gap-0.5 min-w-0">
-          <span className="font-medium text-sm text-foreground truncate">
-            {row.name}
-          </span>
-          <span className="text-[11px] text-muted">
-            {row.city?.name || "—"}
-          </span>
-        </div>
-      </div>
+    header: "نام منطقه",
+    width: "w-40",
+    searchable: true,
+    cell: ({ name }) => (
+      <span className="font-medium text-sm">{name}</span>
     ),
   },
   {
-    key: "neighborhoods_count",
-    title: "محله‌ها",
-    width: "90px",
-    align: "center",
-    sortable: true,
-    render: (row) => (
-      <div className="flex items-center justify-center gap-1 text-sm text-foreground">
-        <Home size={13} className="text-emerald-500" />
-        <span>{row.neighborhoods_count?.toLocaleString("fa-IR") || "۰"}</span>
-      </div>
-    ),
-  },
-  {
-    key: "addresses_count",
-    title: "آدرس‌ها",
-    width: "90px",
-    align: "center",
-    sortable: true,
-    render: (row) => (
-      <div className="flex items-center justify-center gap-1 text-sm text-foreground">
-        <Building2 size={13} className="text-sky-500" />
-        <span>{row.addresses_count?.toLocaleString("fa-IR") || "۰"}</span>
-      </div>
-    ),
-  },
-  {
-    key: "listings_count",
-    title: "آگهی‌ها",
-    width: "90px",
-    align: "center",
-    sortable: true,
-    render: (row) => (
-      <div className="flex items-center justify-center gap-1 text-sm text-foreground">
-        <FileText size={13} className="text-violet-500" />
-        <span>{row.listings_count?.toLocaleString("fa-IR") || "۰"}</span>
+    key: "city",
+    header: "شهر / استان",
+    width: "w-40",
+    cell: ({ city }) => (
+      <div className="flex flex-col">
+        <span className="text-sm">{city?.name || "—"}</span>
+        <span className="text-xs text-muted-foreground">{city?.province?.name || "—"}</span>
       </div>
     ),
   },
   {
     key: "agents_count",
-    title: "کارشناسان",
-    width: "100px",
-    align: "center",
-    sortable: true,
-    render: (row) => (
-      <div className="flex items-center justify-center gap-1 text-sm text-foreground">
-        <Users size={13} className="text-amber-500" />
-        <span>{row.agents_count?.toLocaleString("fa-IR") || "۰"}</span>
+    header: "مشاوران",
+    width: "w-24",
+    cell: ({ agents_count }) => (
+      <span className="inline-flex items-center gap-1 text-sm text-muted-foreground">
+        <Users className="w-3.5 h-3.5" />
+        {agents_count || 0}
+      </span>
+    ),
+  },
+  {
+    key: "properties_count",
+    header: "فایل‌ها",
+    width: "w-24",
+    cell: ({ properties_count }) => (
+      <span className="inline-flex items-center gap-1 text-sm text-muted-foreground">
+        <Building2 className="w-3.5 h-3.5" />
+        {properties_count || 0}
+      </span>
+    ),
+  },
+  {
+    key: "neighborhoods",
+    header: "محله‌ها",
+    width: "w-32",
+    cell: ({ neighborhoods }) => (
+      <div className="flex flex-wrap gap-1">
+        {(neighborhoods || []).slice(0, 3).map((n) => (
+          <span key={n.id} className="text-xs bg-secondary px-1.5 py-0.5 rounded">
+            {n.name}
+          </span>
+        ))}
+        {(neighborhoods || []).length > 3 && (
+          <span className="text-xs text-muted-foreground">+{(neighborhoods || []).length - 3}</span>
+        )}
       </div>
     ),
   },
   {
-    key: "top_neighborhoods",
-    title: "محلات اصلی",
-    width: "220px",
-    sortable: false,
-    render: (row) => (
-      <div className="flex flex-wrap gap-1">
-        {row.top_neighborhoods?.slice(0, 3).map((n) => (
-          <span
-            key={n.id}
-            className="inline-flex px-2 py-0.5 rounded-md text-[10px] font-medium bg-surface border border-border text-muted"
-          >
-            {n.name}
-          </span>
-        ))}
-        {(row.top_neighborhoods?.length || 0) > 3 && (
-          <span className="text-[10px] text-muted px-1">
-            +{(row.top_neighborhoods.length - 3).toLocaleString("fa-IR")}
-          </span>
-        )}
-      </div>
-    ),
+    key: "actions",
+    header: "",
+    width: "w-20",
+    actions: true,
   },
 ];

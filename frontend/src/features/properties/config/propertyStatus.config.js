@@ -2,15 +2,13 @@ import {
   Eye,
   CheckCircle2,
   Home,
-  PauseCircle,
-  XCircle,
-  FileText,
   Clock,
+  Archive,
 } from "lucide-react";
 
 /**
  * Property.Status (models.py)
- * choices = [available, reserved, sold, rented, unavailable, draft]
+ * choices = [available, reserved, sold, rented, archived]
  */
 export const PROPERTY_STATUS_CONFIG = {
   available: {
@@ -33,14 +31,9 @@ export const PROPERTY_STATUS_CONFIG = {
     icon: Home,
     color: "success",
   },
-  unavailable: {
-    label: "غیرقابل دسترس",
-    icon: XCircle,
-    color: "danger",
-  },
-  draft: {
-    label: "پیش نویس",
-    icon: FileText,
+  archived: {
+    label: "آرشیو",
+    icon: Archive,
     color: "neutral",
   },
 };

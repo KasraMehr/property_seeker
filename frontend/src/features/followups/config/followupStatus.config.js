@@ -2,36 +2,35 @@ import {
   Clock,
   CheckCircle2,
   XCircle,
-  Calendar,
-  MapPin,
-  Users,
-  FileText,
   Phone,
+  MapPin,
+  RotateCcw,
+  FileQuestion,
 } from "lucide-react";
 
-/* ─── Followup.Status ─── */
+/* ─── Reminder.Status ─── */
 export const FOLLOWUP_STATUS_CONFIG = {
   pending: {
     label: "در انتظار",
     icon: Clock,
     color: "warning",
   },
-  completed: {
+  done: {
     label: "انجام شده",
     icon: CheckCircle2,
     color: "success",
   },
-  cancelled: {
+  canceled: {
     label: "لغو شده",
     icon: XCircle,
     color: "danger",
   },
 };
 
-/* ─── Followup.Type ─── */
+/* ─── Reminder.Type ─── */
 export const FOLLOWUP_TYPE_CONFIG = {
-  follow_up: {
-    label: "پیگیری",
+  call: {
+    label: "تماس",
     icon: Phone,
     color: "sky",
     bg: "bg-sky-500/10",
@@ -44,16 +43,16 @@ export const FOLLOWUP_TYPE_CONFIG = {
     bg: "bg-emerald-500/10",
     text: "text-emerald-500",
   },
-  meeting: {
-    label: "جلسه",
-    icon: Users,
+  follow_up: {
+    label: "پیگیری",
+    icon: RotateCcw,
     color: "violet",
     bg: "bg-violet-500/10",
     text: "text-violet-500",
   },
-  contract: {
-    label: "قرارداد",
-    icon: FileText,
+  other: {
+    label: "سایر",
+    icon: FileQuestion,
     color: "amber",
     bg: "bg-amber-500/10",
     text: "text-amber-500",
