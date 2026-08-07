@@ -3,7 +3,10 @@ import { MOCK_LISTINGS } from "@/mocks/data/mockListings";
 import { MOCK_OWNERS } from "@/mocks/data/mockOwners";
 import { MOCK_PROPERTIES } from "@/mocks/data/mockProperties";
 
-function paginateAndOrder(array, { page = 1, pageSize = 25, ordering = "-created_at" }) {
+function paginateAndOrder(
+  array,
+  { page = 1, pageSize = 25, ordering = "-created_at" },
+) {
   let sorted = [...array];
   const desc = ordering.startsWith("-");
   const key = desc ? ordering.slice(1) : ordering;
@@ -59,7 +62,7 @@ export const listingHandlers = [
         (l) =>
           l.title?.toLowerCase().includes(q) ||
           l.external_id?.toLowerCase().includes(q) ||
-          l.description?.toLowerCase().includes(q)
+          l.description?.toLowerCase().includes(q),
       );
     }
 
@@ -86,7 +89,10 @@ export const listingHandlers = [
       results = results.filter((l) => String(l.created_by?.id) === createdBy);
     }
 
-    return HttpResponse.json(paginateAndOrder(results, { page, pageSize, ordering }), { status: 200 });
+    return HttpResponse.json(
+      paginateAndOrder(results, { page, pageSize, ordering }),
+      { status: 200 },
+    );
   }),
 
   // ─── DETAIL (GET /api/listing/detail/:id/) ───
@@ -161,44 +167,51 @@ export const listingHandlers = [
   }),
 
   // ─── CONVERT TO OWNER (POST /api/listing/convert-to-owner/:id/) ───
-  http.post("*/api/listing/convert-to-owner/:id/", async ({ params, request }) => {
-    const id = Number(params.id);
-    const index = MOCK_LISTINGS.findIndex((l) => l.id === id);
-    if (index === -1) {
-      return HttpResponse.json({ detail: "not found" }, { status: 404 });
-    }
-    const body = await request.json();
-    const newOwner = {
-      id: MOCK_OWNERS.length + 1,
-      ...body.owner_data,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-    MOCK_OWNERS.push(newOwner);
-    MOCK_LISTINGS[index].updated_at = new Date().toISOString();
-    return HttpResponse.json({ owner: newOwner }, { status: 200 });
-  }),
+  http.post(
+    "*/api/listing/convert-to-owner/:id/",
+    async ({ params, request }) => {
+      const id = Number(params.id);
+      const index = MOCK_LISTINGS.findIndex((l) => l.id === id);
+      if (index === -1) {
+        return HttpResponse.json({ detail: "not found" }, { status: 404 });
+      }
+      const body = await request.json();
+      const newOwner = {
+        id: MOCK_OWNERS.length + 1,
+        ...body.owner_data,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      MOCK_OWNERS.push(newOwner);
+      MOCK_LISTINGS[index].updated_at = new Date().toISOString();
+      return HttpResponse.json({ owner: newOwner }, { status: 200 });
+    },
+  ),
 
   // ─── CONVERT TO PROPERTY (POST /api/listing/convert-to-property/:id/) ───
-  http.post("*/api/listing/convert-to-property/:id/", async ({ params, request }) => {
-    const id = Number(params.id);
-    const index = MOCK_LISTINGS.findIndex((l) => l.id === id);
-    if (index === -1) {
-      return HttpResponse.json({ detail: "not found" }, { status: 404 });
-    }
-    const body = await request.json();
-    const year = new Date().getFullYear();
-    const newId = MOCK_PROPERTIES.length + 1;
-    const newProperty = {
-      id: newId,
-      property_code: `PR-${year}-${String(newId).padStart(6, "0")}`,
-      ...body.property_data,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-    MOCK_PROPERTIES.push(newProperty);
-    MOCK_LISTINGS[index].property = newProperty;
-    MOCK_LISTINGS[index].updated_at = new Date().toISOString();
-    return HttpResponse.json({ property: newProperty }, { status: 200 });
-  }),
+  http.post(
+    "*/api/listing/convert-to-property/:id/",
+    async ({ params, request }) => {
+      const id = Number(params.id);
+      const index = MOCK_LISTINGS.findIndex((l) => l.id === id);
+      if (index === -1) {
+        return HttpResponse.json({ detail: "not found" }, { status: 404 });
+      }
+      const body = await request.json();
+      const year = new Date().getFullYear();
+      const newId = MOCK_PROPERTIES.length + 1;
+      const newProperty = {
+        id: newId,
+        property_code: `PR-${year}-${String(newId).padStart(6, "0")}`,
+        ...body.property_data,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      MOCK_PROPERTIES.push(newProperty);
+      MOCK_LISTINGS[index].property = newProperty;
+      MOCK_LISTINGS[index].review_status = "promoted"; 
+      MOCK_LISTINGS[index].updated_at = new Date().toISOString();
+      return HttpResponse.json({ property: newProperty }, { status: 200 });
+    },
+  ),
 ];

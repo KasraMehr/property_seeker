@@ -1,4 +1,5 @@
-// agency mock data - referenced by users and owners
+// agency mock data - referenced by users and owners 
+// DONE: API integration completed
 export const MOCK_AGENCIES = [
   {
     id: 1,
