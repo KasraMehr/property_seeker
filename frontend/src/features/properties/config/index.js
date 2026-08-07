@@ -12,3 +12,4 @@ export {
   FOLLOWUP_TYPE_CONFIG,
   FOLLOWUP_STATUS_CONFIG,
 } from "./propertyDetail.config";
+

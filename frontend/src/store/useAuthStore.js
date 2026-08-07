@@ -87,14 +87,33 @@ const useAuthStore = create(
         return user.role.map((r) => r.name).join("، ");
       },
 
-      // Check a special
+      // check permission
       hasPermission: (permissionCode) => {
         const user = get().user;
-        // Admin has all permissions
-        if (user?.is_owner) return true;
+        // both has complete access
+        if (user?.is_owner || user?.is_superuser) return true;
         if (!user?.role || !Array.isArray(user.role)) return false;
-
         return user.role.some((r) => r.permissions?.includes(permissionCode));
+      },
+
+      // check for at least one permission of all
+      hasAnyPermission: (codes = []) => {
+        const user = get().user;
+        if (user?.is_owner || user?.is_superuser) return true;
+        if (!user?.role || !Array.isArray(user.role)) return false;
+        return codes.some((code) =>
+          user.role.some((r) => r.permissions?.includes(code)),
+        );
+      },
+
+      // check to have all permissions exactly
+      hasAllPermissions: (codes = []) => {
+        const user = get().user;
+        if (user?.is_owner || user?.is_superuser) return true;
+        if (!user?.role || !Array.isArray(user.role)) return false;
+        return codes.every((code) =>
+          user.role.some((r) => r.permissions?.includes(code)),
+        );
       },
     }),
     {

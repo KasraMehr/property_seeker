@@ -9,6 +9,7 @@ import LandingPage from "../features/landing/pages/LandingPage";
 import PublicRoute from "../routes/PublicRoute";
 import ProtectedRoute from "../routes/ProtectedRoute";
 import DashboardRedirect from "../routes/DashboardRedirect";
+import RoleRoute from "../routes/RoleRoute";
 
 // Route Modules
 import { adminRoutes } from "@/routes/adminRoutes";
@@ -42,15 +43,27 @@ export const Router = createBrowserRouter([
   {
     element: <ProtectedRoute />,
     children: [
+      // Admin + superuser only
       {
-        path: "/admin",
-        element: <AdminLayout />,
-        children: [...adminRoutes],
+        element: <RoleRoute allow="owner" />,
+        children: [
+          {
+            path: "/admin",
+            element: <AdminLayout />,
+            children: [...adminRoutes],
+          },
+        ],
       },
+      // any other logged in users
       {
-        path: "/operator",
-        element: <OperatorLayout />,
-        children: [...operatorRoutes],
+        element: <RoleRoute allow="operator" />,
+        children: [
+          {
+            path: "/operator",
+            element: <OperatorLayout />,
+            children: [...operatorRoutes],
+          },
+        ],
       },
       {
         path: "/dashboard",
