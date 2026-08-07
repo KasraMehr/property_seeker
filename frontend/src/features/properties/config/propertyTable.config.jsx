@@ -5,7 +5,14 @@ import { formatPrice, formatDate } from "@/utils/formatters";
 
 /**
  * Property Table Columns
- * Backend: properties.Property
+ * Backend: properties.PropertyListSerializer
+ * Available fields in list: id, agency, property_code, title, owner (string),
+ *   agent (string), created_by (string), city (string), property_type,
+ *   deal_type, area, sale_price, monthly_rent, status
+ *
+ * NOTE: Fields like bedrooms, floor, age, created_at, price_per_meter,
+ *   address/district are ONLY available in PropertyDetailSerializer.
+ *   Add them back here only after backend expands PropertyListSerializer.
  */
 export const PROPERTY_TABLE_COLUMNS = [
   {
@@ -22,13 +29,21 @@ export const PROPERTY_TABLE_COLUMNS = [
     header: "عنوان ملک",
     width: "w-56",
     searchable: true,
-    cell: ({ title, address }) => (
+    cell: ({ title, city }) => (
       <div className="flex flex-col">
         <span className="font-medium truncate max-w-50" title={title}>{title}</span>
         <span className="text-xs text-muted-foreground truncate max-w-50">
-          {address?.full_text || "—"}
+          {city || "—"}
         </span>
       </div>
+    ),
+  },
+  {
+    key: "property_type",
+    header: "نوع ملک",
+    width: "w-24",
+    cell: ({ property_type }) => (
+      <span className="text-xs text-muted-foreground">{property_type || "—"}</span>
     ),
   },
   {
@@ -58,20 +73,18 @@ export const PROPERTY_TABLE_COLUMNS = [
     header: "مالک",
     width: "w-32",
     searchable: true,
-    searchFields: ["owner.full_name", "owner.phone"],
+    // owner is a plain string in PropertyListSerializer (e.g. "علی احمدی")
     cell: ({ owner }) => (
-      <div className="flex flex-col">
-        <span className="text-sm font-medium">{owner?.full_name || "—"}</span>
-        <span className="text-xs text-muted-foreground font-mono ltr">{owner?.phone || "—"}</span>
-      </div>
+      <span className="text-sm">{owner || "—"}</span>
     ),
   },
   {
     key: "agent",
     header: "مشاور",
     width: "w-32",
+    // agent is a plain string in PropertyListSerializer
     cell: ({ agent }) => (
-      <span className="text-sm">{agent?.full_name || "—"}</span>
+      <span className="text-sm">{agent || "—"}</span>
     ),
   },
   {
@@ -81,41 +94,16 @@ export const PROPERTY_TABLE_COLUMNS = [
     cell: ({ area }) => area ? <span>{area} م²</span> : <span className="text-muted-foreground text-xs">—</span>,
   },
   {
-    key: "bedrooms",
-    header: "خواب",
-    width: "w-16",
-    cell: ({ bedrooms }) => <span className="text-sm">{bedrooms || 0}</span>,
-  },
-  {
-    key: "floor",
-    header: "طبقه",
-    width: "w-16",
-    cell: ({ floor, total_floors }) => (
-      <span className="text-sm">{floor != null ? `${floor} / ${total_floors || "?"}` : "—"}</span>
-    ),
-  },
-  {
-    key: "age",
-    header: "سن",
-    width: "w-16",
-    cell: ({ age }) => <span className="text-sm">{age || 0} سال</span>,
-  },
-  {
     key: "price",
     header: "قیمت / اجاره",
     width: "w-36",
-    cell: ({ sale_price, monthly_rent, mortgage_amount, deal_type }) => {
+    cell: ({ sale_price, monthly_rent, deal_type }) => {
       if (deal_type === "sale" && sale_price) return <span className="font-medium text-emerald-600">{formatPrice(sale_price)}</span>;
       if (deal_type === "rent" && monthly_rent) return <span className="font-medium text-sky-600">{formatPrice(monthly_rent)}</span>;
-      if (deal_type === "mortgage" && mortgage_amount) return <span className="font-medium text-amber-600">{formatPrice(mortgage_amount)}</span>;
+      if (deal_type === "mortgage") return <span className="text-muted-foreground text-xs">مشاهده در جزئیات</span>;
+      if (deal_type === "exchange") return <span className="text-muted-foreground text-xs">معاوضه</span>;
       return <span className="text-muted-foreground text-xs">—</span>;
     },
-  },
-  {
-    key: "created_at",
-    header: "تاریخ ثبت",
-    width: "w-28",
-    cell: ({ created_at }) => formatDate(created_at, "short"),
   },
   {
     key: "actions",

@@ -11,7 +11,7 @@ import {
   USER_PROFILE_FIELDS,
   USER_ACTIVITY_COLUMNS,
 } from "@/features/users-management/config";
-import { DetailFieldGrid, DetailListTable } from "@/shared/components/DetailContentRenderer";
+import { DetailFieldGrid, DetailListTable } from "@/shared/page/DetailContentRenderer";
 
 export default function UserDetailModal({ isOpen, onClose, user }) {
   const [activeTab, setActiveTab] = useState("profile");

@@ -8,7 +8,7 @@ import {
   REGION_DETAIL_FIELDS,
   REGION_NEIGHBORHOOD_COLUMNS,
 } from "@/features/regions-management/config";
-import { DetailFieldGrid, DetailListTable } from "@/shared/components/DetailContentRenderer";
+import { DetailFieldGrid, DetailListTable } from "@/shared/page/DetailContentRenderer";
 
 export default function RegionDetailModal({ isOpen, onClose, region }) {
   const [activeTab, setActiveTab] = useState("details");

@@ -11,18 +11,15 @@ const update = (id, data) => api.put(API_ENDPOINTS.PROPERTIES.UPDATE(id).url, da
 
 const remove = (id) => api.delete(API_ENDPOINTS.PROPERTIES.DELETE(id).url);
 
-const search = (query) => api.get(API_ENDPOINTS.PROPERTIES.SEARCH.url, { params: { q: query } });
+// on the LIST endpoint (?search=, ?owner=, ?agent=, ?status=) — check backend support
+const getAllWithParams = (params = {}) =>
+  api.get(API_ENDPOINTS.PROPERTIES.LIST.url, { params });
 
-const getByOwner = (ownerId) => api.get(API_ENDPOINTS.PROPERTIES.BY_OWNER(ownerId).url);
+const bulkChangeStatus = (ids, status, note) =>
+  api.put(API_ENDPOINTS.PROPERTIES.BULK_CHANGE_STATUS.url, { ids, status, note });
 
-const getByAgent = (agentId) => api.get(API_ENDPOINTS.PROPERTIES.BY_AGENT(agentId).url);
-
-const getByStatus = (status) => api.get(API_ENDPOINTS.PROPERTIES.BY_STATUS(status).url);
-
-const bulkChangeStatus = (ids, status, note) => 
-  api.put(API_ENDPOINTS.PROPERTIES.bulkChangeStatus, { ids, status, note });
-const bulkAssignAgent = (ids, agentId, note) => 
-  api.put(API_ENDPOINTS.PROPERTIES.bulkAssignAgent, { ids, agent_id: agentId, note });
+const bulkAssignAgent = (ids, agentId, note) =>
+  api.put(API_ENDPOINTS.PROPERTIES.BULK_ASSIGN_AGENT.url, { ids, agent_id: agentId, note });
 
 const propertyService = {
   getAll,
@@ -30,10 +27,7 @@ const propertyService = {
   create,
   update,
   remove,
-  search,
-  getByOwner,
-  getByAgent,
-  getByStatus,
+  getAllWithParams,
   bulkAssignAgent,
   bulkChangeStatus,
 };

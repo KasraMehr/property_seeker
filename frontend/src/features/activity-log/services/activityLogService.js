@@ -1,14 +1,13 @@
 import api from "@/lib/api";
-// TODO: add to apiEndpoints
-const BASE = "/api/activity";
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 
 const getAll = (params = {}) =>
-  api.get(`${BASE}/list/`, { params });
+  api.get(API_ENDPOINTS.AUDIT.ACTIVITY.LIST.url, { params });
 
 const getById = (id) =>
-  api.get(`${BASE}/detail/${id}/`);
+  api.get(API_ENDPOINTS.AUDIT.ACTIVITY.DETAIL(id).url);
 
-// Filters matching ActivitySelector
+// Filters — check with backend if these query params are actually supported
 const getByAction = (action, params = {}) =>
   getAll({ ...params, action });
 
@@ -17,7 +16,6 @@ const getByEntity = (entityType, entityId, params = {}) =>
 
 const getByRequestId = (requestId, params = {}) =>
   getAll({ ...params, request_id: requestId });
-
 
 const activityLogService = {
   getAll,

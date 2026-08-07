@@ -4,13 +4,13 @@ import Modal from "@/shared/ui/modal/Modal";
 import Button from "@/shared/ui/Button";
 import Tabs from "@/shared/ui/Tabs";
 import StatusBadge from "@/shared/ui/badges/StatusBadge";
-import { FOLLOWUP_TYPE_CONFIG, FOLLOWUP_STATUS_CONFIG } from "@/constants/followupStatus.config";
+import { FOLLOWUP_TYPE_CONFIG, FOLLOWUP_STATUS_CONFIG } from "@/features/followups/config";
 import {
   FOLLOWUP_DETAIL_TABS,
   FOLLOWUP_DETAIL_FIELDS,
   FOLLOWUP_CUSTOMER_FIELDS,
 } from "@/features/followups/config";
-import { DetailFieldGrid } from "@/shared/components/DetailContentRenderer";
+import { DetailFieldGrid } from "@/shared/page/DetailContentRenderer";
 
 export default function FollowupDetailModal({ isOpen, onClose, followup }) {
   const [activeTab, setActiveTab] = useState("details");

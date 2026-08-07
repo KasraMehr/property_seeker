@@ -8,7 +8,7 @@ import SourceBadge from "@/shared/ui/badges/SourceBadge";
 import Thumbnail from "@/shared/ui/Thumbnail";
 import Can from "@/shared/access/Can";
 import { formatDate } from "@/utils/formatters";
-import { LISTING_STATUS_CONFIG, LISTING_REVIEW_STATUS_CONFIG } from "@/constants";
+import { LISTING_STATUS_CONFIG, LISTING_REVIEW_STATUS_CONFIG } from "@/features/listing/config";
 import {
   LISTING_DETAIL_TABS,
   LISTING_DETAIL_FIELDS,
@@ -16,8 +16,8 @@ import {
   LISTING_TARGET_COLUMNS,
   LISTING_STATUS_HISTORY_COLUMNS,
   LISTING_PROPERTY_FIELDS,
-} from "@/features/listings/config";
-import { DetailFieldGrid, DetailListTable } from "@/shared/components/DetailContentRenderer";
+} from "@/features/listing/config";
+import { DetailFieldGrid, DetailListTable } from "@/shared/page/DetailContentRenderer";
 
 export default function ListingDetailModal({ isOpen, onClose, listing, onRegisterCall }) {
   const [activeTab, setActiveTab] = useState("details");

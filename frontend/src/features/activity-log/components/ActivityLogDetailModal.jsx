@@ -11,7 +11,7 @@ import {
   ACTIVITY_LOG_REQUEST_FIELDS,
   ACTIVITY_LOG_DATA_DIFF_FIELDS,
 } from "@/features/activity-log/config";
-import { DetailFieldGrid } from "@/shared/components/DetailContentRenderer";
+import { DetailFieldGrid } from "@/shared/page/DetailContentRenderer";
 
 export default function ActivityLogDetailModal({ isOpen, onClose, log }) {
   const [activeTab, setActiveTab] = useState("details");

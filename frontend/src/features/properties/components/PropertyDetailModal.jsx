@@ -4,7 +4,7 @@ import Modal from "@/shared/ui/modal/Modal";
 import Button from "@/shared/ui/Button";
 import Tabs from "@/shared/ui/Tabs";
 import StatusBadge from "@/shared/ui/badges/StatusBadge";
-import { PROPERTY_STATUS_CONFIG, PROPERTY_DEAL_TYPE_CONFIG } from "@/constants";
+import { PROPERTY_STATUS_CONFIG, PROPERTY_DEAL_TYPE_CONFIG } from "@/features/properties/config";
 import {
   PROPERTY_DETAIL_TABS,
   PROPERTY_DETAIL_FIELDS,
@@ -13,7 +13,7 @@ import {
   PROPERTY_FEATURE_COLUMNS,
   PROPERTY_MEDIA_COLUMNS,
 } from "@/features/properties/config";
-import { DetailFieldGrid, DetailListTable } from "@/shared/components/DetailContentRenderer";
+import { DetailFieldGrid, DetailListTable } from "@/shared/page/DetailContentRenderer";
 import Can from "@/shared/access/Can";
 import { PERMISSIONS } from "@/constants/permissions";
 

@@ -14,8 +14,8 @@ function paginate(array, { page = 1, pageSize = 25 }) {
 }
 
 export const activityLogHandlers = [
-  // ─── LIST (GET /api/activity/list/) ───
-  http.get("*/api/activity/list/", ({ request }) => {
+  // ─── LIST (GET /api/audit/activity/list/) ───
+  http.get("*/api/audit/activity/list/", ({ request }) => {
     const url = new URL(request.url);
     const page = Number(url.searchParams.get("page")) || 1;
     const pageSize = Number(url.searchParams.get("page_size")) || 25;
@@ -42,8 +42,8 @@ export const activityLogHandlers = [
     return HttpResponse.json(paginate(results, { page, pageSize }), { status: 200 });
   }),
 
-  // ─── DETAIL (GET /api/activity/detail/:id/) ───
-  http.get("*/api/activity/detail/:id/", ({ params }) => {
+  // ─── DETAIL (GET /api/audit/activity/detail/:id/) ───
+  http.get("*/api/audit/activity/detail/:id/", ({ params }) => {
     const id = Number(params.id);
     const log = MOCK_ACTIVITY_LOGS.find((l) => l.id === id);
     if (!log) {

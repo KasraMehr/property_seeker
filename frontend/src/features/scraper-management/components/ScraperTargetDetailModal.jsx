@@ -11,7 +11,7 @@ import {
   SCRAPER_TARGET_RUN_COLUMNS,
   SCRAPER_TARGET_LISTING_COLUMNS,
 } from "@/features/scraper-management/config";
-import { DetailFieldGrid, DetailListTable } from "@/shared/components/DetailContentRenderer";
+import { DetailFieldGrid, DetailListTable } from "@/shared/page/DetailContentRenderer";
 
 export default function ScraperTargetDetailModal({ isOpen, onClose, target }) {
   const [activeTab, setActiveTab] = useState("details");

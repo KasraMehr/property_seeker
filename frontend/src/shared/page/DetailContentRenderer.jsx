@@ -7,24 +7,25 @@ import { formatPrice, formatDate } from "@/utils/formatters";
 import {
   LISTING_STATUS_CONFIG,
   LISTING_REVIEW_STATUS_CONFIG,
-  PROPERTY_STATUS_CONFIG,
-  PROPERTY_DEAL_TYPE_CONFIG,
-} from "@/constants";
-import { CALL_TYPE_CONFIG, CALL_RESULT_CONFIG } from "@/constants/callStatus.config";
-import { FOLLOWUP_TYPE_CONFIG, FOLLOWUP_STATUS_CONFIG } from "@/constants/followupStatus.config";
+} from "@/features/listing/config";
+import {
+  LISTING_STATUS_CONFIG,
+  LISTING_REVIEW_STATUS_CONFIG,
+} from "@/features/property/config";
+import { CALL_TYPE_CONFIG, CALL_RESULT_CONFIG } from "@/features/calls/config";
+import { FOLLOWUP_TYPE_CONFIG, FOLLOWUP_STATUS_CONFIG } from "@/features/followup/config";
 import {
   INGESTION_RUN_STATUS_CONFIG,
   INGESTION_RUN_MODE_CONFIG,
   INGESTION_RUN_ITEM_STATUS_CONFIG,
-} from "@/constants";
-import { SCRAPE_TARGET_STATUS_CONFIG } from "@/constants/scrapeTargetStatus.config";
-import { MEDIA_TYPE_CONFIG } from "@/constants/mediaType.config";
+} from "@/features/scraper-management/config";
+import { SCRAPE_TARGET_STATUS_CONFIG } from "@/features/scraper-management/config";
 import {
   ACTIVITY_LOG_ACTION_CONFIG,
   ACTIVITY_LOG_SOURCE_CONFIG,
   ACTIVITY_LOG_LEVEL_CONFIG,
   ACTIVITY_LOG_OUTCOME_CONFIG,
-} from "@/constants";
+} from "@/features/activity-log/config";
 
 /* ─── Status Config Map ─── */
 const STATUS_CONFIG_MAP = {

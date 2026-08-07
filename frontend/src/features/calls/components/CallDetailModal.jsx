@@ -4,13 +4,13 @@ import Modal from "@/shared/ui/modal/Modal";
 import Button from "@/shared/ui/Button";
 import Tabs from "@/shared/ui/Tabs";
 import StatusBadge from "@/shared/ui/badges/StatusBadge";
-import { CALL_TYPE_CONFIG, CALL_RESULT_CONFIG } from "@/constants/callStatus.config";
+import { CALL_TYPE_CONFIG, CALL_RESULT_CONFIG } from "@/features/calls/config";
 import {
   CALL_DETAIL_TABS,
   CALL_DETAIL_FIELDS,
   CALL_RELATED_FIELDS,
 } from "@/features/calls/config";
-import { DetailFieldGrid } from "@/shared/components/DetailContentRenderer";
+import { DetailFieldGrid } from "@/shared/page/DetailContentRenderer";
 
 export default function CallDetailModal({ isOpen, onClose, call }) {
   const [activeTab, setActiveTab] = useState("call");

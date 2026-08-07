@@ -14,8 +14,8 @@ function paginate(array, { page = 1, pageSize = 25 }) {
 }
 
 export const callHandlers = [
-  // ─── LIST (GET /api/crm/calls/) ───
-  http.get("*/api/crm/calls/", ({ request }) => {
+  // ─── LIST + CREATE (GET/POST /api/calls/) ───
+  http.get("*/api/calls/", ({ request }) => {
     const url = new URL(request.url);
     const page = Number(url.searchParams.get("page")) || 1;
     const pageSize = Number(url.searchParams.get("page_size")) || 25;
@@ -46,18 +46,7 @@ export const callHandlers = [
     return HttpResponse.json(paginate(results, { page, pageSize }), { status: 200 });
   }),
 
-  // ─── DETAIL (GET /api/crm/calls/:id/) ───
-  http.get("*/api/crm/calls/:id/", ({ params }) => {
-    const id = Number(params.id);
-    const call = MOCK_CALL_LOGS.find((c) => c.id === id);
-    if (!call) {
-      return HttpResponse.json({ detail: "not found" }, { status: 404 });
-    }
-    return HttpResponse.json(call, { status: 200 });
-  }),
-
-  // ─── CREATE (POST /api/crm/calls/create/) ───
-  http.post("*/api/crm/calls/create/", async ({ request }) => {
+  http.post("*/api/calls/", async ({ request }) => {
     const body = await request.json();
     const newCall = {
       id: MOCK_CALL_LOGS.length + 1,
@@ -70,30 +59,13 @@ export const callHandlers = [
     return HttpResponse.json(newCall, { status: 201 });
   }),
 
-  // ─── UPDATE (PUT /api/crm/calls/:id/) ───
-  http.put("*/api/crm/calls/:id/", async ({ params, request }) => {
+  // ─── DETAIL (GET /api/calls/:id/) ───
+  http.get("*/api/calls/:id/", ({ params }) => {
     const id = Number(params.id);
-    const index = MOCK_CALL_LOGS.findIndex((c) => c.id === id);
-    if (index === -1) {
+    const call = MOCK_CALL_LOGS.find((c) => c.id === id);
+    if (!call) {
       return HttpResponse.json({ detail: "not found" }, { status: 404 });
     }
-    const body = await request.json();
-    MOCK_CALL_LOGS[index] = {
-      ...MOCK_CALL_LOGS[index],
-      ...body,
-      updated_at: new Date().toISOString(),
-    };
-    return HttpResponse.json(MOCK_CALL_LOGS[index], { status: 200 });
-  }),
-
-  // ─── DELETE (DELETE /api/crm/calls/:id/) ───
-  http.delete("*/api/crm/calls/:id/", ({ params }) => {
-    const id = Number(params.id);
-    const index = MOCK_CALL_LOGS.findIndex((c) => c.id === id);
-    if (index === -1) {
-      return HttpResponse.json({ detail: "not found" }, { status: 404 });
-    }
-    MOCK_CALL_LOGS.splice(index, 1);
-    return HttpResponse.json({ detail: "deleted" }, { status: 204 });
+    return HttpResponse.json(call, { status: 200 });
   }),
 ];

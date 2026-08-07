@@ -81,3 +81,26 @@ export const MOCK_PROPERTIES = [
     created_at: "2026-07-28T11:00:00Z", updated_at: "2026-07-28T11:00:00Z",
   },
 ];
+
+/**
+ * MOCK_PROPERTIES_LIST — matches PropertyListSerializer output
+ * Fields: id, agency, property_code, title, owner (string), agent (string),
+ *         created_by (string), city (string), property_type, deal_type,
+ *         area, sale_price, monthly_rent, status
+ */
+export const MOCK_PROPERTIES_LIST = MOCK_PROPERTIES.map((p) => ({
+  id: p.id,
+  agency: p.agency?.id ?? p.agency,
+  property_code: p.property_code,
+  title: p.title,
+  owner: p.owner?.full_name ?? p.owner,
+  agent: p.agent?.full_name ?? p.agent,
+  created_by: p.create_by?.full_name ?? p.create_by,
+  city: p.address?.full_text?.split("،")[1]?.trim() || "کرج",
+  property_type: p.property_type,
+  deal_type: p.deal_type,
+  area: p.area,
+  sale_price: p.sale_price,
+  monthly_rent: p.monthly_rent,
+  status: p.status,
+}));
