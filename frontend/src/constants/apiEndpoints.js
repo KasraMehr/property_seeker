@@ -16,7 +16,7 @@ export const API_ENDPOINTS = {
   // 1. AUTH
   AUTH: {
     LOGIN: {
-      url: `${API_BASE}/accounts/login/`,
+      url: `${API_BASE}/accounts/login`,
       method: "POST",
       status: "[OK]",
     },
