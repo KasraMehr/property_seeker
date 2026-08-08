@@ -26,20 +26,34 @@ DEBUG = True
 # SECURITY WARNING: keep the secret key used in production secret!
 
 # SECURITY WARNING: don't run with debug turned on in production!
-ALLOWED_HOSTS = []
-#پکیج cors برای اینکه  فرانت و بک بتونن بهم وصل بشن
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
 
-    "http://127.0.0.1:5173",
+# settings.py
 
-]
-#از کوکی استفاده کنیم باید  باشد
+# ۱. اجازه ارسال کوکی‌ها در درخواست‌های Cross-Origin
 CORS_ALLOW_CREDENTIALS = True
-# Application definition
+
+# ۲. دامنه فرانت‌اند را دقیقاً وارد کن (استفاده از '*' با Credentials ممنوع است)
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173", # یا پورتی که Vite روی آن اجرا می‌شود
+    "http://127.0.0.1:5173",
+]
+
+# ۳. تنظیمات مربوط به Cookie توکن‌های SimpleJWT
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
+    "http://127.0.0.1:5173",
 ]
+
+# اگر روی localhost تست می‌کنی، این موارد باید False باشند
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
+
+# settings.py
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+#پکیج cors برای اینکه  فرانت و بک بتونن بهم وصل بشن
+
 INSTALLED_APPS = [
 "django.contrib.admin",
     'django.contrib.auth',
