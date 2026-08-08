@@ -10,6 +10,7 @@ export default function RegionFormModal({ isOpen, onClose, region = null, onSucc
 
   const handleSubmit = async (data) => {
     setLoading(true);
+    const { province, ...payload } = data;
     try {
       if (isEdit) {
         await regionService.update(region.id, data);

@@ -1,10 +1,13 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { ClipboardList, UserCircle, CheckCircle2, Clock } from "lucide-react";
 import Modal from "@/shared/ui/modal/Modal";
 import Button from "@/shared/ui/Button";
 import Tabs from "@/shared/ui/Tabs";
 import StatusBadge from "@/shared/ui/badges/StatusBadge";
-import { FOLLOWUP_TYPE_CONFIG, FOLLOWUP_STATUS_CONFIG } from "@/features/followups/config";
+import {
+  FOLLOWUP_TYPE_CONFIG,
+  FOLLOWUP_STATUS_CONFIG,
+} from "@/features/followups/config";
 import {
   FOLLOWUP_DETAIL_TABS,
   FOLLOWUP_DETAIL_FIELDS,
@@ -28,53 +31,104 @@ export default function FollowupDetailModal({ isOpen, onClose, followup }) {
     });
   }, [followup]);
 
-  useMemo(() => {
+  useEffect(() => {
     if (isOpen) setActiveTab("details");
   }, [isOpen, followup?.id]);
 
-  const isOverdue = followup.status === "pending" && new Date(followup.due_at) < new Date();
+  const isOverdue =
+    followup.status === "pending" && new Date(followup.due_at) < new Date();
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="lg" title="جزئیات پیگیری" className="h-[75vh]">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      size="lg"
+      title="جزئیات پیگیری"
+      className="h-[75vh]"
+    >
       {/* Header */}
       <div className="flex shrink-0 items-center gap-3 mb-4 pb-4 border-b border-border">
-        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isOverdue ? "bg-danger/10" : "bg-amber-500/10"}`}>
-          {isOverdue ? <Clock className="w-5 h-5 text-danger" /> : <ClipboardList className="w-5 h-5 text-amber-500" />}
+        <div
+          className={`w-10 h-10 rounded-full flex items-center justify-center ${isOverdue ? "bg-danger/10" : "bg-amber-500/10"}`}
+        >
+          {isOverdue ? (
+            <Clock className="w-5 h-5 text-danger" />
+          ) : (
+            <ClipboardList className="w-5 h-5 text-amber-500" />
+          )}
         </div>
         <div className="min-w-0 flex-1">
-          <h3 className="text-base font-bold text-foreground truncate">{followup.title}</h3>
+          <h3 className="text-base font-bold text-foreground truncate">
+            {followup.title}
+          </h3>
           <div className="flex items-center gap-2 mt-1">
-            <StatusBadge status={followup.type} config={FOLLOWUP_TYPE_CONFIG} size="sm" variant="soft" />
-            <StatusBadge status={followup.status} config={FOLLOWUP_STATUS_CONFIG} size="sm" variant="soft" />
-            {isOverdue && <span className="text-xs text-danger font-medium">(موعد گذشته)</span>}
+            <StatusBadge
+              status={followup.type}
+              config={FOLLOWUP_TYPE_CONFIG}
+              size="sm"
+              variant="soft"
+            />
+            <StatusBadge
+              status={followup.status}
+              config={FOLLOWUP_STATUS_CONFIG}
+              size="sm"
+              variant="soft"
+            />
+            {isOverdue && (
+              <span className="text-xs text-danger font-medium">
+                (موعد گذشته)
+              </span>
+            )}
           </div>
         </div>
       </div>
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} variant="underline" className="flex-1 min-h-0 flex flex-col">
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        variant="underline"
+        className="flex-1 min-h-0 flex flex-col"
+      >
         <Tabs.List className="mb-2 shrink-0">
           {availableTabs.map((tab) => (
-            <Tabs.Trigger key={tab.key} value={tab.key} icon={tab.icon}>{tab.label}</Tabs.Trigger>
+            <Tabs.Trigger key={tab.key} value={tab.key} icon={tab.icon}>
+              {tab.label}
+            </Tabs.Trigger>
           ))}
         </Tabs.List>
 
         <div className="flex-1 min-h-0 overflow-y-auto pr-1">
           <Tabs.Content value="details">
-            <DetailFieldGrid data={followup} sections={FOLLOWUP_DETAIL_FIELDS} />
+            <DetailFieldGrid
+              data={followup}
+              sections={FOLLOWUP_DETAIL_FIELDS}
+            />
           </Tabs.Content>
 
           <Tabs.Content value="customer">
-            <DetailFieldGrid data={followup} sections={FOLLOWUP_CUSTOMER_FIELDS} emptyText="مشتری مرتبطی ثبت نشده" />
+            <DetailFieldGrid
+              data={followup}
+              sections={FOLLOWUP_CUSTOMER_FIELDS}
+              emptyText="مشتری مرتبطی ثبت نشده"
+            />
           </Tabs.Content>
         </div>
       </Tabs>
 
       {/* Footer */}
       <div className="shrink-0 flex justify-end gap-2 pt-4 border-t border-border">
-        <Button variant="outline" size="sm" onClick={onClose}>بستن</Button>
+        <Button variant="outline" size="sm" onClick={onClose}>
+          بستن
+        </Button>
         {followup.status === "pending" && (
-          <Button variant="primary" size="sm" onClick={() => {/* mark done */}}>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => {
+              /* mark done */
+            }}
+          >
             <CheckCircle2 size={14} className="ml-1" />
             انجام شد
           </Button>

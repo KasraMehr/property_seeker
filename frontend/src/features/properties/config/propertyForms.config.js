@@ -15,9 +15,7 @@ export const PROPERTY_FORM = {
           key: "property_code",
           label: "کد ملک",
           type: "text",
-          required: true,
-          placeholder: "مثلاً PR-1403-001",
-          validation: { required: "کد ملک الزامی است" },
+          readOnly: true,
           span: 6,
         },
         {

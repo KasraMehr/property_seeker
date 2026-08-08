@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo , useEffect} from "react";
 import { MapPin, Home } from "lucide-react";
 import Modal from "@/shared/ui/modal/Modal";
 import Button from "@/shared/ui/Button";
@@ -15,7 +15,7 @@ export default function RegionDetailModal({ isOpen, onClose, region }) {
 
   if (!region) return null;
 
-  useMemo(() => {
+  useEffect(() => {
     if (isOpen) setActiveTab("details");
   }, [isOpen, region?.id]);
 

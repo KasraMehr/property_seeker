@@ -1,4 +1,3 @@
-
 /**
  * Create/Edit Followup Form
  */
@@ -56,7 +55,7 @@ export const FOLLOWUP_FORM = {
           type: "search_select",
           required: true,
           placeholder: "جستجوی کاربر...",
-          asyncSource: "/api/users/?is_active=true",
+          asyncSource: "/api/accounts/users/?is_active=true",
           searchFields: ["full_name", "phone"],
           displayField: "full_name",
           validation: { required: "انتخاب مسئول الزامی است" },
@@ -118,15 +117,6 @@ export const FOLLOWUP_FORM = {
           defaultValue: "now",
           span: 6,
         },
-        {
-          key: "completion_note",
-          label: "نتیجه پیگیری",
-          type: "textarea",
-          required: false,
-          placeholder: "نتیجه نهایی پیگیری...",
-          rows: 4,
-          span: 12,
-        },
       ],
     },
   ],
@@ -151,7 +141,11 @@ export const QUICK_FOLLOWUP_FROM_CALL_FORM = {
       type: "text",
       required: true,
       placeholder: "عنوان پیگیری",
-      autoFill: { source: "call", field: "result", transform: (v) => `پیگیری: ${v}` },
+      autoFill: {
+        source: "call",
+        field: "result",
+        transform: (v) => `پیگیری: ${v}`,
+      },
       validation: { required: "عنوان الزامی است" },
       span: 12,
     },

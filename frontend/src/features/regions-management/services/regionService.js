@@ -9,19 +9,17 @@ import locationService from "./locationService";
 
 const getAll = (params = {}) => locationService.getDistricts(params);
 
-const getById = async (id) => {
-  const res = await locationService.getDistricts();
-  // Handle both paginated { results } and plain array
-  const list = res.data?.results || res.data || [];
-  const district = list.find((d) => d.id === Number(id));
-  return { data: district };
-};
+const getById = (id) =>
+  api.get(API_ENDPOINTS.LOCATIONS.DISTRICTS.DETAIL(id).url);
 
-const create = (data) => api.post(API_ENDPOINTS.LOCATIONS.DISTRICTS.CREATE.url, data);
+const create = (data) =>
+  api.post(API_ENDPOINTS.LOCATIONS.DISTRICTS.CREATE.url, data);
 
-const update = (id, data) => api.put(API_ENDPOINTS.LOCATIONS.DISTRICTS.UPDATE(id).url, data);
+const update = (id, data) =>
+  api.put(API_ENDPOINTS.LOCATIONS.DISTRICTS.UPDATE(id).url, data);
 
-const remove = (id) => api.delete(API_ENDPOINTS.LOCATIONS.DISTRICTS.DELETE(id).url);
+const remove = (id) =>
+  api.delete(API_ENDPOINTS.LOCATIONS.DISTRICTS.DELETE(id).url);
 
 const regionService = {
   getAll,

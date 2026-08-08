@@ -14,6 +14,14 @@ import { formatPrice, formatDate } from "@/utils/formatters";
  *   address/district are ONLY available in PropertyDetailSerializer.
  *   Add them back here only after backend expands PropertyListSerializer.
  */
+export const PROPERTY_TYPE_CONFIG = {
+  APARTMENT: { label: "آپارتمان" },
+  VILLA: { label: "ویلا" },
+  LAND: { label: "زمین" },
+  COMMERCIAL: { label: "تجاری" },
+  OFFICE: { label: "دفتر" },
+  STORE: { label: "مغازه" },
+};
 export const PROPERTY_TABLE_COLUMNS = [
   {
     key: "property_code",
@@ -21,7 +29,9 @@ export const PROPERTY_TABLE_COLUMNS = [
     width: "w-28",
     searchable: true,
     cell: ({ property_code }) => (
-      <span className="text-xs font-mono font-semibold text-primary">{property_code}</span>
+      <span className="text-xs font-mono font-semibold text-primary">
+        {property_code}
+      </span>
     ),
   },
   {
@@ -31,7 +41,9 @@ export const PROPERTY_TABLE_COLUMNS = [
     searchable: true,
     cell: ({ title, city }) => (
       <div className="flex flex-col">
-        <span className="font-medium truncate max-w-50" title={title}>{title}</span>
+        <span className="font-medium truncate max-w-50" title={title}>
+          {title}
+        </span>
         <span className="text-xs text-muted-foreground truncate max-w-50">
           {city || "—"}
         </span>
@@ -43,7 +55,9 @@ export const PROPERTY_TABLE_COLUMNS = [
     header: "نوع ملک",
     width: "w-24",
     cell: ({ property_type }) => (
-      <span className="text-xs text-muted-foreground">{property_type || "—"}</span>
+      <span className="text-xs text-muted-foreground">
+        {property_type || "—"}
+      </span>
     ),
   },
   {
@@ -66,7 +80,9 @@ export const PROPERTY_TABLE_COLUMNS = [
     header: "وضعیت",
     width: "w-24",
     filterKey: "status",
-    cell: ({ status }) => <StatusBadge status={status} config={PROPERTY_STATUS_CONFIG} />,
+    cell: ({ status }) => (
+      <StatusBadge status={status} config={PROPERTY_STATUS_CONFIG} />
+    ),
   },
   {
     key: "owner",
@@ -74,34 +90,51 @@ export const PROPERTY_TABLE_COLUMNS = [
     width: "w-32",
     searchable: true,
     // owner is a plain string in PropertyListSerializer (e.g. "علی احمدی")
-    cell: ({ owner }) => (
-      <span className="text-sm">{owner || "—"}</span>
-    ),
+    cell: ({ owner }) => <span className="text-sm">{owner || "—"}</span>,
   },
   {
     key: "agent",
     header: "مشاور",
     width: "w-32",
     // agent is a plain string in PropertyListSerializer
-    cell: ({ agent }) => (
-      <span className="text-sm">{agent || "—"}</span>
-    ),
+    cell: ({ agent }) => <span className="text-sm">{agent || "—"}</span>,
   },
   {
     key: "area",
     header: "متراژ",
     width: "w-20",
-    cell: ({ area }) => area ? <span>{area} م²</span> : <span className="text-muted-foreground text-xs">—</span>,
+    cell: ({ area }) =>
+      area ? (
+        <span>{area} م²</span>
+      ) : (
+        <span className="text-muted-foreground text-xs">—</span>
+      ),
   },
   {
     key: "price",
     header: "قیمت / اجاره",
     width: "w-36",
     cell: ({ sale_price, monthly_rent, deal_type }) => {
-      if (deal_type === "sale" && sale_price) return <span className="font-medium text-emerald-600">{formatPrice(sale_price)}</span>;
-      if (deal_type === "rent" && monthly_rent) return <span className="font-medium text-sky-600">{formatPrice(monthly_rent)}</span>;
-      if (deal_type === "mortgage") return <span className="text-muted-foreground text-xs">مشاهده در جزئیات</span>;
-      if (deal_type === "exchange") return <span className="text-muted-foreground text-xs">معاوضه</span>;
+      if (deal_type === "sale" && sale_price)
+        return (
+          <span className="font-medium text-emerald-600">
+            {formatPrice(sale_price)}
+          </span>
+        );
+      if (deal_type === "rent" && monthly_rent)
+        return (
+          <span className="font-medium text-sky-600">
+            {formatPrice(monthly_rent)}
+          </span>
+        );
+      if (deal_type === "mortgage")
+        return (
+          <span className="text-muted-foreground text-xs">
+            مشاهده در جزئیات
+          </span>
+        );
+      if (deal_type === "exchange")
+        return <span className="text-muted-foreground text-xs">معاوضه</span>;
       return <span className="text-muted-foreground text-xs">—</span>;
     },
   },

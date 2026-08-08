@@ -12,7 +12,7 @@ const update = (id, data) => api.put(API_ENDPOINTS.CRM.REMINDERS.UPDATE(id).url,
 
 const remove = (id) => api.delete(API_ENDPOINTS.CRM.REMINDERS.DELETE(id).url);
 
-const complete = (id, data) => update(id, { ...data, status: "completed" });
+const complete = (id, data) => update(id, { ...data, status: "done" });
 const cancel = (id, data) => update(id, { ...data, status: "canceled" });
 
 const followupService = {

@@ -132,39 +132,119 @@ export const API_ENDPOINTS = {
   // 3. LOCATIONS — matched to actual backend urls.py
   LOCATIONS: {
     PROVINCES: {
-      LIST: { url: `${API_BASE}/province/list/`, method: "GET", status: "[OK]" },
-      CREATE: { url: `${API_BASE}/province/create/`, method: "POST", status: "[OK]" },
-      DETAIL: (id) => ({ url: `${API_BASE}/province/${id}/`, method: "GET", status: "[OK]" }),
-      UPDATE: (id) => ({ url: `${API_BASE}/province/${id}/update/`, method: "PUT", status: "[OK]" }),
-      DELETE: (id) => ({ url: `${API_BASE}/province/${id}/delete/`, method: "DELETE", status: "[OK]" }),
+      LIST: {
+        url: `${API_BASE}/province/list/`,
+        method: "GET",
+        status: "[OK]",
+      },
+      CREATE: {
+        url: `${API_BASE}/province/create/`,
+        method: "POST",
+        status: "[OK]",
+      },
+      DETAIL: (id) => ({
+        url: `${API_BASE}/province/${id}/`,
+        method: "GET",
+        status: "[OK]",
+      }),
+      UPDATE: (id) => ({
+        url: `${API_BASE}/province/${id}/update/`,
+        method: "PUT",
+        status: "[OK]",
+      }),
+      DELETE: (id) => ({
+        url: `${API_BASE}/province/${id}/delete/`,
+        method: "DELETE",
+        status: "[OK]",
+      }),
     },
     CITIES: {
       LIST: { url: `${API_BASE}/city/list/`, method: "GET", status: "[OK]" },
-      CREATE: { url: `${API_BASE}/city/create/`, method: "POST", status: "[OK]" },
-      DETAIL: (id) => ({ url: `${API_BASE}/city/${id}/`, method: "GET", status: "[OK]" }),
-      UPDATE: (id) => ({ url: `${API_BASE}/city/${id}/update/`, method: "PUT", status: "[OK]" }),
-      DELETE: (id) => ({ url: `${API_BASE}/city/${id}/delete/`, method: "DELETE", status: "[OK]" }),
+      CREATE: {
+        url: `${API_BASE}/city/create/`,
+        method: "POST",
+        status: "[OK]",
+      },
+      DETAIL: (id) => ({
+        url: `${API_BASE}/city/${id}/`,
+        method: "GET",
+        status: "[OK]",
+      }),
+      UPDATE: (id) => ({
+        url: `${API_BASE}/city/${id}/update/`,
+        method: "PUT",
+        status: "[OK]",
+      }),
+      DELETE: (id) => ({
+        url: `${API_BASE}/city/${id}/delete/`,
+        method: "DELETE",
+        status: "[OK]",
+      }),
     },
     DISTRICTS: {
       LIST: { url: `${API_BASE}/district/`, method: "GET", status: "[OK]" },
       CREATE: { url: `${API_BASE}/district/`, method: "POST", status: "[OK]" },
-      DETAIL: (id) => ({ url: `${API_BASE}/district/${id}/`, method: "GET", status: "[OK]" }),
-      UPDATE: (id) => ({ url: `${API_BASE}/district/${id}/`, method: "PUT", status: "[OK]" }),
-      DELETE: (id) => ({ url: `${API_BASE}/district/${id}/`, method: "DELETE", status: "[OK]" }),
+      DETAIL: (id) => ({
+        url: `${API_BASE}/district/${id}/`,
+        method: "GET",
+        status: "[OK]",
+      }),
+      UPDATE: (id) => ({
+        url: `${API_BASE}/district/${id}/`,
+        method: "PUT",
+        status: "[OK]",
+      }),
+      DELETE: (id) => ({
+        url: `${API_BASE}/district/${id}/`,
+        method: "DELETE",
+        status: "[OK]",
+      }),
     },
     NEIGHBORHOODS: {
-      LIST: { url: `${API_BASE}/neighborhoods/`, method: "GET", status: "[OK]" },
-      CREATE: { url: `${API_BASE}/neighborhoods/`, method: "POST", status: "[OK]" },
-      DETAIL: (id) => ({ url: `${API_BASE}/neighborhoods/${id}/`, method: "GET", status: "[OK]" }),
-      UPDATE: (id) => ({ url: `${API_BASE}/neighborhoods/${id}/`, method: "PUT", status: "[OK]" }),
-      DELETE: (id) => ({ url: `${API_BASE}/neighborhoods/${id}/`, method: "DELETE", status: "[OK]" }),
+      LIST: {
+        url: `${API_BASE}/neighborhoods/`,
+        method: "GET",
+        status: "[OK]",
+      },
+      CREATE: {
+        url: `${API_BASE}/neighborhoods/`,
+        method: "POST",
+        status: "[OK]",
+      },
+      DETAIL: (id) => ({
+        url: `${API_BASE}/neighborhoods/${id}/`,
+        method: "GET",
+        status: "[OK]",
+      }),
+      UPDATE: (id) => ({
+        url: `${API_BASE}/neighborhoods/${id}/`,
+        method: "PUT",
+        status: "[OK]",
+      }),
+      DELETE: (id) => ({
+        url: `${API_BASE}/neighborhoods/${id}/`,
+        method: "DELETE",
+        status: "[OK]",
+      }),
     },
     ADDRESSES: {
       LIST: { url: `${API_BASE}/addresses/`, method: "GET", status: "[OK]" },
       CREATE: { url: `${API_BASE}/addresses/`, method: "POST", status: "[OK]" },
-      DETAIL: (id) => ({ url: `${API_BASE}/addresses/${id}/`, method: "GET", status: "[OK]" }),
-      UPDATE: (id) => ({ url: `${API_BASE}/addresses/${id}/`, method: "PUT", status: "[OK]" }),
-      DELETE: (id) => ({ url: `${API_BASE}/addresses/${id}/`, method: "DELETE", status: "[OK]" }),
+      DETAIL: (id) => ({
+        url: `${API_BASE}/addresses/${id}/`,
+        method: "GET",
+        status: "[OK]",
+      }),
+      UPDATE: (id) => ({
+        url: `${API_BASE}/addresses/${id}/`,
+        method: "PUT",
+        status: "[OK]",
+      }),
+      DELETE: (id) => ({
+        url: `${API_BASE}/addresses/${id}/`,
+        method: "DELETE",
+        status: "[OK]",
+      }),
     },
   },
 
@@ -283,11 +363,26 @@ export const API_ENDPOINTS = {
         method: "GET",
         status: "[OK]",
       }),
+      CREATE: { url: `${API_BASE}/calls/`, method: "POST", status: "[OK]" }, 
+      UPDATE: (id) => ({
+        url: `${API_BASE}/calls/${id}/update/`,
+        method: "PUT",
+        status: "[OK]",
+      }), 
+      DELETE: (id) => ({
+        url: `${API_BASE}/calls/${id}/delete/`,
+        method: "DELETE",
+        status: "[OK]",
+      }), 
     },
     // Reminders: separate paths for create/update/delete
     REMINDERS: {
       LIST: { url: `${API_BASE}/reminders/`, method: "GET", status: "[OK]" },
-      CREATE: { url: `${API_BASE}/reminders/create/`, method: "POST", status: "[OK]" },
+      CREATE: {
+        url: `${API_BASE}/reminders/create/`,
+        method: "POST",
+        status: "[OK]",
+      },
       DETAIL: (id) => ({
         url: `${API_BASE}/reminders/${id}/`,
         method: "GET",
@@ -310,69 +405,185 @@ export const API_ENDPOINTS = {
   CUSTOMERS: {
     LIST: { url: `${API_BASE}/customers/`, method: "GET", status: "[OK]" },
     CREATE: { url: `${API_BASE}/customers/`, method: "POST", status: "[OK]" },
-    DETAIL: (id) => ({ url: `${API_BASE}/customers/${id}/`, method: "GET", status: "[OK]" }),
-    UPDATE: (id) => ({ url: `${API_BASE}/customers/${id}/`, method: "PUT", status: "[OK]" }),
-    DELETE: (id) => ({ url: `${API_BASE}/customers/${id}/`, method: "DELETE", status: "[OK]" }),
+    DETAIL: (id) => ({
+      url: `${API_BASE}/customers/${id}/`,
+      method: "GET",
+      status: "[OK]",
+    }),
+    UPDATE: (id) => ({
+      url: `${API_BASE}/customers/${id}/`,
+      method: "PUT",
+      status: "[OK]",
+    }),
+    DELETE: (id) => ({
+      url: `${API_BASE}/customers/${id}/`,
+      method: "DELETE",
+      status: "[OK]",
+    }),
   },
   CUSTOMER_PREFERENCES: {
-    LIST: { url: `${API_BASE}/customer-preferences/`, method: "GET", status: "[OK]" },
-    CREATE: { url: `${API_BASE}/customer-preferences/`, method: "POST", status: "[OK]" },
-    DETAIL: (id) => ({ url: `${API_BASE}/customer-preferences/${id}/`, method: "GET", status: "[OK]" }),
+    LIST: {
+      url: `${API_BASE}/customer-preferences/`,
+      method: "GET",
+      status: "[OK]",
+    },
+    CREATE: {
+      url: `${API_BASE}/customer-preferences/`,
+      method: "POST",
+      status: "[OK]",
+    },
+    DETAIL: (id) => ({
+      url: `${API_BASE}/customer-preferences/${id}/`,
+      method: "GET",
+      status: "[OK]",
+    }),
   },
 
   // 9. VISITS (PropertyVisit)
   VISITS: {
     LIST: { url: `${API_BASE}/visits/`, method: "GET", status: "[OK]" },
-    CREATE: { url: `${API_BASE}/visits/create/`, method: "POST", status: "[OK]" },
-    DETAIL: (id) => ({ url: `${API_BASE}/visits/${id}/`, method: "GET", status: "[OK]" }),
-    UPDATE: (id) => ({ url: `${API_BASE}/visits/update/${id}/`, method: "PUT", status: "[OK]" }),
+    CREATE: {
+      url: `${API_BASE}/visits/create/`,
+      method: "POST",
+      status: "[OK]",
+    },
+    DETAIL: (id) => ({
+      url: `${API_BASE}/visits/${id}/`,
+      method: "GET",
+      status: "[OK]",
+    }),
+    UPDATE: (id) => ({
+      url: `${API_BASE}/visits/update/${id}/`,
+      method: "PUT",
+      status: "[OK]",
+    }),
   },
 
   // 10. TAGS
   TAGS: {
     LIST: { url: `${API_BASE}/tags/`, method: "GET", status: "[OK]" },
     CREATE: { url: `${API_BASE}/tags/`, method: "POST", status: "[OK]" },
-    DETAIL: (id) => ({ url: `${API_BASE}/tags/${id}/`, method: "GET", status: "[OK]" }),
-    UPDATE: (id) => ({ url: `${API_BASE}/tags/${id}/`, method: "PUT", status: "[OK]" }),
-    DELETE: (id) => ({ url: `${API_BASE}/tags/${id}/`, method: "DELETE", status: "[OK]" }),
+    DETAIL: (id) => ({
+      url: `${API_BASE}/tags/${id}/`,
+      method: "GET",
+      status: "[OK]",
+    }),
+    UPDATE: (id) => ({
+      url: `${API_BASE}/tags/${id}/`,
+      method: "PUT",
+      status: "[OK]",
+    }),
+    DELETE: (id) => ({
+      url: `${API_BASE}/tags/${id}/`,
+      method: "DELETE",
+      status: "[OK]",
+    }),
   },
 
   // 11. MEDIA (note: backend typo "medai" on update — keep exact)
   MEDIA: {
     LIST: { url: `${API_BASE}/media/list/`, method: "GET", status: "[OK]" },
-    CREATE: { url: `${API_BASE}/media/create/`, method: "POST", status: "[OK]" },
-    DETAIL: (id) => ({ url: `${API_BASE}/media/detail/${id}/`, method: "GET", status: "[OK]" }),
-    UPDATE: (id) => ({ url: `${API_BASE}/medai/update/${id}/`, method: "PUT", status: "[OK]" }),
-    DELETE: (id) => ({ url: `${API_BASE}/media/delete/${id}/`, method: "DELETE", status: "[OK]" }),
+    CREATE: {
+      url: `${API_BASE}/media/create/`,
+      method: "POST",
+      status: "[OK]",
+    },
+    DETAIL: (id) => ({
+      url: `${API_BASE}/media/detail/${id}/`,
+      method: "GET",
+      status: "[OK]",
+    }),
+    UPDATE: (id) => ({
+      url: `${API_BASE}/medai/update/${id}/`,
+      method: "PUT",
+      status: "[OK]",
+    }),
+    DELETE: (id) => ({
+      url: `${API_BASE}/media/delete/${id}/`,
+      method: "DELETE",
+      status: "[OK]",
+    }),
   },
 
   // 12. FEATURES & PROPERTY_FEATURES
   FEATURES: {
     LIST: { url: `${API_BASE}/features/list/`, method: "GET", status: "[OK]" },
-    CREATE: { url: `${API_BASE}/features/create/`, method: "POST", status: "[OK]" },
-    DETAIL: (id) => ({ url: `${API_BASE}/features/detail/${id}/`, method: "GET", status: "[OK]" }),
-    UPDATE: (id) => ({ url: `${API_BASE}/features/update/${id}/`, method: "PUT", status: "[OK]" }),
-    DELETE: (id) => ({ url: `${API_BASE}/features/delete/${id}/`, method: "DELETE", status: "[OK]" }),
+    CREATE: {
+      url: `${API_BASE}/features/create/`,
+      method: "POST",
+      status: "[OK]",
+    },
+    DETAIL: (id) => ({
+      url: `${API_BASE}/features/detail/${id}/`,
+      method: "GET",
+      status: "[OK]",
+    }),
+    UPDATE: (id) => ({
+      url: `${API_BASE}/features/update/${id}/`,
+      method: "PUT",
+      status: "[OK]",
+    }),
+    DELETE: (id) => ({
+      url: `${API_BASE}/features/delete/${id}/`,
+      method: "DELETE",
+      status: "[OK]",
+    }),
   },
   PROPERTY_FEATURES: {
-    LIST: { url: `${API_BASE}/property-features/list/`, method: "GET", status: "[OK]" },
-    CREATE: { url: `${API_BASE}/property-features/create/`, method: "POST", status: "[OK]" },
-    DETAIL: (id) => ({ url: `${API_BASE}/property-features/detail/${id}/`, method: "GET", status: "[OK]" }),
-    UPDATE: (id) => ({ url: `${API_BASE}/property-features/update/${id}/`, method: "PUT", status: "[OK]" }),
-    DELETE: (id) => ({ url: `${API_BASE}/property-features/delete/${id}/`, method: "DELETE", status: "[OK]" }),
+    LIST: {
+      url: `${API_BASE}/property-features/list/`,
+      method: "GET",
+      status: "[OK]",
+    },
+    CREATE: {
+      url: `${API_BASE}/property-features/create/`,
+      method: "POST",
+      status: "[OK]",
+    },
+    DETAIL: (id) => ({
+      url: `${API_BASE}/property-features/detail/${id}/`,
+      method: "GET",
+      status: "[OK]",
+    }),
+    UPDATE: (id) => ({
+      url: `${API_BASE}/property-features/update/${id}/`,
+      method: "PUT",
+      status: "[OK]",
+    }),
+    DELETE: (id) => ({
+      url: `${API_BASE}/property-features/delete/${id}/`,
+      method: "DELETE",
+      status: "[OK]",
+    }),
   },
 
   // 13. PROPERTY STATUS HISTORY (read-only)
   PROPERTY_STATUS_HISTORY: {
-    LIST: { url: `${API_BASE}/property-status-history/`, method: "GET", status: "[OK]" },
-    DETAIL: (id) => ({ url: `${API_BASE}/property-status-history/${id}/`, method: "GET", status: "[OK]" }),
+    LIST: {
+      url: `${API_BASE}/property-status-history/`,
+      method: "GET",
+      status: "[OK]",
+    },
+    DETAIL: (id) => ({
+      url: `${API_BASE}/property-status-history/${id}/`,
+      method: "GET",
+      status: "[OK]",
+    }),
   },
 
   // 14. AUDIT / ACTIVITY LOG
   AUDIT: {
     ACTIVITY: {
-      LIST: { url: `${API_BASE}/audit/activity/list/`, method: "GET", status: "[OK]" },
-      DETAIL: (id) => ({ url: `${API_BASE}/audit/activity/detail/${id}/`, method: "GET", status: "[OK]" }),
+      LIST: {
+        url: `${API_BASE}/audit/activity/list/`,
+        method: "GET",
+        status: "[OK]",
+      },
+      DETAIL: (id) => ({
+        url: `${API_BASE}/audit/activity/detail/${id}/`,
+        method: "GET",
+        status: "[OK]",
+      }),
     },
   },
 
