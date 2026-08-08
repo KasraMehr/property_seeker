@@ -2,12 +2,8 @@ import { useMemo } from "react";
 import { Link2, ExternalLink, CheckCircle2, XCircle, User, Building2 } from "lucide-react";
 import StatusBadge from "@/shared/ui/badges/StatusBadge";
 import RoleBadge from "@/shared/ui/badges/RoleBadge";
-import SourceBadge from "@/shared/ui/badges/SourceBadge";
 import { formatPrice, formatDate } from "@/utils/formatters";
-import {
-  LISTING_STATUS_CONFIG,
-  LISTING_REVIEW_STATUS_CONFIG,
-} from "@/features/listing/config";
+
 import {
   LISTING_STATUS_CONFIG,
   LISTING_REVIEW_STATUS_CONFIG,
