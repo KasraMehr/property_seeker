@@ -1,5 +1,5 @@
-import  StatusBadge  from "@/shared/ui/badges/StatusBadge";
-import { FOLLOWUP_STATUS_CONFIG, FOLLOWUP_TYPE_CONFIG } from "@/features/followups/config";
+import { StatusBadge } from "@/shared/ui/badges/StatusBadge";
+import { FOLLOWUP_STATUS_CONFIG, FOLLOWUP_TYPE_CONFIG } from "@/constants/followupStatus.config";
 import { formatDate } from "@/utils/formatters";
 
 /**
