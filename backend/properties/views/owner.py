@@ -10,6 +10,67 @@ from ..serializers.owner_list import OwnerListSerializer
 from ..serializers.owner_detail import OwnerDetailSerializer
 from accounts.permissions import *
 from audit.services.activity_log import *
+from rest_framework.generics import ListAPIView
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter, OrderingFilter
+
+from ..models import Owner
+from ..filter.owner_filter import OwnerFilter
+from ..serializers.owner_list import OwnerListSerializer
+from accounts.permissions import HasRolePermission
+
+
+class OwnerListView(ListAPIView):
+
+    serializer_class = OwnerListSerializer
+
+    permission_classes = (
+        IsAuthenticated,
+        HasRolePermission,
+    )
+
+    required_permission = "view_owner"
+
+    filter_backends = [
+        DjangoFilterBackend,
+        SearchFilter,
+        OrderingFilter,
+    ]
+
+    filterset_class = OwnerFilter
+
+    search_fields = [
+        "full_name",
+        "phone",
+        "national_id",
+        "alternate_phone",
+    ]
+
+    ordering_fields = [
+        "full_name",
+        "created_at",
+        "updated_at",
+    ]
+
+    ordering = [
+        "-created_at"
+    ]
+
+    def get_queryset(self):
+
+        user = self.request.user
+
+        return (
+            Owner.objects
+            .filter(
+                agency=user.agency
+            )
+            .select_related(
+                "agency",
+                "created_by",
+            )
+        )
+
 
 class OwnerCreateView(APIView):
 
@@ -48,27 +109,7 @@ class OwnerCreateView(APIView):
             status=status.HTTP_201_CREATED,
         )
 
-class OwnerListView(APIView):
 
-    serializer_class = OwnerListSerializer
-    permission_classes = (
-        IsAuthenticated,
-        HasRolePermission,
-    )
-
-    required_permission = "view_owner"
-    def get(self, request):
-
-        owners = OwnerSelector.all(
-            agency=request.user.agency
-        )
-
-        serializer = self.serializer_class(
-            owners,
-            many=True,
-        )
-
-        return Response(serializer.data)
 
 class OwnerDetailView(APIView):
 

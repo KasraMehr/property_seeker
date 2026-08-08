@@ -46,12 +46,13 @@ class Owner(models.Model):
         auto_now=True
     )
 
-    constraints = [
-        models.UniqueConstraint(
-            fields=["agency", "phone"],
-            name="unique_owner_phone_per_agency",
-        )
-    ]
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["agency", "phone"],
+                name="unique_owner_phone_per_agency",
+            )
+        ]
 
     def __str__(self):
         return self.full_name

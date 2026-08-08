@@ -1,19 +1,89 @@
+import django_filters
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-
-from django.utils import timezone
-
-from accounts.permissions import HasRolePermission
 from rest_framework.permissions import IsAuthenticated
-from ..serializers import *
-from ..selectors.reminder_selector import ReminderSelector
-from ..serializers.reminder_create import *
-from ..serializers.reminder_update import *
-from ..serializers.reminder_list import *
-from ..serializers.reminder_detail import *
-from ..models import Reminder
 
+from ..filter.reminder_filter import ReminderFilter
+from crm.selectors.reminder_selector import ReminderSelector
+from crm.serializers.reminder_detail import ReminderDetailSerializer
+
+
+class ReminderListView(APIView):
+
+    permission_classes = [
+        IsAuthenticated,
+    ]
+
+    def get(self, request):
+
+        # ==========================================
+        # Base QuerySet
+        # ==========================================
+
+        reminders = ReminderSelector.all(
+            request.user
+        )
+
+        # ==========================================
+        # Filters
+        # ==========================================
+
+        filterset = ReminderFilter(
+            data=request.query_params,
+            queryset=reminders,
+        )
+
+        if not filterset.is_valid():
+
+            return Response(
+                filterset.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        reminders = filterset.qs
+
+        # ==========================================
+        # Ordering
+        # ==========================================
+
+        ordering = request.query_params.get(
+            "ordering"
+        )
+
+        allowed_ordering = {
+            "due_at",
+            "-due_at",
+
+            "created_at",
+            "-created_at",
+
+            "completed_at",
+            "-completed_at",
+
+            "updated_at",
+            "-updated_at",
+        }
+
+        if ordering in allowed_ordering:
+
+            reminders = reminders.order_by(
+                ordering
+            )
+
+        # ==========================================
+        # Serializer
+        # ==========================================
+
+        serializer = ReminderDetailSerializer(
+            reminders,
+            many=True
+        )
+
+        return Response(
+            serializer.data
+        )
 
 
 class ReminderCreateView(APIView):
@@ -47,37 +117,6 @@ class ReminderCreateView(APIView):
             ReminderDetailSerializer(reminder).data,
             status=201
         )
-
-
-
-
-
-class ReminderListView(APIView):
-
-    permission_classes=[
-        IsAuthenticated,
-
-    ]
-
-
-
-    def get(self,request):
-
-        reminders=ReminderSelector.all(
-            request.user
-        )
-
-
-        return Response(
-
-            ReminderDetailSerializer(
-                reminders,
-                many=True
-            ).data
-
-        )
-
-
 
 
 
