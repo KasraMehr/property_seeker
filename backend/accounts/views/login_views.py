@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
-from ..serializers.login_serializers import  *
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
@@ -9,16 +8,17 @@ from rest_framework.views import APIView
 
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
-
-from ..serializers.login_serializers import *
-from ..serializers.serializers import *
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
-from audit.services.activity_log import *
+
+from ..serializers.login_serializers import LoginSerializer
+from ..serializers.serializers import UserSerializer
+from audit.services.activity_log import ActivityLogService
 
 
 def _set_jwt_cookies(response, refresh_token: RefreshToken):
     simple_jwt = settings.SIMPLE_JWT
 
+    # Access Token Cookie
     response.set_cookie(
         key=simple_jwt["AUTH_COOKIE"],
         value=str(refresh_token.access_token),
@@ -29,6 +29,7 @@ def _set_jwt_cookies(response, refresh_token: RefreshToken):
         path="/",
     )
 
+    # Refresh Token Cookie (Path اصلاح شده به /)
     response.set_cookie(
         key=simple_jwt["AUTH_COOKIE_REFRESH"],
         value=str(refresh_token),
@@ -36,50 +37,99 @@ def _set_jwt_cookies(response, refresh_token: RefreshToken):
         secure=simple_jwt["AUTH_COOKIE_SECURE"],
         samesite=simple_jwt["AUTH_COOKIE_SAMESITE"],
         max_age=simple_jwt["REFRESH_TOKEN_LIFETIME_SECONDS"],
-        path="/api/accounts/refresh/",
+        path="/",
     )
 
 
 @method_decorator(csrf_exempt, name="dispatch")
 class LoginPasswordView(APIView):
-
+    permission_classes = [AllowAny]
     serializer_class = LoginSerializer
 
     def post(self, request):
+        serializer = self.serializer_class(data=request.data,context={'request': request} )
+
+        if not serializer.is_valid():
+            try:
+                ActivityLogService.login_failed(
+                    request=request,
+                    phone=request.data.get("phone", "UNKNOWN"),
+                )
+            except Exception:
+                pass  # جلوگیری از خطای 500 هنگام ثبت لاگ لغو شده
+
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        user = serializer.validated_data["user"]
+        refresh = RefreshToken.for_user(user)
+
+        response = Response(
+            {
+                "message": "ورود با موفقیت انجام شد.",
+                "user": UserSerializer(user).data,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+        _set_jwt_cookies(response, refresh)
+
         try:
+            ActivityLogService.login(request=request, user=user)
+        except Exception:
+            pass
 
-            serializer = self.serializer_class(data=request.data)
+        return response
+
+
+@method_decorator(csrf_exempt, name="dispatch")  # برای تست CSRF را exempt کنید
+class RefreshTokenView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        refresh = request.COOKIES.get(settings.SIMPLE_JWT["AUTH_COOKIE_REFRESH"])
+
+        if not refresh:
+            return Response(
+                {"detail": "Refresh token not found in cookies."},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+        serializer = TokenRefreshSerializer(data={"refresh": refresh})
+
+        try:
             serializer.is_valid(raise_exception=True)
-
-            user = serializer.validated_data["user"]
-
-            refresh = RefreshToken.for_user(user)
-
+        except (TokenError, InvalidToken):
             response = Response(
-                {
-                    "message": "ورود با موفقیت انجام شد.",
-                    "user": UserSerializer(user).data,
-                },
-                status=status.HTTP_200_OK,
+                {"detail": "Refresh token expired or invalid."},
+                status=status.HTTP_401_UNAUTHORIZED,
             )
-
-            _set_jwt_cookies(response, refresh)
-
-            ActivityLogService.login(
-                request=request,
-                user=user,
-            )
-
+            response.delete_cookie(settings.SIMPLE_JWT["AUTH_COOKIE"], path="/")
+            response.delete_cookie(settings.SIMPLE_JWT["AUTH_COOKIE_REFRESH"], path="/")
             return response
 
-        except Exception:
+        response = Response(
+            {"message": "Token refreshed."},
+            status=status.HTTP_200_OK,
+        )
 
-            ActivityLogService.login_failed(
-                request=request,
-                phone=request.data.get("phone", "UNKNOWN"),
-            )
+        _set_jwt_cookies(response, RefreshToken(serializer.validated_data.get("refresh", refresh)))
 
-            raise
+        return response
+
+
+class VerifyTokenView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        return Response(
+            {
+                "authenticated": True,
+                "user": UserSerializer(request.user).data,
+            },
+            status=status.HTTP_200_OK,
+
+        )
+
 
 @method_decorator(csrf_protect, name="dispatch")
 class LogOutView(APIView):
@@ -117,83 +167,3 @@ class LogOutView(APIView):
         ActivityLogService.logout(request)
 
         return response
-
-
-#refresh token accsess token
-
-@method_decorator(csrf_protect, name="dispatch")
-class RefreshTokenView(APIView):
-
-    permission_classes = [AllowAny]
-
-    def post(self, request):
-
-        refresh = request.COOKIES.get(
-            settings.SIMPLE_JWT["AUTH_COOKIE_REFRESH"]
-        )
-
-        if not refresh:
-            return Response(
-                {"detail": "Refresh token not found."},
-                status=401,
-            )
-
-        serializer = TokenRefreshSerializer(
-            data={"refresh": refresh}
-        )
-
-        try:
-            serializer.is_valid(raise_exception=True)
-        except TokenError:
-            response = Response(
-                {"detail": "Refresh token expired."},
-                status=401,
-            )
-
-            response.delete_cookie(settings.SIMPLE_JWT["AUTH_COOKIE"])
-            response.delete_cookie(settings.SIMPLE_JWT["AUTH_COOKIE_REFRESH"])
-
-            return response
-
-        response = Response(
-            {"message": "Token refreshed."},
-            status=200,
-        )
-
-        response.set_cookie(
-            key=settings.SIMPLE_JWT["AUTH_COOKIE"],
-            value=serializer.validated_data["access"],
-            httponly=True,
-            secure=False,
-            samesite="Lax",
-            max_age=settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME_SECONDS"],
-            path="/",
-        )
-
-        if "refresh" in serializer.validated_data:
-            response.set_cookie(
-                key=settings.SIMPLE_JWT["AUTH_COOKIE_REFRESH"],
-                value=serializer.validated_data["refresh"],
-                httponly=True,
-                secure=False,
-                samesite="Lax",
-                max_age=settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME_SECONDS"],
-                path="/api/accounts/refresh/"
-            )
-
-        return response
-
-
-class VerifyTokenView(APIView):
-
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-
-        return Response(
-            {
-                "authenticated": True,
-                "user": UserSerializer(request.user).data,
-            },
-            status=status.HTTP_200_OK,
-        )
