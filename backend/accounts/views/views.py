@@ -9,37 +9,79 @@ from accounts.serializers.serializers import (
     UserUpdateSerializer, RoleUpdateSerializer,
 )
 from audit.services.activity_log import *
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
+
+from accounts.models import User
+from accounts.permissions import IsAgencyOwner
+from ..filter.filters import UserFilter
+
+from accounts.serializers.serializers import (
+    UserSerializer,
+    UserCreateSerializer,
+    UserUpdateSerializer,
+)
+
+from audit.services.activity_log import ActivityLogService
 
 
 class UserViewSet(viewsets.ModelViewSet):
+
     permission_classes = (
         IsAuthenticated,
         IsAgencyOwner,
     )
 
+    # =========================
+    # Filters
+    # =========================
+
+    filter_backends = [
+        DjangoFilterBackend,
+        SearchFilter,
+        OrderingFilter,
+    ]
+
+    filterset_class = UserFilter
+
+    # =========================
+    # Search
+    # =========================
+
+    search_fields = [
+        "full_name",
+        "phone",
+        "national_id",
+    ]
+
+    # =========================
+    # Ordering
+    # =========================
+
+    ordering_fields = [
+        "full_name",
+        "created_at",
+        "updated_at",
+        "last_login",
+        "is_active",
+    ]
+
+    ordering = [
+        "-created_at"
+    ]
+
+    # =========================
+    # Queryset
+    # =========================
+
     def get_queryset(self):
 
         user = self.request.user
 
-        if user.is_owner:
-            return (
-                User.objects.filter(
-                    agency=user.agency
-                )
-                .select_related(
-                    "agency",
-                )
-                .prefetch_related(
-                    "service_neighborhoods",
-                    "role",
-                    "role__permissions",
-                )
-            )
-
-        return (
-            User.objects.filter(
-                id=user.id
-            )
+        queryset = (
+            User.objects
             .select_related(
                 "agency",
             )
@@ -50,15 +92,36 @@ class UserViewSet(viewsets.ModelViewSet):
             )
         )
 
+        if user.is_owner:
+
+            return queryset.filter(
+                agency=user.agency
+            )
+
+        return queryset.filter(
+            id=user.id
+        )
+
+    # =========================
+    # Serializer
+    # =========================
+
     def get_serializer_class(self):
 
         if self.action == "create":
             return UserCreateSerializer
 
-        if self.action in ("update", "partial_update"):
+        if self.action in (
+            "update",
+            "partial_update"
+        ):
             return UserUpdateSerializer
 
         return UserSerializer
+
+    # =========================
+    # Create
+    # =========================
 
     def perform_create(self, serializer):
 
@@ -71,6 +134,10 @@ class UserViewSet(viewsets.ModelViewSet):
             new_data=UserSerializer(user).data,
             message="کاربر جدید ایجاد شد.",
         )
+
+    # =========================
+    # Update
+    # =========================
 
     def perform_update(self, serializer):
 
@@ -89,9 +156,15 @@ class UserViewSet(viewsets.ModelViewSet):
             message="اطلاعات کاربر ویرایش شد.",
         )
 
+    # =========================
+    # Delete
+    # =========================
+
     def perform_destroy(self, instance):
 
-        old_data = UserSerializer(instance).data
+        old_data = UserSerializer(
+            instance
+        ).data
 
         ActivityLogService.delete(
             request=self.request,
@@ -102,7 +175,6 @@ class UserViewSet(viewsets.ModelViewSet):
         )
 
         instance.delete()
-
 
 from accounts.models import Agency
 from accounts.serializers.serializers import AgencySerializer

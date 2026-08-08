@@ -14,6 +14,105 @@ from properties.serializers.property_detail import PropertyDetailSerializer
 from accounts.permissions import *
 from audit.services.activity_log import ActivityLogService
 
+import django_filters
+from accounts.permissions import HasRolePermission
+from ..filter.property_filter import PropertyFilter
+from properties.selector.property_selector import PropertySelector
+from properties.serializers.property_list import PropertyListSerializer
+
+class PropertyListView(APIView):
+
+    serializer_class = PropertyListSerializer
+
+    permission_classes = (
+        IsAuthenticated,
+        HasRolePermission,
+    )
+
+    required_permission = "view_property"
+
+    def get(self, request):
+
+        # ==========================================
+        # Base QuerySet
+        # ==========================================
+
+        properties = PropertySelector.all(
+            request.user
+        )
+
+        # ==========================================
+        # Filters
+        # ==========================================
+
+        filterset = PropertyFilter(
+            data=request.query_params,
+            queryset=properties,
+        )
+
+        if not filterset.is_valid():
+
+            return Response(
+                filterset.errors,
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        properties = filterset.qs
+
+        # ==========================================
+        # Ordering
+        # ==========================================
+
+        ordering = request.query_params.get(
+            "ordering"
+        )
+
+        allowed_ordering = {
+            "created_at",
+            "-created_at",
+
+            "updated_at",
+            "-updated_at",
+
+            "area",
+            "-area",
+
+            "sale_price",
+            "-sale_price",
+
+            "price_per_meter",
+            "-price_per_meter",
+
+            "age",
+            "-age",
+
+            "bedrooms",
+            "-bedrooms",
+
+            "floor",
+            "-floor",
+        }
+
+        if ordering in allowed_ordering:
+
+            properties = properties.order_by(
+                ordering
+            )
+
+        # ==========================================
+        # Serializer
+        # ==========================================
+
+        serializer = self.serializer_class(
+            properties,
+            many=True,
+        )
+
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK,
+        )
+
 
 class PropertyCreateView(APIView):
 
@@ -47,30 +146,6 @@ class PropertyCreateView(APIView):
                 "property": PropertyDetailSerializer(property).data,
             },
             status=status.HTTP_201_CREATED,
-        )
-
-
-class PropertyListView(APIView):
-    serializer_class = PropertyListSerializer
-    permission_classes = (
-        IsAuthenticated,
-        HasRolePermission,
-    )
-
-    required_permission = "view_property"
-
-    def get(self, request):
-
-        properties = PropertySelector.all(request.user)
-
-        serializer = self.serializer_class(
-            properties,
-            many=True,
-        )
-
-        return Response(
-            serializer.data,
-            status=status.HTTP_200_OK,
         )
 
 

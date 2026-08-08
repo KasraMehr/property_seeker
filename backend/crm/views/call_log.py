@@ -4,10 +4,19 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 
 from crm.selectors.call_log_selector import CallLogSelector
+from crm.filter.filters import CallLogFilter
 
-from crm.serializers.call_log_create import CallLogCreateSerializer
-from crm.serializers.call_log_list import CallLogListSerializer
-from crm.serializers.call_log_update import *
+from crm.serializers.call_log_create import (
+    CallLogCreateSerializer
+)
+
+from crm.serializers.call_log_list import (
+    CallLogListSerializer
+)
+
+from crm.serializers.call_log_update import (
+    CallLogUpdateSerializer
+)
 
 
 class CallLogListCreateView(APIView):
@@ -16,20 +25,77 @@ class CallLogListCreateView(APIView):
 
     def get(self, request):
 
-        calls = CallLogSelector.all(request.user)
+        # =========================
+        # Base queryset
+        # =========================
+
+        calls = CallLogSelector.all(
+            request.user
+        )
+
+        # =========================
+        # Filters
+        # =========================
+
+        filterset = CallLogFilter(
+            data=request.query_params,
+            queryset=calls,
+        )
+
+        if not filterset.is_valid():
+
+            return Response(
+                filterset.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        calls = filterset.qs
+
+        # =========================
+        # Ordering
+        # =========================
+
+        ordering = request.query_params.get(
+            "ordering"
+        )
+
+        allowed_ordering = {
+            "called_at",
+            "-called_at",
+            "created_at",
+            "-created_at",
+            "call_duration",
+            "-call_duration",
+            "next_follow_up_at",
+            "-next_follow_up_at",
+        }
+
+        if ordering in allowed_ordering:
+
+            calls = calls.order_by(
+                ordering
+            )
+
+        # =========================
+        # Serializer
+        # =========================
 
         serializer = CallLogListSerializer(
             calls,
             many=True
         )
 
-        return Response(serializer.data)
+        return Response(
+            serializer.data
+        )
 
     def post(self, request):
 
         serializer = CallLogCreateSerializer(
             data=request.data,
-            context={"request": request}
+            context={
+                "request": request
+            }
         )
 
         serializer.is_valid(
@@ -43,7 +109,6 @@ class CallLogListCreateView(APIView):
             status=status.HTTP_201_CREATED
         )
 
-
 class CallLogDetailView(APIView):
 
     permission_classes = [IsAuthenticated]
@@ -55,9 +120,13 @@ class CallLogDetailView(APIView):
             request.user
         )
 
-        serializer = CallLogListSerializer(call)
+        serializer = CallLogListSerializer(
+            call
+        )
 
-        return Response(serializer.data)
+        return Response(
+            serializer.data
+        )
 
     def patch(self, request, pk):
 
@@ -69,7 +138,10 @@ class CallLogDetailView(APIView):
         serializer = CallLogUpdateSerializer(
             call,
             data=request.data,
-            partial=True
+            partial=True,
+            context={
+                "request": request
+            }
         )
 
         serializer.is_valid(
@@ -78,7 +150,11 @@ class CallLogDetailView(APIView):
 
         serializer.save()
 
-        return Response(serializer.data)
+        return Response(
+            CallLogListSerializer(
+                call
+            ).data
+        )
 
     def delete(self, request, pk):
 
@@ -88,6 +164,10 @@ class CallLogDetailView(APIView):
         )
 
         call.is_deleted = True
-        call.save()
+        call.save(
+            update_fields=["is_deleted"]
+        )
 
-        return Response(status=204)
+        return Response(
+            status=status.HTTP_204_NO_CONTENT
+        )

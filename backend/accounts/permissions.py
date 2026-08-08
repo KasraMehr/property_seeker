@@ -12,9 +12,6 @@ class IsAgencyOwner(BasePermission):
         )
 
 
-from rest_framework.permissions import BasePermission
-
-
 class HasRolePermission(BasePermission):
 
     def has_permission(self, request, view):
