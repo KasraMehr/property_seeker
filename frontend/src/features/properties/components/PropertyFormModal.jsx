@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Modal from "@/shared/ui/modal/Modal";
-import FormRenderer from "@/shared/components/FormRenderer";
+import FormRenderer from "@/shared/page/FormRenderer";
 import { PROPERTY_FORM } from "@/features/properties/config";
 import propertyService from "@/features/properties/services/propertyService";
 

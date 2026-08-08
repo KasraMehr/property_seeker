@@ -1,19 +1,24 @@
 import { useMemo, useState, useCallback, useEffect } from "react";
-import { Plus, Eye, Pencil, Trash2, Inbox, Users } from "lucide-react";
-import useAuth from "@/features/auth/hooks/useAuth";
+import { Plus, Users } from "lucide-react";
+import useAuthStore from "@/store/useAuthStore";
 import ResourceTemplate from "@/shared/templates/resource/ResourceTemplate";
 import PageTabs from "@/shared/page/PageTabs";
 import { getRoleConfig } from "@/constants/roleConfig";
 import useUser from "@/features/users-management/hooks/useUser";
 import {
-  USER_FILTERS,
-  USER_STATUS_CONFIG,
+  USER_ALL_FILTERS,
   USER_TABLE_COLUMNS,
+  USER_ROW_ACTIONS,
+  USER_BULK_ACTIONS,
 } from "@/features/users-management/config";
 import useDebounce from "@/shared/useDebounce";
 import ConfirmModal from "@/shared/ui/modal/ConfirmModal";
 import Button from "@/shared/ui/Button";
 import UserDetailModal from "@/features/users-management/components/UserDetailModal";
+import UserFormModal from "@/features/users-management/components/UserFormModal";
+import ChangeUserRoleModal from "@/features/users-management/components/ChangeUserRoleModal";
+import ToggleUserActiveModal from "@/features/users-management/components/ToggleUserActiveModal";
+import userService from "@/features/users-management/services/userService";
 
 const ROLE_TABS = [
   { id: "all", label: "همه کاربران" },
@@ -21,24 +26,29 @@ const ROLE_TABS = [
   { id: "staff", label: "کارشناسان" },
 ];
 
-/* ─── Row Actions ─── */
-const USER_ROW_ACTIONS = {
-  admin: [
-    { key: "view", label: "مشاهده", icon: Eye },
-    { key: "edit", label: "ویرایش", icon: Pencil },
-    { key: "delete", label: "حذف", icon: Trash2, variant: "danger" },
-  ],
-  operator: [{ key: "view", label: "مشاهده", icon: Eye }],
-};
+/**
+ * accounts.User is gated on the backend by IsAgencyOwner, not
+ * HasRolePermission — there is no fine-grained codename for edit/delete/etc,
+ * which is why every mutating action in userActions.js carries
+ * `permission: null`. "view" is the one action meant to stay open to
+ * everyone (per the comment in userActions.js); every other null-permission
+ * action in this set is owner-only and must be gated with isOwner() instead.
+ */
+function isRowActionVisible(action, { hasPermission, isOwner }) {
+  if (action.key === "view") return true;
+  if (action.permission) return hasPermission(action.permission);
+  return isOwner;
+}
 
-const USER_BULK_ACTIONS = [
-  { key: "bulkDelete", label: "حذف گروهی", icon: Trash2, variant: "danger" },
-];
+function isBulkActionVisible(action, { isOwner }) {
+  // Same reasoning as isRowActionVisible — every bulk mutation here is
+  // owner-only on the backend.
+  return isOwner;
+}
 
 export default function UsersPage() {
-  const { user: currentUser } = useAuth();
-  const isAdmin = Boolean(currentUser?.is_owner);
-  const role = isAdmin ? "admin" : "operator";
+  const hasPermission = useAuthStore((s) => s.hasPermission);
+  const isOwner = useAuthStore((s) => s.isOwner());
 
   const {
     data: rawData,
@@ -55,12 +65,50 @@ export default function UsersPage() {
     setPage,
     totalPages,
     remove,
+    refresh,
   } = useUser();
 
   const [selected, setSelected] = useState([]);
   const [activeTab, setActiveTab] = useState("all");
-  const [pendingDelete, setPendingDelete] = useState(null);
+
+  // ─── Modal / dialog state ───
   const [detailUser, setDetailUser] = useState(null);
+  const [editUser, setEditUser] = useState(null);
+  const [creating, setCreating] = useState(false);
+  const [changeRoleTargets, setChangeRoleTargets] = useState(null); // array of users | null
+  const [toggleActiveTargets, setToggleActiveTargets] = useState(null); // array of users | null
+  const [pendingConfirm, setPendingConfirm] = useState(null); // { action, rows } | null
+  const [confirmLoading, setConfirmLoading] = useState(false);
+
+  /* ─── Permission-filtered actions ───
+   * userActions.js's `condition(row)` isn't the prop ResourceTable reads —
+   * it reads `visible(row)` (shared/templates/resource/components/ResourceTable.jsx).
+   * Mapped here rather than changing the config or the shared table.
+   */
+  const visibleRowActions = useMemo(
+    () =>
+      USER_ROW_ACTIONS.filter((action) =>
+        isRowActionVisible(action, { hasPermission, isOwner }),
+      ).map((action) => ({
+        ...action,
+        variant: action.danger ? "danger" : action.variant,
+        visible: action.condition,
+      })),
+    [hasPermission, isOwner],
+  );
+
+  const visibleBulkActions = useMemo(
+    () =>
+      USER_BULK_ACTIONS.filter((action) =>
+        isBulkActionVisible(action, { isOwner }),
+      ).map((action) => ({
+        ...action,
+        variant: action.danger ? "danger" : action.variant,
+      })),
+    [isOwner],
+  );
+
+  const canCreateUser = isOwner;
 
   /* ─── Tab Filtering (client-side) ───
    * management = admin | supervisor | is_owner
@@ -71,8 +119,7 @@ export default function UsersPage() {
     if (activeTab === "all") return rawData;
 
     return rawData.filter((u) => {
-      const roleKey = getRoleConfig(u.role?.[0])?.key;
-
+const roleKey = getRoleConfig(u.role?.[0]?.name)?.key;
       if (activeTab === "management") {
         return ["admin", "supervisor", "owner"].includes(roleKey) || u.is_owner;
       }
@@ -99,10 +146,7 @@ export default function UsersPage() {
       }).length,
     };
 
-    return ROLE_TABS.map((t) => ({
-      ...t,
-      badge: counts[t.id],
-    }));
+    return ROLE_TABS.map((t) => ({ ...t, badge: counts[t.id] }));
   }, [rawData]);
 
   /* ─── Search ─── */
@@ -128,72 +172,127 @@ export default function UsersPage() {
     [sort, setOrdering],
   );
 
-  /* ─── Row actions ─── */
-  const handleRowAction = useCallback((actionKey, row) => {
-    switch (actionKey) {
-      case "view":
-        setDetailUser(row);
-        break;
-      case "edit":
-        console.log("edit user", row.id);
-        break;
-      case "delete":
-        setPendingDelete(row);
-        break;
-      default:
-        break;
-    }
-  }, []);
+  /* ─── Row actions ───
+   * Dispatch purely from what's declared on the action in userActions.js:
+   *  - `modal: "detail" | "edit"`         → open that modal directly
+   *  - has a `confirm` block              → go through the shared ConfirmModal
+   *  - otherwise (only toggle_active_enable today) → run immediately
+   */
+  const handleRowAction = useCallback(
+    async (actionKey, row) => {
+      const action = USER_ROW_ACTIONS.find((a) => a.key === actionKey);
+      if (!action) return;
 
-  /* ─── Bulk ─── */
-  const handleBulkAction = useCallback(
-    (actionKey) => {
-      if (actionKey === "bulkDelete") console.log("bulk delete", selected);
+      if (action.modal === "detail") {
+        setDetailUser(row);
+        return;
+      }
+      if (action.modal === "edit") {
+        setEditUser(row);
+        return;
+      }
+      if (action.confirm) {
+        setPendingConfirm({ action, rows: [row] });
+        return;
+      }
+      if (action.handler === "toggle_active") {
+        // No confirm block on this variant (toggle_active_enable) — turning
+        // a user back on doesn't need a confirmation step.
+        await userService.bulkToggleActive([row.id], true, null);
+        refresh();
+      }
     },
-    [selected],
+    [refresh],
   );
 
-  /* ─── Delete ─── */
-  const confirmDelete = useCallback(async () => {
-    if (!pendingDelete) return;
-    await remove(pendingDelete.id);
-    setPendingDelete(null);
-    setSelected((prev) => prev.filter((id) => id !== pendingDelete.id));
-  }, [pendingDelete, remove]);
+  /* ─── Bulk actions ───
+   * "toggle_active" deliberately opens ToggleUserActiveModal instead of
+   * blind-toggling — a bulk selection can mix active/inactive users, and
+   * that modal already asks explicitly which status to set.
+   */
+  const handleBulkAction = useCallback(
+    (actionKey) => {
+      const action = USER_BULK_ACTIONS.find((a) => a.key === actionKey);
+      const rows = displayData.filter((u) => selected.includes(u.id));
+      if (!action || rows.length === 0) return;
 
-  /* ─── Filter options ─── */
-  const filterOptions = useMemo(() => {
-    const roleFilter = USER_FILTERS.find((f) => f.key === "role");
-    const statusFilter = USER_FILTERS.find((f) => f.key === "is_active");
-    const agencyFilter = USER_FILTERS.find((f) => f.key === "agency");
-    return {
-      roles: roleFilter?.options || [],
-      statuses: statusFilter?.options || [],
-      agencies: agencyFilter?.options || [],
-    };
-  }, []);
+      if (action.modal === "change_role") {
+        setChangeRoleTargets(rows);
+        return;
+      }
+      if (action.handler === "toggle_active") {
+        setToggleActiveTargets(rows);
+        return;
+      }
+      if (action.confirm) {
+        setPendingConfirm({ action, rows });
+        return;
+      }
+      if (action.handler === "export") {
+        // No export endpoint exists on the backend yet — placeholder only.
+        console.info(
+          `Export requested for ${rows.length} user(s) — backend endpoint not available yet.`,
+        );
+      }
+    },
+    [displayData, selected],
+  );
 
-  /* ─── Schema without role_category (handled by tabs) ─── */
+  /* ─── Confirm dialog execution ─── */
+  const confirmDialogCopy = useMemo(() => {
+    if (!pendingConfirm) return null;
+    const { action } = pendingConfirm;
+    return (
+      action.confirm || { title: action.label, message: "آیا مطمئن هستید؟" }
+    );
+  }, [pendingConfirm]);
+
+  const runConfirmedAction = useCallback(async () => {
+    if (!pendingConfirm) return;
+    const { action, rows } = pendingConfirm;
+    const ids = rows.map((r) => r.id);
+
+    setConfirmLoading(true);
+    try {
+      if (action.key === "delete") {
+        await Promise.all(ids.map((id) => remove(id)));
+        refresh();
+      } else if (action.key === "toggle_active") {
+        await userService.bulkToggleActive(ids, false, null);
+        refresh();
+      } else if (action.key === "reset_password") {
+        // No backend endpoint exists for this at all yet (not even [PEND] in
+        // apiEndpoints.js) — surfacing that rather than pretending it worked.
+        console.info(
+          `Password reset requested for user ${ids[0]} — no backend endpoint exists yet.`,
+        );
+      }
+      setSelected((prev) => prev.filter((id) => !ids.includes(id)));
+    } finally {
+      setConfirmLoading(false);
+      setPendingConfirm(null);
+    }
+  }, [pendingConfirm, remove, refresh]);
+
+  /* ─── Filters ───
+   * NOTE: role/agency/service_neighborhood/service_district filters are
+   * declared as `async`+`endpoint` in userFilters.config.js, but FilterBar
+   * (shared/filters/FilterBar.jsx) only reads static `options[field.optionsKey]`
+   * today — it doesn't fetch async option lists yet. Those specific dropdowns
+   * will render empty until FilterBar gains async support; this is a shared
+   * component limitation, not something this page can work around.
+   */
   const filters = useMemo(
     () => ({
-      schema: USER_FILTERS.filter(
-        (f) => f.type !== "search" && f.key !== "role_category",
-      ),
-      options: filterOptions,
+      schema: USER_ALL_FILTERS.filter((f) => f.type !== "search"),
+      options: {},
       values: filterValues,
       onChange: setFilter,
       onClear: clearFilter,
       onClearAll: clearAll,
       activeChips,
     }),
-    [
-      filterOptions,
-      filterValues,
-      setFilter,
-      clearFilter,
-      clearAll,
-      activeChips,
-    ],
+    [filterValues, setFilter, clearFilter, clearAll, activeChips],
   );
 
   const pagination = useMemo(
@@ -229,16 +328,23 @@ export default function UsersPage() {
               )}
             </p>
           </div>
-          <Button variant="primary" size="sm" className="gap-1.5">
-            <Plus size={16} />
-            کاربر جدید
-          </Button>
+          {canCreateUser && (
+            <Button
+              variant="primary"
+              size="sm"
+              className="gap-1.5"
+              onClick={() => setCreating(true)}
+            >
+              <Plus size={16} />
+              کاربر جدید
+            </Button>
+          )}
         </div>
 
         <PageTabs items={tabItems} value={activeTab} onChange={setActiveTab} />
       </div>
     ),
-    [displayData.length, selected.length, tabItems, activeTab],
+    [displayData.length, selected.length, tabItems, activeTab, canCreateUser],
   );
 
   /* ─── Empty ─── */
@@ -272,38 +378,75 @@ export default function UsersPage() {
         emptyState={emptyState}
         sort={sort}
         onSort={handleSort}
-        selectable={true}
+        selectable
         selected={selected}
         onSelectionChange={setSelected}
-        rowActions={USER_ROW_ACTIONS[role]}
-        bulkActions={isAdmin ? USER_BULK_ACTIONS : []}
+        rowActions={visibleRowActions}
+        bulkActions={visibleBulkActions}
         onRowAction={handleRowAction}
         onBulkAction={handleBulkAction}
         pagination={pagination}
         onPageChange={setPage}
       />
 
+      {/* ─── Confirm dialog (delete / deactivate / reset password) ─── */}
       <ConfirmModal
-        isOpen={pendingDelete !== null}
-        onClose={() => setPendingDelete(null)}
-        onConfirm={confirmDelete}
-        title="حذف کاربر"
-        message={`کاربر "${pendingDelete?.full_name || ""}" حذف خواهد شد. آیا مطمئن هستید؟`}
-        variant="danger"
+        isOpen={pendingConfirm !== null}
+        onClose={() => setPendingConfirm(null)}
+        onConfirm={runConfirmedAction}
+        title={confirmDialogCopy?.title || ""}
+        message={confirmDialogCopy?.message || ""}
+        variant={pendingConfirm?.action.key === "delete" ? "danger" : "warning"}
+        isLoading={confirmLoading}
       />
+
       {/* ─── Detail Modal ─── */}
       {detailUser && (
         <UserDetailModal
           isOpen={!!detailUser}
           onClose={() => setDetailUser(null)}
           user={detailUser}
-          stats={{
-            property_count: detailUser._property_count || 0,
-            call_count: detailUser._call_count || 0,
-            followup_count: detailUser._followup_count || 0,
-            listing_count: detailUser._listing_count || 0,
+        />
+      )}
+
+      {/* ─── Create / Edit Modal ─── */}
+      {(creating || editUser) && (
+        <UserFormModal
+          isOpen={creating || !!editUser}
+          onClose={() => {
+            setCreating(false);
+            setEditUser(null);
           }}
-          activities={detailUser._activities || []}
+          user={editUser}
+          onSuccess={refresh}
+        />
+      )}
+
+      {/* ─── Bulk: Change Role ─── */}
+      {changeRoleTargets && (
+        <ChangeUserRoleModal
+          isOpen={!!changeRoleTargets}
+          onClose={() => setChangeRoleTargets(null)}
+          users={changeRoleTargets}
+          onSuccess={() => {
+            setChangeRoleTargets(null);
+            setSelected([]);
+            refresh();
+          }}
+        />
+      )}
+
+      {/* ─── Bulk: Toggle Active ─── */}
+      {toggleActiveTargets && (
+        <ToggleUserActiveModal
+          isOpen={!!toggleActiveTargets}
+          onClose={() => setToggleActiveTargets(null)}
+          users={toggleActiveTargets}
+          onSuccess={() => {
+            setToggleActiveTargets(null);
+            setSelected([]);
+            refresh();
+          }}
         />
       )}
     </>

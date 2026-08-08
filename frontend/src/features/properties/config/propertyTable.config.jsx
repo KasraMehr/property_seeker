@@ -1,6 +1,5 @@
-import { StatusBadge } from "@/shared/ui/badges/StatusBadge";
-import { PROPERTY_STATUS_CONFIG } from "@/constants/propertyStatus.config";
-import { PROPERTY_DEAL_TYPE_CONFIG } from "@/constants/propertyDealType.config";
+import StatusBadge from "@/shared/ui/badges/StatusBadge";
+import { PROPERTY_STATUS_CONFIG , PROPERTY_DEAL_TYPE_CONFIG } from "@/features/properties/config";
 import { formatPrice, formatDate } from "@/utils/formatters";
 
 /**

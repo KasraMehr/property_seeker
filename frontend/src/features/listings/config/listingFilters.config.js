@@ -1,8 +1,9 @@
 import {
   LISTING_STATUS_CONFIG,
   LISTING_REVIEW_STATUS_CONFIG,
-  PROPERTY_DEAL_TYPE_CONFIG,
-} from "@/constants";
+} from "@/features/listings/config";
+import {  PROPERTY_DEAL_TYPE_CONFIG,
+} from "@/features/properties/config"
 
 /**
  * Listing Filters Config

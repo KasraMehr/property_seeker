@@ -2,32 +2,33 @@ import { useMemo } from "react";
 import { Link2, ExternalLink, CheckCircle2, XCircle, User, Building2 } from "lucide-react";
 import StatusBadge from "@/shared/ui/badges/StatusBadge";
 import RoleBadge from "@/shared/ui/badges/RoleBadge";
-import SourceBadge from "@/shared/ui/badges/SourceBadge";
 import { formatPrice, formatDate } from "@/utils/formatters";
 import {
   LISTING_STATUS_CONFIG,
   LISTING_REVIEW_STATUS_CONFIG,
-} from "@/features/listing/config";
+} from "@/features/listings/config";
 import {
-  LISTING_STATUS_CONFIG,
-  LISTING_REVIEW_STATUS_CONFIG,
-} from "@/features/property/config";
+  PROPERTY_STATUS_CONFIG,
+  PROPERTY_DEAL_TYPE_CONFIG,
+} from "@/features/properties/config";
 import { CALL_TYPE_CONFIG, CALL_RESULT_CONFIG } from "@/features/calls/config";
-import { FOLLOWUP_TYPE_CONFIG, FOLLOWUP_STATUS_CONFIG } from "@/features/followup/config";
+import { FOLLOWUP_TYPE_CONFIG, FOLLOWUP_STATUS_CONFIG } from "@/features/followups/config";
 import {
   INGESTION_RUN_STATUS_CONFIG,
   INGESTION_RUN_MODE_CONFIG,
   INGESTION_RUN_ITEM_STATUS_CONFIG,
+  SCRAPE_TARGET_STATUS_CONFIG,
 } from "@/features/scraper-management/config";
-import { SCRAPE_TARGET_STATUS_CONFIG } from "@/features/scraper-management/config";
 import {
-  ACTIVITY_LOG_ACTION_CONFIG,
+  ACTIVITY_LOG_ALL_ACTIONS,
   ACTIVITY_LOG_SOURCE_CONFIG,
   ACTIVITY_LOG_LEVEL_CONFIG,
   ACTIVITY_LOG_OUTCOME_CONFIG,
 } from "@/features/activity-log/config";
 
-/* ─── Status Config Map ─── */
+/* ─── Status Config Map ───
+ * NOTE: mediaType intentionally omitted — no `features/media` config exists
+ * yet on the frontend. Add it here once that feature is built. */
 const STATUS_CONFIG_MAP = {
   listingStatus: LISTING_STATUS_CONFIG,
   listingReviewStatus: LISTING_REVIEW_STATUS_CONFIG,
@@ -41,8 +42,7 @@ const STATUS_CONFIG_MAP = {
   ingestionRunMode: INGESTION_RUN_MODE_CONFIG,
   ingestionRunItemStatus: INGESTION_RUN_ITEM_STATUS_CONFIG,
   scrapeTargetStatus: SCRAPE_TARGET_STATUS_CONFIG,
-  mediaType: MEDIA_TYPE_CONFIG,
-  activityLogAction: ACTIVITY_LOG_ACTION_CONFIG,
+  activityLogAction: ACTIVITY_LOG_ALL_ACTIONS,
   activityLogSource: ACTIVITY_LOG_SOURCE_CONFIG,
   activityLogLevel: ACTIVITY_LOG_LEVEL_CONFIG,
   activityLogOutcome: ACTIVITY_LOG_OUTCOME_CONFIG,
@@ -196,7 +196,7 @@ export function DetailFieldGrid({ data, sections, emptyText = "اطلاعاتی 
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {visibleFields.map((field) => {
-                const rawValue = f.dataKey ? getValue(data, field.dataKey) : getValue(data, field.key);
+                const rawValue = field.dataKey ? getValue(data, field.dataKey) : getValue(data, field.key);
                 const displayValue = formatFieldValue(rawValue, field, data);
                 if (displayValue === null) return null;
 

@@ -2,12 +2,12 @@ import { useCallback, useEffect, useRef } from "react";
 import useResource from "@/shared/templates/resource/hooks/useResource";
 import useResourceQuery from "@/shared/templates/resource/hooks/useResourceQuery";
 import userService from "../services/userService";
-import { USER_FILTERS } from "../config";
+import { USER_ALL_FILTERS } from "@/features/users-management/config";
 
 export default function useUser() {
   const { fetchList, remove, ...resourceState } = useResource(userService);
   const query = useResourceQuery({
-    filterSchema: USER_FILTERS,
+    filterSchema: USER_ALL_FILTERS,
     pageSize: 25,
     initialOrdering: "-created_at",
   });

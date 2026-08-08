@@ -9,7 +9,7 @@ import { reminderHandlers } from "./handlers/reminderHandlers";
 import { roleHandlers } from "./handlers/roleHandlers";
 import { scraperHandlers } from "./handlers/scraperHandlers";
 import { userHandlers } from "./handlers/userHandlers";
-import { activityLogHandlers } from "./activityLogHandlers";
+import { activityLogHandlers } from "./handlers/activityLogHandlers";
 
 export const handlers = [
   ...authHandlers,

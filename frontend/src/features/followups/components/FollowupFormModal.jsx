@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Modal from "@/shared/ui/modal/Modal";
-import FormRenderer from "@/shared/components/FormRenderer";
+import FormRenderer from "@/shared/page/FormRenderer";
 import { FOLLOWUP_FORM } from "@/features/followups/config";
 import followupService from "@/features/followups/services/followupService";
 

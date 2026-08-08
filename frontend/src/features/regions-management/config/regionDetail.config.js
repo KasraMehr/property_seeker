@@ -1,7 +1,7 @@
 import {
   Hash, MapPin, Home, Building2, Users, BarChart3,
   FileText, PhoneCall, ClipboardList, Calendar, UserCheck,
-  TrendingUp, City, Landmark, Navigation
+  TrendingUp, Building, Landmark, Navigation
 } from "lucide-react";
 
 /**
@@ -20,7 +20,7 @@ export const REGION_DETAIL_TABS = [
 export const REGION_ICON_MAP = {
   id: Hash,
   name: MapPin,
-  city: City,
+  city: Building,
   province: Landmark,
   neighborhoods: Home,
   addresses: Building2,

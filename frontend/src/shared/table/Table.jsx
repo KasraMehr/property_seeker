@@ -149,7 +149,11 @@ export default function Table({
                         ${col.align === "center" ? "text-center" : "text-right"}
                       `}
                     >
-                      {col.render ? col.render(row) : row[col.key]}
+                      {col.cell
+                        ? col.cell(row)
+                        : col.render
+                          ? col.render(row)
+                          : row[col.key]}{" "}
                     </td>
                   ))}
                   {actions && (

@@ -1,7 +1,7 @@
 import {
   PROPERTY_STATUS_CONFIG,
   PROPERTY_DEAL_TYPE_CONFIG,
-} from "@/constants";
+} from "@/features/properties/config";
 
 /**
  * Property Filters Config

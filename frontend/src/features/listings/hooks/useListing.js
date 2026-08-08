@@ -2,12 +2,12 @@ import { useCallback, useEffect, useRef } from "react";
 import useResource from "@/shared/templates/resource/hooks/useResource";
 import useResourceQuery from "@/shared/templates/resource/hooks/useResourceQuery";
 import listingService from "../services/listingService";
-import { LISTING_FILTERS } from "../config";
+import { LISTING_ALL_FILTERS } from "../config";
 
 export default function useListing() {
   const { fetchList, remove, ...resourceState } = useResource(listingService);
   const query = useResourceQuery({
-    filterSchema: LISTING_FILTERS,
+    filterSchema: LISTING_ALL_FILTERS,
     pageSize: 25,
     initialOrdering: "-created_at",
   });

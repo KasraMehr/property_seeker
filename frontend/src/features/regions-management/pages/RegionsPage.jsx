@@ -5,7 +5,7 @@ import ResourceTemplate from "@/shared/templates/resource/ResourceTemplate";
 import PageTabs from "@/shared/page/PageTabs";
 import useRegion from "@/features/regions-management/hooks/useRegion";
 import {
-  REGION_FILTERS,
+  REGION_ALL_FILTERS,
   REGION_TABLE_COLUMNS,
 } from "@/features/regions-management/config";
 import useDebounce from "@/shared/useDebounce";
@@ -140,7 +140,7 @@ export default function RegionsPage() {
 
   /* ─── Filter options (hide city from FilterBar, controlled by tabs) ─── */
   const filterOptions = useMemo(() => {
-    const listingFilter = REGION_FILTERS.find((f) => f.key === "has_listings");
+    const listingFilter = REGION_ALL_FILTERS.find((f) => f.key === "has_listings");
     return {
       listingStatuses: listingFilter?.options || [],
     };
@@ -148,7 +148,7 @@ export default function RegionsPage() {
 
   const filters = useMemo(
     () => ({
-      schema: REGION_FILTERS.filter(
+      schema: REGION_ALL_FILTERS.filter(
         (f) => f.type !== "search" && f.key !== "city",
       ),
       options: filterOptions,

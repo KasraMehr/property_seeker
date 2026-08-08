@@ -1,6 +1,5 @@
-import { StatusBadge } from "@/shared/ui/badges/StatusBadge";
-import { INGESTION_RUN_STATUS_CONFIG } from "@/constants/ingestionRunStatus.config";
-import { INGESTION_RUN_MODE_CONFIG } from "@/constants/ingestionRunMode.config";
+import  StatusBadge  from "@/shared/ui/badges/StatusBadge";
+import { INGESTION_RUN_STATUS_CONFIG , INGESTION_RUN_MODE_CONFIG } from "@/features/scraper-management/config";
 import { formatDate } from "@/utils/formatters";
 
 /**

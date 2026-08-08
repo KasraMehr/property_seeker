@@ -4,7 +4,7 @@ import useAuth from "@/features/auth/hooks/useAuth";
 import ResourceTemplate from "@/shared/templates/resource/ResourceTemplate";
 import useFollowup from "@/features/followups/hooks/useFollowup";
 import {
-  FOLLOWUP_FILTERS,
+  FOLLOWUP_ALL_FILTERS,
   FOLLOWUP_STATUS_CONFIG,
   FOLLOWUP_TABLE_COLUMNS,
 } from "@/features/followups/config";
