@@ -6,7 +6,7 @@ import {
 /**
  * Call Log Filters Config
  * Backend: crm.CallLog
- * 
+ *
  * Quick: search, call_type, result, handled_by, date
  * Advanced: customer, property/listing, follow_up, duration
  */
@@ -129,7 +129,7 @@ export const CALL_ADVANCED_FILTERS = [
     filter: (row) => !!row.next_follow_up_at,
   },
   {
-    key: "call_duration",
+    key: "call_duration", 
     label: "مدت تماس (ثانیه)",
     type: "range",
     placement: "drawer",
@@ -172,4 +172,7 @@ export const CALL_ADVANCED_FILTERS = [
   },
 ];
 
-export const CALL_ALL_FILTERS = [...CALL_QUICK_FILTERS, ...CALL_ADVANCED_FILTERS];
+export const CALL_ALL_FILTERS = [
+  ...CALL_QUICK_FILTERS,
+  ...CALL_ADVANCED_FILTERS,
+];

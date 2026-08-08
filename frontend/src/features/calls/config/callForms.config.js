@@ -1,8 +1,3 @@
-
-/**
- * Create/Edit Call Form
- * Multi-tab: basic, result, followup
- */
 export const CALL_FORM = {
   title: "تماس",
   tabs: [
@@ -30,12 +25,10 @@ export const CALL_FORM = {
           required: true,
           placeholder: "انتخاب نوع",
           options: [
-            { value: "inbound", label: "ورودی" },
-            { value: "outbound", label: "خروجی" },
-            { value: "missed", label: "از دست رفته" },
-            { value: "follow_up", label: "پیگیری" },
+            { value: "incoming", label: "ورودی" },   // ← incoming
+            { value: "outgoing", label: "خروجی" },   // ← outgoing
           ],
-          defaultValue: "outbound",
+          defaultValue: "outgoing",
           validation: { required: "نوع تماس الزامی است" },
           span: 6,
         },
@@ -49,18 +42,7 @@ export const CALL_FORM = {
           span: 6,
         },
         {
-          key: "handled_by",
-          label: "اپراتور",
-          type: "search_select",
-          required: false,
-          placeholder: "جستجوی اپراتور...",
-          asyncSource: "/api/users/?is_active=true",
-          searchFields: ["full_name", "phone"],
-          displayField: "full_name",
-          span: 12,
-        },
-        {
-          key: "related_listing",
+          key: "listing",          
           label: "آگهی مرتبط",
           type: "search_select",
           required: false,
@@ -71,7 +53,7 @@ export const CALL_FORM = {
           span: 6,
         },
         {
-          key: "related_property",
+          key: "property",          
           label: "ملک مرتبط",
           type: "search_select",
           required: false,
@@ -82,7 +64,7 @@ export const CALL_FORM = {
           span: 6,
         },
         {
-          key: "duration",
+          key: "call_duration",     
           label: "مدت تماس (ثانیه)",
           type: "number",
           required: false,
@@ -156,69 +138,12 @@ export const CALL_FORM = {
           defaultValue: false,
           span: 6,
         },
-        {
-          key: "follow_up_note",
-          label: "توضیحات پیگیری",
-          type: "textarea",
-          required: false,
-          placeholder: "جزئیات پیگیری بعدی...",
-          rows: 3,
-          span: 12,
-        },
+        
       ],
     },
   ],
   actions: {
     submit: { label: "ذخیره تماس", variant: "primary" },
-    cancel: { label: "انصراف", variant: "ghost" },
-  },
-};
-
-/**
- * Quick Register Call Form (simplified — used in listing/property context)
- */
-export const QUICK_CALL_FORM = {
-  title: "ثبت تماس سریع",
-  tabs: null,
-  fields: [
-    {
-      key: "result",
-      label: "نتیجه تماس",
-      type: "select",
-      required: true,
-      placeholder: "انتخاب نتیجه",
-      options: [
-        { value: "answered", label: "پاسخ داده" },
-        { value: "no_answer", label: "بدون پاسخ" },
-        { value: "busy", label: "مشغول" },
-        { value: "interested", label: "علاقه‌مند" },
-        { value: "not_interested", label: "عدم علاقه" },
-        { value: "follow_up", label: "نیاز به پیگیری" },
-        { value: "visit_booked", label: "قرار بازدید" },
-      ],
-      validation: { required: "نتیجه الزامی است" },
-      span: 12,
-    },
-    {
-      key: "note",
-      label: "یادداشت",
-      type: "textarea",
-      required: false,
-      placeholder: "جزئیات تماس...",
-      rows: 3,
-      span: 12,
-    },
-    {
-      key: "next_follow_up_at",
-      label: "تاریخ پیگیری بعدی",
-      type: "datetime",
-      required: false,
-      condition: (values) => values.result === "follow_up" || values.result === "interested" || values.result === "visit_booked",
-      span: 12,
-    },
-  ],
-  actions: {
-    submit: { label: "ثبت", variant: "primary" },
     cancel: { label: "انصراف", variant: "ghost" },
   },
 };

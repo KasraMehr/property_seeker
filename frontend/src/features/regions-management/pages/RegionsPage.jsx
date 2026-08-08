@@ -89,8 +89,28 @@ export default function RegionsPage() {
   );
 
   /* ─── Row actions ─── */
-  const handleRowAction = useCallback((actionKey, row) => {
-    if (actionKey === "view") setDetailRegion(row);
+  const handleRowAction = useCallback(async (actionKey, row) => {
+    const action = REGION_ALL_ACTIONS.find((a) => a.key === actionKey);
+
+    if (action?.confirm) {
+      setPendingAction({ key: actionKey, row, confirm: action.confirm });
+      return;
+    }
+
+    switch (actionKey) {
+      case "view": {
+        const res = await regionService.getById(row.id); 
+        setDetailRegion(res.data);
+        break;
+      }
+      case "edit": {
+        const res = await regionService.getById(row.id);
+        setEditRegion(res.data); 
+        break;
+      }
+      default:
+        break;
+    }
   }, []);
 
   /* ─── Tab badge counts (fetch all once for counts) ─── */
@@ -108,9 +128,9 @@ export default function RegionsPage() {
   const tabItems = useMemo(() => {
     const counts = {
       all: allDistricts.length,
-      "1": allDistricts.filter((d) => d.city?.id === 1 || d.city === 1).length,
-      "2": allDistricts.filter((d) => d.city?.id === 2 || d.city === 2).length,
-      "3": allDistricts.filter((d) => d.city?.id === 3 || d.city === 3).length,
+      1: allDistricts.filter((d) => d.city?.id === 1 || d.city === 1).length,
+      2: allDistricts.filter((d) => d.city?.id === 2 || d.city === 2).length,
+      3: allDistricts.filter((d) => d.city?.id === 3 || d.city === 3).length,
     };
     return CITY_TABS.map((t) => ({
       ...t,
@@ -245,15 +265,16 @@ export default function RegionsPage() {
           onClose={() => setDetailRegion(null)}
           region={detailRegion}
           agents={detailRegion._agents || []}
-          stats={{
-            listings_count: detailRegion.listings_count || 0,
-            properties_count: detailRegion.properties_count || 0,
-            calls_count: detailRegion.calls_count || 0,
-            followups_count: detailRegion.followups_count || 0,
-            neighborhoods_count: detailRegion.neighborhoods_count || 0,
-            addresses_count: detailRegion.addresses_count || 0,
-            agents_count: detailRegion.agents_count || 0,
-          }}
+          // fake data
+          // stats={{
+          //   listings_count: detailRegion.listings_count || 0,
+          //   properties_count: detailRegion.properties_count || 0,
+          //   calls_count: detailRegion.calls_count || 0,
+          //   followups_count: detailRegion.followups_count || 0,
+          //   neighborhoods_count: detailRegion.neighborhoods_count || 0,
+          //   addresses_count: detailRegion.addresses_count || 0,
+          //   agents_count: detailRegion.agents_count || 0,
+          // }}
         />
       )}
     </>
