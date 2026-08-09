@@ -6,7 +6,7 @@ import {
 /**
  * Reminder (Follow-up) Filters Config
  * Backend: crm.Reminder
- * 
+ *
  * Quick: search, type, status, user, due_date
  * Advanced: customer, property, overdue, agency, dates
  */
@@ -68,7 +68,7 @@ export const FOLLOWUP_ADVANCED_FILTERS = [
     type: "search_select",
     placement: "drawer",
     async: true,
-    endpoint: "/api/crm/customers/",
+    endpoint: "/api/customers/",
     search_fields: ["full_name", "phone", "national_id"],
     optionLabel: "full_name",
     optionValue: "id",
@@ -79,7 +79,7 @@ export const FOLLOWUP_ADVANCED_FILTERS = [
     type: "search_select",
     placement: "drawer",
     async: true,
-    endpoint: "/api/properties/properties/",
+    endpoint: "/api/property/list/",
     search_fields: ["title", "property_code"],
     optionLabel: "title",
     optionValue: "id",
@@ -89,7 +89,8 @@ export const FOLLOWUP_ADVANCED_FILTERS = [
     label: "تنها موعد گذشته",
     type: "toggle",
     placement: "drawer",
-    filter: (row) => row.status === "pending" && new Date(row.due_at) < new Date(),
+    filter: (row) =>
+      row.status === "pending" && new Date(row.due_at) < new Date(),
   },
   {
     key: "due_today",
@@ -172,4 +173,7 @@ export const FOLLOWUP_ADVANCED_FILTERS = [
   },
 ];
 
-export const FOLLOWUP_ALL_FILTERS = [...FOLLOWUP_QUICK_FILTERS, ...FOLLOWUP_ADVANCED_FILTERS];
+export const FOLLOWUP_ALL_FILTERS = [
+  ...FOLLOWUP_QUICK_FILTERS,
+  ...FOLLOWUP_ADVANCED_FILTERS,
+];

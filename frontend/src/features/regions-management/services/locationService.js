@@ -2,7 +2,7 @@ import api from "@/lib/api";
 import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 
 /* ─── Provinces ─── */
-const getProvinces = () => api.get(API_ENDPOINTS.LOCATIONS.PROVINCES.LIST.url);
+const getProvinces = (params = {}) => api.get(API_ENDPOINTS.LOCATIONS.PROVINCES.LIST.url , {params});
 const createProvince = (data) => api.post(API_ENDPOINTS.LOCATIONS.PROVINCES.CREATE.url, data);
 const getProvinceById = (id) => api.get(API_ENDPOINTS.LOCATIONS.PROVINCES.DETAIL(id).url);
 const updateProvince = (id, data) => api.put(API_ENDPOINTS.LOCATIONS.PROVINCES.UPDATE(id).url, data);

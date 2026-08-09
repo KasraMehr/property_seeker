@@ -1,7 +1,7 @@
 import api from "@/lib/api";
 import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 
-const getAll = () => api.get(API_ENDPOINTS.OWNERS.LIST.url);
+const getAll = (params = {}) => api.get(API_ENDPOINTS.OWNERS.LIST.url , {params});
 
 const getById = (id) => api.get(API_ENDPOINTS.OWNERS.DETAIL(id).url);
 

@@ -12,7 +12,7 @@ import { PROPERTY_ALL_FILTERS } from "../config";
 export default function useProperty() {
   const { fetchList, remove, ...resourceState } = useResource(propertyService);
   const query = useResourceQuery({
-    filterSchema: PROPERTY_FILTERS,
+    filterSchema: PROPERTY_ALL_FILTERS,
     pageSize: 25,
     initialOrdering: "-created_at",
   });

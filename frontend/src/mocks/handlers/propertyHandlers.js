@@ -148,7 +148,7 @@ export const propertyHandlers = [
   }),
 
   // ─── BULK CHANGE STATUS (PUT /api/property/bulk-change-status) ───
-  http.put("*/api/property/bulk-change-status", async ({ request }) => {
+  http.put("*/api/property/bulk-change-status*", async ({ request }) => {
     const body = await request.json();
     const { ids, status, note } = body;
     ids.forEach((id) => {
@@ -163,7 +163,7 @@ export const propertyHandlers = [
   }),
 
   // ─── BULK ASSIGN AGENT (PUT /api/property/bulk-assign-agent) ───
-  http.put("*/api/property/bulk-assign-agent", async ({ request }) => {
+  http.put("*/api/property/bulk-assign-agent*", async ({ request }) => {
     const body = await request.json();
     const { ids, agent_id, note } = body;
     ids.forEach((id) => {

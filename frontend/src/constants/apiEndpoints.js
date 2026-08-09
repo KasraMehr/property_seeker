@@ -273,36 +273,36 @@ export const API_ENDPOINTS = {
     }),
   },
 
-  // 5. PROPERTIES — NO trailing slashes
+  // 5. PROPERTIES — require trailing slashes 
   PROPERTIES: {
-    LIST: { url: `${API_BASE}/property/list`, method: "GET", status: "[OK]" },
+    LIST: { url: `${API_BASE}/property/list/`, method: "GET", status: "[OK]" },
     DETAIL: (id) => ({
-      url: `${API_BASE}/property/detail/${id}`,
+      url: `${API_BASE}/property/detail/${id}/`,
       method: "GET",
       status: "[OK]",
     }),
     CREATE: {
-      url: `${API_BASE}/property/create`,
+      url: `${API_BASE}/property/create/`,
       method: "POST",
       status: "[OK]",
     },
     UPDATE: (id) => ({
-      url: `${API_BASE}/property/update/${id}`,
+      url: `${API_BASE}/property/update/${id}/`,
       method: "PUT",
       status: "[OK]",
     }),
     DELETE: (id) => ({
-      url: `${API_BASE}/property/delete/${id}`,
+      url: `${API_BASE}/property/delete/${id}/`,
       method: "DELETE",
       status: "[OK]",
     }),
     BULK_CHANGE_STATUS: {
-      url: `${API_BASE}/property/bulk-change-status`,
+      url: `${API_BASE}/property/bulk-change-status/`,
       method: "PUT",
       status: "[PEND]",
     },
     BULK_ASSIGN_AGENT: {
-      url: `${API_BASE}/property/bulk-assign-agent`,
+      url: `${API_BASE}/property/bulk-assign-agent/`,
       method: "PUT",
       status: "[PEND]",
     },
@@ -363,17 +363,17 @@ export const API_ENDPOINTS = {
         method: "GET",
         status: "[OK]",
       }),
-      CREATE: { url: `${API_BASE}/calls/`, method: "POST", status: "[OK]" }, 
+      CREATE: { url: `${API_BASE}/calls/`, method: "POST", status: "[OK]" },
       UPDATE: (id) => ({
         url: `${API_BASE}/calls/${id}/update/`,
         method: "PUT",
         status: "[OK]",
-      }), 
+      }),
       DELETE: (id) => ({
         url: `${API_BASE}/calls/${id}/delete/`,
         method: "DELETE",
         status: "[OK]",
-      }), 
+      }),
     },
     // Reminders: separate paths for create/update/delete
     REMINDERS: {

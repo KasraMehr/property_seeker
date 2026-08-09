@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Root API URL (without /accounts)
 const API_BASE_URL =
- "http://127.0.0.1:8000";
+  import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -57,7 +57,7 @@ api.interceptors.response.use(
       await axios.post(
         `${API_BASE_URL}/accounts/refresh/`,
         {},
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       processQueue(null);
@@ -70,7 +70,7 @@ api.interceptors.response.use(
     } finally {
       isRefreshing = false;
     }
-  }
+  },
 );
 
 export default api;
