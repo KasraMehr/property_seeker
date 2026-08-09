@@ -1,0 +1,89 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    ports:
+      - "127.0.0.1:${DB_PORT_HOST:-5433}:5432"
+    environment:
+      POSTGRES_DB: ${DB_NAME:-property_seeker}
+      POSTGRES_USER: ${DB_USER:-property_seeker}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-property_seeker}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-property_seeker} -d ${DB_NAME:-property_seeker}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  migrate:
+    build: ./backend
+    environment: &backend_environment
+      DB_ENGINE: django.db.backends.postgresql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-property_seeker}
+      DB_USER: ${DB_USER:-property_seeker}
+      DB_PASSWORD: ${DB_PASSWORD:-property_seeker}
+      REDIS_URL: redis://redis:6379/0
+      SECRET_KEY: ${SECRET_KEY:-unsafe-compose-development-key-change-before-deployment-2026}
+      DEBUG: ${DEBUG:-false}
+      SECURE_SSL_REDIRECT: ${SECURE_SSL_REDIRECT:-false}
+      SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-false}
+      CSRF_COOKIE_SECURE: ${CSRF_COOKIE_SECURE:-false}
+      AUTH_COOKIE_SECURE: ${AUTH_COOKIE_SECURE:-false}
+    command: ["python", "manage.py", "migrate", "--noinput"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  web:
+    build: ./backend
+    environment: *backend_environment
+    command: ["gunicorn", "amlak.wsgi:application", "--bind", "0.0.0.0:8000"]
+    ports:
+      - "8000:8000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  worker:
+    build: ./backend
+    environment: *backend_environment
+    command: ["celery", "-A", "amlak", "worker", "-Q", "default", "--concurrency=2", "--loglevel=INFO"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  scraper-worker:
+    build: ./backend
+    environment: *backend_environment
+    command: ["celery", "-A", "amlak", "worker", "-Q", "scraping", "--concurrency=1", "--loglevel=INFO"]
+    shm_size: 1gb
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  beat:
+    build: ./backend
+    environment: *backend_environment
+    command: ["celery", "-A", "amlak", "beat", "--loglevel=INFO", "--schedule=/tmp/celerybeat-schedule"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+volumes:
+  postgres_data:
+  redis_data:

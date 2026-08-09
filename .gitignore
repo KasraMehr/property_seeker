@@ -9,7 +9,7 @@ backend/venv/
 ../.env
 .idea
 .env.prod
-.env
+backend/.env
 venv
 # Django
 db.sqlite3
