@@ -26,7 +26,7 @@ export default function DashboardSidebar({
       <aside
         className="
           hidden lg:flex
-          h-screen w-36
+          h-screen w-45
           shrink-0
           border-l border-border
           bg-surface
