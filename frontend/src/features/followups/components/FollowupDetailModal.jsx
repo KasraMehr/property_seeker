@@ -11,7 +11,6 @@ import {
 import {
   FOLLOWUP_DETAIL_TABS,
   FOLLOWUP_DETAIL_FIELDS,
-  FOLLOWUP_CUSTOMER_FIELDS,
 } from "@/features/followups/config";
 import { DetailFieldGrid } from "@/shared/page/DetailContentRenderer";
 

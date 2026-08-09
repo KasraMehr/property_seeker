@@ -1,6 +1,9 @@
 import StatusBadge from "@/shared/ui/badges/StatusBadge";
 import {
-  ACTIVITY_LOG_STATUS,
+  ACTIVITY_LOG_ACTION_CONFIG,
+  ACTIVITY_LOG_SOURCE_CONFIG,
+  ACTIVITY_LOG_LEVEL_CONFIG,
+  ACTIVITY_LOG_OUTCOME_CONFIG,
 } from "@/features/activity-log/config";
 import { formatDate } from "@/utils/formatters";
 
