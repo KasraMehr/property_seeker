@@ -82,7 +82,7 @@ const IconBox = forwardRef(({
       `}
     >
       {/* Inner top highlight */}
-      <span className="absolute inset-x-2 top-1 h-px rounded-full bg-white/20" />
+      {/* <span className="absolute inset-x-2 top-1 h-px rounded-full bg-white/20" /> */}
 
       {/* Icon or Image */}
       {iconSrc ? (

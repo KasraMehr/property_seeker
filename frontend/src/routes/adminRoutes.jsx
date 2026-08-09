@@ -4,8 +4,8 @@ import RegionsPage from "@/features/regions-management/pages/RegionsPage";
 import ScraperPage from "@/features/scraper-management/pages/ScraperPage";
 import ReportsPage from "@/features/reports/pages/ReportsPage";
 import ListingsPage from "@/features/listings/pages/ListingsPage";
-import ProfilePage from "../features/dashboard/ProfilePage";
-import SettingPage from "../features/dashboard/SettingPage";
+import ProfilePage from "../features/dashboard/pages/ProfilePage";
+// import SettingPage from "../features/dashboard/pages/SettingPage";
 import PropertiesPage from "../features/properties/pages/PropertiesPage";
 import CustomersPage from "../features/customers/pages/CustomersPage";
 import CallsPage from "../features/calls/pages/CallsPage"
@@ -23,5 +23,5 @@ export const adminRoutes = [
   { path: "reports", element: <ReportsPage /> },
   { path: "activity-log", element: <ActivityLogPage /> },
   { path: "profile", element: <ProfilePage /> },
-  { path: "profile/settings", element: <SettingPage /> },
+  // { path: "profile/settings", element: <SettingPage /> },
 ];
