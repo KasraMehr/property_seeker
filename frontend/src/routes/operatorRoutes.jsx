@@ -5,11 +5,14 @@ import PropertiesPage from '@/features/properties/pages/PropertiesPage';
 import FollowupsPage from '@/features/followups/pages/FollowupsPage';
 import ProfilePage from '../features/dashboard/ProfilePage';
 import SettingPage from '../features/dashboard/SettingPage';
+import CustomersPage from "../features/customers/pages/CustomersPage";
+
 
 export const operatorRoutes = [
   { path: 'dashboard', element: <OperatorDashboardPage /> },
   { path: 'listings', element: <ListingsPage /> },
   { path: 'calls', element: <CallsPage /> },
+  { path: "customers", element: <CustomersPage /> },
   { path: 'properties', element: <PropertiesPage /> },
   { path: 'followups', element: <FollowupsPage /> },
   { path: 'profile', element: <ProfilePage /> },
