@@ -75,7 +75,7 @@ export default function Table({
                     `}
                   >
                     <span className="inline-flex items-center gap-1">
-                      {col.title}
+                      {col.title || col.header || col.label}
                       {col.sortable &&
                         (active ? (
                           sortDir === "asc" ? (

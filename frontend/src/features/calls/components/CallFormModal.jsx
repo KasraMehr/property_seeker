@@ -22,14 +22,14 @@ export default function CallFormModal({
 
     try {
       const payload = {
-        customer: Number(values.customer_id),
-        property: values.property_id
-          ? Number(values.property_id)
-          : null,
+        customer: Number(values.customer),
+        property: values.property ? Number(values.property) : null,
         call_type: values.call_type,
         result: values.result,
-        note: values.notes,
-        called_at: new Date().toISOString(),
+        note: values.note || "",
+        called_at: values.called_at ? new Date(values.called_at).toISOString() : new Date().toISOString(),
+        call_duration: values.call_duration ? Number(values.call_duration) : null,
+        next_follow_up_at: values.next_follow_up_at ? new Date(values.next_follow_up_at).toISOString() : null,
       };
 
       if (isEdit) {

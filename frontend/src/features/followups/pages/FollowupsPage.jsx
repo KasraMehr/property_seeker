@@ -135,9 +135,9 @@ export default function FollowupsPage() {
 
   /* ─── Filter options ─── */
   const filterOptions = useMemo(() => {
-    const statusFilter = FOLLOWUP_FILTERS.find((f) => f.key === "status");
-    const typeFilter = FOLLOWUP_FILTERS.find((f) => f.key === "type");
-    const userFilter = FOLLOWUP_FILTERS.find((f) => f.key === "user");
+    const statusFilter = FOLLOWUP_ALL_FILTERS.find((f) => f.key === "status");
+    const typeFilter = FOLLOWUP_ALL_FILTERS.find((f) => f.key === "type");
+    const userFilter = FOLLOWUP_ALL_FILTERS.find((f) => f.key === "user");
     return {
       statuses: statusFilter?.options || [],
       types: typeFilter?.options || [],
@@ -147,7 +147,7 @@ export default function FollowupsPage() {
 
   const filters = useMemo(
     () => ({
-      schema: FOLLOWUP_FILTERS.filter((f) => f.type !== "search"),
+      schema: FOLLOWUP_ALL_FILTERS.filter((f) => f.type !== "search"),
       options: filterOptions,
       values: filterValues,
       onChange: setFilter,

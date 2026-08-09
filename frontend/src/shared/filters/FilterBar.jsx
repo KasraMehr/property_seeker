@@ -77,10 +77,13 @@ export default function FilterBar({
         );
 
       case "select":
+      case "search_select":
         return (
           <div key={field.key} className="min-w-35">
             <Select
-              options={fieldOptions}
+              options={
+                fieldOptions.length > 0 ? fieldOptions : field.options || []
+              }
               value={value || ""}
               onChange={(v) => onChange(field.key, v)}
               placeholder={field.label}
@@ -91,10 +94,13 @@ export default function FilterBar({
         );
 
       case "multiselect":
+      case "multi_select":
         return (
           <div key={field.key} className="min-w-40">
             <MultiSelect
-              options={fieldOptions}
+              options={
+                fieldOptions.length > 0 ? fieldOptions : field.options || []
+              }
               value={value || []}
               onChange={(v) => onChange(field.key, v)}
               placeholder={field.label}
@@ -181,7 +187,7 @@ export default function FilterBar({
             <button
               key={`${chip.key}-${chip.value || i}`}
               onClick={() => {
-                if (chip.type === "multiselect") {
+                if (chip.type === "multiselect" || chip.type === "multi_select") {
                   const current = filters[chip.key] || [];
                   onChange(
                     chip.key,
