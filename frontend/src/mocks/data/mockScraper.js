@@ -54,12 +54,12 @@ export const MOCK_SCRAPE_TARGETS = [
   },
 ];
 
-// ── IngestionRun ──
+// ── ingestionRun ──
 // id(UUID), target(FK), mode, status, configuration(JSON),
 // discovered_count, queued_count, processed_count, new_count, changed_count,
 // failed_count, removed_count, error_summary, artifact_path, started_at, finished_at
 
-export const MOCK_INGESTION_RUNS = [
+export const MOCK_ingestion_RUNS = [
   {
     id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
     target: MOCK_SCRAPE_TARGETS[0],
@@ -138,15 +138,15 @@ export const MOCK_INGESTION_RUNS = [
   },
 ];
 
-// ── IngestionRunItem ──
+// ── ingestionRunItem ──
 // run(FK), listing(FK nullable), external_id, url, discovery_order,
 // card_fingerprint, card_payload(JSON), status, retry_count,
 // created_listing, changed, error
 
-export const MOCK_INGESTION_RUN_ITEMS = [
+export const MOCK_ingestion_RUN_ITEMS = [
   {
     id: 101,
-    run: MOCK_INGESTION_RUNS[0],
+    run: MOCK_ingestion_RUNS[0],
     listing: MOCK_LISTINGS[0],
     external_id: "divar_krj_001",
     url: "https://divar.ir/v/krj_001",
@@ -161,7 +161,7 @@ export const MOCK_INGESTION_RUN_ITEMS = [
   },
   {
     id: 102,
-    run: MOCK_INGESTION_RUNS[0],
+    run: MOCK_ingestion_RUNS[0],
     listing: null,
     external_id: "divar_krj_new_001",
     url: "https://divar.ir/v/krj_new_001",
@@ -176,7 +176,7 @@ export const MOCK_INGESTION_RUN_ITEMS = [
   },
   {
     id: 103,
-    run: MOCK_INGESTION_RUNS[0],
+    run: MOCK_ingestion_RUNS[0],
     listing: MOCK_LISTINGS[4],
     external_id: "divar_krj_005",
     url: "https://divar.ir/v/krj_005",
@@ -191,7 +191,7 @@ export const MOCK_INGESTION_RUN_ITEMS = [
   },
   {
     id: 104,
-    run: MOCK_INGESTION_RUNS[1],
+    run: MOCK_ingestion_RUNS[1],
     listing: MOCK_LISTINGS[1],
     external_id: "sheypoor_krj_002",
     url: "https://sheypoor.com/krj_002",
@@ -206,7 +206,7 @@ export const MOCK_INGESTION_RUN_ITEMS = [
   },
   {
     id: 105,
-    run: MOCK_INGESTION_RUNS[1],
+    run: MOCK_ingestion_RUNS[1],
     listing: null,
     external_id: "sheypoor_krj_new_002",
     url: "https://sheypoor.com/krj_new_002",
@@ -221,7 +221,7 @@ export const MOCK_INGESTION_RUN_ITEMS = [
   },
   {
     id: 106,
-    run: MOCK_INGESTION_RUNS[2],
+    run: MOCK_ingestion_RUNS[2],
     listing: MOCK_LISTINGS[0],
     external_id: "divar_krj_001",
     url: "https://divar.ir/v/krj_001",
@@ -290,7 +290,7 @@ export const MOCK_LISTING_SNAPSHOTS = [
   {
     id: 301,
     listing: MOCK_LISTINGS[0],
-    run: MOCK_INGESTION_RUNS[0],
+    run: MOCK_ingestion_RUNS[0],
     content_hash: "hash_v1_001",
     payload: { title: "آپارتمان ۸۵ متری گلشهر", price: 720000000, area: 85 },
     changed_fields: { price: { old: null, new: 720000000 } },
@@ -299,7 +299,7 @@ export const MOCK_LISTING_SNAPSHOTS = [
   {
     id: 302,
     listing: MOCK_LISTINGS[0],
-    run: MOCK_INGESTION_RUNS[2],
+    run: MOCK_ingestion_RUNS[2],
     content_hash: "hash_v2_001",
     payload: { title: "آپارتمان ۸۵ متری گلشهر", price: 730000000, area: 85 },
     changed_fields: { price: { old: 720000000, new: 730000000 } },
@@ -308,7 +308,7 @@ export const MOCK_LISTING_SNAPSHOTS = [
   {
     id: 303,
     listing: MOCK_LISTINGS[1],
-    run: MOCK_INGESTION_RUNS[1],
+    run: MOCK_ingestion_RUNS[1],
     content_hash: "hash_v1_002",
     payload: { title: "ویلای ۲۰۰ متری عظیمیه", price: 2800000000, area: 200 },
     changed_fields: {},
@@ -317,7 +317,7 @@ export const MOCK_LISTING_SNAPSHOTS = [
   {
     id: 304,
     listing: MOCK_LISTINGS[4],
-    run: MOCK_INGESTION_RUNS[0],
+    run: MOCK_ingestion_RUNS[0],
     content_hash: "hash_v1_005",
     payload: { title: "زمین ۴۰۰ متری حصارک", price: 1400000000, area: 400 },
     changed_fields: {},

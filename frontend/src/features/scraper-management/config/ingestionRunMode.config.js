@@ -1,7 +1,7 @@
 import { Globe, Search, RefreshCw, GitCompare } from "lucide-react";
 
 /**
- * IngestionRun.Mode (models.py)
+ * ingestionRun.Mode (models.py)
  * choices = [full, discovery, refresh, reconciliation]
  */
 export const INGESTION_RUN_MODE_CONFIG = {

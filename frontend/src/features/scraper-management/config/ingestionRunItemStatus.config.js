@@ -1,7 +1,7 @@
 import { Clock, Loader2, CheckCircle2, XCircle, Trash2, SkipForward } from "lucide-react";
 
 /**
- * IngestionRunItem.Status (models.py)
+ * ingestionRunItem.Status (models.py)
  * choices = [pending, running, succeeded, failed, removed, skipped]
  */
 export const INGESTION_RUN_ITEM_STATUS_CONFIG = {

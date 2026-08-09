@@ -147,7 +147,7 @@ export default function UserProfileDropdown({
                 {user.full_name}
               </p>
 
-              <RoleBadge role = {user.role.name}/>
+              <RoleBadge role = {roleName}/>
             </div>
           )}
 
@@ -214,7 +214,7 @@ export default function UserProfileDropdown({
                 </p>
 
                 {/* <p className="mt-1 truncate text-xs text-muted">{roleLabel}</p> */}
-                <RoleBadge role={roleName} size="sm"/>
+              <RoleBadge role = {roleName} />
               </div>
             </div>
 

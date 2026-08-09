@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo  ,useEffect } from "react";
 import { Link2, ExternalLink, CheckCircle2, XCircle, User, Building2 } from "lucide-react";
 import StatusBadge from "@/shared/ui/badges/StatusBadge";
 import RoleBadge from "@/shared/ui/badges/RoleBadge";

@@ -6,7 +6,7 @@ import {
 
 /**
  * ScrapeTarget Detail Modal Config
- * Backend: ingestion.ScrapeTarget + ingestion.IngestionRun
+ * Backend: ingestion.ScrapeTarget + ingestion.ingestionRun
  * Tabs: details | runs | listings
  */
 
@@ -75,7 +75,7 @@ export const SCRAPER_TARGET_DETAIL_FIELDS = [
   },
 ];
 
-/* ─── Tab 2: Runs List (ingestion.IngestionRun) ─── */
+/* ─── Tab 2: Runs List (ingestion.ingestionRun) ─── */
 export const SCRAPER_TARGET_RUN_COLUMNS = [
   { key: "id", header: "شناسه اجرا", type: "mono", format: (v) => v?.slice(0, 8) + "..." },
   { key: "mode", header: "حالت", type: "status", configKey: "ingestionRunMode" },

@@ -273,7 +273,7 @@ export const API_ENDPOINTS = {
     }),
   },
 
-  // 5. PROPERTIES — require trailing slashes 
+  // 5. PROPERTIES — require trailing slashes
   PROPERTIES: {
     LIST: { url: `${API_BASE}/property/list/`, method: "GET", status: "[OK]" },
     DETAIL: (id) => ({
@@ -691,6 +691,11 @@ export const API_ENDPOINTS = {
         url: `${API_BASE}/ingestion/runs/${id}/items/`,
         method: "GET",
         status: "[PEND]",
+      }),
+      RESUME: (id) => ({
+        url: `${API_BASE}/ingestion/runs/${id}/resume/`,
+        method: "POST",
+        status: "[PEND]", 
       }),
     },
     SNAPSHOTS: {

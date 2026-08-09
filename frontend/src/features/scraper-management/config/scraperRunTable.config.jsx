@@ -3,8 +3,8 @@ import { INGESTION_RUN_STATUS_CONFIG , INGESTION_RUN_MODE_CONFIG } from "@/featu
 import { formatDate } from "@/utils/formatters";
 
 /**
- * IngestionRun Table Columns
- * Backend: ingestion.IngestionRun
+ * ingestionRun Table Columns
+ * Backend: ingestion.ingestionRun
  */
 export const SCRAPER_RUN_TABLE_COLUMNS = [
   {
@@ -31,7 +31,7 @@ export const SCRAPER_RUN_TABLE_COLUMNS = [
     width: "w-24",
     filterKey: "mode",
     cell: ({ mode }) => {
-      const cfg = INGESTION_RUN_MODE_CONFIG[mode];
+      const cfg = ingestion_RUN_MODE_CONFIG[mode];
       if (!cfg) return <span className="text-muted-foreground text-xs">—</span>;
       return (
         <span className="inline-flex items-center gap-1.5 text-xs font-medium">

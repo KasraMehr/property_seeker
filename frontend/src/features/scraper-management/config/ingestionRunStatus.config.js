@@ -1,7 +1,7 @@
 import { Clock, Loader2, CheckCircle2, AlertTriangle, XCircle, Ban } from "lucide-react";
 
 /**
- * IngestionRun.Status (models.py)
+ * ingestionRun.Status (models.py)
  * choices = [queued, running, succeeded, partial, failed, cancelled]
  */
 export const INGESTION_RUN_STATUS_CONFIG = {

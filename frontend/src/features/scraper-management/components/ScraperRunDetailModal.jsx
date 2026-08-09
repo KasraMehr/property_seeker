@@ -1,11 +1,11 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect } from "react";          // ← useEffect اضافه شد
 import { GitCommit, List, AlertTriangle } from "lucide-react";
 import Modal from "@/shared/ui/modal/Modal";
 import Button from "@/shared/ui/Button";
 import Tabs from "@/shared/ui/Tabs";
 import StatusBadge from "@/shared/ui/badges/StatusBadge";
-import { INGESTION_RUN_STATUS_CONFIG, INGESTION_RUN_MODE_CONFIG } from "@/constants";
-import { DetailFieldGrid, DetailListTable } from "@/shared/components/DetailContentRenderer";
+import { INGESTION_RUN_STATUS_CONFIG, INGESTION_RUN_MODE_CONFIG } from "../config";
+import { DetailFieldGrid, DetailListTable } from "@/shared/page/DetailContentRenderer";
 
 const SCRAPER_RUN_TABS = [
   { key: "details", label: "جزئیات اجرا", icon: GitCommit },
@@ -69,7 +69,8 @@ export default function ScraperRunDetailModal({ isOpen, onClose, run }) {
 
   if (!run) return null;
 
-  useMemo(() => {
+  // ← useEffect به جای useMemo
+  useEffect(() => {
     if (isOpen) setActiveTab("details");
   }, [isOpen, run?.id]);
 
@@ -85,6 +86,7 @@ export default function ScraperRunDetailModal({ isOpen, onClose, run }) {
         <div className="min-w-0 flex-1">
           <h3 className="text-base font-bold text-foreground truncate">{run.target?.name || "اجرای اسکرپر"}</h3>
           <div className="flex items-center gap-2 mt-1">
+            {/* ← INGESTION_RUN_MODE_CONFIG (همه حروف بزرگ) */}
             <StatusBadge status={run.mode} config={INGESTION_RUN_MODE_CONFIG} size="sm" variant="soft" />
             <StatusBadge status={run.status} config={INGESTION_RUN_STATUS_CONFIG} size="sm" variant="soft" />
             <span className="text-xs text-muted-foreground font-mono">{run.id?.slice(0, 8)}...</span>
