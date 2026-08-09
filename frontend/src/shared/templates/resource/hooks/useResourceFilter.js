@@ -22,9 +22,11 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
           state[field.key] = "";
           break;
         case "select":
+        case "search_select":
           state[field.key] = null;
           break;
         case "multiselect":
+        case "multi_select":
           state[field.key] = [];
           break;
         case "range":
@@ -79,9 +81,11 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
           defaultValue = "";
           break;
         case "select":
+        case "search_select":
           defaultValue = null;
           break;
         case "multiselect":
+        case "multi_select":
           defaultValue = [];
           break;
         case "range":
@@ -127,6 +131,7 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
           break;
 
         case "select":
+        case "search_select":
           if (value) {
             const option = options.find(
               (o) => String(o.value) === String(value),
@@ -134,21 +139,24 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
             chips.push({
               key: field.key,
               label: option?.label || value,
-              type: "select",
+              type: field.type,
             });
           }
           break;
 
         case "multiselect":
-          value.forEach((v) => {
-            const option = options.find((o) => String(o.value) === String(v));
-            chips.push({
-              key: field.key,
-              value: v,
-              label: option?.label || v,
-              type: "multiselect",
+        case "multi_select":
+          if (Array.isArray(value)) {
+            value.forEach((v) => {
+              const option = options.find((o) => String(o.value) === String(v));
+              chips.push({
+                key: field.key,
+                value: v,
+                label: option?.label || v,
+                type: field.type,
+              });
             });
-          });
+          }
           break;
 
         case "range":
@@ -195,17 +203,22 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
       switch (field.type) {
         case "search":
         case "select":
+        case "search_select":
           if (value) params[field.key] = value;
           break;
 
         case "multiselect":
-          if (value.length) params[field.key] = value;
+        case "multi_select":
+          if (Array.isArray(value) && value.length > 0)
+            params[field.key] = value;
           break;
 
         case "range":
-          if (value.min !== field.min || value.max !== field.max) {
-            params[`${field.key}_min`] = value.min;
-            params[`${field.key}_max`] = value.max;
+          if (value && (value.min !== field.min || value.max !== field.max)) {
+            const minKey = field.min_key || `${field.key}_min`;
+            const maxKey = field.max_key || `${field.key}_max`;
+            if (value.min != null) params[minKey] = value.min;
+            if (value.max != null) params[maxKey] = value.max;
           }
           break;
 

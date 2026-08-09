@@ -38,8 +38,12 @@ const convertToProperty = (id, propertyData) =>
     property_data: propertyData,
   });
 
-  const bulkChangeReviewStatus = (ids, reviewStatus, note) =>
-  api.put(API_ENDPOINTS.LISTINGS.bulkChangeReviewStatus, { ids, review_status: reviewStatus, note });
+const bulkChangeReviewStatus = (ids, reviewStatus, note) =>
+  api.put(API_ENDPOINTS.LISTINGS.BULK_CHANGE_REVIEW_STATUS.url, {
+    ids,
+    review_status: reviewStatus,
+    note,
+  });
 
 const listingService = {
   getAll,

@@ -1,8 +1,16 @@
 import {
-  Hash, Globe, Shield, Server, Clock, Plus, Pencil, Trash2,
-  Eye, LogIn, LogOut, RefreshCw, Zap, Info, AlertTriangle,
-  XCircle, Siren, CheckCircle2, User, FileText, Calendar,
-  Code, MapPin, Clock3, Activity
+  Hash,
+  Globe,
+  AlertTriangle,
+  CheckCircle2,
+  User,
+  FileText,
+  Zap,
+  Code,
+  MapPin,
+  Clock3,
+  Calendar,
+  Activity,
 } from "lucide-react";
 
 /**

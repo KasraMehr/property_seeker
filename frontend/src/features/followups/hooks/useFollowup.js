@@ -7,7 +7,7 @@ import { FOLLOWUP_ALL_FILTERS } from "../config";
 export default function useFollowup() {
   const { fetchList, ...resourceState } = useResource(followupService);
   const query = useResourceQuery({
-    filterSchema: FOLLOWUP_FILTERS,
+    filterSchema: FOLLOWUP_ALL_FILTERS,
     pageSize: 25,
     initialOrdering: "-due_at",
   });

@@ -22,19 +22,39 @@ const NavigationItem = forwardRef(
     const targetPath = to || path || href;
 
     const isActive =
-      type === "route" &&
-      targetPath &&
-      location.pathname === targetPath;
+      type === "route" && targetPath && location.pathname === targetPath;
 
     const children = (
-      <>
+      <div
+        className={`
+          group relative flex h-10 w-full items-center justify-between
+          overflow-hidden rounded-xl px-4
+          transition-colors duration-200
+          ${isActive ? "text-(--role-primary)" : "text-muted"}
+        `}
+      >
+        {/* Hover background - right to left */}
+        <span
+          className="
+            absolute inset-0
+            translate-x-full
+            rounded-xl
+            bg-(--role-subtle)/10
+            transition-transform duration-300 ease-out
+            group-hover:translate-x-0
+          "
+        />
+
+        {/* Icon - Right */}
         <div
           className={`
-            relative flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-200
+            relative z-10 flex h-10 w-10 shrink-0
+            items-center justify-center rounded-xl
+            transition-all duration-200
             ${
               isActive
                 ? "bg-(--role-primary) text-white shadow-md"
-                : "bg-(--role-subtle)/10 text-muted hover:bg-(--role-subtle)/25 hover:text-foreground"
+                : "bg-(--role-subtle)/10 text-muted group-hover:bg-(--role-subtle)/25 group-hover:text-foreground"
             }
           `}
         >
@@ -47,15 +67,21 @@ const NavigationItem = forwardRef(
           )}
         </div>
 
+        {/* Label - Left */}
         <span
           className={`
-            mt-2 text-center text-[11px] leading-4 transition-colors
-            ${isActive ? "font-semibold text-(--role-primary)" : "text-muted"}
+            relative z-10 text-right text-[11px] leading-4
+            transition-colors duration-200
+            ${
+              isActive
+                ? "font-semibold text-(--role-primary)"
+                : "text-muted group-hover:text-foreground"
+            }
           `}
         >
           {label}
         </span>
-      </>
+      </div>
     );
 
     if (type === "route" || to || (path && !path.startsWith("#"))) {
@@ -64,7 +90,7 @@ const NavigationItem = forwardRef(
           ref={ref}
           to={targetPath || "#"}
           onClick={onClick}
-          className={`flex flex-col items-center ${className}`}
+          className={`block w-full ${className}`}
         >
           {children}
         </Link>
@@ -82,9 +108,7 @@ const NavigationItem = forwardRef(
 
       if (el) {
         const top =
-          el.getBoundingClientRect().top +
-          window.scrollY -
-          scrollOffset;
+          el.getBoundingClientRect().top + window.scrollY - scrollOffset;
 
         window.scrollTo({
           top,
@@ -100,7 +124,7 @@ const NavigationItem = forwardRef(
         ref={ref}
         href={href || path || "#"}
         onClick={handleScroll}
-        className={`flex flex-col items-center ${className}`}
+        className={`block w-full ${className}`}
       >
         {children}
       </a>

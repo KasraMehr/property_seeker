@@ -5,7 +5,7 @@ import {
   LogIn, LogOut, Pencil, Trash2, RotateCcw, Zap, ShieldCheck, ShieldX
 } from "lucide-react";
 
-/**
+/**,
  * User Detail Modal Config
  * Backend: accounts.User + audit.ActivityLog
  * Tabs: profile | activity (admin only)

@@ -23,6 +23,6 @@ export const PROPERTY_DEAL_TYPE_CONFIG = {
   exchange: {
     label: "معاوضه",
     icon: ArrowLeftRight,
-    color: "violet",
+    color: "purple",
   },
 };

@@ -1,8 +1,26 @@
 import {
-  Hash, Phone, PhoneIncoming, PhoneOutgoing, Clock, Calendar,
-  CheckCircle2, XCircle, User, Home, FileText, Building,
-  StickyNote, Mic, Play, Download, Voicemail, ThumbsUp, ThumbsDown,
-  RotateCcw, CalendarCheck, AlertTriangle
+  Hash,
+  Phone,
+  PhoneIncoming,
+  PhoneOutgoing,
+  Clock,
+  Calendar,
+  CheckCircle2,
+  XCircle,
+  User,
+  Home,
+  FileText,
+  Building,
+  StickyNote,
+  Mic,
+  Play,
+  Download,
+  Voicemail,
+  ThumbsUp,
+  ThumbsDown,
+  RotateCcw,
+  CalendarCheck,
+  AlertTriangle,
 } from "lucide-react";
 
 /**
@@ -38,36 +56,30 @@ export const CALL_ICON_MAP = {
 /* ─── Tab 1: Call Info ─── */
 export const CALL_DETAIL_FIELDS = [
   {
-    section: "basic",
-    sectionLabel: "اطلاعات پایه",
+    section: "people",
+    sectionLabel: "اشخاص",
     fields: [
-      { key: "id", label: "شناسه تماس", format: (v) => `#${v}` },
-      { key: "call_type", label: "نوع تماس", type: "status", configKey: "callType" },
-      { key: "result", label: "نتیجه", type: "status", configKey: "callResult" },
-      { key: "call_duration", label: "مدت تماس", type: "duration" },
+      { key: "customer_name", label: "نام مشتری" },
+      { key: "customer_phone", label: "تلفن مشتری" },
+      { key: "handled_by_name", label: "اپراتور" },
     ],
   },
   {
-    section: "followup",
-    sectionLabel: "پیگیری",
+    section: "property",
+    sectionLabel: "ملک / آگهی مرتبط",
     fields: [
-      { key: "next_follow_up_at", label: "پیگیری بعدی", type: "date" },
-      { key: "follow_up_done", label: "پیگیری انجام شد", type: "boolean" },
-    ],
-  },
-  {
-    section: "note",
-    sectionLabel: "یادداشت",
-    fields: [
-      { key: "note", label: "یادداشت تماس", fullWidth: true },
-    ],
-  },
-  {
-    section: "dates",
-    sectionLabel: "تاریخ‌ها",
-    fields: [
-      { key: "called_at", label: "زمان تماس", type: "dateTime" },
-      { key: "created_at", label: "تاریخ ثبت", type: "dateTime" },
+      {
+        key: "property_title",
+        label: "عنوان ملک",
+        fullWidth: true,
+        condition: (v) => !!v,
+      },
+      {
+        key: "listing_id",
+        label: "شناسه آگهی",
+        fullWidth: true,
+        condition: (v) => !!v,
+      },
     ],
   },
 ];
@@ -86,8 +98,24 @@ export const CALL_RELATED_FIELDS = [
     section: "property",
     sectionLabel: "ملک / آگهی مرتبط",
     fields: [
-      { key: "property", label: "ملک", type: "nested", nestedKey: "property_code", linkTo: "property", fullWidth: true, condition: (v) => !!v },
-      { key: "listing", label: "آگهی مبدا", type: "nested", nestedKey: "title", linkTo: "listing", fullWidth: true, condition: (v) => !!v },
+      {
+        key: "property",
+        label: "ملک",
+        type: "nested",
+        nestedKey: "property_code",
+        linkTo: "property",
+        fullWidth: true,
+        condition: (v) => !!v,
+      },
+      {
+        key: "listing",
+        label: "آگهی مبدا",
+        type: "nested",
+        nestedKey: "title",
+        linkTo: "listing",
+        fullWidth: true,
+        condition: (v) => !!v,
+      },
     ],
   },
   {

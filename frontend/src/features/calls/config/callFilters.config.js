@@ -152,17 +152,6 @@ export const CALL_ADVANCED_FILTERS = [
     placement: "drawer",
   },
   {
-    key: "agency",
-    label: "آژانس",
-    type: "search_select",
-    placement: "drawer",
-    async: true,
-    endpoint: "/api/accounts/agencies/",
-    search_fields: ["name"],
-    optionLabel: "name",
-    optionValue: "id",
-  },
-  {
     key: "created_at",
     label: "تاریخ ثبت",
     type: "date_range",

@@ -279,9 +279,9 @@ export const LISTING_FORM = {
       fields: [
         { key: "price", label: "قیمت (تومان)", type: "price", required: false, span: 6 },
         { key: "area", label: "متراژ", type: "number", required: false, span: 6 },
-        { key: "build_year", label: "سال ساخت", type: "number", required: false, min: 1300, max: 1500, span: 6 },
-        { key: "room_count", label: "تعداد اتاق", type: "number", required: false, span: 6 },
-        { key: "floor_number", label: "شماره طبقه", type: "number", required: false, span: 6 },
+        { key: "age", label: "سال ساخت", type: "number", required: false, min: 1300, max: 1500, span: 6 },
+        { key: "bedrooms", label: "تعداد اتاق", type: "number", required: false, span: 6 },
+        { key: "floor", label: "شماره طبقه", type: "number", required: false, span: 6 },
         { key: "total_floors", label: "تعداد طبقات", type: "number", required: false, span: 6 },
         { key: "description", label: "توضیحات", type: "textarea", required: false, rows: 4, span: 12 },
       ],

@@ -7,7 +7,9 @@ import useRegion from "@/features/regions-management/hooks/useRegion";
 import {
   REGION_ALL_FILTERS,
   REGION_TABLE_COLUMNS,
+  REGION_ALL_ACTIONS,
 } from "@/features/regions-management/config";
+import regionService from "@/features/regions-management/services/regionService";
 import useDebounce from "@/shared/useDebounce";
 import Button from "@/shared/ui/Button";
 import RegionDetailModal from "@/features/regions-management/components/RegionDetailModal";

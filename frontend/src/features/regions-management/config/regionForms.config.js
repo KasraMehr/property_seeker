@@ -3,7 +3,7 @@
  * Create/Edit Region Form
  */
 export const REGION_FORM = {
-  title: "منطقه / محله",
+  title: "منطقه",
   tabs: [
     {
       key: "basic",
@@ -12,10 +12,10 @@ export const REGION_FORM = {
       fields: [
         {
           key: "name",
-          label: "نام منطقه / محله",
+          label: "نام منطقه",
           type: "text",
           required: true,
-          placeholder: "مثلاً منطقه ۱ کرج",
+          placeholder: "مثلاً منطقه ۱",
           validation: { required: "نام منطقه الزامی است" },
           span: 12,
         },
@@ -25,8 +25,7 @@ export const REGION_FORM = {
           type: "select",
           required: true,
           placeholder: "انتخاب استان",
-          asyncSource: "/api/province/list",
-          validation: { required: "استان الزامی است" },
+          asyncSource: "/api/province/list/",
           span: 6,
         },
         {
