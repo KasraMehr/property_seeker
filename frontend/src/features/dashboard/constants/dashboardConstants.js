@@ -9,7 +9,8 @@ import {
   Bot,
   NotebookTabs,
   BarChart3,
-  ContactRound
+  ContactRound,
+  SquareActivity
 } from "lucide-react";
 
 export const DASHBOARD_STRINGS = {
@@ -104,5 +105,12 @@ export const ADMIN_NAV_ITEMS = [
     path: "/admin/scraper",
     icon: Bot,
   },
+  
   { id: "reports", label: "گزارش‌ها", path: "/admin/reports", icon: BarChart3 },
+  {
+    id: "activity-log",
+    label: "تاریخچه فعالیت ها",
+    path: "/admin/activity-log",
+    icon: SquareActivity,
+  },
 ];

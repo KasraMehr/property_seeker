@@ -63,7 +63,7 @@ export const PROPERTY_ROW_ACTIONS = [
     variant: "ghost",
     type: "row",
     permission: null,
-    condition: (row) => !!row.listing, // if property came from listing
+    condition: (row) => Boolean(row.listing_id || row.listing), // if property came from listing
     modal: "listing_detail",
   },
   {
@@ -121,15 +121,6 @@ export const PROPERTY_BULK_ACTIONS = [
       title: "حذف گروهی",
       message: "آیا از حذف فایل‌های انتخاب‌شده اطمینان دارید؟",
     },
-  },
-  {
-    key: "export",
-    label: "خروجی Excel",
-    icon: Download,
-    variant: "outline",
-    type: "bulk",
-    permission: null,
-    handler: "export",
   },
 ];
 

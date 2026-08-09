@@ -1,6 +1,14 @@
-export * from "./activityLogActions.config";
-export * from "./activityLogDetail";
-export * from "./activityLogLevel.config";
-export * from "./activityLogOutcome.config";
-export * from "./activityLogSource.config";
-export * from "./activityLogTable";
+export {
+  ACTIVITY_LOG_DETAIL_TABS,
+  ACTIVITY_LOG_ICON_MAP,
+  ACTIVITY_LOG_DETAIL_FIELDS,
+  ACTIVITY_LOG_REQUEST_FIELDS,
+  ACTIVITY_LOG_DATA_DIFF_FIELDS,
+} from "./activityLogDetail";
+
+export {
+  ACTIVITY_LOG_ACTION_CONFIG,
+  ACTIVITY_LOG_SOURCE_CONFIG,
+  ACTIVITY_LOG_LEVEL_CONFIG,
+  ACTIVITY_LOG_OUTCOME_CONFIG,
+} from "./activityLogStatus.config";

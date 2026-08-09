@@ -1,15 +1,16 @@
+
 import {
   CUSTOMER_TYPE_CONFIG,
   CUSTOMER_STATUS_CONFIG,
 } from "@/features/customers/config";
 
-const CUSTOMER_DETAIL_FIELDS = [
+export const CUSTOMER_DETAIL_FIELDS = [
   {
     title: "اطلاعات پایه",
     fields: [
       { key: "full_name", label: "نام و نام خانوادگی" },
       { key: "phone", label: "شماره تماس" },
-      { key: "national_id", label: "کد ملی", render: (v) => v || "—" },
+      { key: "email", label: "ایمیل", render: (v) => v || "—" }, // ADDED
       {
         key: "customer_type",
         label: "نوع مشتری",
@@ -31,4 +32,3 @@ const CUSTOMER_DETAIL_FIELDS = [
     ],
   },
 ];
-

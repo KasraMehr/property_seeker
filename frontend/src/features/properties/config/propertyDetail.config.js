@@ -1,14 +1,8 @@
 import {
   Hash, FileText, Home, Building, DollarSign, MapPin, Calendar,
   User, Car, Warehouse, Compass, Wrench, StickyNote, CheckCircle2,
-  XCircle, Clock, History, Image, Star, Tag, Link2
+  Clock, History, Image, Star, Tag
 } from "lucide-react";
-
-/**
- * Property Detail Modal Config
- * Backend: properties.Property + properties.PropertyStatusHistory + properties.PropertyHistory + properties.PropertyFeature
- * Tabs: details | status_history | change_history | features | media
- */
 
 /* ─── Tabs ─── */
 export const PROPERTY_DETAIL_TABS = [
@@ -23,34 +17,34 @@ export const PROPERTY_DETAIL_TABS = [
 export const PROPERTY_ICON_MAP = {
   id: Hash,
   property_code: Hash,
+  owner: User,
+  phone: User,
+  agent: User,
+  address: MapPin,
+  agency: Building,
+  create_by: User,
   title: FileText,
   property_type: Home,
   deal_type: Tag,
-  status: CheckCircle2,
   area: Home,
-  sale_price: DollarSign,
-  monthly_rent: DollarSign,
-  deposit_amount: DollarSign,
-  mortgage_amount: DollarSign,
-  price_per_meter: DollarSign,
+  floor: Home,
+  total_floors: Building,
   age: Calendar,
   bedrooms: Home,
   bathrooms: Home,
-  floor: Home,
-  total_floors: Building,
   parking_count: Car,
   storage_count: Warehouse,
   orientation: Compass,
   condition: Wrench,
-  address: MapPin,
   description: StickyNote,
-  notes: StickyNote,
-  owner: User,
-  agent: User,
-  create_by: User,
+  price_per_meter: DollarSign,
+  sale_price: DollarSign,
+  mortgage_amount: DollarSign,
+  deposit_amount: DollarSign,
+  monthly_rent: DollarSign,
+  status: CheckCircle2,
   created_at: Calendar,
   updated_at: Calendar,
-  feature: Star,
 };
 
 /* ─── Tab 1: Property Details ─── */
@@ -70,11 +64,11 @@ export const PROPERTY_DETAIL_FIELDS = [
     section: "pricing",
     sectionLabel: "قیمت و مالی",
     fields: [
-      { key: "sale_price", label: "قیمت فروش", type: "price" },
-      { key: "monthly_rent", label: "اجاره ماهیانه", type: "price" },
-      { key: "deposit_amount", label: "ودیعه", type: "price" },
-      { key: "mortgage_amount", label: "رهن کامل", type: "price" },
       { key: "price_per_meter", label: "قیمت هر متر", type: "price" },
+      { key: "sale_price", label: "قیمت فروش", type: "price" },
+      { key: "mortgage_amount", label: "رهن کامل", type: "price" },
+      { key: "deposit_amount", label: "ودیعه", type: "price" },
+      { key: "monthly_rent", label: "اجاره ماهیانه", type: "price" },
     ],
   },
   {
@@ -83,19 +77,17 @@ export const PROPERTY_DETAIL_FIELDS = [
     fields: [
       { key: "area", label: "متراژ", suffix: " متر مربع" },
       { key: "address", label: "آدرس", type: "nested", nestedKey: "full_text", fullWidth: true },
-      { key: "address.latitude", label: "عرض جغرافیایی", type: "nested", nestedKey: "latitude" },
-      { key: "address.longitude", label: "طول جغرافیایی", type: "nested", nestedKey: "longitude" },
     ],
   },
   {
     section: "physical",
     sectionLabel: "مشخصات فیزیکی",
     fields: [
+      { key: "floor", label: "طبقه" },
+      { key: "total_floors", label: "تعداد طبقات" },
       { key: "age", label: "سن بنا", suffix: " سال" },
       { key: "bedrooms", label: "اتاق خواب" },
       { key: "bathrooms", label: "سرویس بهداشتی" },
-      { key: "floor", label: "طبقه" },
-      { key: "total_floors", label: "تعداد طبقات" },
       { key: "parking_count", label: "پارکینگ" },
       { key: "storage_count", label: "انباری" },
       { key: "orientation", label: "جهت" },
@@ -106,9 +98,11 @@ export const PROPERTY_DETAIL_FIELDS = [
     section: "people",
     sectionLabel: "اشخاص",
     fields: [
-      { key: "owner", label: "مالک", type: "user", linkTo: "owner" },
+      { key: "owner", label: "مالک", type: text },
+      { key: "phone", label: "تلفن مالک" },
       { key: "agent", label: "مشاور", type: "user" },
       { key: "create_by", label: "ثبت‌کننده", type: "user" },
+      { key: "agency", label: "آژانس" },
     ],
   },
   {
@@ -128,7 +122,7 @@ export const PROPERTY_DETAIL_FIELDS = [
   },
 ];
 
-/* ─── Tab 2: Status History (properties.PropertyStatusHistory) ─── */
+/* ─── Tab 2: Status History ─── */
 export const PROPERTY_STATUS_HISTORY_COLUMNS = [
   { key: "old_status", header: "وضعیت قبلی", type: "status", configKey: "propertyStatus" },
   { key: "new_status", header: "وضعیت جدید", type: "status", configKey: "propertyStatus" },
@@ -136,7 +130,7 @@ export const PROPERTY_STATUS_HISTORY_COLUMNS = [
   { key: "created_at", header: "زمان", type: "date" },
 ];
 
-/* ─── Tab 3: Change History (properties.PropertyHistory) ─── */
+/* ─── Tab 3: Change History ─── */
 export const PROPERTY_CHANGE_HISTORY_COLUMNS = [
   { key: "action", header: "عملیات", type: "badge", map: { create: "ایجاد", update: "ویرایش", delete: "حذف" } },
   { key: "field_name", header: "فیلد" },
@@ -146,14 +140,12 @@ export const PROPERTY_CHANGE_HISTORY_COLUMNS = [
   { key: "created_at", header: "زمان", type: "date" },
 ];
 
-/* ─── Tab 4: Features (properties.PropertyFeature M2M) ─── */
+/* ─── Tab 4: Features ─── */
 export const PROPERTY_FEATURE_COLUMNS = [
-  { key: "feature", header: "امکان", type: "nested", nestedKey: "title" },
+  { key: "feature_id", header: "امکان", type: "nested", nestedKey: "title" },
 ];
 
-/* ─── Tab 5: Media (media.Media) ───
- * فعلاً placeholder — وقتی media اپ merge شد پر می‌شه
- */
+/* ─── Tab 5: Media ─── */
 export const PROPERTY_MEDIA_COLUMNS = [
   { key: "file", header: "فایل", type: "image" },
   { key: "media_type", header: "نوع", type: "status", configKey: "mediaType" },

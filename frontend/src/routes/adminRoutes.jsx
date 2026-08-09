@@ -9,6 +9,7 @@ import SettingPage from "../features/dashboard/SettingPage";
 import PropertiesPage from "../features/properties/pages/PropertiesPage";
 import CustomersPage from "../features/customers/pages/CustomersPage";
 import CallsPage from "../features/calls/pages/CallsPage"
+import ActivityLogPage from "../features/activity-log/pages/ActivityLogPage";
 
 export const adminRoutes = [
   { path: "dashboard", element: <AdminDashboardPage /> },
@@ -20,6 +21,7 @@ export const adminRoutes = [
   { path: "regions", element: <RegionsPage /> },
   { path: "scraper", element: <ScraperPage /> },
   { path: "reports", element: <ReportsPage /> },
+  { path: "activity-log", element: <ActivityLogPage /> },
   { path: "profile", element: <ProfilePage /> },
   { path: "profile/settings", element: <SettingPage /> },
 ];

@@ -1,11 +1,8 @@
-import  StatusBadge  from "@/shared/ui/badges/StatusBadge";
-import { CALL_RESULT_CONFIG, CALL_TYPE_CONFIG } from "@/features/calls/config";
-import { formatDate, formatDuration } from "@/utils/formatters";
 
-/**
- * Call Log Table Columns
- * Backend: crm.CallLog
- */
+import StatusBadge from "@/shared/ui/badges/StatusBadge";
+import { CALL_RESULT_CONFIG, CALL_TYPE_CONFIG } from "@/features/calls/config";
+import { formatDate } from "@/utils/formatters";
+
 export const CALL_TABLE_COLUMNS = [
   {
     key: "id",
@@ -14,16 +11,12 @@ export const CALL_TABLE_COLUMNS = [
     cell: ({ id }) => <span className="text-xs text-muted-foreground font-mono">#{id}</span>,
   },
   {
-    key: "customer",
+    key: "customer_name",
     header: "مشتری",
-    width: "w-40",
+    width: "w-44",
     searchable: true,
-    searchFields: ["customer.full_name", "customer.phone"],
-    cell: ({ customer }) => (
-      <div className="flex flex-col">
-        <span className="font-medium text-sm">{customer?.full_name || "—"}</span>
-        <span className="text-xs text-muted-foreground font-mono ltr">{customer?.phone || "—"}</span>
-      </div>
+    cell: ({ customer_name }) => (
+      <span className="font-medium text-sm">{customer_name || "—"}</span>
     ),
   },
   {
@@ -50,44 +43,18 @@ export const CALL_TABLE_COLUMNS = [
     cell: ({ result }) => <StatusBadge status={result} config={CALL_RESULT_CONFIG} />,
   },
   {
-    key: "handled_by",
+    key: "agent_name",
     header: "اپراتور",
     width: "w-32",
-    cell: ({ handled_by }) => (
-      <span className="text-sm">{handled_by?.full_name || "—"}</span>
+    cell: ({ agent_name }) => (
+      <span className="text-sm">{agent_name || "—"}</span>
     ),
-  },
-  {
-    key: "related",
-    header: "مرتبط با",
-    width: "w-36",
-    cell: ({ listing, property }) => {
-      if (property) return <span className="text-xs font-mono text-primary">{property.property_code}</span>;
-      if (listing) return <span className="text-xs text-muted-foreground truncate max-w-30">{listing.title}</span>;
-      return <span className="text-muted-foreground text-xs">—</span>;
-    },
   },
   {
     key: "called_at",
     header: "زمان تماس",
     width: "w-32",
     cell: ({ called_at }) => formatDate(called_at, "short"),
-  },
-  {
-    key: "duration",
-    header: "مدت",
-    width: "w-20",
-    cell: ({ call_duration }) => formatDuration(call_duration),
-  },
-  {
-    key: "follow_up",
-    header: "پیگیری",
-    width: "w-28",
-    cell: ({ next_follow_up_at, follow_up_done }) => {
-      if (follow_up_done) return <span className="text-xs text-emerald-600">✓ انجام شد</span>;
-      if (next_follow_up_at) return <span className="text-xs text-amber-600">{formatDate(next_follow_up_at, "short")}</span>;
-      return <span className="text-muted-foreground text-xs">—</span>;
-    },
   },
   {
     key: "actions",

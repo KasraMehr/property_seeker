@@ -100,7 +100,7 @@ export const LISTING_ADVANCED_FILTERS = [
     optionValue: "id",
   },
   {
-    key: "room_count",
+    key: "bedrooms",
     label: "تعداد اتاق",
     type: "range",
     placement: "drawer",
@@ -110,7 +110,7 @@ export const LISTING_ADVANCED_FILTERS = [
     unit: "اتاق",
   },
   {
-    key: "floor_number",
+    key: "floor",
     label: "طبقه",
     type: "range",
     placement: "drawer",
@@ -130,7 +130,7 @@ export const LISTING_ADVANCED_FILTERS = [
     unit: "طبقه",
   },
   {
-    key: "build_year",
+    key: "age",
     label: "سال ساخت",
     type: "range",
     placement: "drawer",
