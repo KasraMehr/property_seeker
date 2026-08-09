@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { User, Calendar, ShieldCheck } from "lucide-react";
 import Modal from "@/shared/ui/modal/Modal";
 import Button from "@/shared/ui/Button";
@@ -16,11 +16,11 @@ import { DetailFieldGrid, DetailListTable } from "@/shared/page/DetailContentRen
 export default function UserDetailModal({ isOpen, onClose, user }) {
   const [activeTab, setActiveTab] = useState("profile");
 
-  if (!user) return null;
-
-  useMemo(() => {
+  useEffect(() => {
     if (isOpen) setActiveTab("profile");
-  }, [isOpen, user?.id]);
+  }, [isOpen, user?.id]); 
+  
+  if (!user) return null;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="xl" title="جزئیات کاربر" className="h-[80vh]">

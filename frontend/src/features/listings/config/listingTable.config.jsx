@@ -1,8 +1,7 @@
-import { StatusBadge } from "@/shared/ui/badges/StatusBadge";
-import { SourceBadge } from "@/shared/ui/badges/SourceBadge";
-import { LISTING_STATUS_CONFIG } from "@/constants/listingStatus.config";
-import { LISTING_REVIEW_STATUS_CONFIG } from "@/constants/listingReviewStatus.config";
-import { PROPERTY_DEAL_TYPE_CONFIG } from "@/constants/propertyDealType.config";
+import  StatusBadge  from "@/shared/ui/badges/StatusBadge";
+import SourceBadge  from "@/shared/ui/badges/SourceBadge";
+import { LISTING_STATUS_CONFIG , LISTING_REVIEW_STATUS_CONFIG } from "@/features/listings/config";
+import { PROPERTY_DEAL_TYPE_CONFIG } from "@/features/properties/config";
 import { formatPrice, formatDate } from "@/utils/formatters";
 
 /**

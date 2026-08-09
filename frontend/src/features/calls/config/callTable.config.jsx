@@ -1,5 +1,5 @@
-import { StatusBadge } from "@/shared/ui/badges/StatusBadge";
-import { CALL_RESULT_CONFIG, CALL_TYPE_CONFIG } from "@/constants/callStatus.config";
+import  StatusBadge  from "@/shared/ui/badges/StatusBadge";
+import { CALL_RESULT_CONFIG, CALL_TYPE_CONFIG } from "@/features/calls/config";
 import { formatDate, formatDuration } from "@/utils/formatters";
 
 /**

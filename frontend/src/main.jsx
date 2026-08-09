@@ -12,16 +12,16 @@ async function enableMocking() {
     onUnhandledRequest: "bypass", // یا "warn" برای دیباگ
   });
 }
-// createRoot(document.getElementById("root")).render(
-//     <StrictMode>
-//       <App />
-//     </StrictMode>,
-//   );
-
-enableMocking().then(() => {
-  createRoot(document.getElementById("root")).render(
+createRoot(document.getElementById("root")).render(
     <StrictMode>
       <App />
     </StrictMode>,
   );
-});
+
+// enableMocking().then(() => {
+//   createRoot(document.getElementById("root")).render(
+//     <StrictMode>
+//       <App />
+//     </StrictMode>,
+//   );
+// });

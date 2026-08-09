@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ChevronDown, User, Settings } from "lucide-react";
 
 import useAuth from "@/features/auth/hooks/useAuth";
@@ -14,10 +14,15 @@ import { showSuccess } from "@/lib/toast";
 export default function UserProfileDropdown({
   fullWidth = false,
   showInfo = true,
-  onCloseDrawer ,
+  onCloseDrawer,
 }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+
+  const location = useLocation();
+  const basePath = location.pathname.startsWith("/admin")
+    ? "/admin"
+    : "/operator";
 
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -56,16 +61,16 @@ export default function UserProfileDropdown({
   };
 
   const handleLogoutClick = () => {
-  setIsOpen(false);
+    setIsOpen(false);
 
-  if (onCloseDrawer) {
-    onCloseDrawer();
-  }
+    if (onCloseDrawer) {
+      onCloseDrawer();
+    }
 
-  setTimeout(() => {
-    openModal("logout", {}, doLogout);
-  }, 250);
-};
+    setTimeout(() => {
+      openModal("logout", {}, doLogout);
+    }, 250);
+  };
 
   const handleCloseModal = () => {
     closeModal();
@@ -143,7 +148,7 @@ export default function UserProfileDropdown({
           >
             <div className="p-2">
               <Link
-                to="/profile"
+                to={`${basePath}/profile`}
                 onClick={() => setIsOpen(false)}
                 className="
                   flex items-center gap-3
@@ -158,7 +163,7 @@ export default function UserProfileDropdown({
               </Link>
 
               <Link
-                to="/profile/settings"
+                to={`${basePath}/profile/settings`}
                 onClick={() => setIsOpen(false)}
                 className="
                   flex items-center gap-3
@@ -171,7 +176,6 @@ export default function UserProfileDropdown({
                 <Settings size={18} />
                 <span className="text-sm">تنظیمات</span>
               </Link>
-
             </div>
 
             <div className="border-t border-border p-2">

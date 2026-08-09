@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Modal from "@/shared/ui/modal/Modal";
-import FormRenderer from "@/shared/components/FormRenderer";
+import FormRenderer from "@/shared/page/FormRenderer";
 import { REGION_FORM } from "@/features/regions-management/config";
 import regionService from "@/features/regions-management/services/regionService";
 

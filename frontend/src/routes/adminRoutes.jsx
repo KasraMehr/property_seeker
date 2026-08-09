@@ -4,6 +4,8 @@ import RegionsPage from '@/features/regions-management/pages/RegionsPage';
 import ScraperPage from '@/features/scraper-management/pages/ScraperPage';
 import ReportsPage from '@/features/reports/pages/ReportsPage';
 import ListingsPage from '@/features/listings/pages/ListingsPage'
+import ProfilePage from '../features/dashboard/ProfilePage';
+import SettingPage from '../features/dashboard/SettingPage';
 
 export const adminRoutes = [
   { path: 'dashboard', element: <AdminDashboardPage /> },
@@ -12,4 +14,6 @@ export const adminRoutes = [
   { path: 'regions', element: <RegionsPage /> },
   { path: 'scraper', element: <ScraperPage /> },
   { path: 'reports', element: <ReportsPage /> },
+  { path: 'profile', element: <ProfilePage /> },
+  { path: 'profile/settings', element: <SettingPage /> },
 ];

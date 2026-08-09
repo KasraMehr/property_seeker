@@ -1,14 +1,11 @@
 import { forwardRef } from "react";
 import { getRoleConfig } from "@/constants/roleConfig";
 
-/**
- * RoleBadge — role indicator with icon and color
- */
 const RoleBadge = forwardRef(
   (
     {
       role,
-      variant = "soft", // solid | soft | outline | dot
+      variant = "soft",
       size = "md",
       showIcon = true,
       className = "",
@@ -16,6 +13,11 @@ const RoleBadge = forwardRef(
     },
     ref,
   ) => {
+    const roleName =
+      typeof role === "string"
+        ? role
+        : role?.name;
+
     const {
       label,
       icon: Icon,
@@ -23,7 +25,7 @@ const RoleBadge = forwardRef(
       soft,
       outline,
       dot,
-    } = getRoleConfig(role);
+    } = getRoleConfig(roleName);
 
     const base =
       "inline-flex items-center justify-center font-medium whitespace-nowrap shrink-0 transition-colors duration-200";
@@ -50,14 +52,18 @@ const RoleBadge = forwardRef(
     return (
       <span
         ref={ref}
-        className={`${base} ${sizeMap[size]} ${variantMap[variant] ?? soft} ${className}`}
+        className={`${base} ${sizeMap[size]} ${
+          variantMap[variant] ?? soft
+        } ${className}`}
         {...props}
       >
         {variant === "dot" && (
           <span className={`w-1.5 h-1.5 rounded-full ${dot}`} />
         )}
 
-        {showIcon && Icon && <Icon size={iconSize[size]} strokeWidth={2.2} />}
+        {showIcon && Icon && (
+          <Icon size={iconSize[size]} strokeWidth={2.2} />
+        )}
 
         {label}
       </span>

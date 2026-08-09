@@ -58,9 +58,9 @@ export default function ScraperTodayWidget({ status, loading }) {
             <div className="space-y-2 pt-1">
               <p className="text-xs font-medium text-muted">منابع فعال</p>
               <div className="flex flex-wrap gap-2">
-                {sources.map((s) => (
+                {sources.map((s, index) => (
                   <span
-                    key={s.name}
+                    key={`${s.name}-${index}`}
                     className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md border ${
                       s.status === "ACTIVE"
                         ? "border-success/20 text-success bg-success/5"

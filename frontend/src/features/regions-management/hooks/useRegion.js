@@ -2,12 +2,12 @@ import { useCallback, useEffect, useRef } from "react";
 import useResource from "@/shared/templates/resource/hooks/useResource";
 import useResourceQuery from "@/shared/templates/resource/hooks/useResourceQuery";
 import regionService from "../services/regionService";
-import { REGION_FILTERS } from "../config";
+import { REGION_ALL_FILTERS } from "../config";
 
 export default function useRegion() {
   const { fetchList, ...resourceState } = useResource(regionService);
   const query = useResourceQuery({
-    filterSchema: REGION_FILTERS,
+    filterSchema: REGION_ALL_FILTERS,
     pageSize: 25,
     initialOrdering: "name",
   });

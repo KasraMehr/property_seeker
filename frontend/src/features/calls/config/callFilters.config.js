@@ -1,7 +1,7 @@
 import {
   CALL_RESULT_CONFIG,
   CALL_TYPE_CONFIG,
-} from "@/constants/callStatus.config";
+} from "@/features/calls/config";
 
 /**
  * Call Log Filters Config

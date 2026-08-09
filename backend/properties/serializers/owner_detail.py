@@ -8,6 +8,7 @@ class OwnerDetailSerializer(serializers.ModelSerializer):
     properties_count = serializers.IntegerField(
         read_only=True
     )
+
     class Meta:
         model = Owner
         fields = (

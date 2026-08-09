@@ -1,7 +1,7 @@
 import {
   FOLLOWUP_STATUS_CONFIG,
   FOLLOWUP_TYPE_CONFIG,
-} from "@/constants/followupStatus.config";
+} from "@/features/followups/config";
 
 /**
  * Reminder (Follow-up) Filters Config

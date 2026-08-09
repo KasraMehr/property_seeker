@@ -1,5 +1,5 @@
-import { StatusBadge } from "@/shared/ui/badges/StatusBadge";
-import { SCRAPE_TARGET_STATUS_CONFIG } from "@/constants/scrapeTargetStatus.config";
+import  StatusBadge  from "@/shared/ui/badges/StatusBadge";
+import { SCRAPE_TARGET_STATUS_CONFIG } from "@/features/scraper-management/config";
 import { formatDate } from "@/utils/formatters";
 import { Clock, Link2 } from "lucide-react";
 

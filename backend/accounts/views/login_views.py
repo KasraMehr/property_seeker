@@ -41,26 +41,36 @@ def _set_jwt_cookies(response, refresh_token: RefreshToken):
     )
 
 
+
 @method_decorator(csrf_exempt, name="dispatch")
 class LoginPasswordView(APIView):
+
     permission_classes = [AllowAny]
     serializer_class = LoginSerializer
 
     def post(self, request):
-        serializer = self.serializer_class(data=request.data,context={'request': request} )
+
+        serializer = self.serializer_class(
+            data=request.data,
+            context={"request": request},
+        )
 
         if not serializer.is_valid():
-            try:
-                ActivityLogService.login_failed(
-                    request=request,
-                    phone=request.data.get("phone", "UNKNOWN"),
-                )
-            except Exception:
-                pass  # جلوگیری از خطای 500 هنگام ثبت لاگ لغو شده
 
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            ActivityLogService.login_failed(
+                request=request,
+                phone=request.data.get("phone"),
+                message="شماره تلفن یا رمز عبور اشتباه است",
+                status_code=400,
+            )
+
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         user = serializer.validated_data["user"]
+
         refresh = RefreshToken.for_user(user)
 
         response = Response(
@@ -71,14 +81,18 @@ class LoginPasswordView(APIView):
             status=status.HTTP_200_OK,
         )
 
-        _set_jwt_cookies(response, refresh)
+        _set_jwt_cookies(
+            response,
+            refresh,
+        )
 
-        try:
-            ActivityLogService.login(request=request, user=user)
-        except Exception:
-            pass
+        ActivityLogService.login(
+            request=request,
+            user=user,
+        )
 
         return response
+
 
 
 @method_decorator(csrf_exempt, name="dispatch")  # برای تست CSRF را exempt کنید

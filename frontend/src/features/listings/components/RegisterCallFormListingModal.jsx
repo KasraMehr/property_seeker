@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Modal from "@/shared/ui/modal/Modal";
-import FormRenderer from "@/shared/components/FormRenderer";
+import FormRenderer from "@/shared/page/FormRenderer";
 import { REGISTER_CALL_FROM_LISTING_FORM } from "@/features/listings/config";
 import callService from "@/features/calls/services/callService";
 

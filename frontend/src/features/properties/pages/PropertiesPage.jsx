@@ -13,7 +13,7 @@ import PropertyDetailModal from "@/features/properties/components/PropertyDetail
 import ResourceTemplate from "@/shared/templates/resource/ResourceTemplate";
 import useProperty from "@/features/properties/hooks/useProperty";
 import {
-  PROPERTY_FILTERS,
+  PROPERTY_ALL_FILTERS,
   PROPERTY_STATUS_CONFIG,
   PROPERTY_TABLE_COLUMNS,
 } from "@/features/properties/config";

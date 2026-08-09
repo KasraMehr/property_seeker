@@ -30,32 +30,32 @@ const useAuthStore = create(
 
       // Login
       login: async (phone, password) => {
-        try {
-          const response = await authService.login(phone, password);
+  try {
+    const response = await authService.login(phone, password);
 
-          if (!response.success) {
-            return response;
-          }
+    if (!response.success) {
+      return response;
+    }
 
-          // Get current user data after setting cookies
-          const current = await authService.getCurrentUser();
+    set({
+      user: response.user,
+      isAuthenticated: true,
+      loading: false,
+    });
 
-          if (current.authenticated) {
-            set({ user: current.user, isAuthenticated: true });
-          }
+    return {
+      success: true,
+      user: response.user,
+    };
+  } catch (error) {
+    console.error("Login error:", error);
 
-          return {
-            success: true,
-            user: current.user,
-          };
-        } catch (error) {
-          return {
-            success: false,
-            error: "خطا در ورود",
-          };
-        }
-      },
-
+    return {
+      success: false,
+      error: "خطا در ورود",
+    };
+  }
+},
       // Logout
       logout: async () => {
         try {

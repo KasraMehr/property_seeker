@@ -1,5 +1,5 @@
 export * from "./regionStatus.config";
-export * from "./regionTable";
+export * from "./regionTable.config.jsx";
 export * from "./regionFilters.config";
 export * from "./regionDetail.config";
 export * from "./regionForms.config";

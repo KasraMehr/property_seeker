@@ -1,6 +1,7 @@
+import { combine } from 'zustand/middleware';
 export * from "./scrapeTargetStatus.config";
-export * from "./scraperTargetTable";
-export * from "./scraperRunTable";
+export * from "./scraperTargetTable.config"
+export * from "./scraperRunTable.config";
 export * from "./ingectionRunMode.config";
 export * from "./ingectionRunStatus.config";
 export * from "./ingestionRunItemStatus.config";

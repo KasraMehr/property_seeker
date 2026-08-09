@@ -128,7 +128,7 @@ class CallLogDetailView(APIView):
             serializer.data
         )
 
-    def patch(self, request, pk):
+    def update(self, request, pk):
 
         call = CallLogSelector.by_id(
             pk,

@@ -13,11 +13,11 @@ import useAuth from "@/features/auth/hooks/useAuth";
 import ResourceTemplate from "@/shared/templates/resource/ResourceTemplate";
 import useListing from "@/features/listings/hooks/useListing";
 import {
-  LISTING_FILTERS,
+  LISTING_ALL_FILTERS,
   LISTING_STATUS_CONFIG,
+  LISTING_TABLE_COLUMNS 
 } from "@/features/listings/config";
 import RegisterCallForm from "@/shared/forms/RegisterCallForm";
-import { LISTING_TABLE_COLUMNS } from "../config/listingTable.config";
 import { buildStatusConfig } from "@/constants/status.utils";
 import useDebounce from "@/shared/useDebounce";
 import ConfirmModal from "@/shared/ui/modal/ConfirmModal";
@@ -148,9 +148,9 @@ export default function ListingsPage() {
 
   // ─── Filter options ───
   const filterOptions = useMemo(() => {
-    const statusFilter = LISTING_FILTERS.find((f) => f.key === "status");
-    const sourceFilter = LISTING_FILTERS.find((f) => f.key === "source");
-    const userFilter = LISTING_FILTERS.find((f) => f.key === "created_by");
+    const statusFilter = LISTING_ALL_FILTERS.find((f) => f.key === "status");
+    const sourceFilter = LISTING_ALL_FILTERS.find((f) => f.key === "source");
+    const userFilter = LISTING_ALL_FILTERS.find((f) => f.key === "created_by");
     return {
       statuses: statusFilter?.options || [],
       sources: sourceFilter?.options || [],
@@ -161,7 +161,7 @@ export default function ListingsPage() {
   // FilterBar schema excludes search (handled by SearchBox)
   const filters = useMemo(
     () => ({
-      schema: LISTING_FILTERS.filter((f) => f.type !== "search"),
+      schema: LISTING_ALL_FILTERS.filter((f) => f.type !== "search"),
       options: filterOptions,
       values: filterValues,
       onChange: setFilter,

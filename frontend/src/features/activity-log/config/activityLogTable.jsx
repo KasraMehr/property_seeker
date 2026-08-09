@@ -1,8 +1,10 @@
-import { StatusBadge } from "@/shared/ui/badges/StatusBadge";
-import { ACTIVITY_LOG_ACTION_CONFIG } from "@/constants/activityLogAction.config";
-import { ACTIVITY_LOG_SOURCE_CONFIG } from "@/constants/activityLogSource.config";
-import { ACTIVITY_LOG_LEVEL_CONFIG } from "@/constants/activityLogLevel.config";
-import { ACTIVITY_LOG_OUTCOME_CONFIG } from "@/constants/activityLogOutcome.config";
+import  StatusBadge  from "@/shared/ui/badges/StatusBadge";
+import {
+  ACTIVITY_LOG_ALL_ACTIONS,
+  ACTIVITY_LOG_OUTCOME_CONFIG,
+  ACTIVITY_LOG_LEVEL_CONFIG,
+  ACTIVITY_LOG_SOURCE_CONFIG,
+} from "@/features/activity-log/config";
 import { formatDate } from "@/utils/formatters";
 
 /**
@@ -14,7 +16,9 @@ export const ACTIVITY_LOG_TABLE_COLUMNS = [
     key: "id",
     header: "شناسه",
     width: "w-14",
-    cell: ({ id }) => <span className="text-xs text-muted-foreground font-mono">#{id}</span>,
+    cell: ({ id }) => (
+      <span className="text-xs text-muted-foreground font-mono">#{id}</span>
+    ),
   },
   {
     key: "action",
@@ -22,7 +26,7 @@ export const ACTIVITY_LOG_TABLE_COLUMNS = [
     width: "w-28",
     filterKey: "action",
     cell: ({ action }) => {
-      const cfg = ACTIVITY_LOG_ACTION_CONFIG[action];
+      const cfg = ACTIVITY_LOG_ALL_ACTIONS[action];
       if (!cfg) return <span className="text-muted-foreground text-xs">—</span>;
       return (
         <span className="inline-flex items-center gap-1.5 text-xs font-medium">
@@ -53,7 +57,9 @@ export const ACTIVITY_LOG_TABLE_COLUMNS = [
     header: "سطح",
     width: "w-24",
     filterKey: "level",
-    cell: ({ level }) => <StatusBadge status={level} config={ACTIVITY_LOG_LEVEL_CONFIG} />,
+    cell: ({ level }) => (
+      <StatusBadge status={level} config={ACTIVITY_LOG_LEVEL_CONFIG} />
+    ),
   },
   {
     key: "outcome",
@@ -64,7 +70,9 @@ export const ACTIVITY_LOG_TABLE_COLUMNS = [
       const cfg = ACTIVITY_LOG_OUTCOME_CONFIG[outcome];
       if (!cfg) return <span className="text-muted-foreground text-xs">—</span>;
       return (
-        <span className={`inline-flex items-center gap-1 text-xs font-medium ${outcome === "success" ? "text-emerald-600" : "text-danger"}`}>
+        <span
+          className={`inline-flex items-center gap-1 text-xs font-medium ${outcome === "success" ? "text-emerald-600" : "text-danger"}`}
+        >
           <cfg.icon className="w-3.5 h-3.5" />
           {cfg.label}
         </span>
@@ -78,7 +86,9 @@ export const ACTIVITY_LOG_TABLE_COLUMNS = [
     cell: ({ entity_type, entity_id }) => (
       <div className="flex flex-col">
         <span className="text-xs font-medium">{entity_type || "—"}</span>
-        <span className="text-xs text-muted-foreground font-mono">ID: {entity_id || "—"}</span>
+        <span className="text-xs text-muted-foreground font-mono">
+          ID: {entity_id || "—"}
+        </span>
       </div>
     ),
   },
@@ -95,7 +105,10 @@ export const ACTIVITY_LOG_TABLE_COLUMNS = [
     header: "پیام",
     width: "w-48",
     cell: ({ message }) => (
-      <span className="text-xs text-muted-foreground truncate max-w-45" title={message}>
+      <span
+        className="text-xs text-muted-foreground truncate max-w-45"
+        title={message}
+      >
         {message || "—"}
       </span>
     ),
