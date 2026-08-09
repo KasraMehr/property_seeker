@@ -1,5 +1,4 @@
 import django_filters
-
 from django.db.models import Q
 
 from properties.models import Property
@@ -18,9 +17,7 @@ class PropertyFilter(django_filters.FilterSet):
     # Search
     # =====================================================
 
-    search = django_filters.CharFilter(
-        method="filter_search"
-    )
+    search = django_filters.CharFilter(method="filter_search")
 
     # =====================================================
     # Quick Filters
@@ -40,13 +37,9 @@ class PropertyFilter(django_filters.FilterSet):
     # Price
     # =====================================================
 
-    price_min = django_filters.NumberFilter(
-        method="filter_price_min"
-    )
+    price_min = django_filters.NumberFilter(method="filter_price_min")
 
-    price_max = django_filters.NumberFilter(
-        method="filter_price_max"
-    )
+    price_max = django_filters.NumberFilter(method="filter_price_max")
 
     # =====================================================
     # Area
@@ -89,37 +82,25 @@ class PropertyFilter(django_filters.FilterSet):
     # Owner
     # =====================================================
 
-    owner = django_filters.NumberFilter(
-        field_name="owner_id"
-    )
+    owner = django_filters.NumberFilter(field_name="owner_id")
 
     # =====================================================
     # Agent
     # =====================================================
 
-    agent = django_filters.NumberFilter(
-        field_name="agent_id"
-    )
+    agent = django_filters.NumberFilter(field_name="agent_id")
 
     # =====================================================
     # Location
     # =====================================================
 
-    province = django_filters.NumberFilter(
-        method="filter_province"
-    )
+    province = django_filters.NumberFilter(method="filter_province")
 
-    city = django_filters.NumberFilter(
-        method="filter_city"
-    )
+    city = django_filters.NumberFilter(method="filter_city")
 
-    district = django_filters.NumberFilter(
-        method="filter_district"
-    )
+    district = django_filters.NumberFilter(method="filter_district")
 
-    neighborhood = django_filters.NumberFilter(
-        method="filter_neighborhood"
-    )
+    neighborhood = django_filters.NumberFilter(method="filter_neighborhood")
 
     # =====================================================
     # Physical
@@ -263,17 +244,13 @@ class PropertyFilter(django_filters.FilterSet):
     # Has Owner
     # =====================================================
 
-    has_owner = django_filters.BooleanFilter(
-        method="filter_has_owner"
-    )
+    has_owner = django_filters.BooleanFilter(method="filter_has_owner")
 
     # =====================================================
     # Has Agent
     # =====================================================
 
-    has_agent = django_filters.BooleanFilter(
-        method="filter_has_agent"
-    )
+    has_agent = django_filters.BooleanFilter(method="filter_has_agent")
 
     # =====================================================
     # Created At
@@ -319,12 +296,9 @@ class PropertyFilter(django_filters.FilterSet):
 
         return queryset.filter(
             Q(title__icontains=value)
-            |
-            Q(property_code__icontains=value)
-            |
-            Q(description__icontains=value)
-            |
-            Q(address__full_text__icontains=value)
+            | Q(property_code__icontains=value)
+            | Q(description__icontains=value)
+            | Q(address__full_text__icontains=value)
         ).distinct()
 
     # =====================================================
@@ -343,12 +317,9 @@ class PropertyFilter(django_filters.FilterSet):
 
         return queryset.filter(
             Q(sale_price__gte=value)
-            |
-            Q(monthly_rent__gte=value)
-            |
-            Q(mortgage_amount__gte=value)
-            |
-            Q(deposit_amount__gte=value)
+            | Q(monthly_rent__gte=value)
+            | Q(mortgage_amount__gte=value)
+            | Q(deposit_amount__gte=value)
         )
 
     # =====================================================
@@ -367,12 +338,9 @@ class PropertyFilter(django_filters.FilterSet):
 
         return queryset.filter(
             Q(sale_price__lte=value)
-            |
-            Q(monthly_rent__lte=value)
-            |
-            Q(mortgage_amount__lte=value)
-            |
-            Q(deposit_amount__lte=value)
+            | Q(monthly_rent__lte=value)
+            | Q(mortgage_amount__lte=value)
+            | Q(deposit_amount__lte=value)
         )
 
     # =====================================================
@@ -389,9 +357,7 @@ class PropertyFilter(django_filters.FilterSet):
         if value is None:
             return queryset
 
-        return queryset.filter(
-            address__province_id=value
-        )
+        return queryset.filter(address__province_id=value)
 
     # =====================================================
     # CITY
@@ -407,9 +373,7 @@ class PropertyFilter(django_filters.FilterSet):
         if value is None:
             return queryset
 
-        return queryset.filter(
-            address__city_id=value
-        )
+        return queryset.filter(address__city_id=value)
 
     # =====================================================
     # DISTRICT
@@ -425,9 +389,7 @@ class PropertyFilter(django_filters.FilterSet):
         if value is None:
             return queryset
 
-        return queryset.filter(
-            address__district_id=value
-        )
+        return queryset.filter(address__district_id=value)
 
     # =====================================================
     # NEIGHBORHOOD
@@ -443,9 +405,7 @@ class PropertyFilter(django_filters.FilterSet):
         if value is None:
             return queryset
 
-        return queryset.filter(
-            address__neighborhood_id=value
-        )
+        return queryset.filter(address__neighborhood_id=value)
 
     # =====================================================
     # HAS OWNER
@@ -462,13 +422,9 @@ class PropertyFilter(django_filters.FilterSet):
             return queryset
 
         if value:
-            return queryset.filter(
-                owner__isnull=False
-            )
+            return queryset.filter(owner__isnull=False)
 
-        return queryset.filter(
-            owner__isnull=True
-        )
+        return queryset.filter(owner__isnull=True)
 
     # =====================================================
     # HAS AGENT
@@ -485,13 +441,9 @@ class PropertyFilter(django_filters.FilterSet):
             return queryset
 
         if value:
-            return queryset.filter(
-                agent__isnull=False
-            )
+            return queryset.filter(agent__isnull=False)
 
-        return queryset.filter(
-            agent__isnull=True
-        )
+        return queryset.filter(agent__isnull=True)
 
     class Meta:
 
@@ -499,68 +451,47 @@ class PropertyFilter(django_filters.FilterSet):
 
         fields = [
             "search",
-
             "deal_type",
             "status",
-
             "price_min",
             "price_max",
-
             "area_min",
             "area_max",
-
             "bedrooms_min",
             "bedrooms_max",
-
             "property_type",
-
             "owner",
             "agent",
-
             "province",
             "city",
             "district",
             "neighborhood",
-
             "age_min",
             "age_max",
-
             "floor_min",
             "floor_max",
-
             "total_floors_min",
             "total_floors_max",
-
             "bathrooms_min",
             "bathrooms_max",
-
             "parking_min",
             "parking_max",
-
             "storage_min",
             "storage_max",
-
             "orientation",
             "condition",
-
             "ppm_min",
             "ppm_max",
-
             "mortgage_min",
             "mortgage_max",
-
             "deposit_min",
             "deposit_max",
-
             "rent_min",
             "rent_max",
-
             "has_owner",
             "has_agent",
-
             "created_from",
             "created_to",
-
             "updated_from",
             "updated_to",
         ]

@@ -4,7 +4,7 @@ from django.db import IntegrityError, models, transaction
 from django.db.models import Q
 from django.utils import timezone
 
-from ingestion.models import IngestionRun, IngestionRunItem, ScrapeTarget, TargetListing
+from ingestion.models import IngestionRun, IngestionRunItem, TargetListing
 from listing.models import Listing
 
 
@@ -41,18 +41,26 @@ def create_run(*, target, mode, configuration=None):
                 configuration=configuration or {},
             )
     except IntegrityError as error:
-        raise RunAlreadyActive(f"Target {target.pk} already has an active run") from error
+        raise RunAlreadyActive(
+            f"Target {target.pk} already has an active run"
+        ) from error
 
 
 @transaction.atomic
 def populate_discovery_run(*, run, discovered):
-    run = IngestionRun.objects.select_for_update().select_related("target__source").get(pk=run.pk)
+    run = (
+        IngestionRun.objects.select_for_update()
+        .select_related("target__source")
+        .get(pk=run.pk)
+    )
     now = timezone.now()
     target = run.target
     tokens = [item.external_id for item in discovered]
     existing = {
         listing.external_id: listing
-        for listing in Listing.objects.filter(source=target.source, external_id__in=tokens)
+        for listing in Listing.objects.filter(
+            source=target.source, external_id__in=tokens
+        )
     }
     memberships = {
         membership.listing_id: membership
@@ -72,13 +80,23 @@ def populate_discovery_run(*, run, discovered):
         card_changed = bool(
             listing
             and item.card_fingerprint
-            and (not membership or membership.last_card_fingerprint != item.card_fingerprint)
+            and (
+                not membership
+                or membership.last_card_fingerprint != item.card_fingerprint
+            )
         )
         within_detail_limit = detail_limit is None or item.position < int(detail_limit)
         should_fetch = within_detail_limit and (
-            not listing or full_detail or card_changed or listing_refresh_due(listing, now)
+            not listing
+            or full_detail
+            or card_changed
+            or listing_refresh_due(listing, now)
         )
-        status = IngestionRunItem.Status.PENDING if should_fetch else IngestionRunItem.Status.SKIPPED
+        status = (
+            IngestionRunItem.Status.PENDING
+            if should_fetch
+            else IngestionRunItem.Status.SKIPPED
+        )
         queued_count += int(should_fetch)
         run_items.append(
             IngestionRunItem(
@@ -103,8 +121,14 @@ def populate_discovery_run(*, run, discovered):
                 defaults={
                     "last_seen_at": now,
                     "last_seen_full_discovery_at": (
-                        now if run.mode in {IngestionRun.Mode.FULL, IngestionRun.Mode.RECONCILIATION}
-                        else membership.last_seen_full_discovery_at if membership else None
+                        now
+                        if run.mode
+                        in {IngestionRun.Mode.FULL, IngestionRun.Mode.RECONCILIATION}
+                        else (
+                            membership.last_seen_full_discovery_at
+                            if membership
+                            else None
+                        )
                     ),
                     "consecutive_full_absences": 0,
                     "last_card_fingerprint": item.card_fingerprint,
@@ -113,12 +137,14 @@ def populate_discovery_run(*, run, discovered):
 
     IngestionRunItem.objects.bulk_create(run_items, ignore_conflicts=True)
     if run.mode in {IngestionRun.Mode.FULL, IngestionRun.Mode.RECONCILIATION}:
-        TargetListing.objects.filter(target=target).exclude(listing_id__in=seen_listing_ids).update(
-            consecutive_full_absences=models.F("consecutive_full_absences") + 1
-        )
+        TargetListing.objects.filter(target=target).exclude(
+            listing_id__in=seen_listing_ids
+        ).update(consecutive_full_absences=models.F("consecutive_full_absences") + 1)
         target.last_full_discovery_at = now
     target.last_discovery_at = now
-    target.last_watermark_external_id = tokens[0] if tokens else target.last_watermark_external_id
+    target.last_watermark_external_id = (
+        tokens[0] if tokens else target.last_watermark_external_id
+    )
     target.save(
         update_fields=[
             "last_discovery_at",
@@ -131,9 +157,7 @@ def populate_discovery_run(*, run, discovered):
     run.queued_count = queued_count
     run.status = IngestionRun.Status.RUNNING
     run.started_at = run.started_at or now
-    run.save(
-        update_fields=["discovered_count", "queued_count", "status", "started_at"]
-    )
+    run.save(update_fields=["discovered_count", "queued_count", "status", "started_at"])
     return run
 
 
@@ -167,13 +191,31 @@ def resume_run(*, run):
 def build_refresh_run(*, target, limit=500):
     now = timezone.now()
     candidates = (
-        Listing.objects.filter(target_memberships__target=target, status=Listing.Status.ACTIVE)
+        Listing.objects.filter(
+            target_memberships__target=target, status=Listing.Status.ACTIVE
+        )
         .filter(
             Q(last_checked_at__isnull=True)
-            | Q(review_status__in=[Listing.ReviewStatus.SHORTLISTED, Listing.ReviewStatus.PROMOTED], last_checked_at__lte=now - timedelta(hours=2))
-            | Q(first_seen_at__gte=now - timedelta(hours=72), last_checked_at__lte=now - timedelta(hours=6))
-            | Q(first_seen_at__gte=now - timedelta(days=30), first_seen_at__lt=now - timedelta(hours=72), last_checked_at__lte=now - timedelta(hours=24))
-            | Q(first_seen_at__lt=now - timedelta(days=30), last_checked_at__lte=now - timedelta(hours=72))
+            | Q(
+                review_status__in=[
+                    Listing.ReviewStatus.SHORTLISTED,
+                    Listing.ReviewStatus.PROMOTED,
+                ],
+                last_checked_at__lte=now - timedelta(hours=2),
+            )
+            | Q(
+                first_seen_at__gte=now - timedelta(hours=72),
+                last_checked_at__lte=now - timedelta(hours=6),
+            )
+            | Q(
+                first_seen_at__gte=now - timedelta(days=30),
+                first_seen_at__lt=now - timedelta(hours=72),
+                last_checked_at__lte=now - timedelta(hours=24),
+            )
+            | Q(
+                first_seen_at__lt=now - timedelta(days=30),
+                last_checked_at__lte=now - timedelta(hours=72),
+            )
         )
         .order_by("last_checked_at", "pk")
         .distinct()[:limit]
@@ -181,7 +223,9 @@ def build_refresh_run(*, target, limit=500):
     listings = list(candidates)
     if not listings:
         return None
-    run = create_run(target=target, mode=IngestionRun.Mode.REFRESH, configuration={"limit": limit})
+    run = create_run(
+        target=target, mode=IngestionRun.Mode.REFRESH, configuration={"limit": limit}
+    )
     IngestionRunItem.objects.bulk_create(
         [
             IngestionRunItem(

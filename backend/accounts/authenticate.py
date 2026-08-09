@@ -1,10 +1,7 @@
 from django.conf import settings
+from django.contrib.auth.backends import BaseBackend
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
-
-from .models import User
-
-from django.contrib.auth.backends import BaseBackend
 
 from .models import User
 
@@ -39,6 +36,7 @@ class PhoneBackend(BaseBackend):
 
         return user.is_active
 
+
 """
 
 ن کلاس برای احراز هویت با JWT از طریق Cookie است.
@@ -50,6 +48,8 @@ Authorization: Bearer eyJhbGciOi...
 اما تو می‌خواهی توکن داخل Cookie باشد، نه Header.
 در اخر کاربر از دیتابیس پیدا میکند و میفرستد
 """
+
+
 class CookieJWTAuthentication(JWTAuthentication):
     def authenticate(self, request):
         cookie_name = getattr(settings, "SIMPLE_JWT", {}).get("AUTH_COOKIE", "access")

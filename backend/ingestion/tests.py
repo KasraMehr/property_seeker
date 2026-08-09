@@ -1,8 +1,8 @@
 import json
-from contextlib import contextmanager
-from concurrent.futures import ThreadPoolExecutor
-from datetime import timedelta
 import threading
+from concurrent.futures import ThreadPoolExecutor
+from contextlib import contextmanager
+from datetime import timedelta
 from unittest import skipUnless
 from unittest.mock import patch
 
@@ -13,11 +13,19 @@ from django.test import SimpleTestCase, TestCase, TransactionTestCase
 from django.utils import timezone
 
 from accounts.models import Agency
-from ingestion.models import IngestionRun, IngestionRunItem, ListingSnapshot, ScrapeTarget
+from ingestion.models import (
+    IngestionRun,
+    IngestionRunItem,
+    ListingSnapshot,
+    ScrapeTarget,
+)
 from ingestion.providers.base import DiscoveredListing, ScrapedListing
 from ingestion.providers.divar.parser import parse_area_from_title, parse_listing_page
 from ingestion.providers.divar.provider import DivarProvider
-from ingestion.services.persistence import record_listing_removed, upsert_scraped_listing
+from ingestion.services.persistence import (
+    record_listing_removed,
+    upsert_scraped_listing,
+)
 from ingestion.services.promotion import promote_listing
 from ingestion.services.runs import (
     RunAlreadyActive,
@@ -78,7 +86,7 @@ class DivarParserTests(SimpleTestCase):
             }
         }
         html = (
-            '<script>window.__PRELOADED_STATE__ = '
+            "<script>window.__PRELOADED_STATE__ = "
             + json.dumps(state, ensure_ascii=False)
             + ";</script>"
             + """
@@ -122,15 +130,21 @@ class DivarParserTests(SimpleTestCase):
                     "title": "Listing",
                     "sections": {
                         "LIST_DATA": [{"data": {"title": "متراژ", "value": "۸۰"}}],
-                        "DESCRIPTION": [{
-                            "widgetType": "DESCRIPTION_ROW",
-                            "data": {"text": "انتشار آگهی: ۶ مرداد ۱۴۰۵، ۱۱:۵۲"},
-                        }],
+                        "DESCRIPTION": [
+                            {
+                                "widgetType": "DESCRIPTION_ROW",
+                                "data": {"text": "انتشار آگهی: ۶ مرداد ۱۴۰۵، ۱۱:۵۲"},
+                            }
+                        ],
                     },
                 }
             }
         }
-        html = '<script>window.__PRELOADED_STATE__ = ' + json.dumps(state, ensure_ascii=False) + ";</script>"
+        html = (
+            "<script>window.__PRELOADED_STATE__ = "
+            + json.dumps(state, ensure_ascii=False)
+            + ";</script>"
+        )
         result = parse_listing_page(html, "https://divar.ir/v/metadata1")
         self.assertEqual(result.description, "")
 
@@ -178,7 +192,9 @@ class IngestionPersistenceTests(TestCase):
         )
 
     def test_two_confirmed_removals_six_hours_apart_expire_listing(self):
-        listing = upsert_scraped_listing(payload=self.payload(), target=self.target).listing
+        listing = upsert_scraped_listing(
+            payload=self.payload(), target=self.target
+        ).listing
         first_check = timezone.now()
         record_listing_removed(listing=listing, checked_at=first_check)
         listing.refresh_from_db()
@@ -199,7 +215,9 @@ class IngestionPersistenceTests(TestCase):
         self.assertEqual(listing.status, Listing.Status.EXPIRED)
 
     def test_promoted_property_is_not_changed_by_later_source_updates(self):
-        listing = upsert_scraped_listing(payload=self.payload(), target=self.target).listing
+        listing = upsert_scraped_listing(
+            payload=self.payload(), target=self.target
+        ).listing
         agency = Agency.objects.create(name="Agency")
         actor = get_user_model().objects.create_user(
             phone="09120000000",
@@ -281,7 +299,9 @@ class RunPlanningTests(TestCase):
             discovered=[
                 DiscoveredListing("pinned-known", "https://divar.ir/v/pinned-known", 0),
                 DiscoveredListing("known", "https://divar.ir/v/known", 1, "same"),
-                DiscoveredListing("new-below-known", "https://divar.ir/v/new-below-known", 2),
+                DiscoveredListing(
+                    "new-below-known", "https://divar.ir/v/new-below-known", 2
+                ),
             ],
         )
 
@@ -356,7 +376,9 @@ class RunPlanningTests(TestCase):
 
                 raise ProviderError("timeout")
 
-        with patch("ingestion.tasks.create_divar_provider", return_value=FailingProvider()):
+        with patch(
+            "ingestion.tasks.create_divar_provider", return_value=FailingProvider()
+        ):
             process_run_batch.run(str(run.pk), enqueue_next=False)
 
         listing.refresh_from_db()
@@ -385,7 +407,9 @@ class PostgreSQLConcurrencyTests(TransactionTestCase):
 
         def worker():
             close_old_connections()
-            thread_target = ScrapeTarget.objects.select_related("source").get(pk=target.pk)
+            thread_target = ScrapeTarget.objects.select_related("source").get(
+                pk=target.pk
+            )
             barrier.wait(timeout=10)
             try:
                 return upsert_scraped_listing(

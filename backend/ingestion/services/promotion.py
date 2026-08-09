@@ -23,7 +23,9 @@ def promote_listing(
     if listing.property_id:
         raise ValidationError("This listing has already been promoted.")
     if actor.agency_id != owner.agency_id:
-        raise ValidationError("The owner and promoting agent must belong to the same agency.")
+        raise ValidationError(
+            "The owner and promoting agent must belong to the same agency."
+        )
     resolved_area = area or listing.listed_area
     if not resolved_area:
         raise ValidationError("Area is required before promoting a listing.")

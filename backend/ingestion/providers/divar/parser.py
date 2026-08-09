@@ -1,13 +1,11 @@
 import json
 import re
-from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import jdatetime
 from bs4 import BeautifulSoup
 
 from ingestion.providers.base import ScrapedListing
-
 
 DIGIT_TRANSLATION = str.maketrans(
     "۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩",
@@ -60,7 +58,9 @@ def parse_money(value):
         matched = False
         for number, unit in re.findall(r"([\d,٬.]+)\s*(میلیارد|میلیون|هزار)", text):
             try:
-                total += float(number.replace(",", "").replace("٬", "")) * multipliers[unit]
+                total += (
+                    float(number.replace(",", "").replace("٬", "")) * multipliers[unit]
+                )
                 matched = True
             except ValueError:
                 continue
@@ -83,7 +83,7 @@ def parse_preloaded_state(page_source):
         text = script.get_text() or ""
         if prefix not in text:
             continue
-        json_text = text[text.find(prefix) + len(prefix):].lstrip()
+        json_text = text[text.find(prefix) + len(prefix) :].lstrip()
         try:
             state, _ = json.JSONDecoder().raw_decode(json_text)
             return state
@@ -107,7 +107,10 @@ def iter_widget_data(sections, section_name):
 
 
 def parse_floor(value):
-    numbers = [int(number) for number in re.findall(r"\d+", str(value).translate(DIGIT_TRANSLATION))]
+    numbers = [
+        int(number)
+        for number in re.findall(r"\d+", str(value).translate(DIGIT_TRANSLATION))
+    ]
     if not numbers:
         return None, None
     return numbers[0], numbers[1] if len(numbers) > 1 else None
@@ -134,7 +137,8 @@ def apply_value(payload, title, value):
         payload["room_count"] = parse_int(value)
     elif label == "تصویر‌ها برای همین ملک است؟":
         payload["pictures_match_property"] = any(
-            word in str(value).strip().lower() for word in ("بله", "دارد", "yes", "true")
+            word in str(value).strip().lower()
+            for word in ("بله", "دارد", "yes", "true")
         )
     elif label == "قیمت کل":
         payload["total_price_toman"] = parse_money(value)
@@ -142,7 +146,10 @@ def apply_value(payload, title, value):
         payload["price_per_meter_toman"] = parse_money(value)
     elif any(word in label for word in ("ودیعه", "رهن", "Mortgage")):
         payload["mortgage_toman"] = parse_money(value)
-    elif any(word in label for word in ("اجارهٔ ماهانه", "اجاره ماهانه", "اجاره", "Monthly rent", "Rent")):
+    elif any(
+        word in label
+        for word in ("اجارهٔ ماهانه", "اجاره ماهانه", "اجاره", "Monthly rent", "Rent")
+    ):
         payload["monthly_rent_toman"] = parse_money(value)
     elif "بیعانه" in label:
         payload["deposit_toman"] = parse_money(value)
@@ -181,7 +188,9 @@ def extract_rendered_description(soup):
         heading = section.select_one("h2.kt-title-row__title")
         if not heading or heading.get_text(strip=True) != "توضیحات":
             continue
-        for candidate in section.select("p.kt-description-row__text.kt-description-row__text--primary"):
+        for candidate in section.select(
+            "p.kt-description-row__text.kt-description-row__text--primary"
+        ):
             description = clean_description(candidate.get_text(strip=True))
             if description:
                 return description
@@ -222,7 +231,9 @@ def parse_listing_page(page_source, url):
         payload["external_id"] = post.get("token") or token
         seo = post.get("seo") if isinstance(post.get("seo"), dict) else {}
         web_info = seo.get("webInfo") if isinstance(seo.get("webInfo"), dict) else {}
-        payload["title"] = post.get("title") or web_info.get("title") or seo.get("title") or ""
+        payload["title"] = (
+            post.get("title") or web_info.get("title") or seo.get("title") or ""
+        )
         sections = post.get("sections", {})
         for _, data in iter_widget_data(sections, "TITLE"):
             payload["title"] = payload["title"] or data.get("title") or ""
@@ -252,8 +263,15 @@ def parse_listing_page(page_source, url):
         values = table.select("tbody .kt-group-row-item__value")
         for label, value in zip(labels, values):
             key_snapshot = dict(payload)
-            apply_value(key_snapshot, label.get_text(strip=True), value.get_text(strip=True))
-            for key in ("area_m2", "build_year", "room_count", "pictures_match_property"):
+            apply_value(
+                key_snapshot, label.get_text(strip=True), value.get_text(strip=True)
+            )
+            for key in (
+                "area_m2",
+                "build_year",
+                "room_count",
+                "pictures_match_property",
+            ):
                 if payload[key] is None and key_snapshot[key] is not None:
                     payload[key] = key_snapshot[key]
     for row in soup.select("div.kt-unexpandable-row"):
@@ -274,7 +292,9 @@ def parse_listing_page(page_source, url):
         ):
             if payload[key] is None and candidate[key] is not None:
                 payload[key] = candidate[key]
-    payload["description"] = payload["description"] or extract_rendered_description(soup)
+    payload["description"] = payload["description"] or extract_rendered_description(
+        soup
+    )
     if payload["area_m2"] is None:
         payload["area_m2"] = parse_area_from_title(payload["title"])
     metadata = parse_source_datetime(soup.get_text("\n", strip=True))

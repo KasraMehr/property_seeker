@@ -3,15 +3,9 @@ from rest_framework import serializers
 from crm.models import CustomerPreference
 
 
-
 class CustomerPreferenceListSerializer(serializers.ModelSerializer):
 
-
-    customer_name = serializers.CharField(
-        source="customer.full_name",
-        read_only=True
-    )
-
+    customer_name = serializers.CharField(source="customer.full_name", read_only=True)
 
     class Meta:
 

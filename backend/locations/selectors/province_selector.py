@@ -7,10 +7,7 @@ class ProvinceSelector:
 
     @staticmethod
     def all():
-        return (
-            Province.objects
-            .order_by("name")
-        )
+        return Province.objects.order_by("name")
 
     @staticmethod
     def by_id(province_id):
@@ -21,21 +18,11 @@ class ProvinceSelector:
 
     @staticmethod
     def by_name(name):
-        return (
-            Province.objects
-            .filter(name=name)
-            .first()
-        )
+        return Province.objects.filter(name=name).first()
 
     @staticmethod
     def search(query):
-        return (
-            Province.objects
-            .filter(
-                name__icontains=query
-            )
-            .order_by("name")
-        )
+        return Province.objects.filter(name__icontains=query).order_by("name")
 
     @staticmethod
     def detail(pk):

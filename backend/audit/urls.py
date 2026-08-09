@@ -1,9 +1,5 @@
-
-from django.urls import path,include
-
+from django.urls import include, path
 
 urlpatterns = [
-    path("",include('audit.audit_urls.activity_urls')),
-
-
+    path("", include("audit.audit_urls.activity_urls")),
 ]

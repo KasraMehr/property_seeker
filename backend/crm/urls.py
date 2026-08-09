@@ -1,12 +1,10 @@
-
-from django.urls import path,include
-
+from django.urls import include, path
 
 urlpatterns = [
-    path("",include('crm.crm_urls.tag')),
-path("",include('crm.crm_urls.call_log')),
-path("",include('crm.crm_urls.customer')),
-path("",include('crm.crm_urls.property_visit')),
-path("",include('crm.crm_urls.customer_preference')),
-path("",include('crm.crm_urls.reminder')),
+    path("", include("crm.crm_urls.tag")),
+    path("", include("crm.crm_urls.call_log")),
+    path("", include("crm.crm_urls.customer")),
+    path("", include("crm.crm_urls.property_visit")),
+    path("", include("crm.crm_urls.customer_preference")),
+    path("", include("crm.crm_urls.reminder")),
 ]

@@ -1,8 +1,10 @@
 from rest_framework import serializers
 
-from properties.models import PropertyStatusHistory
-from ..serializers.property_detail import *
 from accounts.serializers.serializers import *
+from properties.models import PropertyStatusHistory
+
+from ..serializers.property_detail import *
+
 
 class PropertyStatusHistoryDetailSerializer(serializers.ModelSerializer):
 

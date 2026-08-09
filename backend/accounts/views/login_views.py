@@ -2,17 +2,17 @@ from django.conf import settings
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
-from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
+
+from audit.services.activity_log import ActivityLogService
 
 from ..serializers.login_serializers import LoginSerializer
 from ..serializers.serializers import UserSerializer
-from audit.services.activity_log import ActivityLogService
 
 
 def _set_jwt_cookies(response, refresh_token: RefreshToken):
@@ -39,7 +39,6 @@ def _set_jwt_cookies(response, refresh_token: RefreshToken):
         max_age=simple_jwt["REFRESH_TOKEN_LIFETIME_SECONDS"],
         path="/",
     )
-
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -94,7 +93,6 @@ class LoginPasswordView(APIView):
         return response
 
 
-
 @method_decorator(csrf_exempt, name="dispatch")  # برای تست CSRF را exempt کنید
 class RefreshTokenView(APIView):
     permission_classes = [AllowAny]
@@ -126,7 +124,9 @@ class RefreshTokenView(APIView):
             status=status.HTTP_200_OK,
         )
 
-        _set_jwt_cookies(response, RefreshToken(serializer.validated_data.get("refresh", refresh)))
+        _set_jwt_cookies(
+            response, RefreshToken(serializer.validated_data.get("refresh", refresh))
+        )
 
         return response
 
@@ -141,7 +141,6 @@ class VerifyTokenView(APIView):
                 "user": UserSerializer(request.user).data,
             },
             status=status.HTTP_200_OK,
-
         )
 
 

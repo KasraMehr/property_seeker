@@ -1,14 +1,16 @@
 from rest_framework import serializers
 
-from ..models import Property
-from .owner_detail import *
 from accounts.serializers.serializers import *
 from locations.serializers.address_list import *
 
+from ..models import Property
+from .owner_detail import *
+
+
 class PropertyDetailSerializer(serializers.ModelSerializer):
 
-    owner = serializers.ReadOnlyField(source='owner.full_name')
-    phone = serializers.ReadOnlyField(source='owner.phone')
+    owner = serializers.ReadOnlyField(source="owner.full_name")
+    phone = serializers.ReadOnlyField(source="owner.phone")
 
     agent = UserSerializer(read_only=True)
 

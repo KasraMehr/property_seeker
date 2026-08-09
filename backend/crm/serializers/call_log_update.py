@@ -18,9 +18,7 @@ class CallLogUpdateSerializer(serializers.ModelSerializer):
         )
 
         extra_kwargs = {
-            field: {
-                "required": False
-            }
+            field: {"required": False}
             for field in [
                 "customer",
                 "property",

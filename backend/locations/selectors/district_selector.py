@@ -7,11 +7,7 @@ class DistrictSelector:
 
     @staticmethod
     def all():
-        return (
-            District.objects
-            .select_related("city")
-            .order_by("name")
-        )
+        return District.objects.select_related("city").order_by("name")
 
     @staticmethod
     def by_id(pk):

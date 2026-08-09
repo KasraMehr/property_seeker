@@ -3,19 +3,16 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from accounts.permissions import *
 from properties.selector.property_status_history_selector import (
     PropertyStatusHistorySelector,
 )
-
 from properties.serializers.property_status_history_detail import (
     PropertyStatusHistoryDetailSerializer,
 )
-
 from properties.serializers.property_status_history_list import (
     PropertyStatusHistoryListSerializer,
 )
-
-from accounts.permissions import *
 
 
 class PropertyStatusHistoryListView(APIView):
@@ -61,4 +58,3 @@ class PropertyStatusHistoryDetailView(APIView):
             serializer.data,
             status=status.HTTP_200_OK,
         )
-

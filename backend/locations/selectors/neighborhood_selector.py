@@ -7,14 +7,10 @@ class NeighborhoodSelector:
 
     @staticmethod
     def all():
-        return (
-            Neighborhood.objects
-            .select_related(
-                "district",
-                "district__city",
-            )
-            .order_by("district__name", "name")
-        )
+        return Neighborhood.objects.select_related(
+            "district",
+            "district__city",
+        ).order_by("district__name", "name")
 
     @staticmethod
     def by_id(pk):

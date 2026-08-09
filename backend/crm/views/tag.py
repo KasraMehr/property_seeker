@@ -1,185 +1,109 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from crm.selectors.tag_selector import TagSelector
-
 from crm.serializers.tag import *
 
 
 class TagListCreateView(APIView):
 
-    permission_classes = [
-        IsAuthenticated
-    ]
+    permission_classes = [IsAuthenticated]
 
+    def get(self, request):
 
-    def get(self,request):
+        tags = TagSelector.all(request.user)
 
-        tags = TagSelector.all(
-            request.user
-        )
+        serializer = TagSerializer(tags, many=True)
 
+        return Response(serializer.data)
 
-        serializer = TagSerializer(
-            tags,
-            many=True
-        )
-
-
-        return Response(
-            serializer.data
-        )
-
-
-
-    def post(self,request):
+    def post(self, request):
 
         serializer = TagCreateSerializer(
-            data=request.data,
-            context={
-                "request":request
-            }
+            data=request.data, context={"request": request}
         )
 
-
-        serializer.is_valid(
-            raise_exception=True
-        )
-
+        serializer.is_valid(raise_exception=True)
 
         tag = serializer.save()
 
-
         return Response(
-            {
-                "message":
-                "تگ با موفقیت ایجاد شد",
-
-                "tag":
-                TagSerializer(tag).data
-            },
-            status=status.HTTP_201_CREATED
+            {"message": "تگ با موفقیت ایجاد شد", "tag": TagSerializer(tag).data},
+            status=status.HTTP_201_CREATED,
         )
-
 
 
 class TagDetailView(APIView):
 
-    permission_classes=[
-        IsAuthenticated
-    ]
+    permission_classes = [IsAuthenticated]
 
+    def get(self, request, pk):
 
-    def get(self,request,pk):
-
-        tag = TagSelector.by_id(
-            pk,
-            request.user
-        )
-
+        tag = TagSelector.by_id(pk, request.user)
 
         serializer = TagSerializer(tag)
 
+        return Response(serializer.data)
 
-        return Response(
-            serializer.data
-        )
+    def put(self, request, pk):
 
-
-
-    def put(self,request,pk):
-
-        tag = TagSelector.by_id(
-            pk,
-            request.user
-        )
-
+        tag = TagSelector.by_id(pk, request.user)
 
         serializer = TagUpdateSerializer(
-            tag,
-            data=request.data,
-            context={
-                "request":request
-            }
+            tag, data=request.data, context={"request": request}
         )
 
-
-        serializer.is_valid(
-            raise_exception=True
-        )
-
+        serializer.is_valid(raise_exception=True)
 
         tag.save()
 
+        return Response({"message": "تگ بروزرسانی شد", "tag": TagSerializer(tag).data})
 
-        return Response(
-            {
-                "message":
-                "تگ بروزرسانی شد",
+    def patch(self, request, pk):
 
-                "tag":
-                TagSerializer(tag).data
-            }
-        )
-
-
-
-    def patch(self,request,pk):
-
-        tag = TagSelector.by_id(
-            pk,
-            request.user
-        )
-
+        tag = TagSelector.by_id(pk, request.user)
 
         serializer = TagUpdateSerializer(
-            tag,
-            data=request.data,
-            partial=True,
-            context={
-                "request":request
-            }
+            tag, data=request.data, partial=True, context={"request": request}
         )
 
-
-        serializer.is_valid(
-            raise_exception=True
-        )
-
+        serializer.is_valid(raise_exception=True)
 
         tag = serializer.save()
 
+        return Response({"message": "تگ بروزرسانی شد", "tag": TagSerializer(tag).data})
 
-        return Response(
-            {
-                "message":
-                "تگ بروزرسانی شد",
+class TagBulkDeleteView(APIView):
+        permission_classes = [
+            IsAuthenticated,
+        ]
 
-                "tag":
-                TagSerializer(tag).data
-            }
-        )
+        def delete(self, request):
+            tag_ids = request.data.get("ids", [])
 
+            if not tag_ids:
+                return Response(
+                    {"message": "حداقل یک تگ را انتخاب کنید."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
+            deleted_count = 0
 
-    def delete(self,request,pk):
+            for tag_id in tag_ids:
+                tag = TagSelector.by_id(
+                    tag_id,
+                    request.user,
+                )
 
-        tag = TagSelector.by_id(
-            pk,
-            request.user
-        )
+                tag.delete()
+                deleted_count += 1
 
-
-        tag.delete()
-
-
-        return Response(
-            {
-                "message":
-                "تگ حذف شد"
-            },
-            status=204
-        )
+            return Response(
+                {
+                    "message": f"{deleted_count} تگ با موفقیت حذف شد.",
+                    "deleted_count": deleted_count,
+                },
+                status=status.HTTP_200_OK,
+            )

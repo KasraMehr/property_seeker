@@ -1,191 +1,124 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-
-from crm.selectors.customers import CustomerSelector
-
-
-from crm.serializers.customer_create import CustomerCreateSerializer
-from crm.serializers.customer_list import CustomerListSerializer
-from crm.serializers.customer_detail import CustomerDetailSerializer
-from crm.serializers.customer_update import CustomerUpdateSerializer
 from accounts.permissions import *
+from crm.selectors.customers import CustomerSelector
+from crm.serializers.customer_create import CustomerCreateSerializer
+from crm.serializers.customer_detail import CustomerDetailSerializer
+from crm.serializers.customer_list import CustomerListSerializer
+from crm.serializers.customer_update import CustomerUpdateSerializer
 
 
 class CustomerListCreateView(APIView):
 
-    permission_classes = [
-        IsAuthenticated,
-        HasRolePermission
-    ]
+    permission_classes = [IsAuthenticated, HasRolePermission]
 
     required_permission = "create_customer"
 
+    def get(self, request):
 
+        customers = CustomerSelector.all(request.user)
 
-    def get(self,request):
+        serializer = CustomerListSerializer(customers, many=True)
 
-        customers = CustomerSelector.all(
-            request.user
-        )
+        return Response(serializer.data)
 
-
-        serializer = CustomerListSerializer(
-            customers,
-            many=True
-        )
-
-
-        return Response(
-            serializer.data
-        )
-
-
-
-    def post(self,request):
+    def post(self, request):
 
         serializer = CustomerCreateSerializer(
-            data=request.data,
-            context={
-                "request":request
-            }
+            data=request.data, context={"request": request}
         )
 
-
-        serializer.is_valid(
-            raise_exception=True
-        )
-
+        serializer.is_valid(raise_exception=True)
 
         customer = serializer.save()
 
-
         return Response(
             {
-                "message":"مشتری ایجاد شد",
-                "customer":
-                    CustomerDetailSerializer(customer).data
+                "message": "مشتری ایجاد شد",
+                "customer": CustomerDetailSerializer(customer).data,
             },
-            status=status.HTTP_201_CREATED
+            status=status.HTTP_201_CREATED,
         )
-
-
 
 
 class CustomerDetailView(APIView):
-    permission_classes = [
-        IsAuthenticated,
-        HasRolePermission
-    ]
+    permission_classes = [IsAuthenticated, HasRolePermission]
 
     required_permission = "view_customer"
 
+    def get(self, request, pk):
 
+        customer = CustomerSelector.by_id(pk, request.user)
 
-    def get(self,request,pk):
+        serializer = CustomerDetailSerializer(customer)
 
-        customer = CustomerSelector.by_id(
-            pk,
-            request.user
-        )
+        return Response(serializer.data)
 
+    def put(self, request, pk):
 
-        serializer = CustomerDetailSerializer(
-            customer
-        )
-
-
-        return Response(
-            serializer.data
-        )
-
-
-
-    def put(self,request,pk):
-
-        customer = CustomerSelector.by_id(
-            pk,
-            request.user
-        )
-
+        customer = CustomerSelector.by_id(pk, request.user)
 
         serializer = CustomerUpdateSerializer(
-            customer,
-            data=request.data,
-            context={
-                "request":request
-            }
+            customer, data=request.data, context={"request": request}
         )
 
-
-        serializer.is_valid(
-            raise_exception=True
-        )
-
+        serializer.is_valid(raise_exception=True)
 
         serializer.save()
 
+        return Response({"message": "مشتری بروزرسانی شد"})
 
-        return Response(
-            {
-                "message":"مشتری بروزرسانی شد"
-            }
-        )
+    def patch(self, request, pk):
 
-
-
-    def patch(self,request,pk):
-
-        customer = CustomerSelector.by_id(
-            pk,
-            request.user
-        )
-
+        customer = CustomerSelector.by_id(pk, request.user)
 
         serializer = CustomerUpdateSerializer(
-            customer,
-            data=request.data,
-            partial=True,
-            context={
-                "request":request
-            }
+            customer, data=request.data, partial=True, context={"request": request}
         )
 
-
-        serializer.is_valid(
-            raise_exception=True
-        )
-
+        serializer.is_valid(raise_exception=True)
 
         serializer.save()
 
+        return Response({"message": "مشتری بروزرسانی شد"})
 
-        return Response(
-            {
-                "message":"مشتری بروزرسانی شد"
-            }
+class CustomerBulkDeleteView(APIView):
+        permission_classes = (
+            IsAuthenticated,
+            HasRolePermission,
         )
 
+        required_permission = "delete_customer"
 
+        def delete(self, request):
+            customer_ids = request.data.get("ids", [])
 
-    def delete(self,request,pk):
+            if not customer_ids:
+                return Response(
+                    {"message": "حداقل یک مشتری را انتخاب کنید."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
-        customer = CustomerSelector.by_id(
-            pk,
-            request.user
-        )
+            deleted_count = 0
 
+            for customer_id in customer_ids:
+                customer = CustomerSelector.by_id(
+                    customer_id,
+                    request.user,
+                )
 
-        customer.is_deleted=True
+                customer.is_deleted = True
+                customer.save(update_fields=["is_deleted"])
 
-        customer.save()
+                deleted_count += 1
 
-
-        return Response(
-            {
-                "message":"مشتری حذف شد"
-            },
-            status=204
-        )
+            return Response(
+                {
+                    "message": f"{deleted_count} مشتری با موفقیت حذف شد.",
+                    "deleted_count": deleted_count,
+                },
+                status=status.HTTP_200_OK,
+            )

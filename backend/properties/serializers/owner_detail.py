@@ -1,13 +1,10 @@
 from rest_framework import serializers
 
-from ..models import Owner
-
-
-from rest_framework import serializers
-
-from ..models import Property
 from accounts.serializers.serializers import *
 from locations.serializers.address_list import *
+
+from ..models import Owner, Property
+
 
 class OwnerPropertySerializer(serializers.ModelSerializer):
 
@@ -25,12 +22,10 @@ class OwnerPropertySerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "property_code",
-
             "agent",
             "address",
             "agency",
             "create_by",
-
             "title",
             "property_type",
             "deal_type",
@@ -55,16 +50,12 @@ class OwnerPropertySerializer(serializers.ModelSerializer):
             "updated_at",
         )
 
+
 class OwnerDetailSerializer(serializers.ModelSerializer):
 
-    properties_count = serializers.IntegerField(
-        read_only=True
-    )
+    properties_count = serializers.IntegerField(read_only=True)
 
-    properties = OwnerPropertySerializer(
-        many=True,
-        read_only=True
-    )
+    properties = OwnerPropertySerializer(many=True, read_only=True)
 
     class Meta:
         model = Owner

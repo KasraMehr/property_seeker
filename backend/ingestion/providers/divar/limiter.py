@@ -14,7 +14,9 @@ class LocalRequestLimiter:
         with self._lock:
             now = time.monotonic()
             scheduled = max(now, self._next_request_at, self._blocked_until)
-            self._next_request_at = scheduled + self.interval_seconds + random.uniform(0, 0.5)
+            self._next_request_at = (
+                scheduled + self.interval_seconds + random.uniform(0, 0.5)
+            )
         delay = scheduled - time.monotonic()
         if delay > 0:
             time.sleep(delay)

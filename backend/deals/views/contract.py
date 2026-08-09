@@ -1,17 +1,14 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from accounts.permissions import IsAgencyOwner
 
 from ..selectors.contract_selector import ContractSelector
-
 from ..serializers.contract_create import ContractCreateSerializer
-from ..serializers.contract_update import ContractUpdateSerializer
 from ..serializers.contract_detail import ContractDetailSerializer
 from ..serializers.contract_list import ContractListSerializer
-
-
+from ..serializers.contract_update import ContractUpdateSerializer
 
 
 class ContractListCreateView(APIView):

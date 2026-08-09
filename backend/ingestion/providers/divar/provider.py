@@ -14,6 +14,7 @@ from selenium.webdriver.edge.options import Options as EdgeOptions
 from selenium.webdriver.support.ui import WebDriverWait
 
 from ingestion.providers.base import DiscoveredListing
+
 from .limiter import LocalRequestLimiter
 from .parser import listing_token_from_url, parse_listing_page, parse_preloaded_state
 
@@ -114,7 +115,11 @@ class DivarProvider:
 
     @staticmethod
     def _page_text(page_source):
-        return BeautifulSoup(page_source or "", "html.parser").get_text(" ", strip=True).lower()
+        return (
+            BeautifulSoup(page_source or "", "html.parser")
+            .get_text(" ", strip=True)
+            .lower()
+        )
 
     def _classify_page(self, page_source):
         text = self._page_text(page_source)
@@ -134,9 +139,17 @@ class DivarProvider:
         ):
             return True
         state = parse_preloaded_state(page_source)
-        post = state.get("currentPost", {}).get("post") if isinstance(state, dict) else None
+        post = (
+            state.get("currentPost", {}).get("post")
+            if isinstance(state, dict)
+            else None
+        )
         sections = post.get("sections", {}) if isinstance(post, dict) else {}
-        return any(bool(widgets) for widgets in sections.values()) if isinstance(sections, dict) else False
+        return (
+            any(bool(widgets) for widgets in sections.values())
+            if isinstance(sections, dict)
+            else False
+        )
 
     @staticmethod
     def _fill_missing_details(primary, fallback):
@@ -146,7 +159,9 @@ class DivarProvider:
             return primary
         for model_field in fields(primary):
             name = model_field.name
-            if getattr(primary, name) in (None, "", 0) and getattr(fallback, name) not in (
+            if getattr(primary, name) in (None, "", 0) and getattr(
+                fallback, name
+            ) not in (
                 None,
                 "",
                 0,
@@ -165,30 +180,51 @@ class DivarProvider:
                 continue
             card_text = anchor.get_text(" ", strip=True)
             card_payload = {"text": card_text[:1000]} if card_text else {}
-            fingerprint = hashlib.sha256(
-                json.dumps(card_payload, ensure_ascii=False, sort_keys=True).encode("utf-8")
-            ).hexdigest() if card_payload else ""
+            fingerprint = (
+                hashlib.sha256(
+                    json.dumps(card_payload, ensure_ascii=False, sort_keys=True).encode(
+                        "utf-8"
+                    )
+                ).hexdigest()
+                if card_payload
+                else ""
+            )
             discovered.setdefault(token, (url, fingerprint, card_payload))
 
         state = parse_preloaded_state(page_source)
         if isinstance(state, dict):
             nb = state.get("nb") if isinstance(state.get("nb"), dict) else {}
-            pagination = nb.get("pagination") if isinstance(nb.get("pagination"), dict) else {}
-            for token in pagination.get("tokens", []) if isinstance(pagination.get("tokens"), list) else []:
-                if isinstance(token, str) and re.fullmatch(r"[A-Za-z0-9_-]{6,32}", token):
-                    discovered.setdefault(token, (f"https://divar.ir/v/{token}", "", {}))
-            widgets = nb.get("listWidgets") if isinstance(nb.get("listWidgets"), list) else []
+            pagination = (
+                nb.get("pagination") if isinstance(nb.get("pagination"), dict) else {}
+            )
+            for token in (
+                pagination.get("tokens", [])
+                if isinstance(pagination.get("tokens"), list)
+                else []
+            ):
+                if isinstance(token, str) and re.fullmatch(
+                    r"[A-Za-z0-9_-]{6,32}", token
+                ):
+                    discovered.setdefault(
+                        token, (f"https://divar.ir/v/{token}", "", {})
+                    )
+            widgets = (
+                nb.get("listWidgets") if isinstance(nb.get("listWidgets"), list) else []
+            )
             for widget in widgets:
                 data = widget.get("data") if isinstance(widget, dict) else None
                 token = data.get("token") if isinstance(data, dict) else None
-                if isinstance(token, str) and re.fullmatch(r"[A-Za-z0-9_-]{6,32}", token):
-                    discovered.setdefault(token, (f"https://divar.ir/v/{token}", "", {}))
+                if isinstance(token, str) and re.fullmatch(
+                    r"[A-Za-z0-9_-]{6,32}", token
+                ):
+                    discovered.setdefault(
+                        token, (f"https://divar.ir/v/{token}", "", {})
+                    )
         return discovered
 
     @staticmethod
     def _scroll(driver):
-        driver.execute_script(
-            """
+        driver.execute_script("""
             const nodes = [document.scrollingElement, document.documentElement, document.body,
               ...Array.from(document.querySelectorAll('*')).filter((el) => {
                 const style = getComputedStyle(el);
@@ -198,8 +234,7 @@ class DivarProvider:
               try { node.scrollTop += 1800; node.dispatchEvent(new Event('scroll', {bubbles: true})); } catch (_) {}
             }
             window.scrollBy(0, 1800);
-            """
-        )
+            """)
 
     def discover(
         self,
@@ -228,7 +263,7 @@ class DivarProvider:
                 except TimeoutException as error:
                     discovery_error = error
                     self._classify_page(driver.page_source)
-                    self.limiter.block(10 * (2 ** attempt))
+                    self.limiter.block(10 * (2**attempt))
             if discovery_error is not None:
                 raise ProviderError(
                     "Search page did not expose listing links after three attempts"
@@ -241,7 +276,9 @@ class DivarProvider:
                 current = self._extract_links(driver.page_source)
                 before = len(all_links)
                 all_links.update(current)
-                consecutive_no_new = consecutive_no_new + 1 if len(all_links) == before else 0
+                consecutive_no_new = (
+                    consecutive_no_new + 1 if len(all_links) == before else 0
+                )
 
                 ordered_tokens = list(all_links)
                 trailing_known = 0
@@ -250,7 +287,11 @@ class DivarProvider:
                         break
                     trailing_known += 1
 
-                if not full and len(all_links) >= min(100, max_cards) and trailing_known >= known_streak:
+                if (
+                    not full
+                    and len(all_links) >= min(100, max_cards)
+                    and trailing_known >= known_streak
+                ):
                     break
                 if not full and len(all_links) >= max_cards:
                     break
@@ -270,7 +311,9 @@ class DivarProvider:
                     card_fingerprint=fingerprint,
                     card_payload=card_payload,
                 )
-                for index, (token, (url, fingerprint, card_payload)) in enumerate(all_links.items())
+                for index, (token, (url, fingerprint, card_payload)) in enumerate(
+                    all_links.items()
+                )
             ]
 
     def fetch_listing(self, url, *, driver=None):
@@ -298,7 +341,7 @@ class DivarProvider:
             if details is not None and self._detail_page_ready(page_source):
                 return self._fill_missing_details(details, best_details)
             if attempt < 2:
-                self.limiter.block(5 * (2 ** attempt))
+                self.limiter.block(5 * (2**attempt))
         if best_details is not None:
             return best_details
         raise ProviderError("Listing page did not contain a substantive listing")

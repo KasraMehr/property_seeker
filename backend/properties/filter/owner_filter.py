@@ -9,9 +9,7 @@ class OwnerFilter(django_filters.FilterSet):
     # Created By
     # ─────────────────────────────
 
-    created_by = django_filters.NumberFilter(
-        field_name="created_by_id"
-    )
+    created_by = django_filters.NumberFilter(field_name="created_by_id")
 
     # ─────────────────────────────
     # Has Alternate Phone
@@ -21,25 +19,16 @@ class OwnerFilter(django_filters.FilterSet):
         method="filter_has_alternate_phone"
     )
 
-    def filter_has_alternate_phone(
-        self,
-        queryset,
-        name,
-        value#از queryset میگیریم.
-    ):
+    def filter_has_alternate_phone(self, queryset, name, value):  # از queryset میگیریم.
         if value is None:
             return queryset
 
         if value:
-            return queryset.exclude(
-                alternate_phone__isnull=True
-            ).exclude(
+            return queryset.exclude(alternate_phone__isnull=True).exclude(
                 alternate_phone=""
             )
 
-        return queryset.filter(
-            alternate_phone=""
-        ) | queryset.filter(
+        return queryset.filter(alternate_phone="") | queryset.filter(
             alternate_phone__isnull=True
         )
 
@@ -47,29 +36,16 @@ class OwnerFilter(django_filters.FilterSet):
     # Has National ID
     # ─────────────────────────────
 
-    has_national_id = django_filters.BooleanFilter(
-        method="filter_has_national_id"
-    )
+    has_national_id = django_filters.BooleanFilter(method="filter_has_national_id")
 
-    def filter_has_national_id(
-        self,
-        queryset,
-        name,
-        value
-    ):
+    def filter_has_national_id(self, queryset, name, value):
         if value is None:
             return queryset
 
         if value:
-            return queryset.exclude(
-                national_id__isnull=True
-            ).exclude(
-                national_id=""
-            )
+            return queryset.exclude(national_id__isnull=True).exclude(national_id="")
 
-        return queryset.filter(
-            national_id=""
-        ) | queryset.filter(
+        return queryset.filter(national_id="") | queryset.filter(
             national_id__isnull=True
         )
 
@@ -77,44 +53,27 @@ class OwnerFilter(django_filters.FilterSet):
     # Has Notes
     # ─────────────────────────────
 
-    has_notes = django_filters.BooleanFilter(
-        method="filter_has_notes"
-    )
+    has_notes = django_filters.BooleanFilter(method="filter_has_notes")
 
-    def filter_has_notes(
-        self,
-        queryset,
-        name,
-        value
-    ):
+    def filter_has_notes(self, queryset, name, value):
         if value is None:
             return queryset
 
         if value:
-            return queryset.exclude(
-                notes__isnull=True
-            ).exclude(
-                notes=""
-            )
+            return queryset.exclude(notes__isnull=True).exclude(notes="")
 
-        return queryset.filter(
-            notes=""
-        ) | queryset.filter(
-            notes__isnull=True
-        )
+        return queryset.filter(notes="") | queryset.filter(notes__isnull=True)
 
     # ─────────────────────────────
     # Created At
     # ─────────────────────────────
 
     created_from = django_filters.IsoDateTimeFilter(
-        field_name="created_at",
-        lookup_expr="gte"
+        field_name="created_at", lookup_expr="gte"
     )
 
     created_to = django_filters.IsoDateTimeFilter(
-        field_name="created_at",
-        lookup_expr="lte"
+        field_name="created_at", lookup_expr="lte"
     )
 
     # ─────────────────────────────
@@ -122,13 +81,11 @@ class OwnerFilter(django_filters.FilterSet):
     # ─────────────────────────────
 
     updated_from = django_filters.IsoDateTimeFilter(
-        field_name="updated_at",
-        lookup_expr="gte"
+        field_name="updated_at", lookup_expr="gte"
     )
 
     updated_to = django_filters.IsoDateTimeFilter(
-        field_name="updated_at",
-        lookup_expr="lte"
+        field_name="updated_at", lookup_expr="lte"
     )
 
     class Meta:

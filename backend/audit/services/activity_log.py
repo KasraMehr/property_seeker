@@ -23,40 +23,24 @@ class ActivityLogService:
 
         ActivityLog.objects.create(
             user=request.user if request.user.is_authenticated else None,
-
             action=action,
-
             source=ActivityLog.Source.API,
-
             level=level,
-
             outcome=outcome,
-
             entity_type=entity_type,
-
             entity_id=str(entity_id),
-
             old_data=old_data or {},
-
             new_data=new_data or {},
-
             request_method=request.method,
-
             request_path=request.path,
-
             query_params=request.query_params.dict(),
-
             status_code=status_code,
-
             ip_address=request.META.get("REMOTE_ADDR"),
-
             user_agent=request.META.get(
                 "HTTP_USER_AGENT",
                 "",
             ),
-
             message=message,
-
             error_trace=error_trace,
         )
 
@@ -230,10 +214,10 @@ class ActivityLogService:
 
     @classmethod
     def login_failed(
-            cls,
-            request,
-            phone,
-            message="ورود ناموفق",
+        cls,
+        request,
+        phone,
+        message="ورود ناموفق",
     ):
         cls._create(
             request=request,
@@ -248,9 +232,9 @@ class ActivityLogService:
 
     @classmethod
     def logout_failed(
-            cls,
-            request,
-            message="خروج ناموفق",
+        cls,
+        request,
+        message="خروج ناموفق",
     ):
         cls._create(
             request=request,

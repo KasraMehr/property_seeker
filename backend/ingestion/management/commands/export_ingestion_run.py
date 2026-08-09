@@ -6,7 +6,6 @@ from django.utils import timezone
 
 from ingestion.models import IngestionRun
 
-
 EXPORT_FIELDS = (
     "external_id",
     "url",

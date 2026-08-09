@@ -1,18 +1,16 @@
 from rest_framework import serializers
 
-from properties.models import PropertyFeature, Property, Feature
+from properties.models import Feature, Property, PropertyFeature
 
 
 class PropertyFeatureUpdateSerializer(serializers.ModelSerializer):
 
     property = serializers.PrimaryKeyRelatedField(
-        queryset=Property.objects.none(),
-        required=False
+        queryset=Property.objects.none(), required=False
     )
 
     feature = serializers.PrimaryKeyRelatedField(
-        queryset=Feature.objects.all(),
-        required=False
+        queryset=Feature.objects.all(), required=False
     )
 
     class Meta:
@@ -35,10 +33,14 @@ class PropertyFeatureUpdateSerializer(serializers.ModelSerializer):
         property_obj = attrs.get("property", self.instance.property)
         feature = attrs.get("feature", self.instance.feature)
 
-        if PropertyFeature.objects.filter(
-            property=property_obj,
-            feature=feature,
-        ).exclude(id=self.instance.id).exists():
+        if (
+            PropertyFeature.objects.filter(
+                property=property_obj,
+                feature=feature,
+            )
+            .exclude(id=self.instance.id)
+            .exists()
+        ):
             raise serializers.ValidationError(
                 "این ویژگی قبلاً برای این ملک ثبت شده است."
             )

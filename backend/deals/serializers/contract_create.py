@@ -1,5 +1,7 @@
-from ..models import Contract, ContractHistory,Deal
 from rest_framework import serializers
+
+from ..models import Contract, ContractHistory, Deal
+
 
 class ContractCreateSerializer(serializers.ModelSerializer):
 

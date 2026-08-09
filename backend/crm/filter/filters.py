@@ -4,10 +4,7 @@ from django.db.models import Q
 from crm.models import CallLog
 
 
-class CharInFilter(
-    django_filters.BaseInFilter,
-    django_filters.CharFilter
-):
+class CharInFilter(django_filters.BaseInFilter, django_filters.CharFilter):
     pass
 
 
@@ -17,9 +14,7 @@ class CallLogFilter(django_filters.FilterSet):
     # Search
     # =========================
 
-    search = django_filters.CharFilter(
-        method="filter_search"
-    )
+    search = django_filters.CharFilter(method="filter_search")
 
     # =========================
     # Quick filters
@@ -35,9 +30,7 @@ class CallLogFilter(django_filters.FilterSet):
         lookup_expr="in",
     )
 
-    handled_by = django_filters.NumberFilter(
-        field_name="handled_by_id"
-    )
+    handled_by = django_filters.NumberFilter(field_name="handled_by_id")
 
     # =========================
     # Call date
@@ -57,9 +50,7 @@ class CallLogFilter(django_filters.FilterSet):
     # Customer
     # =========================
 
-    customer = django_filters.NumberFilter(
-        field_name="customer_id"
-    )
+    customer = django_filters.NumberFilter(field_name="customer_id")
 
     customer_type = CharInFilter(
         field_name="customer__customer_type",
@@ -70,29 +61,21 @@ class CallLogFilter(django_filters.FilterSet):
     # Property
     # =========================
 
-    property = django_filters.NumberFilter(
-        field_name="property_id"
-    )
+    property = django_filters.NumberFilter(field_name="property_id")
 
     # =========================
     # Listing
     # =========================
 
-    listing = django_filters.NumberFilter(
-        field_name="listing_id"
-    )
+    listing = django_filters.NumberFilter(field_name="listing_id")
 
     # =========================
     # Follow up
     # =========================
 
-    has_follow_up = django_filters.BooleanFilter(
-        method="filter_has_follow_up"
-    )
+    has_follow_up = django_filters.BooleanFilter(method="filter_has_follow_up")
 
-    follow_up_done = django_filters.BooleanFilter(
-        field_name="follow_up_done"
-    )
+    follow_up_done = django_filters.BooleanFilter(field_name="follow_up_done")
 
     has_next_follow_up = django_filters.BooleanFilter(
         method="filter_has_next_follow_up"
@@ -116,17 +99,13 @@ class CallLogFilter(django_filters.FilterSet):
     # Record
     # =========================
 
-    has_record = django_filters.BooleanFilter(
-        method="filter_has_record"
-    )
+    has_record = django_filters.BooleanFilter(method="filter_has_record")
 
     # =========================
     # Deleted
     # =========================
 
-    is_deleted = django_filters.BooleanFilter(
-        field_name="is_deleted"
-    )
+    is_deleted = django_filters.BooleanFilter(field_name="is_deleted")
 
     # =========================
     # Created date
@@ -157,12 +136,7 @@ class CallLogFilter(django_filters.FilterSet):
             | Q(note__icontains=value)
         ).distinct()
 
-    def filter_has_follow_up(
-        self,
-        queryset,
-        name,
-        value
-    ):
+    def filter_has_follow_up(self, queryset, name, value):
 
         if value is None:
             return queryset
@@ -174,50 +148,28 @@ class CallLogFilter(django_filters.FilterSet):
             )
 
         return queryset.filter(
-            Q(next_follow_up_at__isnull=True)
-            | Q(follow_up_done=True)
+            Q(next_follow_up_at__isnull=True) | Q(follow_up_done=True)
         )
 
-    def filter_has_next_follow_up(
-        self,
-        queryset,
-        name,
-        value
-    ):
+    def filter_has_next_follow_up(self, queryset, name, value):
 
         if value is None:
             return queryset
 
         if value:
-            return queryset.filter(
-                next_follow_up_at__isnull=False
-            )
+            return queryset.filter(next_follow_up_at__isnull=False)
 
-        return queryset.filter(
-            next_follow_up_at__isnull=True
-        )
+        return queryset.filter(next_follow_up_at__isnull=True)
 
-    def filter_has_record(
-        self,
-        queryset,
-        name,
-        value
-    ):
+    def filter_has_record(self, queryset, name, value):
 
         if value is None:
             return queryset
 
         if value:
-            return queryset.filter(
-                record_file__isnull=False
-            ).exclude(
-                record_file=""
-            )
+            return queryset.filter(record_file__isnull=False).exclude(record_file="")
 
-        return queryset.filter(
-            Q(record_file__isnull=True)
-            | Q(record_file="")
-        )
+        return queryset.filter(Q(record_file__isnull=True) | Q(record_file=""))
 
     class Meta:
         model = CallLog

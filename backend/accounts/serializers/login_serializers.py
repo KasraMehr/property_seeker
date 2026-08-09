@@ -3,12 +3,10 @@
 from django.contrib.auth import authenticate
 from rest_framework import serializers
 
+
 class LoginSerializer(serializers.Serializer):
     phone = serializers.CharField(max_length=20)
-    password = serializers.CharField(
-        write_only=True,
-        style={"input_type": "password"}
-    )
+    password = serializers.CharField(write_only=True, style={"input_type": "password"})
 
     def validate(self, attrs):
         phone = attrs.get("phone")
@@ -18,21 +16,13 @@ class LoginSerializer(serializers.Serializer):
         request = self.context.get("request")
 
         # پاس دادن request به عنوان ورودی اول
-        user = authenticate(
-            request=request,
-            phone=phone,
-            password=password
-        )
+        user = authenticate(request=request, phone=phone, password=password)
 
         if user is None:
-            raise serializers.ValidationError(
-                "شماره موبایل یا رمز عبور اشتباه است."
-            )
+            raise serializers.ValidationError("شماره موبایل یا رمز عبور اشتباه است.")
 
         if not user.is_active:
-            raise serializers.ValidationError(
-                "حساب کاربری غیرفعال است."
-            )
+            raise serializers.ValidationError("حساب کاربری غیرفعال است.")
 
         attrs["user"] = user
         return attrs

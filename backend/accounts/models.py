@@ -1,12 +1,12 @@
-from django.db import models
 from django.contrib.auth.models import (
     AbstractBaseUser,
-
-    PermissionsMixin,
     BaseUserManager,
+    Permission,
+    PermissionsMixin,
 )
 from django.core.validators import RegexValidator
-from django.contrib.auth.models import Permission
+from django.db import models
+
 
 # =========================
 # Agency
@@ -84,6 +84,7 @@ class Role(models.Model):
 
     def __str__(self):
         return f"{self.agency.name} - {self.name}"
+
 
 # =========================
 # User Manager

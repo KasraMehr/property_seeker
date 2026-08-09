@@ -7,36 +7,27 @@ class PropertySelector:
     def all(user):
 
         return (
-            Property.objects
-            .select_related(
+            Property.objects.select_related(
                 "agency",
                 "owner",
                 "agent",
                 "create_by",
                 "address",
             )
-            .filter(
-                agency=user.agency
-            )
-            .order_by(
-                "-created_at"
-            )
+            .filter(agency=user.agency)
+            .order_by("-created_at")
         )
 
     @staticmethod
     def by_id(pk, user):
 
-        return (
-            Property.objects
-            .select_related(
-                "agency",
-                "owner",
-                "agent",
-                "create_by",
-                "address",
-            )
-            .get(
-                pk=pk,
-                agency=user.agency,
-            )
+        return Property.objects.select_related(
+            "agency",
+            "owner",
+            "agent",
+            "create_by",
+            "address",
+        ).get(
+            pk=pk,
+            agency=user.agency,
         )

@@ -7,8 +7,7 @@ class CallLogSelector:
     def all(user):
 
         return (
-            CallLog.objects
-            .select_related(
+            CallLog.objects.select_related(
                 "customer",
                 "property",
                 "listing",
@@ -25,17 +24,13 @@ class CallLogSelector:
     @staticmethod
     def by_id(pk, user):
 
-        return (
-            CallLog.objects
-            .select_related(
-                "customer",
-                "property",
-                "listing",
-                "handled_by",
-                "agency",
-            )
-            .get(
-                pk=pk,
-                agency=user.agency,
-            )
+        return CallLog.objects.select_related(
+            "customer",
+            "property",
+            "listing",
+            "handled_by",
+            "agency",
+        ).get(
+            pk=pk,
+            agency=user.agency,
         )

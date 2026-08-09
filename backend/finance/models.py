@@ -2,6 +2,7 @@ from django.db import models
 
 # Create your models here.
 
+
 class Commission(models.Model):
 
     class Status(models.TextChoices):
@@ -17,40 +18,26 @@ class Commission(models.Model):
     )"""
 
     agent = models.ForeignKey(
-        "accounts.User",
-        on_delete=models.PROTECT,
-        related_name="commissions"
+        "accounts.User", on_delete=models.PROTECT, related_name="commissions"
     )
 
     amount = models.BigIntegerField()
 
-    rate = models.DecimalField(
-        max_digits=5,
-        decimal_places=2
-    )
+    rate = models.DecimalField(max_digits=5, decimal_places=2)
 
     status = models.CharField(
-        max_length=20,
-        choices=Status.choices,
-        default=Status.PENDING
+        max_length=20, choices=Status.choices, default=Status.PENDING
     )
 
-    due_date = models.DateField(
-        null=True,
-        blank=True
-    )
+    due_date = models.DateField(null=True, blank=True)
 
-    paid_at = models.DateTimeField(
-        null=True,
-        blank=True
-    )
+    paid_at = models.DateTimeField(null=True, blank=True)
 
-    notes = models.TextField(
-        blank=True
-    )
+    notes = models.TextField(blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
 
 class SalaryPayment(models.Model):
 
@@ -61,9 +48,7 @@ class SalaryPayment(models.Model):
         CANCELED = "canceled", "لغو شده"
 
     user = models.ForeignKey(
-        "accounts.User",
-        on_delete=models.CASCADE,
-        related_name="salary_payments"
+        "accounts.User", on_delete=models.CASCADE, related_name="salary_payments"
     )
 
     month = models.PositiveSmallIntegerField()
@@ -81,15 +66,10 @@ class SalaryPayment(models.Model):
     net_salary = models.BigIntegerField()
 
     status = models.CharField(
-        max_length=20,
-        choices=Status.choices,
-        default=Status.DRAFT
+        max_length=20, choices=Status.choices, default=Status.DRAFT
     )
 
-    paid_at = models.DateTimeField(
-        null=True,
-        blank=True
-    )
+    paid_at = models.DateTimeField(null=True, blank=True)
 
     note = models.TextField(blank=True)
 
@@ -106,21 +86,17 @@ class SalaryPaymentItem(models.Model):
         DEDUCTION = "deduction", "کسورات"
 
     salary_payment = models.ForeignKey(
-        SalaryPayment,
-        on_delete=models.CASCADE,
-        related_name="items"
+        SalaryPayment, on_delete=models.CASCADE, related_name="items"
     )
 
-    type = models.CharField(
-        max_length=20,
-        choices=Type.choices
-    )
+    type = models.CharField(max_length=20, choices=Type.choices)
 
     title = models.CharField(max_length=255)
 
     amount = models.BigIntegerField()
 
     note = models.TextField(blank=True)
+
 
 class Category(models.Model):
     name = models.CharField(max_length=255)
@@ -131,19 +107,19 @@ class Category(models.Model):
     class Meta:
         db_table = "category"
 
+
 class Expense(models.Model):
 
     title = models.CharField(max_length=255)
 
-    category = models.ForeignKey(Category,on_delete=models.CASCADE,related_name="expenses")
+    category = models.ForeignKey(
+        Category, on_delete=models.CASCADE, related_name="expenses"
+    )
 
     amount = models.BigIntegerField()
 
     paid_by = models.ForeignKey(
-        "accounts.User",
-        on_delete=models.SET_NULL,
-        null=True,
-        related_name="expenses"
+        "accounts.User", on_delete=models.SET_NULL, null=True, related_name="expenses"
     )
 
     payment_method = models.CharField(max_length=50)
@@ -153,5 +129,3 @@ class Expense(models.Model):
     note = models.TextField(blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
-
-

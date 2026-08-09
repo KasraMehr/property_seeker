@@ -8,7 +8,10 @@ from ingestion.models import IngestionRun, IngestionRunItem, ScrapeTarget
 from ingestion.provider_factory import create_divar_provider
 from ingestion.providers.divar import ListingRemoved, RateLimitDetected
 from ingestion.providers.divar.provider import ProviderError
-from ingestion.services.persistence import record_listing_removed, upsert_scraped_listing
+from ingestion.services.persistence import (
+    record_listing_removed,
+    upsert_scraped_listing,
+)
 from ingestion.services.runs import (
     RunAlreadyActive,
     build_refresh_run,
@@ -16,7 +19,6 @@ from ingestion.services.runs import (
     populate_discovery_run,
 )
 from listing.models import Listing
-
 
 logger = logging.getLogger(__name__)
 BATCH_SIZE = 50
@@ -26,19 +28,29 @@ MAX_ITEM_ATTEMPTS = 3
 def refresh_run_counters(run):
     items = run.items.all()
     aggregate = items.aggregate(
-        processed=Count("id", filter=Q(status__in=[
-            IngestionRunItem.Status.SUCCEEDED,
-            IngestionRunItem.Status.REMOVED,
-            IngestionRunItem.Status.FAILED,
-        ])),
+        processed=Count(
+            "id",
+            filter=Q(
+                status__in=[
+                    IngestionRunItem.Status.SUCCEEDED,
+                    IngestionRunItem.Status.REMOVED,
+                    IngestionRunItem.Status.FAILED,
+                ]
+            ),
+        ),
         created=Count("id", filter=Q(created_listing=True)),
         changed=Count("id", filter=Q(changed=True)),
         failed=Count("id", filter=Q(status=IngestionRunItem.Status.FAILED)),
         removed=Count("id", filter=Q(status=IngestionRunItem.Status.REMOVED)),
-        remaining=Count("id", filter=Q(status__in=[
-            IngestionRunItem.Status.PENDING,
-            IngestionRunItem.Status.RUNNING,
-        ])),
+        remaining=Count(
+            "id",
+            filter=Q(
+                status__in=[
+                    IngestionRunItem.Status.PENDING,
+                    IngestionRunItem.Status.RUNNING,
+                ]
+            ),
+        ),
     )
     run.processed_count = aggregate["processed"]
     run.new_count = aggregate["created"]
@@ -76,7 +88,9 @@ def discover_run(run_id, enqueue_details=True):
     run.save(update_fields=["status", "started_at"])
     provider = create_divar_provider()
     known_ids = set(
-        Listing.objects.filter(source=run.target.source).values_list("external_id", flat=True)
+        Listing.objects.filter(source=run.target.source).values_list(
+            "external_id", flat=True
+        )
     )
     full = run.mode in {IngestionRun.Mode.FULL, IngestionRun.Mode.RECONCILIATION}
     try:
@@ -96,7 +110,10 @@ def discover_run(run_id, enqueue_details=True):
         run.save(update_fields=["status", "error_summary", "finished_at"])
         raise
 
-    if enqueue_details and run.items.filter(status=IngestionRunItem.Status.PENDING).exists():
+    if (
+        enqueue_details
+        and run.items.filter(status=IngestionRunItem.Status.PENDING).exists()
+    ):
         process_run_batch.delay(str(run.pk))
     elif not run.items.filter(status=IngestionRunItem.Status.PENDING).exists():
         refresh_run_counters(run)
@@ -206,9 +223,11 @@ def dispatch_incremental_discovery():
     started = []
     now = timezone.now()
     for target in ScrapeTarget.objects.filter(enabled=True):
-        if target.last_discovery_at and (
-            now - target.last_discovery_at
-        ).total_seconds() < target.discovery_interval_minutes * 60:
+        if (
+            target.last_discovery_at
+            and (now - target.last_discovery_at).total_seconds()
+            < target.discovery_interval_minutes * 60
+        ):
             continue
         try:
             run = create_run(target=target, mode=IngestionRun.Mode.DISCOVERY)

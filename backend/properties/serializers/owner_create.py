@@ -2,10 +2,6 @@ from rest_framework import serializers
 
 from ..models import Owner
 
-from rest_framework import serializers
-
-from ..models import Owner
-
 
 class OwnerCreateSerializer(serializers.ModelSerializer):
 
@@ -17,7 +13,6 @@ class OwnerCreateSerializer(serializers.ModelSerializer):
             "alternate_phone",
             "national_id",
             "notes",
-
         )
 
     def validate_phone(self, value):
@@ -41,9 +36,6 @@ class OwnerCreateSerializer(serializers.ModelSerializer):
         print("USER:", user)
         print("AGENCY:", user.agency)
 
-
         return Owner.objects.create(
-            agency=user.agency,
-            created_by=user,
-            **validated_data
+            agency=user.agency, created_by=user, **validated_data
         )

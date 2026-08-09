@@ -1,10 +1,10 @@
 from rest_framework import serializers
 
-from deals.models import Deal
-from properties.models import Property
 from accounts.models import User
 from crm.models import Customer
+from deals.models import Deal
 from listing.models import Listing
+from properties.models import Property
 
 
 class DealCreateSerializer(serializers.ModelSerializer):

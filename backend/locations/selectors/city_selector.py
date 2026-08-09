@@ -7,10 +7,8 @@ class CitySelector:
 
     @staticmethod
     def all():
-        return (
-            City.objects
-            .select_related("province")
-            .order_by("province__name", "name")
+        return City.objects.select_related("province").order_by(
+            "province__name", "name"
         )
 
     @staticmethod
@@ -29,8 +27,4 @@ class CitySelector:
 
     @staticmethod
     def search(query):
-        return (
-            City.objects
-            .select_related("province")
-            .filter(name__icontains=query)
-        )
+        return City.objects.select_related("province").filter(name__icontains=query)

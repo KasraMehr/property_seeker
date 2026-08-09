@@ -1,15 +1,11 @@
 import django_filters
-
 from django.db.models import Q
 from django.utils import timezone
 
 from crm.models import Reminder
 
 
-class CharInFilter(
-    django_filters.BaseInFilter,
-    django_filters.CharFilter
-):
+class CharInFilter(django_filters.BaseInFilter, django_filters.CharFilter):
     """
     برای multi_select
 
@@ -19,8 +15,6 @@ class CharInFilter(
     ?status=pending,done
     """
 
-    pass
-
 
 class ReminderFilter(django_filters.FilterSet):
 
@@ -28,9 +22,7 @@ class ReminderFilter(django_filters.FilterSet):
     # Search
     # =====================================================
 
-    search = django_filters.CharFilter(
-        method="filter_search"
-    )
+    search = django_filters.CharFilter(method="filter_search")
 
     # =====================================================
     # Quick Filters
@@ -46,9 +38,7 @@ class ReminderFilter(django_filters.FilterSet):
         lookup_expr="in",
     )
 
-    user = django_filters.NumberFilter(
-        field_name="user_id"
-    )
+    user = django_filters.NumberFilter(field_name="user_id")
 
     # =====================================================
     # Due Date
@@ -68,73 +58,55 @@ class ReminderFilter(django_filters.FilterSet):
     # Customer
     # =====================================================
 
-    customer = django_filters.NumberFilter(
-        field_name="customer_id"
-    )
+    customer = django_filters.NumberFilter(field_name="customer_id")
 
     # =====================================================
     # Property
     # =====================================================
 
-    property = django_filters.NumberFilter(
-        field_name="property_id"
-    )
+    property = django_filters.NumberFilter(field_name="property_id")
 
     # =====================================================
     # Overdue
     # =====================================================
 
-    overdue = django_filters.BooleanFilter(
-        method="filter_overdue"
-    )
+    overdue = django_filters.BooleanFilter(method="filter_overdue")
 
     # =====================================================
     # Due Today
     # =====================================================
 
-    due_today = django_filters.BooleanFilter(
-        method="filter_due_today"
-    )
+    due_today = django_filters.BooleanFilter(method="filter_due_today")
 
     # =====================================================
     # Due This Week
     # =====================================================
 
-    due_this_week = django_filters.BooleanFilter(
-        method="filter_due_this_week"
-    )
+    due_this_week = django_filters.BooleanFilter(method="filter_due_this_week")
 
     # =====================================================
     # Completed Today
     # =====================================================
 
-    completed_today = django_filters.BooleanFilter(
-        method="filter_completed_today"
-    )
+    completed_today = django_filters.BooleanFilter(method="filter_completed_today")
 
     # =====================================================
     # Has Property
     # =====================================================
 
-    has_property = django_filters.BooleanFilter(
-        method="filter_has_property"
-    )
+    has_property = django_filters.BooleanFilter(method="filter_has_property")
 
     # =====================================================
     # Has Customer
     # =====================================================
 
-    has_customer = django_filters.BooleanFilter(
-        method="filter_has_customer"
-    )
+    has_customer = django_filters.BooleanFilter(method="filter_has_customer")
 
     # =====================================================
     # Agency
     # =====================================================
 
-    agency = django_filters.NumberFilter(
-        field_name="agency_id"
-    )
+    agency = django_filters.NumberFilter(field_name="agency_id")
 
     # =====================================================
     # Created At
@@ -168,32 +140,20 @@ class ReminderFilter(django_filters.FilterSet):
     # Search Method
     # =====================================================
 
-    def filter_search(
-        self,
-        queryset,
-        name,
-        value
-    ):
+    def filter_search(self, queryset, name, value):
 
         if not value:
             return queryset
 
         return queryset.filter(
-            Q(title__icontains=value)
-            |
-            Q(description__icontains=value)
+            Q(title__icontains=value) | Q(description__icontains=value)
         ).distinct()
 
     # =====================================================
     # Overdue
     # =====================================================
 
-    def filter_overdue(
-        self,
-        queryset,
-        name,
-        value
-    ):
+    def filter_overdue(self, queryset, name, value):
 
         if value is None:
             return queryset
@@ -208,12 +168,13 @@ class ReminderFilter(django_filters.FilterSet):
             )
 
         return queryset.filter(
-            Q(status__in=[
-                Reminder.Status.DONE,
-                Reminder.Status.CANCELED,
-            ])
-            |
             Q(
+                status__in=[
+                    Reminder.Status.DONE,
+                    Reminder.Status.CANCELED,
+                ]
+            )
+            | Q(
                 status=Reminder.Status.PENDING,
                 due_at__gte=now,
             )
@@ -223,12 +184,7 @@ class ReminderFilter(django_filters.FilterSet):
     # Due Today
     # =====================================================
 
-    def filter_due_today(
-        self,
-        queryset,
-        name,
-        value
-    ):
+    def filter_due_today(self, queryset, name, value):
 
         if value is None:
             return queryset
@@ -242,9 +198,7 @@ class ReminderFilter(django_filters.FilterSet):
             microsecond=0,
         )
 
-        end = start + timezone.timedelta(
-            days=1
-        )
+        end = start + timezone.timedelta(days=1)
 
         if value:
 
@@ -264,12 +218,7 @@ class ReminderFilter(django_filters.FilterSet):
     # Due This Week
     # =====================================================
 
-    def filter_due_this_week(
-        self,
-        queryset,
-        name,
-        value
-    ):
+    def filter_due_this_week(self, queryset, name, value):
 
         if value is None:
             return queryset
@@ -277,21 +226,14 @@ class ReminderFilter(django_filters.FilterSet):
         now = timezone.localtime()
 
         # Monday = 0
-        start = (
-            now
-            - timezone.timedelta(
-                days=now.weekday()
-            )
-        ).replace(
+        start = (now - timezone.timedelta(days=now.weekday())).replace(
             hour=0,
             minute=0,
             second=0,
             microsecond=0,
         )
 
-        end = start + timezone.timedelta(
-            days=7
-        )
+        end = start + timezone.timedelta(days=7)
 
         if value:
 
@@ -311,12 +253,7 @@ class ReminderFilter(django_filters.FilterSet):
     # Completed Today
     # =====================================================
 
-    def filter_completed_today(
-        self,
-        queryset,
-        name,
-        value
-    ):
+    def filter_completed_today(self, queryset, name, value):
 
         if value is None:
             return queryset
@@ -330,9 +267,7 @@ class ReminderFilter(django_filters.FilterSet):
             microsecond=0,
         )
 
-        end = start + timezone.timedelta(
-            days=1
-        )
+        end = start + timezone.timedelta(days=1)
 
         if value:
 
@@ -352,49 +287,31 @@ class ReminderFilter(django_filters.FilterSet):
     # Has Property
     # =====================================================
 
-    def filter_has_property(
-        self,
-        queryset,
-        name,
-        value
-    ):
+    def filter_has_property(self, queryset, name, value):
 
         if value is None:
             return queryset
 
         if value:
 
-            return queryset.filter(
-                property__isnull=False
-            )
+            return queryset.filter(property__isnull=False)
 
-        return queryset.filter(
-            property__isnull=True
-        )
+        return queryset.filter(property__isnull=True)
 
     # =====================================================
     # Has Customer
     # =====================================================
 
-    def filter_has_customer(
-        self,
-        queryset,
-        name,
-        value
-    ):
+    def filter_has_customer(self, queryset, name, value):
 
         if value is None:
             return queryset
 
         if value:
 
-            return queryset.filter(
-                customer__isnull=False
-            )
+            return queryset.filter(customer__isnull=False)
 
-        return queryset.filter(
-            customer__isnull=True
-        )
+        return queryset.filter(customer__isnull=True)
 
     class Meta:
 
@@ -402,30 +319,22 @@ class ReminderFilter(django_filters.FilterSet):
 
         fields = [
             "search",
-
             "type",
             "status",
             "user",
-
             "due_from",
             "due_to",
-
             "customer",
             "property",
-
             "overdue",
             "due_today",
             "due_this_week",
             "completed_today",
-
             "has_property",
             "has_customer",
-
             "agency",
-
             "created_from",
             "created_to",
-
             "completed_from",
             "completed_to",
         ]

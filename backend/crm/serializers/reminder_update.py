@@ -1,37 +1,26 @@
-
 from rest_framework import serializers
 
 from crm.models import *
-from properties.models import Property
-from accounts.models import User
 
 from ..models import Reminder
 
-class ReminderUpdateSerializer(serializers.ModelSerializer):
 
+class ReminderUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
 
         model = Reminder
 
         exclude = (
-
             "id",
             "agency",
             "created_at",
             "updated_at",
-
         )
 
-
         extra_kwargs = {
-
-            field:{
-                "required":False
-            }
-
+            field: {"required": False}
             for field in [
-
                 "user",
                 "customer",
                 "property",
@@ -40,27 +29,16 @@ class ReminderUpdateSerializer(serializers.ModelSerializer):
                 "description",
                 "due_at",
                 "status",
-                "completed_at"
-
+                "completed_at",
             ]
-
         }
 
+    def update(self, instance, validated_data):
 
+        for field, value in validated_data.items():
 
-    def update(self,instance,validated_data):
-
-
-        for field,value in validated_data.items():
-
-            setattr(
-                instance,
-                field,
-                value
-            )
-
+            setattr(instance, field, value)
 
         instance.save()
-
 
         return instance

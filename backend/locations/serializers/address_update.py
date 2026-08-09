@@ -54,19 +54,19 @@ class AddressUpdateSerializer(serializers.ModelSerializer):
             instance.unit,
         )
 
-        if Address.objects.exclude(
-            id=instance.id
-        ).filter(
-            agency=instance.agency,
-            neighborhood=neighborhood,
-            street=street,
-            alley=alley,
-            plaque=plaque,
-            unit=unit,
-        ).exists():
-
-            raise serializers.ValidationError(
-                "این آدرس قبلاً ثبت شده است."
+        if (
+            Address.objects.exclude(id=instance.id)
+            .filter(
+                agency=instance.agency,
+                neighborhood=neighborhood,
+                street=street,
+                alley=alley,
+                plaque=plaque,
+                unit=unit,
             )
+            .exists()
+        ):
+
+            raise serializers.ValidationError("این آدرس قبلاً ثبت شده است.")
 
         return attrs

@@ -9,7 +9,8 @@ backend/venv/
 ../.env
 .idea
 .env.prod
-backend/.env
+backend/.env.local
+backend/.env.production
 venv
 # Django
 db.sqlite3
@@ -18,6 +19,7 @@ staticfiles/
 static/
 
 backend/db.sqlite3
+backend/Data_log/
 
 .env.*.local
 
@@ -50,3 +52,4 @@ celerybeat.pid
 backend/deals
 #repomix
 repomix-output.xml
+backend/for_me

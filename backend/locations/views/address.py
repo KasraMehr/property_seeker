@@ -1,5 +1,3 @@
-from django.shortcuts import render
-
 # Create your views here.
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -7,12 +5,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from accounts.permissions import HasRolePermission
-
 from locations.selectors.address_selector import AddressSelector
-
 from locations.serializers.address_create import AddressCreateSerializer
-from locations.serializers.address_update import AddressUpdateSerializer
 from locations.serializers.address_list import AddressSerializer
+from locations.serializers.address_update import AddressUpdateSerializer
 
 
 class AddressListCreateView(APIView):
@@ -81,9 +77,7 @@ class AddressDetailView(APIView):
             request.user.agency,
         )
 
-        return Response(
-            AddressSerializer(address).data
-        )
+        return Response(AddressSerializer(address).data)
 
     def put(self, request, pk):
 
@@ -134,18 +128,46 @@ class AddressDetailView(APIView):
             }
         )
 
-    def delete(self, request, pk):
 
-        address = AddressSelector.by_id(
-            pk,
-            request.user.agency,
-        )
+class AddressBulkDeleteView(APIView):
+    permission_classes = (
+        IsAuthenticated,
+        HasRolePermission,
+    )
 
-        address.delete()
+    permission_map = {
+        "GET": "locations.view_address",
+        "PUT": "locations.change_address",
+        "PATCH": "locations.change_address",
+        "DELETE": "locations.delete_address",
+    }
+
+    def delete(self, request):
+
+        address_ids = request.data.get("ids", [])
+
+        if not address_ids:
+            return Response(
+                {"message": "حداقل یک آدرس را انتخاب کنید."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        deleted_count = 0
+
+        for address_id in address_ids:
+            address = AddressSelector.by_id(
+                address_id,
+                request.user.agency,
+            )
+
+            address.delete()
+            deleted_count += 1
 
         return Response(
             {
-                "message": "آدرس حذف شد."
+                "message": f"{deleted_count} آدرس با موفقیت حذف شد.",
+                "deleted_count": deleted_count,
             },
-            status=status.HTTP_204_NO_CONTENT,
+            status=status.HTTP_200_OK,
         )
+

@@ -7,34 +7,22 @@ class ReminderSelector:
     def all(user):
 
         return (
-            Reminder.objects
-            .select_related(
+            Reminder.objects.select_related(
                 "agency",
                 "user",
                 "customer",
                 "property",
             )
-            .filter(
-                agency=user.agency
-            )
-            .order_by(
-                "due_at"
-            )
+            .filter(agency=user.agency)
+            .order_by("due_at")
         )
 
     @staticmethod
     def by_id(pk, user):
 
-        return (
-            Reminder.objects
-            .select_related(
-                "agency",
-                "user",
-                "customer",
-                "property",
-            )
-            .get(
-                pk=pk,
-                agency=user.agency
-            )
-        )
+        return Reminder.objects.select_related(
+            "agency",
+            "user",
+            "customer",
+            "property",
+        ).get(pk=pk, agency=user.agency)

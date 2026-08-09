@@ -18,7 +18,9 @@ class PromoteListingForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.listing = listing
         if actor and actor.agency_id:
-            self.fields["owner"].queryset = Owner.objects.filter(agency_id=actor.agency_id)
+            self.fields["owner"].queryset = Owner.objects.filter(
+                agency_id=actor.agency_id
+            )
         else:
             self.fields["owner"].queryset = Owner.objects.none()
         if listing:

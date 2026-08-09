@@ -1,0 +1,12 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+  <h1>{{ title }}</h1>
+  <p><strong>{{ listing.title }}</strong> ({{ listing.external_id }})</p>
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {{ form.as_p }}
+    <div class="submit-row">
+      <input type="submit" value="Create managed property" class="default">
+    </div>
+  </form>
+{% endblock %}

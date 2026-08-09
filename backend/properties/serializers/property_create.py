@@ -1,16 +1,7 @@
-from rest_framework import serializers
+from properties.models import Property, PropertyHistory
 
-from properties.models import (
-    Property,
-    PropertyHistory,
-)
-
-
+from ..models import Property, PropertyHistory
 from .baseSerializers import BasePropertySerializer
-from ..models import (
-    Property,
-    PropertyHistory,
-)
 
 
 class PropertyCreateSerializer(BasePropertySerializer):
@@ -32,9 +23,7 @@ class PropertyCreateSerializer(BasePropertySerializer):
         user = self.context["request"].user
 
         property = Property.objects.create(
-            agency=user.agency,
-            create_by=user,
-            **validated_data
+            agency=user.agency, create_by=user, **validated_data
         )
 
         PropertyHistory.objects.create(

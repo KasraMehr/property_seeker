@@ -19,29 +19,19 @@ class UserFilter(django_filters.FilterSet):
     # Basic fields
     # =========================
 
-    is_active = django_filters.BooleanFilter(
-        field_name="is_active"
-    )
+    is_active = django_filters.BooleanFilter(field_name="is_active")
 
-    is_owner = django_filters.BooleanFilter(
-        field_name="is_owner"
-    )
+    is_owner = django_filters.BooleanFilter(field_name="is_owner")
 
-    is_staff = django_filters.BooleanFilter(
-        field_name="is_staff"
-    )
+    is_staff = django_filters.BooleanFilter(field_name="is_staff")
 
-    is_superuser = django_filters.BooleanFilter(
-        field_name="is_superuser"
-    )
+    is_superuser = django_filters.BooleanFilter(field_name="is_superuser")
 
     # =========================
     # Agency
     # =========================
 
-    agency = django_filters.NumberFilter(
-        field_name="agency_id"
-    )
+    agency = django_filters.NumberFilter(field_name="agency_id")
 
     # =========================
     # Service Neighborhood
@@ -55,20 +45,11 @@ class UserFilter(django_filters.FilterSet):
     # Permission
     # =========================
 
-    has_permission = django_filters.CharFilter(
-        method="filter_has_permission"
-    )
+    has_permission = django_filters.CharFilter(method="filter_has_permission")
 
-    def filter_has_permission(
-        self,
-        queryset,
-        name,
-        value
-    ):
+    def filter_has_permission(self, queryset, name, value):
         return queryset.filter(
-            Q(role__permissions__codename=value)
-            |
-            Q(user_permissions__codename=value)
+            Q(role__permissions__codename=value) | Q(user_permissions__codename=value)
         ).distinct()
 
     # =========================
@@ -76,13 +57,11 @@ class UserFilter(django_filters.FilterSet):
     # =========================
 
     created_from = django_filters.DateTimeFilter(
-        field_name="created_at",
-        lookup_expr="gte"
+        field_name="created_at", lookup_expr="gte"
     )
 
     created_to = django_filters.DateTimeFilter(
-        field_name="created_at",
-        lookup_expr="lte"
+        field_name="created_at", lookup_expr="lte"
     )
 
     # =========================
@@ -90,14 +69,10 @@ class UserFilter(django_filters.FilterSet):
     # =========================
 
     login_from = django_filters.DateTimeFilter(
-        field_name="last_login",
-        lookup_expr="gte"
+        field_name="last_login", lookup_expr="gte"
     )
 
-    login_to = django_filters.DateTimeFilter(
-        field_name="last_login",
-        lookup_expr="lte"
-    )
+    login_to = django_filters.DateTimeFilter(field_name="last_login", lookup_expr="lte")
 
     class Meta:
 

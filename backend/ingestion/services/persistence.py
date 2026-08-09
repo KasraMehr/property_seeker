@@ -39,12 +39,16 @@ LISTING_FIELD_MAP = {
 
 
 def canonical_payload(payload):
-    data = payload.as_payload() if isinstance(payload, ScrapedListing) else dict(payload)
+    data = (
+        payload.as_payload() if isinstance(payload, ScrapedListing) else dict(payload)
+    )
     return json.loads(json.dumps(data, ensure_ascii=False, sort_keys=True, default=str))
 
 
 def payload_hash(payload):
-    encoded = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    encoded = json.dumps(
+        payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+    )
     return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
 
 

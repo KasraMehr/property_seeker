@@ -8,8 +8,7 @@ class AddressSelector:
     @staticmethod
     def all(agency):
         return (
-            Address.objects
-            .filter(agency=agency)
+            Address.objects.filter(agency=agency)
             .select_related(
                 "agency",
                 "neighborhood",
