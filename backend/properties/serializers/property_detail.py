@@ -7,7 +7,8 @@ from locations.serializers.address_list import *
 
 class PropertyDetailSerializer(serializers.ModelSerializer):
 
-    owner = OwnerDetailSerializer(read_only=True)
+    owner = serializers.ReadOnlyField(source='owner.full_name')
+    phone = serializers.ReadOnlyField(source='owner.phone')
 
     agent = UserSerializer(read_only=True)
 
@@ -26,6 +27,7 @@ class PropertyDetailSerializer(serializers.ModelSerializer):
             "id",
             "property_code",
             "owner",
+            "phone",
             "agent",
             "address",
             "agency",
