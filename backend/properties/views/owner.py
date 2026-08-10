@@ -1,15 +1,67 @@
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
+from rest_framework.filters import OrderingFilter, SearchFilter
+from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from ..selector.owner_selector import OwnerSelector
-from..serializers.owner_create import OwnerCreateSerializer
-from ..serializers.owner_update import OwnerUpdateSerializer
-from ..serializers.owner_list import OwnerListSerializer
-from ..serializers.owner_detail import OwnerDetailSerializer
 from accounts.permissions import *
+from accounts.permissions import HasRolePermission
 from audit.services.activity_log import *
+
+from ..filter.owner_filter import OwnerFilter
+from ..models import Owner
+from ..selector.owner_selector import OwnerSelector
+from ..serializers.owner_create import OwnerCreateSerializer
+from ..serializers.owner_detail import OwnerDetailSerializer
+from ..serializers.owner_list import OwnerListSerializer
+from ..serializers.owner_update import OwnerUpdateSerializer
+
+
+class OwnerListView(ListAPIView):
+
+    serializer_class = OwnerListSerializer
+
+    permission_classes = (
+        IsAuthenticated,
+        HasRolePermission,
+    )
+
+    required_permission = "view_owner"
+
+    filter_backends = [
+        DjangoFilterBackend,
+        SearchFilter,
+        OrderingFilter,
+    ]
+
+    filterset_class = OwnerFilter
+
+    search_fields = [
+        "full_name",
+        "phone",
+        "national_id",
+        "alternate_phone",
+    ]
+
+    ordering_fields = [
+        "full_name",
+        "created_at",
+        "updated_at",
+    ]
+
+    ordering = ["-created_at"]
+
+    def get_queryset(self):
+
+        user = self.request.user
+
+        return Owner.objects.filter(agency=user.agency).select_related(
+            "agency",
+            "created_by",
+        )
+
 
 class OwnerCreateView(APIView):
 
@@ -48,27 +100,6 @@ class OwnerCreateView(APIView):
             status=status.HTTP_201_CREATED,
         )
 
-class OwnerListView(APIView):
-
-    serializer_class = OwnerListSerializer
-    permission_classes = (
-        IsAuthenticated,
-        HasRolePermission,
-    )
-
-    required_permission = "view_owner"
-    def get(self, request):
-
-        owners = OwnerSelector.all(
-            agency=request.user.agency
-        )
-
-        serializer = self.serializer_class(
-            owners,
-            many=True,
-        )
-
-        return Response(serializer.data)
 
 class OwnerDetailView(APIView):
 
@@ -80,7 +111,6 @@ class OwnerDetailView(APIView):
 
     required_permission = "view_owner"
 
-
     def get(self, request, pk):
 
         owner = OwnerSelector.detail(
@@ -91,7 +121,6 @@ class OwnerDetailView(APIView):
         serializer = self.serializer_class(owner)
 
         return Response(serializer.data)
-
 
 
 class OwnerUpdateView(APIView):
@@ -137,8 +166,6 @@ class OwnerUpdateView(APIView):
             }
         )
 
-
-
     def patch(self, request, pk):
 
         owner = OwnerSelector.by_id(
@@ -169,9 +196,11 @@ class OwnerUpdateView(APIView):
             {
                 "message": "اطلاعات مالک با موفقیت بروزرسانی شد.",
                 "owner": OwnerDetailSerializer(owner).data,
-            })
+            }
+        )
 
-class OwnerDeleteView(APIView):
+
+class OwnerBulkDeleteView(APIView):
     permission_classes = (
         IsAuthenticated,
         HasRolePermission,
@@ -179,27 +208,40 @@ class OwnerDeleteView(APIView):
 
     required_permission = "delete_owner"
 
-    def delete(self, request, pk):
-        owner = OwnerSelector.by_id(
-            owner_id=pk,
-            agency=request.user.agency,
-        )
+    def delete(self, request):
+        owner_ids = request.data.get("ids", [])
 
-        old_data = OwnerDetailSerializer(owner).data
+        if not owner_ids:
+            return Response(
+                {"message": "حداقل یک مالک را انتخاب کنید."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-        ActivityLogService.delete(
-            request=request,
-            entity_type="Owner",
-            entity_id=owner.id,
-            old_data=old_data,
-            message="مالک حذف شد.",
-        )
+        deleted_count = 0
 
-        owner.delete()
+        for owner_id in owner_ids:
+            owner = OwnerSelector.by_id(
+                owner_id=owner_id,
+                agency=request.user.agency,
+            )
+
+            old_data = OwnerDetailSerializer(owner).data
+
+            ActivityLogService.delete(
+                request=request,
+                entity_type="Owner",
+                entity_id=owner.id,
+                old_data=old_data,
+                message="مالک حذف شد.",
+            )
+
+            owner.delete()
+            deleted_count += 1
 
         return Response(
             {
-                "message": "مالک با موفقیت حذف شد."
+                "message": f"{deleted_count} مالک با موفقیت حذف شد.",
+                "deleted_count": deleted_count,
             },
-            status=status.HTTP_204_NO_CONTENT,
+            status=status.HTTP_200_OK,
         )

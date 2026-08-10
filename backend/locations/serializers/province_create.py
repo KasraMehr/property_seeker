@@ -7,15 +7,11 @@ class ProvinceCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Province
-        fields = (
-            "name",
-        )
+        fields = ("name",)
 
     def validate_name(self, value):
 
         if Province.objects.filter(name=value).exists():
-            raise serializers.ValidationError(
-                "این استان قبلاً ثبت شده است."
-            )
+            raise serializers.ValidationError("این استان قبلاً ثبت شده است.")
 
         return value

@@ -1,7 +1,6 @@
 from django.urls import path
 
-from media.views.views import  *
-
+from media.views.views import *
 
 urlpatterns = [
     path(
@@ -26,7 +25,7 @@ urlpatterns = [
     ),
     path(
         "media/delete/<int:pk>/",
-        MediaDeleteView.as_view(),
+        MediaBulkDeleteView.as_view(),
         name="media-delete",
     ),
 ]

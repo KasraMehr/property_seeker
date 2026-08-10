@@ -21,6 +21,4 @@ class FeatureSelector:
     @staticmethod
     def search(query):
 
-        return Feature.objects.filter(
-            title__icontains=query
-        )
+        return Feature.objects.filter(title__icontains=query)

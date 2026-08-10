@@ -1,16 +1,14 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework import status
-
-
-from deals.selectors.deal_selector import DealSelector
-
-from deals.serializers.deal_create import DealCreateSerializer
-from deals.serializers.deal_list import DealListSerializer
-from deals.serializers.deal_detail import DealDetailSerializer
-from deals.serializers.deal_update import DealUpdateSerializer
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from accounts.permissions import IsAgencyOwner
+from deals.selectors.deal_selector import DealSelector
+from deals.serializers.deal_create import DealCreateSerializer
+from deals.serializers.deal_detail import DealDetailSerializer
+from deals.serializers.deal_list import DealListSerializer
+from deals.serializers.deal_update import DealUpdateSerializer
+
 
 class DealListCreateView(APIView):
 

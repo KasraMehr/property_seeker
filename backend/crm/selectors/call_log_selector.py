@@ -6,16 +6,31 @@ class CallLogSelector:
     @staticmethod
     def all(user):
 
-        return CallLog.objects.filter(
-            agency=user.agency,
-            is_deleted=False
+        return (
+            CallLog.objects.select_related(
+                "customer",
+                "property",
+                "listing",
+                "handled_by",
+                "agency",
+            )
+            .filter(
+                agency=user.agency,
+                is_deleted=False,
+            )
+            .order_by("-called_at")
         )
 
     @staticmethod
     def by_id(pk, user):
 
-        return CallLog.objects.get(
-            id=pk,
+        return CallLog.objects.select_related(
+            "customer",
+            "property",
+            "listing",
+            "handled_by",
+            "agency",
+        ).get(
+            pk=pk,
             agency=user.agency,
-            is_deleted=False
         )

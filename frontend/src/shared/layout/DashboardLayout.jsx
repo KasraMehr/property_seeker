@@ -15,7 +15,7 @@ export default function DashboardLayout({
   return (
     <div
       data-role={role}
-      className="flex h-screen overflow-hidden bg-background text-foreground"
+      className="flex h-screen overflow-hidden  bg-background text-foreground"
     >
       <Button
         variant="ghost"

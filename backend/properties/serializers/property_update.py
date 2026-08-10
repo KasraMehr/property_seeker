@@ -1,13 +1,6 @@
-from rest_framework import serializers
-
 from ..models import *
-
+from ..models import Property, PropertyHistory, PropertyStatusHistory
 from .baseSerializers import BasePropertySerializer
-from ..models import (
-    Property,
-    PropertyHistory,
-    PropertyStatusHistory,
-)
 
 
 class PropertyUpdateSerializer(BasePropertySerializer):
@@ -25,9 +18,7 @@ class PropertyUpdateSerializer(BasePropertySerializer):
         )
 
         extra_kwargs = {
-            field: {
-                "required": False
-            }
+            field: {"required": False}
             for field in (
                 "owner",
                 "agent",

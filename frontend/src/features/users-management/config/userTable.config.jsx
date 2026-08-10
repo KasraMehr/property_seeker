@@ -1,112 +1,107 @@
+import  StatusBadge  from "@/shared/ui/badges/StatusBadge";
+import RoleBadge  from "@/shared/ui/badges/RoleBadge";
 import { formatDate } from "@/utils/formatters";
-import { getRoleConfig } from "@/constants/roleConfig";
-import RoleBadge from "@/shared/ui/badges/RoleBadge";
-import { Phone, Building2, MapPin, Crown } from "lucide-react";
+import { ShieldCheck, ShieldX } from "lucide-react";
 
+/**
+ * User Table Columns
+ * Backend: accounts.User
+ */
 export const USER_TABLE_COLUMNS = [
   {
+    key: "id",
+    header: "شناسه",
+    width: "w-14",
+    cell: ({ id }) => <span className="text-xs text-muted-foreground font-mono">#{id}</span>,
+  },
+  {
     key: "full_name",
-    title: "کاربر",
-    width: "260px",
-    sortable: true,
-    render: (row) => (
-      <div className="flex items-center gap-2.5 min-w-0">
-        <div className="w-9 h-9 rounded-full bg-(--role-subtle)/20 flex items-center justify-center text-(--role-primary) text-sm font-bold shrink-0">
-          {row.full_name?.charAt(0) || "?"}
-        </div>
-        <div className="flex flex-col gap-0.5 min-w-0">
-          <span className="font-medium text-sm text-foreground truncate">
-            {row.full_name}
-          </span>
-          <div className="flex items-center gap-1 text-muted text-[11px]">
-            <Phone size={10} />
-            <span className="dir-ltr">{row.phone}</span>
-          </div>
-        </div>
+    header: "نام کامل",
+    width: "w-40",
+    searchable: true,
+    cell: ({ full_name, phone }) => (
+      <div className="flex flex-col">
+        <span className="font-medium text-sm">{full_name}</span>
+        <span className="text-xs text-muted-foreground font-mono ltr">{phone}</span>
       </div>
+    ),
+  },
+  {
+    key: "national_id",
+    header: "کد ملی",
+    width: "w-28",
+    searchable: true,
+    cell: ({ national_id }) => (
+      <span className="text-xs font-mono text-muted-foreground ltr">{national_id || "—"}</span>
     ),
   },
   {
     key: "role",
-    title: "نقش",
-    width: "110px",
-    align: "center",
-    sortable: false,
-    render: (row) => {
-      const roleObj = row.role?.[0];
-      return <RoleBadge role={roleObj} variant="soft" size="sm" />;
+    header: "نقش",
+    width: "w-32",
+    cell: ({ role }) => {
+      if (!role || !Array.isArray(role) || role.length === 0) return <span className="text-muted-foreground text-xs">بدون نقش</span>;
+      return (
+        <div className="flex flex-wrap gap-1">
+          {role.map((r) => (
+            <RoleBadge key={r.id} role={r.name} />
+          ))}
+        </div>
+      );
     },
   },
   {
     key: "is_owner",
-    title: "نوع",
-    width: "80px",
-    align: "center",
-    sortable: false,
-    render: (row) =>
-      row.is_owner ? (
-        <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-violet-500/10 text-violet-500 font-medium">
-          <Crown size={10} />
-          مالک
+    header: "مالک آژانس",
+    width: "w-24",
+    cell: ({ is_owner }) => (
+      is_owner ? (
+        <span className="inline-flex items-center gap-1 text-xs text-emerald-600 font-medium">
+          <ShieldCheck className="w-3.5 h-3.5" /> بله
         </span>
       ) : (
-        <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-500/10 text-slate-500 font-medium">
-          کارمند
+        <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+          <ShieldX className="w-3.5 h-3.5" /> خیر
         </span>
-      ),
-  },
-  {
-    key: "agency",
-    title: "آژانس",
-    width: "160px",
-    sortable: false,
-    render: (row) => (
-      <div className="flex items-center gap-1 text-muted text-xs">
-        <Building2 size={12} />
-        <span className="truncate">{row.agency?.name || "—"}</span>
-      </div>
-    ),
-  },
-  {
-    key: "service_neighborhoods",
-    title: "محله‌های خدمت",
-    width: "160px",
-    sortable: false,
-    render: (row) => (
-      <div className="flex items-center gap-1 text-muted text-xs">
-        <MapPin size={12} />
-        <span className="truncate">
-          {row.service_neighborhoods?.map((n) => n.name).join("، ") || "—"}
-        </span>
-      </div>
+      )
     ),
   },
   {
     key: "is_active",
-    title: "وضعیت",
-    width: "80px",
-    align: "center",
-    sortable: false,
-    render: (row) => (
-      <span
-        className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
-          row.is_active
-            ? "bg-emerald-500/10 text-emerald-500"
-            : "bg-rose-500/10 text-rose-500"
-        }`}
-      >
-        {row.is_active ? "فعال" : "غیرفعال"}
+    header: "وضعیت",
+    width: "w-24",
+    filterKey: "is_active",
+    cell: ({ is_active }) => (
+      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${is_active ? "bg-emerald-500/10 text-emerald-600" : "bg-danger/10 text-danger"}`}>
+        {is_active ? "فعال" : "غیرفعال"}
       </span>
     ),
   },
   {
-    key: "created_at",
-    title: "تاریخ ثبت",
-    width: "100px",
-    align: "center",
-    sortable: true,
-    render: (row) => (
-      <span className="text-xs text-muted">{formatDate(row.created_at)}</span>
+    key: "service_neighborhoods",
+    header: "محله‌های سرویس",
+    width: "w-36",
+    cell: ({ service_neighborhoods }) => (
+      <div className="flex flex-wrap gap-1">
+        {(service_neighborhoods || []).slice(0, 2).map((n) => (
+          <span key={n.id} className="text-xs bg-secondary px-1.5 py-0.5 rounded">{n.name}</span>
+        ))}
+        {(service_neighborhoods || []).length > 2 && (
+          <span className="text-xs text-muted-foreground">+{(service_neighborhoods || []).length - 2}</span>
+        )}
+      </div>
     ),
+  },
+  {
+    key: "created_at",
+    header: "تاریخ ثبت",
+    width: "w-28",
+    cell: ({ created_at }) => formatDate(created_at, "short"),
+  },
+  {
+    key: "actions",
+    header: "",
+    width: "w-20",
+    actions: true,
   },
 ];

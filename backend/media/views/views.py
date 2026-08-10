@@ -1,5 +1,4 @@
 from django.shortcuts import render
-
 # Create your views here.
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -7,14 +6,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from media.selector.media_selector import MediaSelector
-
 from media.serializers.media_create import MediaCreateSerializer
-from media.serializers.media_update import MediaUpdateSerializer
 from media.serializers.media_detail import MediaDetailSerializer
 from media.serializers.media_list import MediaListSerializer
+from media.serializers.media_update import MediaUpdateSerializer
+from media.services.delete_service import DeleteService
 from media.services.update_service import UpdateService
 from media.services.upload_service import UploadService
-from media.services.delete_service import DeleteService
 
 
 class MediaCreateView(APIView):
@@ -131,20 +129,30 @@ class MediaUpdateView(APIView):
             }
         )
 
-
-class MediaDeleteView(APIView):
-
+class MediaBulkDeleteView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def delete(self, request, pk):
+    def delete(self, request):
+        media_ids = request.data.get("ids", [])
 
-        media = MediaSelector.by_id(pk)
+        if not media_ids:
+            return Response(
+                {"message": "حداقل یک رسانه را انتخاب کنید."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-        DeleteService.delete(media)
+        deleted_count = 0
+
+        for media_id in media_ids:
+            media = MediaSelector.by_id(media_id)
+
+            DeleteService.delete(media)
+            deleted_count += 1
 
         return Response(
             {
-                "message": "رسانه با موفقیت حذف شد."
+                "message": f"{deleted_count} رسانه با موفقیت حذف شد.",
+                "deleted_count": deleted_count,
             },
-            status=status.HTTP_204_NO_CONTENT,
+            status=status.HTTP_200_OK,
         )

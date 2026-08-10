@@ -1,5 +1,6 @@
-// roles with permissions for RBAC mock
 // Role model: id, agency(FK), name, description, permissions(M2M), created_at, updated_at
+//  permissions باید دقیقاً همون codenameهای required_permission بک‌اند باشه
+
 export const MOCK_ROLES = {
   ADMIN: {
     id: 1,
@@ -7,13 +8,21 @@ export const MOCK_ROLES = {
     name: "مدیر",
     description: "دسترسی کامل به سیستم",
     permissions: [
+      // properties
       "add_property", "change_property", "delete_property", "view_property",
-      "add_user", "change_user", "delete_user", "view_user",
+      // owners
       "add_owner", "change_owner", "delete_owner", "view_owner",
-      "add_call", "change_call", "view_call", "delete_call",
-      "add_followup", "change_followup", "view_followup", "delete_followup",
-      "view_scraper", "manage_scraper", "manage_settings", "view_reports",
-      "view_dashboard", "export_data", "import_data",
+      // features
+      "add_feature", "change_feature", "delete_feature", "view_feature",
+      "add_property_feature", "change_property_feature", "delete_property_feature", "view_property_feature",
+      // status history
+      "view_property_status_history",
+      // crm
+      "create_customer", "view_customer",
+      "create_customer_preference", "view_customer_preference",
+      // locations
+      "add_province", "view_province", "change_province", "delete_province", "list_province",
+      "add_city", "view_city",
     ],
     created_at: "2026-01-01T00:00:00Z",
     updated_at: "2026-01-01T00:00:00Z",
@@ -25,10 +34,13 @@ export const MOCK_ROLES = {
     description: "نظارت بر اپراتورها و گزارش‌گیری",
     permissions: [
       "add_property", "change_property", "view_property",
-      "view_user", "change_user",
-      "add_call", "change_call", "view_call",
-      "add_followup", "change_followup", "view_followup",
-      "view_scraper", "view_reports", "view_dashboard",
+      "view_owner",
+      "view_feature",
+      "view_property_feature",
+      "view_property_status_history",
+      "create_customer", "view_customer",
+      "view_customer_preference",
+      "view_province", "list_province", "view_city",
     ],
     created_at: "2026-01-01T00:00:00Z",
     updated_at: "2026-01-01T00:00:00Z",
@@ -40,9 +52,12 @@ export const MOCK_ROLES = {
     description: "تماس و پیگیری لیدها و ثبت املاک",
     permissions: [
       "add_property", "change_property", "view_property",
-      "add_call", "view_call", "change_call",
-      "add_followup", "view_followup", "change_followup",
       "view_owner", "add_owner",
+      "view_feature",
+      "view_property_feature",
+      "create_customer", "view_customer",
+      "view_customer_preference",
+      "view_province", "list_province",
     ],
     created_at: "2026-01-01T00:00:00Z",
     updated_at: "2026-01-01T00:00:00Z",
@@ -54,9 +69,12 @@ export const MOCK_ROLES = {
     description: "مشاوره و بازدید با مشتریان",
     permissions: [
       "view_property", "change_property",
-      "add_call", "view_call",
-      "add_followup", "view_followup",
       "view_owner",
+      "view_feature",
+      "view_property_feature",
+      "create_customer", "view_customer",
+      "view_customer_preference",
+      "view_province", "list_province",
     ],
     created_at: "2026-01-01T00:00:00Z",
     updated_at: "2026-01-01T00:00:00Z",
@@ -67,7 +85,14 @@ export const MOCK_ROLES = {
     name: "ناظر",
     description: "فقط مشاهده گزارش‌ها",
     permissions: [
-      "view_property", "view_call", "view_followup", "view_dashboard", "view_reports",
+      "view_property",
+      "view_owner",
+      "view_feature",
+      "view_property_feature",
+      "view_customer",
+      "view_customer_preference",
+      "view_property_status_history",
+      "view_province", "list_province",
     ],
     created_at: "2026-01-01T00:00:00Z",
     updated_at: "2026-01-01T00:00:00Z",

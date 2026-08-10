@@ -20,9 +20,7 @@ class NeighborhoodCreateSerializer(serializers.ModelSerializer):
         ).exists():
 
             raise serializers.ValidationError(
-                {
-                    "name": "این محله قبلاً در این منطقه ثبت شده است."
-                }
+                {"name": "این محله قبلاً در این منطقه ثبت شده است."}
             )
 
         return attrs

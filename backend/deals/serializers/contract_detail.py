@@ -1,8 +1,8 @@
 from rest_framework import serializers
 
 from ..models import *
-
 from .contract_history import *
+
 
 class ContractDetailSerializer(serializers.ModelSerializer):
 

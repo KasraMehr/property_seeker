@@ -3,11 +3,12 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from accounts.permissions import *
 from locations.selectors.district_selector import DistrictSelector
+from locations.serializers.district_create import *
 from locations.serializers.district_list import *
 from locations.serializers.district_update import *
-from locations.serializers.district_create import *
-from accounts.permissions import *
+
 
 class DistrictListCreateView(APIView):
 
@@ -19,7 +20,6 @@ class DistrictListCreateView(APIView):
         "GET": "locations.view_district",
         "POST": "locations.add_district",
     }
-
 
     def get(self, request):
 
@@ -56,7 +56,7 @@ class DistrictListCreateView(APIView):
 
 class DistrictDetailView(APIView):
 
-    permission_classes = [IsAuthenticated,HasRolePermission]
+    permission_classes = [IsAuthenticated, HasRolePermission]
     permission_map = {
         "GET": "locations.view_district",
         "PUT": "locations.change_district",
@@ -118,15 +118,37 @@ class DistrictDetailView(APIView):
             status=status.HTTP_200_OK,
         )
 
-    def delete(self, request, pk):
 
-        district = DistrictSelector.by_id(pk)
+class DistrictBulkDeleteView(APIView):
 
-        district.delete()
+    permission_classes = (
+        IsAuthenticated,
+        HasRolePermission,
+    )
+
+    required_permission = "delete_district"
+
+    def delete(self, request):
+        district_ids = request.data.get("ids", [])
+
+        if not district_ids:
+            return Response(
+                {"message": "حداقل یک منطقه را انتخاب کنید."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        deleted_count = 0
+
+        for district_id in district_ids:
+            district = DistrictSelector.by_id(district_id)
+
+            district.delete()
+            deleted_count += 1
 
         return Response(
             {
-                "message": "منطقه با موفقیت حذف شد."
+                "message": f"{deleted_count} منطقه با موفقیت حذف شد.",
+                "deleted_count": deleted_count,
             },
-            status=status.HTTP_204_NO_CONTENT,
+            status=status.HTTP_200_OK,
         )

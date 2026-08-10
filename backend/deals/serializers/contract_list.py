@@ -3,7 +3,6 @@ from rest_framework import serializers
 from ..models import Contract
 
 
-
 class ContractListSerializer(serializers.ModelSerializer):
 
     deal_number = serializers.CharField(

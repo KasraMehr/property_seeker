@@ -11,22 +11,14 @@ class ProvinceUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Province
-        fields = (
-            "name",
-        )
+        fields = ("name",)
 
     def validate_name(self, value):
 
         province = self.instance
 
-        if Province.objects.exclude(
-            id=province.id
-        ).filter(
-            name=value
-        ).exists():
-            raise serializers.ValidationError(
-                "این استان قبلاً ثبت شده است."
-            )
+        if Province.objects.exclude(id=province.id).filter(name=value).exists():
+            raise serializers.ValidationError("این استان قبلاً ثبت شده است.")
 
         return value
 

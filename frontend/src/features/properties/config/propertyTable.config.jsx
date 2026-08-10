@@ -1,160 +1,146 @@
-import { formatPrice, formatDate } from "@/utils/formatters";
-import { buildStatusConfig } from "@/constants/status.utils";
-import { PROPERTY_STATUS_CONFIG } from "./propertyStatus.config";
 import StatusBadge from "@/shared/ui/badges/StatusBadge";
-import Thumbnail from "@/shared/ui/Thumbnail";
-import { Home, MapPin, User, Briefcase } from "lucide-react";
+import { PROPERTY_STATUS_CONFIG , PROPERTY_DEAL_TYPE_CONFIG } from "@/features/properties/config";
+import { formatPrice } from "@/utils/formatters";
 
-/* ─── Helper: DealTypeTag ─── */
-function DealTypeTag({ type }) {
-  const map = {
-    sale: { bg: "bg-emerald-500/10", text: "text-emerald-500", label: "فروش" },
-    rent: { bg: "bg-sky-500/10", text: "text-sky-500", label: "اجاره" },
-    mortgage: { bg: "bg-amber-500/10", text: "text-amber-500", label: "رهن" },
-  };
-  const cfg = map[type] || { bg: "bg-muted/10", text: "text-muted", label: type || "—" };
-  return (
-    <span className={`inline-flex px-2 py-0.5 rounded-md text-[10px] font-medium ${cfg.bg} ${cfg.text}`}>
-      {cfg.label}
-    </span>
-  );
-}
-
-/* ─── Helper: PropertyTypeTag ─── */
-function PropertyTypeTag({ type }) {
-  const map = {
-    apartment: "آپارتمان",
-    villa: "ویلا",
-    land: "زمین",
-    commercial: "تجاری",
-    office: "اداری",
-    store: "مغازه",
-    workshop: "کارگاه",
-  };
-  return <span className="text-xs text-muted">{map[type] || type || "—"}</span>;
-}
-
-/* ─── Columns ─── */
+/**
+ * Property Table Columns
+ * Backend: properties.PropertyListSerializer
+ * Available fields in list: id, agency, property_code, title, owner (string),
+ *   agent (string), created_by (string), city (string), property_type,
+ *   deal_type, area, sale_price, monthly_rent, status
+ *
+ * NOTE: Fields like bedrooms, floor, age, created_at, price_per_meter,
+ *   address/district are ONLY available in PropertyDetailSerializer.
+ *   Add them back here only after backend expands PropertyListSerializer.
+ */
+export const PROPERTY_TYPE_CONFIG = {
+  APARTMENT: { label: "آپارتمان" },
+  VILLA: { label: "ویلا" },
+  LAND: { label: "زمین" },
+  COMMERCIAL: { label: "تجاری" },
+  OFFICE: { label: "دفتر" },
+  STORE: { label: "مغازه" },
+};
 export const PROPERTY_TABLE_COLUMNS = [
   {
-    key: "title",
-    title: "عنوان",
-    width: "280px",
-    sortable: true,
-    render: (row) => (
-      <div className="flex items-center gap-2.5 min-w-0">
-        <Thumbnail src={row.hs_picture} alt={row.title} size="md" fallbackIcon={Home} />
-        <div className="flex flex-col gap-0.5 min-w-0">
-          <span className="font-medium text-sm text-foreground truncate max-w-56">
-            {row.title}
-          </span>
-          <div className="flex items-center gap-1.5 text-muted text-[11px]">
-            <span className="font-mono dir-ltr">{row.property_code}</span>
-            <PropertyTypeTag type={row.property_type} />
-          </div>
-        </div>
-      </div>
-    ),
-  },
-  {
-    key: "status",
-    title: "وضعیت",
-    width: "90px",
-    align: "center",
-    sortable: true,
-    render: (row) => {
-      const config = buildStatusConfig(PROPERTY_STATUS_CONFIG, row.status);
-      return <StatusBadge config={config} variant="soft" size="sm" />;
-    },
-  },
-  {
-    key: "deal_type",
-    title: "معامله",
-    width: "70px",
-    align: "center",
-    sortable: true,
-    render: (row) => <DealTypeTag type={row.deal_type} />,
-  },
-  {
-    key: "area",
-    title: "متراژ",
-    width: "80px",
-    align: "center",
-    sortable: true,
-    render: (row) => (
-      <span className="text-sm text-foreground">
-        {row.area ? `${new Intl.NumberFormat("fa-IR").format(row.area)} متر` : "—"}
+    key: "property_code",
+    header: "کد ملک",
+    width: "w-28",
+    searchable: true,
+    cell: ({ property_code }) => (
+      <span className="text-xs font-mono font-semibold text-primary">
+        {property_code}
       </span>
     ),
   },
   {
-    key: "price",
-    title: "قیمت",
-    width: "140px",
-    sortable: true,
-    render: (row) => {
-      const price =
-        row.deal_type === "sale"
-          ? row.sale_price
-          : row.deal_type === "rent"
-            ? row.monthly_rent
-            : row.deal_type === "mortgage"
-              ? row.mortgage_amount
-              : row.sale_price;
+    key: "title",
+    header: "عنوان ملک",
+    width: "w-56",
+    searchable: true,
+    cell: ({ title, city }) => (
+      <div className="flex flex-col">
+        <span className="font-medium truncate max-w-50" title={title}>
+          {title}
+        </span>
+        <span className="text-xs text-muted-foreground truncate max-w-50">
+          {city || "—"}
+        </span>
+      </div>
+    ),
+  },
+  {
+    key: "property_type",
+    header: "نوع ملک",
+    width: "w-24",
+    cell: ({ property_type }) => (
+      <span className="text-xs text-muted-foreground">
+        {property_type || "—"}
+      </span>
+    ),
+  },
+  {
+    key: "deal_type",
+    header: "نوع معامله",
+    width: "w-24",
+    cell: ({ deal_type }) => {
+      const cfg = PROPERTY_DEAL_TYPE_CONFIG[deal_type];
+      if (!cfg) return <span className="text-muted-foreground text-xs">—</span>;
       return (
-        <div className="flex flex-col gap-0.5">
-          <span className="text-sm font-medium text-foreground">{formatPrice(price)}</span>
-          {row.price_per_meter && row.deal_type === "sale" && (
-            <span className="text-[10px] text-(--role-primary)">
-              متری: {new Intl.NumberFormat("fa-IR").format(row.price_per_meter)}
-            </span>
-          )}
-        </div>
+        <span className="inline-flex items-center gap-1.5 text-xs font-medium">
+          <cfg.icon className={`w-3.5 h-3.5 text-${cfg.color}-500`} />
+          {cfg.label}
+        </span>
       );
     },
   },
   {
-    key: "location",
-    title: "موقعیت",
-    width: "140px",
-    sortable: false,
-    render: (row) => (
-      <div className="flex items-center gap-1 text-muted text-xs">
-        <MapPin size={12} />
-        <span>{row.address?.district?.name || row.district?.name || "—"}</span>
-      </div>
+    key: "status",
+    header: "وضعیت",
+    width: "w-24",
+    filterKey: "status",
+    cell: ({ status }) => (
+      <StatusBadge status={status} config={PROPERTY_STATUS_CONFIG} />
     ),
   },
   {
     key: "owner",
-    title: "مالک",
-    width: "120px",
-    sortable: false,
-    render: (row) => (
-      <div className="flex items-center gap-1 text-muted text-xs">
-        <User size={12} />
-        <span>{row.owner?.full_name || "—"}</span>
-      </div>
-    ),
+    header: "مالک",
+    width: "w-32",
+    searchable: true,
+    // owner is a plain string in PropertyListSerializer (e.g. "علی احمدی")
+    cell: ({ owner }) => <span className="text-sm">{owner || "—"}</span>,
   },
   {
     key: "agent",
-    title: "کارشناس",
-    width: "120px",
-    sortable: false,
-    render: (row) => (
-      <div className="flex items-center gap-1 text-muted text-xs">
-        <Briefcase size={12} />
-        <span>{row.agent?.full_name || "—"}</span>
-      </div>
-    ),
+    header: "مشاور",
+    width: "w-32",
+    // agent is a plain string in PropertyListSerializer
+    cell: ({ agent }) => <span className="text-sm">{agent || "—"}</span>,
   },
   {
-    key: "created_at",
-    title: "تاریخ ثبت",
-    width: "100px",
-    align: "center",
-    sortable: true,
-    render: (row) => <span className="text-xs text-muted">{formatDate(row.created_at)}</span>,
+    key: "area",
+    header: "متراژ",
+    width: "w-20",
+    cell: ({ area }) =>
+      area ? (
+        <span>{area} م²</span>
+      ) : (
+        <span className="text-muted-foreground text-xs">—</span>
+      ),
+  },
+  {
+    key: "price",
+    header: "قیمت / اجاره",
+    width: "w-36",
+    cell: ({ sale_price, monthly_rent, deal_type }) => {
+      if (deal_type === "sale" && sale_price)
+        return (
+          <span className="font-medium text-emerald-600">
+            {formatPrice(sale_price)}
+          </span>
+        );
+      if (deal_type === "rent" && monthly_rent)
+        return (
+          <span className="font-medium text-sky-600">
+            {formatPrice(monthly_rent)}
+          </span>
+        );
+      if (deal_type === "mortgage")
+        return (
+          <span className="text-muted-foreground text-xs">
+            مشاهده در جزئیات
+          </span>
+        );
+      if (deal_type === "exchange")
+        return <span className="text-muted-foreground text-xs">معاوضه</span>;
+      return <span className="text-muted-foreground text-xs">—</span>;
+    },
+  },
+  {
+    key: "actions",
+    header: "",
+    width: "w-20",
+    actions: true,
   },
 ];

@@ -1,19 +1,15 @@
 from rest_framework import serializers
 
+from accounts.serializers.serializers import *
 from properties.models import PropertyStatusHistory
+
+from ..serializers.property_detail import *
 
 
 class PropertyStatusHistoryDetailSerializer(serializers.ModelSerializer):
 
-    property_code = serializers.CharField(
-        source="property.property_code",
-        read_only=True,
-    )
-
-    changed_by = serializers.CharField(
-        source="changed_by.full_name",
-        read_only=True,
-    )
+    property_code = PropertyDetailSerializer(read_only=True)
+    changed_by = UserSerializer(read_only=True)
 
     class Meta:
         model = PropertyStatusHistory

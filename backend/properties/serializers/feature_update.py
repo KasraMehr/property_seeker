@@ -7,17 +7,13 @@ class FeatureUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Feature
-        fields = (
-            "title",
-        )
+        fields = ("title",)
 
     def validate_title(self, value):
 
         feature = self.instance
 
         if Feature.objects.exclude(pk=feature.pk).filter(title=value).exists():
-            raise serializers.ValidationError(
-                "این ویژگی قبلاً ثبت شده است."
-            )
+            raise serializers.ValidationError("این ویژگی قبلاً ثبت شده است.")
 
         return value

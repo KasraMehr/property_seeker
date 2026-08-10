@@ -1,7 +1,6 @@
 from rest_framework import serializers
 
 from crm.models import CallLog
-from crm.models import Customer
 
 
 class CallLogCreateSerializer(serializers.ModelSerializer):
@@ -23,9 +22,7 @@ class CallLogCreateSerializer(serializers.ModelSerializer):
 
         if value.agency != user.agency:
 
-            raise serializers.ValidationError(
-                "مشتری متعلق به آژانس شما نیست."
-            )
+            raise serializers.ValidationError("مشتری متعلق به آژانس شما نیست.")
 
         return value
 
@@ -34,7 +31,5 @@ class CallLogCreateSerializer(serializers.ModelSerializer):
         user = self.context["request"].user
 
         return CallLog.objects.create(
-            agency=user.agency,
-            handled_by=user,
-            **validated_data
+            agency=user.agency, handled_by=user, **validated_data
         )

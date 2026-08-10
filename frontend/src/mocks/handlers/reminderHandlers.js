@@ -14,8 +14,8 @@ function paginate(array, { page = 1, pageSize = 25 }) {
 }
 
 export const reminderHandlers = [
-  // ─── LIST (GET /api/crm/reminders/) ───
-  http.get("*/api/crm/reminders/", ({ request }) => {
+  // ─── LIST (GET /api/reminders/) ───
+  http.get("*/api/reminders/", ({ request }) => {
     const url = new URL(request.url);
     const page = Number(url.searchParams.get("page")) || 1;
     const pageSize = Number(url.searchParams.get("page_size")) || 25;
@@ -43,18 +43,8 @@ export const reminderHandlers = [
     return HttpResponse.json(paginate(results, { page, pageSize }), { status: 200 });
   }),
 
-  // ─── DETAIL (GET /api/crm/reminders/:id/) ───
-  http.get("*/api/crm/reminders/:id/", ({ params }) => {
-    const id = Number(params.id);
-    const reminder = MOCK_REMINDERS.find((r) => r.id === id);
-    if (!reminder) {
-      return HttpResponse.json({ detail: "not found" }, { status: 404 });
-    }
-    return HttpResponse.json(reminder, { status: 200 });
-  }),
-
-  // ─── CREATE (POST /api/crm/reminders/create/) ───
-  http.post("*/api/crm/reminders/create/", async ({ request }) => {
+  // ─── CREATE (POST /api/reminders/create/) ───
+  http.post("*/api/reminders/create/", async ({ request }) => {
     const body = await request.json();
     const newReminder = {
       id: MOCK_REMINDERS.length + 1,
@@ -68,8 +58,18 @@ export const reminderHandlers = [
     return HttpResponse.json(newReminder, { status: 201 });
   }),
 
-  // ─── UPDATE (PUT /api/crm/reminders/:id/) ───
-  http.put("*/api/crm/reminders/:id/", async ({ params, request }) => {
+  // ─── DETAIL (GET /api/reminders/:id/) ───
+  http.get("*/api/reminders/:id/", ({ params }) => {
+    const id = Number(params.id);
+    const reminder = MOCK_REMINDERS.find((r) => r.id === id);
+    if (!reminder) {
+      return HttpResponse.json({ detail: "not found" }, { status: 404 });
+    }
+    return HttpResponse.json(reminder, { status: 200 });
+  }),
+
+  // ─── UPDATE (PUT /api/reminders/update/:id/) ───
+  http.put("*/api/reminders/update/:id/", async ({ params, request }) => {
     const id = Number(params.id);
     const index = MOCK_REMINDERS.findIndex((r) => r.id === id);
     if (index === -1) {
@@ -84,28 +84,14 @@ export const reminderHandlers = [
     return HttpResponse.json(MOCK_REMINDERS[index], { status: 200 });
   }),
 
-  // ─── COMPLETE (PUT /api/crm/reminders/:id/complete/) ───
-  http.put("*/api/crm/reminders/:id/complete/", ({ params }) => {
+  // ─── DELETE (DELETE /api/reminders/delete/:id/) ───
+  http.delete("*/api/reminders/delete/:id/", ({ params }) => {
     const id = Number(params.id);
     const index = MOCK_REMINDERS.findIndex((r) => r.id === id);
     if (index === -1) {
       return HttpResponse.json({ detail: "not found" }, { status: 404 });
     }
-    MOCK_REMINDERS[index].status = "done";
-    MOCK_REMINDERS[index].completed_at = new Date().toISOString();
-    MOCK_REMINDERS[index].updated_at = new Date().toISOString();
-    return HttpResponse.json(MOCK_REMINDERS[index], { status: 200 });
-  }),
-
-  // ─── CANCEL (PUT /api/crm/reminders/:id/cancel/) ───
-  http.put("*/api/crm/reminders/:id/cancel/", ({ params }) => {
-    const id = Number(params.id);
-    const index = MOCK_REMINDERS.findIndex((r) => r.id === id);
-    if (index === -1) {
-      return HttpResponse.json({ detail: "not found" }, { status: 404 });
-    }
-    MOCK_REMINDERS[index].status = "canceled";
-    MOCK_REMINDERS[index].updated_at = new Date().toISOString();
-    return HttpResponse.json(MOCK_REMINDERS[index], { status: 200 });
+    MOCK_REMINDERS.splice(index, 1);
+    return HttpResponse.json({ detail: "deleted" }, { status: 204 });
   }),
 ];

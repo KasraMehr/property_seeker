@@ -1,15 +1,11 @@
-from rest_framework.views import APIView
 from rest_framework.response import Response
-
-from ..selectors.contract_history_selector import (
-    ContractHistorySelector
-)
-
-from ..serializers.contract_history import (
-    ContractHistorySerializer
-)
+from rest_framework.views import APIView
 
 from accounts.permissions import IsAgencyOwner
+
+from ..selectors.contract_history_selector import ContractHistorySelector
+from ..serializers.contract_history import ContractHistorySerializer
+
 
 class ContractHistoryListView(APIView):
 

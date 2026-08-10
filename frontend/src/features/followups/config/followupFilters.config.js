@@ -1,48 +1,144 @@
-export const FOLLOWUP_FILTERS = [
+import {
+  FOLLOWUP_STATUS_CONFIG,
+  FOLLOWUP_TYPE_CONFIG,
+} from "@/features/followups/config";
+
+/**
+ * Reminder (Follow-up) Filters Config
+ * Backend: crm.Reminder
+ *
+ * Quick: search, type, status, user, due_date
+ * Advanced: customer, property, overdue, agency, dates
+ */
+
+export const FOLLOWUP_QUICK_FILTERS = [
   {
     key: "search",
-    type: "search",
     label: "جستجو",
-    placeholder: "عنوان، توضیحات، نام مشتری...",
-  },
-  {
-    key: "status",
-    type: "select",
-    label: "وضعیت",
-    optionsKey: "statuses",
-    options: [
-      { value: "pending", label: "در انتظار" },
-      { value: "completed", label: "انجام شده" },
-      { value: "cancelled", label: "لغو شده" },
-    ],
+    type: "search",
+    placeholder: "عنوان، توضیحات...",
+    fields: ["title", "description"],
+    placement: "bar",
   },
   {
     key: "type",
-    type: "select",
-    label: "نوع",
-    optionsKey: "types",
-    options: [
-      { value: "follow_up", label: "پیگیری" },
-      { value: "visit", label: "بازدید" },
-      { value: "meeting", label: "جلسه" },
-      { value: "contract", label: "قرارداد" },
-    ],
+    label: "نوع وظیفه",
+    type: "multi_select",
+    placement: "bar",
+    options: Object.entries(FOLLOWUP_TYPE_CONFIG).map(([value, cfg]) => ({
+      value,
+      label: cfg.label,
+    })),
+  },
+  {
+    key: "status",
+    label: "وضعیت",
+    type: "multi_select",
+    placement: "bar",
+    options: Object.entries(FOLLOWUP_STATUS_CONFIG).map(([value, cfg]) => ({
+      value,
+      label: cfg.label,
+    })),
   },
   {
     key: "user",
-    type: "select",
     label: "مسئول",
-    optionsKey: "users",
-    options: [
-      { value: "1", label: "مدیریت ملک جو" },
-      { value: "2", label: "کارشناس ۱ - علی رضایی" },
-      { value: "3", label: "کارشناس ۲ - سارا محمدی" },
-      { value: "4", label: "کارشناس ۳ - حسن کریمی" },
-    ],
+    type: "search_select",
+    placement: "bar",
+    async: true,
+    endpoint: "/api/accounts/users/",
+    search_fields: ["full_name", "phone"],
+    optionLabel: "full_name",
+    optionValue: "id",
   },
   {
     key: "due_at",
+    label: "موعد انجام",
     type: "date_range",
-    label: "تاریخ سررسید",
+    placement: "bar",
+    from_key: "due_from",
+    to_key: "due_to",
   },
+];
+
+export const FOLLOWUP_ADVANCED_FILTERS = [
+  {
+    key: "customer",
+    label: "مشتری",
+    type: "search_select",
+    placement: "drawer",
+    async: true,
+    endpoint: "/api/customers/",
+    search_fields: ["full_name", "phone", "national_id"],
+    optionLabel: "full_name",
+    optionValue: "id",
+  },
+  {
+    key: "property",
+    label: "ملک",
+    type: "search_select",
+    placement: "drawer",
+    async: true,
+    endpoint: "/api/property/list/",
+    search_fields: ["title", "property_code"],
+    optionLabel: "title",
+    optionValue: "id",
+  },
+  {
+    key: "overdue",
+    label: "تنها موعد گذشته",
+    type: "toggle",
+    placement: "drawer",
+  },
+  {
+    key: "due_today",
+    label: "موعد امروز",
+    type: "toggle",
+    placement: "drawer",
+  },
+  {
+    key: "due_this_week",
+    label: "موعد این هفته",
+    type: "toggle",
+    placement: "drawer",
+  },
+  {
+    key: "completed_today",
+    label: "تکمیل‌شده امروز",
+    type: "toggle",
+    placement: "drawer",
+  },
+  {
+    key: "has_property",
+    label: "دارای ملک مرتبط",
+    type: "toggle",
+    placement: "drawer",
+  },
+  {
+    key: "has_customer",
+    label: "دارای مشتری مرتبط",
+    type: "toggle",
+    placement: "drawer",
+  },
+  {
+    key: "created_at",
+    label: "تاریخ ایجاد",
+    type: "date_range",
+    placement: "drawer",
+    from_key: "created_from",
+    to_key: "created_to",
+  },
+  {
+    key: "completed_at",
+    label: "تاریخ تکمیل",
+    type: "date_range",
+    placement: "drawer",
+    from_key: "completed_from",
+    to_key: "completed_to",
+  },
+];
+
+export const FOLLOWUP_ALL_FILTERS = [
+  ...FOLLOWUP_QUICK_FILTERS,
+  ...FOLLOWUP_ADVANCED_FILTERS,
 ];

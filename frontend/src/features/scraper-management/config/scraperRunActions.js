@@ -1,0 +1,55 @@
+import {
+  Eye, Ban, Trash2, List, AlertTriangle,Play, Download
+} from "lucide-react";
+
+/**
+ * ingestionRun Actions Config
+ * Backend: ingestion.ingestionRun
+ * 
+ *  Scraper management is admin/owner-only.
+ */
+
+export const SCRAPER_RUN_ROW_ACTIONS = [
+  {
+    key: "view",
+    label: "مشاهده",
+    icon: Eye,
+    variant: "ghost",
+    type: "row",
+    permission: null,
+    modal: "detail",
+  },
+  {
+    key: "view_items",
+    label: "مشاهده آیتم‌ها",
+    icon: List,
+    variant: "ghost",
+    type: "row",
+    permission: null,
+    modal: "items",
+  },
+  {
+    key: "view_errors",
+    label: "مشاهده خطاها",
+    icon: AlertTriangle,
+    variant: "ghost",
+    type: "row",
+    permission: null,
+    condition: (row) => row.failed_count > 0,
+    modal: "errors",
+  },
+  {
+  key: "resume",
+  label: "ادامه اجرا",
+  icon: Play, 
+  variant: "primary",
+  type: "row",
+  condition: (row) => row.status === "failed" || row.status === "cancelled",
+  handler: "resume_run",
+  confirm: {
+    title: "ادامه اجرا",
+    message: "آیا از ادامه این اجرا اطمینان دارید؟",
+  },
+},
+];
+

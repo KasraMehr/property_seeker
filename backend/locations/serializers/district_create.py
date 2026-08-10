@@ -3,8 +3,6 @@ from rest_framework import serializers
 from locations.models import District
 
 
-
-
 class DistrictCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -24,9 +22,7 @@ class DistrictCreateSerializer(serializers.ModelSerializer):
             name__iexact=name,
         ).exists():
             raise serializers.ValidationError(
-                {
-                    "name": "این منطقه قبلاً در این شهر ثبت شده است."
-                }
+                {"name": "این منطقه قبلاً در این شهر ثبت شده است."}
             )
 
         attrs["name"] = name

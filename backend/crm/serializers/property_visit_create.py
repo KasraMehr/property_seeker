@@ -1,15 +1,13 @@
 from rest_framework import serializers
 
+from accounts.models import User
 from crm.models import Customer
 from properties.models import Property
-from accounts.models import User
 
 from ..models import PropertyVisit
 
 
-
 class PropertyVisitCreateSerializer(serializers.ModelSerializer):
-
 
     class Meta:
 
@@ -23,16 +21,11 @@ class PropertyVisitCreateSerializer(serializers.ModelSerializer):
             "updated_at",
         )
 
+    def __init__(self, *args, **kwargs):
 
-    def __init__(self,*args,**kwargs):
+        super().__init__(*args, **kwargs)
 
-        super().__init__(*args,**kwargs)
-
-
-        request = self.context.get(
-            "request"
-        )
-
+        request = self.context.get("request")
 
         if request:
 
@@ -40,22 +33,17 @@ class PropertyVisitCreateSerializer(serializers.ModelSerializer):
                 agency=request.user.agency
             )
 
-
             self.fields["customer"].queryset = Customer.objects.filter(
                 agency=request.user.agency
             )
 
-
             self.fields["agent"].queryset = User.objects.filter(
-                agency=request.user.agency,
-                is_active=True
+                agency=request.user.agency, is_active=True
             )
 
-
-    def validate(self,attrs):
+    def validate(self, attrs):
 
         request = self.context["request"]
-
 
         property = attrs["property"]
 
@@ -63,40 +51,24 @@ class PropertyVisitCreateSerializer(serializers.ModelSerializer):
 
         agent = attrs["agent"]
 
-
-
         if property.agency != request.user.agency:
 
-            raise serializers.ValidationError(
-                "این ملک متعلق به آژانس شما نیست."
-            )
-
+            raise serializers.ValidationError("این ملک متعلق به آژانس شما نیست.")
 
         if customer.agency != request.user.agency:
 
-            raise serializers.ValidationError(
-                "این مشتری متعلق به آژانس شما نیست."
-            )
-
+            raise serializers.ValidationError("این مشتری متعلق به آژانس شما نیست.")
 
         if agent.agency != request.user.agency:
 
-            raise serializers.ValidationError(
-                "این ایجنت متعلق به آژانس شما نیست."
-            )
-
+            raise serializers.ValidationError("این ایجنت متعلق به آژانس شما نیست.")
 
         return attrs
 
-
-
-    def create(self,validated_data):
+    def create(self, validated_data):
 
         user = self.context["request"].user
 
-
         return PropertyVisit.objects.create(
-            agency=user.agency,
-            created_by=user,
-            **validated_data
+            agency=user.agency, created_by=user, **validated_data
         )

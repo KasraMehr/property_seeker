@@ -1,17 +1,22 @@
 from rest_framework import serializers
 
+from accounts.serializers.serializers import *
+from locations.serializers.address_list import *
+
 from ..models import Property
+from .owner_detail import *
 
 
 class PropertyDetailSerializer(serializers.ModelSerializer):
 
-    owner = serializers.StringRelatedField()#همیشه از متد __str__ مدل.
+    owner = serializers.ReadOnlyField(source="owner.full_name")
+    phone = serializers.ReadOnlyField(source="owner.phone")
 
-    agent = serializers.StringRelatedField()
+    agent = UserSerializer(read_only=True)
 
-    address = serializers.StringRelatedField()
+    address = AddressSerializer(read_only=True)
 
-    create_by = serializers.StringRelatedField()
+    create_by = UserSerializer(read_only=True)
 
     agency = serializers.CharField(
         source="agency.name",
@@ -24,6 +29,7 @@ class PropertyDetailSerializer(serializers.ModelSerializer):
             "id",
             "property_code",
             "owner",
+            "phone",
             "agent",
             "address",
             "agency",

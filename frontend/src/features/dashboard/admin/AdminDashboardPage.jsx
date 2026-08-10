@@ -1,121 +1,174 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { TrendingUp, Users, Phone, Home, Clock, AlertCircle, Eye, FileText, ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
-import reportService from "@/features/reports/services/reportService";
-import listingService from "@/features/listings/services/listingService";
-import Table from "@/shared/table/Table";
-import StatusBadge from "@/shared/ui/badges/StatusBadge";
-import ScoreBadge from "@/shared/ui/badges/ScoreBadge";
-import { MotionDiv, MotionStagger, MotionItem } from "@/animations/MotionElements";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
+
+import DashboardTemplate from "@/shared/templates/dashboard/DashboardTemplate";
 import Button from "@/shared/ui/Button";
 
-const StatCard = ({ icon: Icon, label, value, color = "primary" }) => (
-  <motion.div
-    variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
-    className="bg-surface rounded-2xl border border-border shadow-sm p-5 flex items-center gap-4"
-  >
-    <div className={`w-12 h-12 rounded-xl flex items-center justify-center bg-${color}/10 text-${color}`}>
-      <Icon className="w-6 h-6" />
-    </div>
-    <div>
-      <p className="text-2xl font-bold text-foreground">{value}</p>
-      <p className="text-sm text-muted">{label}</p>
-    </div>
-  </motion.div>
-);
+import listingService from "@/features/listings/services/listingService";
+import propertyService from "@/features/properties/services/propertyService";
+
+import {
+  AdminStatsWidget,
+  RecentListingsWidget,
+  ScraperTodayWidget,
+} from "./widgets";
 
 export default function AdminDashboardPage() {
+  const navigate = useNavigate();
+
   const [stats, setStats] = useState(null);
   const [listings, setListings] = useState([]);
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const load = async () => {
+    let mounted = true;
+
+    const loadDashboard = async () => {
+      setLoading(true);
+
       try {
-        const [sRes, lRes] = await Promise.all([
-          reportService.getStats(),
-          listingService.getAll({ limit: 5 }),
+        /*
+         * فقط endpointهای واقعی backend
+         *
+         * Listing:
+         * GET /api/listing/list/
+         *
+         * Property:
+         * GET /api/property/list/
+         */
+
+        const [listingsRes, propertiesRes] = await Promise.allSettled([
+          listingService.getAll(),
+          propertyService.getAll(),
         ]);
-        setStats(sRes.data);
-        setListings(lRes.data?.results ?? lRes.data ?? []);
-      } catch {
-        // silently fail for MVP
+
+        if (!mounted) return;
+
+        // -----------------------------------------
+        // Listings
+        // -----------------------------------------
+
+        let listingData = [];
+
+        if (listingsRes.status === "fulfilled") {
+          const data = listingsRes.value?.data;
+
+          listingData = Array.isArray(data)
+            ? data
+            : data?.results ?? [];
+        }
+
+        setListings(listingData);
+
+        // -----------------------------------------
+        // Properties
+        // -----------------------------------------
+
+        let propertyData = [];
+
+        if (propertiesRes.status === "fulfilled") {
+          const data = propertiesRes.value?.data;
+
+          propertyData = Array.isArray(data)
+            ? data
+            : data?.results ?? [];
+        }
+
+        // -----------------------------------------
+        // Local dashboard stats
+        // -----------------------------------------
+
+        setStats({
+          listings: listingData.length,
+          properties: propertyData.length,
+
+          activeListings: listingData.filter(
+            (item) => item?.status === "active"
+          ).length,
+
+          unreviewedListings: listingData.filter(
+            (item) => item?.review_status === "unreviewed"
+          ).length,
+
+          promotedListings: listingData.filter(
+            (item) => item?.review_status === "promoted"
+          ).length,
+        });
+      } catch (error) {
+        /*
+         * داشبورد نباید به خاطر خطای یک endpoint
+         * کل صفحه را crash کند.
+         */
+        console.error("Admin dashboard load error:", error);
+
+        if (!mounted) return;
+
+        setListings([]);
+        setStats({
+          listings: 0,
+          properties: 0,
+          activeListings: 0,
+          unreviewedListings: 0,
+          promotedListings: 0,
+        });
       } finally {
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     };
-    load();
+
+    loadDashboard();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
-  const statItems = [
-    { icon: TrendingUp, label: "کل لیدها", value: stats?.total_leads ?? 0, color: "primary" },
-    { icon: Eye, label: "لیدهای امروز", value: stats?.today_leads ?? 0, color: "info" },
-    { icon: Home, label: "تبدیل به ملک", value: stats?.converted_properties ?? 0, color: "success" },
-    { icon: Users, label: "اپراتورهای فعال", value: stats?.active_operators ?? 0, color: "accent" },
-    { icon: Phone, label: "تماس‌های امروز", value: stats?.today_calls ?? 0, color: "special" },
-    { icon: Clock, label: "پیگیری‌های در انتظار", value: stats?.pending_followups ?? 0, color: "warning" },
-  ];
+  const headerActions = (
+    <Button
+      variant="outline"
+      size="sm"
+      icon={ArrowLeft}
+      onClick={() => navigate("/admin/listings")}
+    >
+      مشاهده همه لیدها
+    </Button>
+  );
 
   return (
-    <MotionDiv className="space-y-6 rounded-2xl p-6 " delay={0.1}>
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">داشبورد مدیریت</h1>
-          <p className="text-muted mt-1">آمار کلی سیستم و لیدهای اخیر</p>
-        </div>
-        <Link to="/admin/listings">
-          <Button variant="outline" size="sm" icon={ArrowLeft}>
-            مشاهده همه لیدها
-          </Button>
-        </Link>
-      </div>
+    <DashboardTemplate
+      title="داشبورد مدیریت"
+      headerActions={headerActions}
+    >
+      <div className="space-y-6">
+        {/* Stats */}
 
-      <MotionStagger className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {statItems.map((s, i) => (
-          <MotionItem key={i}>
-            <StatCard {...s} />
-          </MotionItem>
-        ))}
-      </MotionStagger>
+        <AdminStatsWidget
+          stats={stats}
+          loading={loading}
+        />
 
-      <div className="bg-surface rounded-2xl border border-border shadow-sm p-5 space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-foreground">آخرین لیدها</h2>
-          <Link to="/admin/listings" className="text-sm text-primary hover:underline">مشاهده همه</Link>
-        </div>
-        <div className="overflow-x-auto rounded-xl border border-border">
-          <Table loading={loading}>
-            <Table.Header>
-              <Table.Column align="right">عنوان</Table.Column>
-              <Table.Column align="center" width="100px">وضعیت</Table.Column>
-              <Table.Column align="center" width="80px">امتیاز</Table.Column>
-              <Table.Column align="right" width="140px">منطقه</Table.Column>
-              <Table.Column align="right" width="140px">قیمت</Table.Column>
-            </Table.Header>
-            <Table.Body>
-              {listings.slice(0, 5).map((l) => (
-                <Table.Row key={l.id}>
-                  <Table.Cell align="right">
-                    <div>
-                      <p className="text-sm font-medium">{l.title}</p>
-                      <p className="text-xs text-muted">{l.phone || "—"}</p>
-                    </div>
-                  </Table.Cell>
-                  <Table.Cell align="center"><StatusBadge status={l.status} type="property" variant="soft" size="sm" /></Table.Cell>
-                  <Table.Cell align="center"><ScoreBadge score={l.score} size="sm" /></Table.Cell>
-                  <Table.Cell align="right"><span className="text-sm">{l.district?.name || "—"}</span></Table.Cell>
-                  <Table.Cell align="right">
-                    <span className="text-sm font-medium">
-                      {l.listed_sale_price ? `${(l.listed_sale_price / 1_000_000).toFixed(0)} میلیون` : "—"}
-                    </span>
-                  </Table.Cell>
-                </Table.Row>
-              ))}
-            </Table.Body>
-          </Table>
+        {/* Main widgets */}
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <RecentListingsWidget
+              listings={listings.slice(0, 5)}
+              loading={loading}
+            />
+          </div>
+
+          <div className="lg:col-span-1">
+            <ScraperTodayWidget
+              status={null}
+              loading={false}
+            />
+          </div>
         </div>
       </div>
-    </MotionDiv>
+    </DashboardTemplate>
   );
 }

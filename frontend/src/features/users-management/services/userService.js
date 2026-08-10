@@ -16,12 +16,21 @@ const update = (id, data) =>
 const remove = (id) =>
   api.delete(API_ENDPOINTS.ACCOUNTS.USERS.DELETE(id).url);
 
+const bulkChangeRole = (ids, roleId) =>
+  api.put(API_ENDPOINTS.ACCOUNTS.USERS.BULK_CHANGE_ROLE.url, { ids, role: roleId });
+
+const bulkToggleActive = (ids, isActive, note) =>
+  api.put(API_ENDPOINTS.ACCOUNTS.USERS.BULK_TOGGLE_ACTIVE.url, { ids, is_active: isActive, note });
+
+// TODO: RESET PASSWORD METHOD
 const userService = {
   getAll,
   getById,
   create,
   update,
   remove,
+  bulkChangeRole ,
+  bulkToggleActive,
 };
 
 export default userService;

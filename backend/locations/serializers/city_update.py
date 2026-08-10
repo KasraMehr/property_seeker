@@ -1,9 +1,6 @@
 from rest_framework import serializers
 
-from locations.models import (
-    City,
-    Province,
-)
+from locations.models import City, Province
 
 
 class CityUpdateSerializer(serializers.ModelSerializer):
@@ -36,15 +33,15 @@ class CityUpdateSerializer(serializers.ModelSerializer):
             self.instance.name,
         )
 
-        if City.objects.exclude(
-            id=self.instance.id
-        ).filter(
-            province=province,
-            name=name,
-        ).exists():
-            raise serializers.ValidationError(
-                "این شهر قبلاً در این استان ثبت شده است."
+        if (
+            City.objects.exclude(id=self.instance.id)
+            .filter(
+                province=province,
+                name=name,
             )
+            .exists()
+        ):
+            raise serializers.ValidationError("این شهر قبلاً در این استان ثبت شده است.")
 
         return attrs
 

@@ -2,15 +2,24 @@ import { Navigate } from "react-router-dom";
 import useAuth from "@/features/auth/hooks/useAuth";
 
 export default function DashboardRedirect() {
-  const { user } = useAuth();
+  const { user, loading, isAuthenticated } = useAuth();
 
-   if (!user) {
-    return null;
+  console.log("DashboardRedirect:", {
+    user,
+    loading,
+    isAuthenticated,
+    isOwner: user?.is_owner,
+  });
+
+  if (loading) {
+    return <div>Loading...</div>;
   }
 
-  const isAdmin = Boolean(user.is_owner);
+  if (!isAuthenticated || !user) {
+    return <Navigate to="/login" replace />;
+  }
 
-  if (isAdmin) {
+  if (user.is_owner === true) {
     return <Navigate to="/admin/dashboard" replace />;
   }
 

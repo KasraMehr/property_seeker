@@ -1,4 +1,5 @@
 import { toast } from "react-hot-toast";
+import {TriangleAlert , Check , X , Info} from "lucide-react"
 
 const defaultOptions = {
   duration: 3000,
@@ -23,7 +24,7 @@ export const toastService = {
         color: "#FFFFFF",
         ...options.style,
       },
-      icon: "✅",
+      icon: Check,
     });
   },
 
@@ -37,7 +38,7 @@ export const toastService = {
         color: "#FFFFFF",
         ...options.style,
       },
-      icon: "❌",
+      icon: X ,
     });
   },
 
@@ -51,7 +52,7 @@ export const toastService = {
         color: "#FFFFFF",
         ...options.style,
       },
-      icon: "ℹ️",
+      icon: Info,
     });
   },
 
@@ -65,7 +66,7 @@ export const toastService = {
         color: "#FFFFFF",
         ...options.style,
       },
-      icon: "⚠️",
+      icon: TriangleAlert,
     });
   },
 

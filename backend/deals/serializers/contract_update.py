@@ -1,5 +1,7 @@
-from ..models import Contract, ContractHistory
 from rest_framework import serializers
+
+from ..models import Contract, ContractHistory
+
 
 class ContractUpdateSerializer(serializers.ModelSerializer):
 

@@ -1,18 +1,15 @@
 from rest_framework import serializers
 
-from properties.models import PropertyFeature, Property
-from properties.models import Feature
+from properties.models import Feature, Property, PropertyFeature
 
 
 class PropertyFeatureCreateSerializer(serializers.ModelSerializer):
 
-    property = serializers.PrimaryKeyRelatedField(
-        queryset=Property.objects.all()
-    )
+    property = serializers.PrimaryKeyRelatedField(queryset=Property.objects.all())
 
     feature = serializers.PrimaryKeyRelatedField(
         queryset=Feature.objects.all()
-    )#ابجکت میفرسته
+    )  # ابجکت میفرسته
 
     class Meta:
         model = PropertyFeature
@@ -23,7 +20,7 @@ class PropertyFeatureCreateSerializer(serializers.ModelSerializer):
         )
 
     def validate(self, attrs):
-        property_obj = attrs["property"]#ابجکت انتخاب میکنه
+        property_obj = attrs["property"]  # ابجکت انتخاب میکنه
         feature = attrs["feature"]
 
         if PropertyFeature.objects.filter(

@@ -56,11 +56,11 @@ const PageHeader = forwardRef(({
             </Link>
           )}
           <div>
-            <h1 className="text-xl font-bold text-foreground tracking-tight">
+            <h1 className="text-xl px-6 font-bold text-foreground tracking-tight">
               {title}
             </h1>
             {subtitle && (
-              <p className="text-sm text-muted mt-0.5">{subtitle}</p>
+              <p className="text-sm px-6 text-muted mt-0.5">{subtitle}</p>
             )}
           </div>
         </div>

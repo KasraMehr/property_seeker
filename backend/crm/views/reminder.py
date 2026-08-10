@@ -1,176 +1,155 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework import status
-
-from django.utils import timezone
-
-from accounts.permissions import HasRolePermission
 from rest_framework.permissions import IsAuthenticated
-from ..serializers import *
-from ..selectors.reminder_selector import ReminderSelector
-from ..serializers.reminder_create import *
-from ..serializers.reminder_update import *
-from ..serializers.reminder_list import *
-from ..serializers.reminder_detail import *
-from ..models import Reminder
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
+from crm.selectors.reminder_selector import ReminderSelector
+from crm.serializers.reminder_detail import ReminderDetailSerializer
 
-
-class ReminderCreateView(APIView):
-
-    permission_classes=[
-        IsAuthenticated,
-
-    ]
-
-
-
-    def post(self,request):
-
-        serializer=ReminderCreateSerializer(
-            data=request.data,
-            context={
-                "request":request
-            }
-        )
-
-
-        serializer.is_valid(
-            raise_exception=True
-        )
-
-
-        reminder=serializer.save()
-
-
-        return Response(
-            ReminderDetailSerializer(reminder).data,
-            status=201
-        )
-
-
-
+from ..filter.reminder_filter import ReminderFilter
+from ..serializers.reminder_update import ReminderUpdateSerializer
 
 
 class ReminderListView(APIView):
 
-    permission_classes=[
+    permission_classes = [
         IsAuthenticated,
-
     ]
 
+    def get(self, request):
 
+        # ==========================================
+        # Base QuerySet
+        # ==========================================
 
-    def get(self,request):
+        reminders = ReminderSelector.all(request.user)
 
-        reminders=ReminderSelector.all(
-            request.user
+        # ==========================================
+        # Filters
+        # ==========================================
+
+        filterset = ReminderFilter(
+            data=request.query_params,
+            queryset=reminders,
         )
 
+        if not filterset.is_valid():
 
-        return Response(
+            return Response(filterset.errors, status=status.HTTP_400_BAD_REQUEST)
 
-            ReminderDetailSerializer(
-                reminders,
-                many=True
-            ).data
+        reminders = filterset.qs
 
+        # ==========================================
+        # Ordering
+        # ==========================================
+
+        ordering = request.query_params.get("ordering")
+
+        allowed_ordering = {
+            "due_at",
+            "-due_at",
+            "created_at",
+            "-created_at",
+            "completed_at",
+            "-completed_at",
+            "updated_at",
+            "-updated_at",
+        }
+
+        if ordering in allowed_ordering:
+
+            reminders = reminders.order_by(ordering)
+
+        # ==========================================
+        # Serializer
+        # ==========================================
+
+        serializer = ReminderDetailSerializer(reminders, many=True)
+
+        return Response(serializer.data)
+
+
+class ReminderCreateView(APIView):
+
+    permission_classes = [
+        IsAuthenticated,
+    ]
+
+    def post(self, request):
+
+        serializer = ReminderCreateSerializer(
+            data=request.data, context={"request": request}
         )
 
+        serializer.is_valid(raise_exception=True)
 
+        reminder = serializer.save()
 
+        return Response(ReminderDetailSerializer(reminder).data, status=201)
 
 
 class ReminderDetailView(APIView):
 
-    permission_classes=[
-        IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
+    def get(self, request, pk):
 
+        reminder = ReminderSelector.by_id(pk, request.user)
 
-    def get(self,request,pk):
-
-        reminder=ReminderSelector.by_id(
-            pk,
-            request.user
-        )
-
-
-        return Response(
-            ReminderDetailSerializer(reminder).data
-        )
-
-
-
+        return Response(ReminderDetailSerializer(reminder).data)
 
 
 class ReminderUpdateView(APIView):
 
-    permission_classes=[
+    permission_classes = [
         IsAuthenticated,
-
     ]
 
+    def put(self, request, pk):
 
+        reminder = ReminderSelector.by_id(pk, request.user)
 
-    def put(self,request,pk):
-
-        reminder=ReminderSelector.by_id(
-            pk,
-            request.user
+        serializer = ReminderUpdateSerializer(
+            reminder, data=request.data, context={"request": request}
         )
 
+        serializer.is_valid(raise_exception=True)
 
-        serializer=ReminderUpdateSerializer(
+        reminder = serializer.save()
 
-            reminder,
-
-            data=request.data,
-
-            context={
-                "request":request
-            }
-
-        )
-
-
-        serializer.is_valid(
-            raise_exception=True
-        )
-
-
-        reminder=serializer.save()
-
-
-        return Response(
-            ReminderDetailSerializer(reminder).data
-        )
+        return Response(ReminderDetailSerializer(reminder).data)
 
 
 
-
-
-class ReminderDeleteView(APIView):
-
-    permission_classes=[
+class ReminderBulkDeleteView(APIView):
+    permission_classes = [
         IsAuthenticated,
-
     ]
 
+    def delete(self, request):
+        reminder_ids = request.data.get("ids", [])
 
-    def delete(self,request,pk):
+        if not reminder_ids:
+            return Response(
+                {"message": "حداقل یک یادآوری را انتخاب کنید."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-        reminder=ReminderSelector.by_id(
-            pk,
-            request.user
-        )
-        reminder.delete()
+        deleted_count = 0
 
+        for reminder_id in reminder_ids:
+            reminder = ReminderSelector.by_id(
+                reminder_id,
+                request.user,
+            )
+
+            reminder.delete()
+            deleted_count += 1
 
         return Response(
             {
-                "message":
-                "یادآوری حذف شد."
+                "message": f"{deleted_count} یادآوری با موفقیت حذف شد.",
+                "deleted_count": deleted_count,
             },
-            status=204
+            status=status.HTTP_200_OK,
         )

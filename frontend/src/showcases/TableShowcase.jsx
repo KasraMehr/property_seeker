@@ -10,9 +10,9 @@
 // import SearchBox from "@/shared/ui/SearchBox";
 // import FilterBar from "@/shared/filters/FilterBar";
 // import useFilter from "@/shared/filters/useFilter";
-// import { LISTING_FILTERS, FILTER_OPTIONS } from "@/constants/filterConfig";
+// import { LISTING_ALL_FILTERS, FILTER_OPTIONS } from "@/constants/filterConfig";
 
-// const FILTER_SCHEMA_NO_SEARCH = LISTING_FILTERS.filter(
+// const FILTER_SCHEMA_NO_SEARCH = LISTING_ALL_FILTERS.filter(
 //   (f) => f.key !== "search",
 // );
 
@@ -61,7 +61,7 @@
 //     clearAll,
 //     activeChips,
 //     toQueryParams,
-//   } = useFilter(LISTING_FILTERS, FILTER_OPTIONS);
+//   } = useFilter(LISTING_ALL_FILTERS, FILTER_OPTIONS);
 
 //   const query = useMemo(
 //     () => new URLSearchParams(toQueryParams()).toString(),

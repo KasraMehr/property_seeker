@@ -2,12 +2,12 @@ import { useCallback, useEffect, useRef } from "react";
 import useResource from "@/shared/templates/resource/hooks/useResource";
 import useResourceQuery from "@/shared/templates/resource/hooks/useResourceQuery";
 import callService from "../services/callService";
-import { CALL_FILTERS } from "../config";
+import { CALL_ALL_FILTERS } from "../config";
 
 export default function useCall() {
   const { fetchList, remove, ...resourceState } = useResource(callService);
   const query = useResourceQuery({
-    filterSchema: CALL_FILTERS,
+    filterSchema: CALL_ALL_FILTERS,  
     pageSize: 25,
     initialOrdering: "-called_at",
   });
@@ -33,10 +33,37 @@ export default function useCall() {
     fetchList(query.queryParams);
   }, [fetchList, query.queryParams]);
 
+  /* ─── Detail (fetch full object for modal) ─── */
+  const getById = useCallback(async (id) => {
+    const res = await callService.getById(id);
+    return res.data;
+  }, []);
+
+  /* ─── Mark follow-up done ─── */
+  const markFollowUpDone = useCallback(
+    async (id) => {
+      await callService.update(id, { follow_up_done: true });
+      refresh();
+    },
+    [refresh]
+  );
+
+  /* ─── Bulk delete ─── */
+  const bulkRemove = useCallback(
+    async (ids) => {
+      await Promise.all(ids.map((id) => callService.remove(id)));
+      refresh();
+    },
+    [refresh]
+  );
+
   return {
     ...resourceState,
     fetchList,
     remove,
+    getById,
+    markFollowUpDone,
+    bulkRemove,
     filters: query.filters,
     setFilter: query.setFilter,
     clearFilter: query.clearFilter,

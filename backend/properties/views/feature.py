@@ -3,15 +3,12 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from properties.models import Feature
-
-from properties.selector.feature_selector import FeatureSelector
-
-from properties.serializers.feature_create import FeatureCreateSerializer
-from properties.serializers.feature_update import FeatureUpdateSerializer
-from properties.serializers.feature_list import FeatureListSerializer
 from accounts.permissions import *
 from audit.services.activity_log import ActivityLogService
+from properties.selector.feature_selector import FeatureSelector
+from properties.serializers.feature_create import FeatureCreateSerializer
+from properties.serializers.feature_list import FeatureListSerializer
+from properties.serializers.feature_update import FeatureUpdateSerializer
 
 
 class FeatureCreateView(APIView):
@@ -69,9 +66,10 @@ class FeatureListView(APIView):
 
         return Response(serializer.data)
 
+
 class FeatureDetailView(APIView):
 
-    serializer_class =  FeatureListSerializer
+    serializer_class = FeatureListSerializer
     permission_classes = (
         IsAuthenticated,
         HasRolePermission,
@@ -79,7 +77,7 @@ class FeatureDetailView(APIView):
 
     required_permission = "view_feature"
 
-    def get(self, request,pk):
+    def get(self, request, pk):
 
         feature = FeatureSelector.by_id(pk)
 
@@ -131,7 +129,7 @@ class FeatureUpdateView(APIView):
         )
 
 
-class FeatureDeleteView(APIView):
+class FeatureBulkDeleteView(APIView):
     permission_classes = (
         IsAuthenticated,
         HasRolePermission,
@@ -139,24 +137,37 @@ class FeatureDeleteView(APIView):
 
     required_permission = "delete_feature"
 
-    def delete(self, request, pk):
-        feature = FeatureSelector.by_id(pk)
+    def delete(self, request):
+        feature_ids = request.data.get("ids", [])
 
-        old_data = FeatureListSerializer(feature).data
+        if not feature_ids:
+            return Response(
+                {"message": "حداقل یک ویژگی را انتخاب کنید."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-        ActivityLogService.delete(
-            request=request,
-            entity_type="Feature",
-            entity_id=feature.id,
-            old_data=old_data,
-            message="ویژگی حذف شد.",
-        )
+        deleted_count = 0
 
-        feature.delete()
+        for feature_id in feature_ids:
+            feature = FeatureSelector.by_id(feature_id)
+
+            old_data = FeatureListSerializer(feature).data
+
+            ActivityLogService.delete(
+                request=request,
+                entity_type="Feature",
+                entity_id=feature.id,
+                old_data=old_data,
+                message="ویژگی حذف شد.",
+            )
+
+            feature.delete()
+            deleted_count += 1
 
         return Response(
             {
-                "message": "ویژگی حذف شد."
+                "message": f"{deleted_count} ویژگی با موفقیت حذف شد.",
+                "deleted_count": deleted_count,
             },
-            status=status.HTTP_204_NO_CONTENT,
+            status=status.HTTP_200_OK,
         )

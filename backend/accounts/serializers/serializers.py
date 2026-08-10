@@ -1,23 +1,17 @@
+from django.contrib.auth.models import Permission
 from rest_framework import serializers
-from ..models import *
+
 from accounts.models import User
 from locations.models import *
+from locations.models import District, Neighborhood
 
-
-from django.contrib.auth.models import Permission
+from ..models import *
 from ..models import Agency, Role
-from accounts.models import User
-from locations.models import District
-
-from locations.models import Neighborhood
 
 
 class NeighborhoodSimpleSerializer(serializers.ModelSerializer):
 
-    district_name = serializers.CharField(
-        source="district.name",
-        read_only=True
-    )
+    district_name = serializers.CharField(source="district.name", read_only=True)
 
     class Meta:
         model = Neighborhood
@@ -39,6 +33,7 @@ class AgencySerializer(serializers.ModelSerializer):
             "address",
         )
 
+
 class AgencyCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -52,11 +47,10 @@ class AgencyCreateSerializer(serializers.ModelSerializer):
     def validate_name(self, value):
 
         if Agency.objects.filter(name=value).exists():
-            raise serializers.ValidationError(
-                "این آژانس قبلاً ثبت شده است."
-            )
+            raise serializers.ValidationError("این آژانس قبلاً ثبت شده است.")
 
         return value
+
 
 class AgencyUpdateSerializer(serializers.ModelSerializer):
 
@@ -77,9 +71,7 @@ class AgencyUpdateSerializer(serializers.ModelSerializer):
         agency = self.instance
 
         if Agency.objects.exclude(id=agency.id).filter(name=value).exists():
-            raise serializers.ValidationError(
-                "این نام قبلاً ثبت شده است."
-            )
+            raise serializers.ValidationError("این نام قبلاً ثبت شده است.")
 
         return value
 
@@ -91,6 +83,7 @@ class AgencyUpdateSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
+
 
 class RoleCreateSerializer(serializers.ModelSerializer):
 
@@ -111,31 +104,20 @@ class RoleCreateSerializer(serializers.ModelSerializer):
 
         agency = self.context["request"].user.agency
 
-        if Role.objects.filter(
-            agency=agency,
-            name=value
-        ).exists():
-            raise serializers.ValidationError(
-                "این نقش قبلاً ثبت شده است."
-            )
+        if Role.objects.filter(agency=agency, name=value).exists():
+            raise serializers.ValidationError("این نقش قبلاً ثبت شده است.")
 
         return value
 
     def create(self, validated_data):
 
-        permissions = validated_data.pop(
-            "permissions",
-            []
-        )
+        permissions = validated_data.pop("permissions", [])
 
-        role = Role.objects.create(
-            **validated_data
-        )
+        role = Role.objects.create(**validated_data)
 
         role.permissions.set(permissions)
 
         return role
-
 
 
 class RoleUpdateSerializer(serializers.ModelSerializer):
@@ -161,16 +143,13 @@ class RoleUpdateSerializer(serializers.ModelSerializer):
 
         agency = self.context["request"].user.agency
 
-        if Role.objects.exclude(
-            id=self.instance.id
-        ).filter(
-            agency=agency,
-            name=value
-        ).exists():
+        if (
+            Role.objects.exclude(id=self.instance.id)
+            .filter(agency=agency, name=value)
+            .exists()
+        ):
 
-            raise serializers.ValidationError(
-                "این نقش قبلاً ثبت شده است."
-            )
+            raise serializers.ValidationError("این نقش قبلاً ثبت شده است.")
 
         return value
 
@@ -190,6 +169,7 @@ class RoleUpdateSerializer(serializers.ModelSerializer):
             instance.permissions.set(permissions)
 
         return instance
+
 
 class RoleSerializer(serializers.ModelSerializer):
 
@@ -222,11 +202,8 @@ class DistrictSimpleSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
 
     agency = AgencySerializer(read_only=True)
-    role = RoleSerializer(read_only=True,many=True)
-    service_neighborhoods = NeighborhoodSimpleSerializer(
-        many=True,
-        read_only=True
-    )
+    role = RoleSerializer(read_only=True, many=True)
+    service_neighborhoods = NeighborhoodSimpleSerializer(many=True, read_only=True)
 
     class Meta:
         model = User
@@ -290,28 +267,20 @@ class UserCreateSerializer(serializers.ModelSerializer):
 
     def validate_role(self, value):
         if value.agency != self.context["request"].user.agency:
-            raise serializers.ValidationError(
-                "این نقش متعلق به آژانس شما نیست."
-            )
+            raise serializers.ValidationError("این نقش متعلق به آژانس شما نیست.")
         return value
 
     def create(self, validated_data):
         password = validated_data.pop("password")
-        neighborhoods = validated_data.pop(
-            "service_neighborhoods",
-            []
-        )
+        neighborhoods = validated_data.pop("service_neighborhoods", [])
         owner = self.context["request"].user
         user = User.objects.create_user(
-            agency=owner.agency,
-            password=password,
-            **validated_data
+            agency=owner.agency, password=password, **validated_data
         )
 
-        user.service_neighborhoods.set(
-            neighborhoods
-        )
+        user.service_neighborhoods.set(neighborhoods)
         return user
+
 
 class UserUpdateSerializer(serializers.ModelSerializer):
 
@@ -357,18 +326,13 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
     def validate_role(self, value):
         if value.agency != self.context["request"].user.agency:
-            raise serializers.ValidationError(
-                "این نقش متعلق به آژانس شما نیست."
-            )
+            raise serializers.ValidationError("این نقش متعلق به آژانس شما نیست.")
         return value
 
     def update(self, instance, validated_data):
 
         password = validated_data.pop("password", None)
-        neighborhoods = validated_data.pop(
-            "service_neighborhoods",
-            None
-        )
+        neighborhoods = validated_data.pop("service_neighborhoods", None)
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
@@ -379,9 +343,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         instance.save()
 
         if neighborhoods is not None:
-            instance.service_neighborhoods.set(
-                neighborhoods
-            )
+            instance.service_neighborhoods.set(neighborhoods)
 
         return instance
 

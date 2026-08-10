@@ -27,16 +27,16 @@ class OwnerUpdateSerializer(serializers.ModelSerializer):
 
         agency = self.context["request"].user.agency
 
-        if Owner.objects.filter(
-            agency=agency,
-            phone=value,
-        ).exclude(
-            pk=self.instance.pk
-        ).exists():
-
-            raise serializers.ValidationError(
-                "این شماره موبایل قبلاً ثبت شده است."
+        if (
+            Owner.objects.filter(
+                agency=agency,
+                phone=value,
             )
+            .exclude(pk=self.instance.pk)
+            .exists()
+        ):
+
+            raise serializers.ValidationError("این شماره موبایل قبلاً ثبت شده است.")
 
         return value
 

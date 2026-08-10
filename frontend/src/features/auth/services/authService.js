@@ -3,16 +3,22 @@ import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 
 const login = async (phone, password) => {
   try {
-    const response = await api.post(API_ENDPOINTS.AUTH.LOGIN.url, { phone, password });
+    const response = await api.post(API_ENDPOINTS.AUTH.LOGIN.url, {
+      phone,
+      password,
+    });
     return {
       success: true,
       user: response.data.user,
       message: response.data.message,
     };
   } catch (error) {
+    const errData = error.response?.data;
+    let errorMessage = "شماره تلفن یا رمز عبور اشتباه است";
+
     return {
       success: false,
-      error: error.response?.data?.message || "login failed",
+      error: errorMessage,
     };
   }
 };

@@ -2,9 +2,11 @@ import {
   CheckCircle2,
   PhoneMissed,
   PhoneOff,
-  Voicemail,
-  Clock,
+  ThumbsUp,
+  ThumbsDown,
   Phone,
+  CalendarCheck,
+  Clock,
   PhoneIncoming,
   PhoneOutgoing,
 } from "lucide-react";
@@ -26,15 +28,25 @@ export const CALL_RESULT_CONFIG = {
     icon: PhoneOff,
     color: "warning",
   },
-  voicemail: {
-    label: "صندوق صوتی",
-    icon: Voicemail,
-    color: "info",
+  interested: {
+    label: "مشتاق",
+    icon: ThumbsUp,
+    color: "success",
   },
-  callback_requested: {
-    label: "درخواست تماس مجدد",
+  not_interested: {
+    label: "غیرمشتاق",
+    icon: ThumbsDown,
+    color: "neutral",
+  },
+  follow_up: {
+    label: "نیاز به پیگیری",
     icon: Clock,
     color: "warning",
+  },
+  visit_booked: {
+    label: "بازدید ثبت شد",
+    icon: CalendarCheck,
+    color: "info",
   },
 };
 
@@ -53,10 +65,5 @@ export const CALL_TYPE_CONFIG = {
     color: "emerald",
     bg: "bg-emerald-500/10",
     text: "text-emerald-500",
-  },
-  unknown: {
-    label: "نامشخص",
-    icon: Phone,
-    color: "neutral",
   },
 };

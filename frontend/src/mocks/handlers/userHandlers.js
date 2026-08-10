@@ -31,17 +31,13 @@ export const userHandlers = [
       results = results.filter((u) => u.agency?.id === Number(agencyId));
     }
 
-    /* ─── Filter: is_active ───
-     * API ممکنه "true" | "false" | true | false بفرسته
-     */
+    /* ─── Filter: is_active ───     */
     if (isActive !== null && isActive !== undefined && isActive !== "") {
       const active = isActive === "true" || isActive === true;
       results = results.filter((u) => u.is_active === active);
     }
 
-    /* ─── Filter: role ───
-     * مقایسه با slug نقش (admin, operator, supervisor, ...)
-     */
+    /* ─── Filter: role    */
     if (role) {
       results = results.filter((u) => {
         const roleKey = getRoleConfig(u.role?.[0])?.key;
@@ -109,5 +105,33 @@ export const userHandlers = [
     }
     MOCK_USERS.splice(index, 1);
     return HttpResponse.json({ detail: "deleted" }, { status: 204 });
+  }),
+
+    //  BULK CHANGE ROLE 
+  http.put("*/api/accounts/users/bulk-change-role/", async ({ request }) => {
+    const body = await request.json();
+    const { ids, role } = body;
+    ids.forEach((id) => {
+      const idx = MOCK_USERS.findIndex((u) => u.id === id);
+      if (idx !== -1) {
+        MOCK_USERS[idx].role = [role];
+        MOCK_USERS[idx].updated_at = new Date().toISOString();
+      }
+    });
+    return HttpResponse.json({ updated: ids.length, role }, { status: 200 });
+  }),
+
+  //  BULK TOGGLE ACTIVE
+  http.put("*/api/accounts/users/bulk-toggle-active/", async ({ request }) => {
+    const body = await request.json();
+    const { ids, is_active, note } = body;
+    ids.forEach((id) => {
+      const idx = MOCK_USERS.findIndex((u) => u.id === id);
+      if (idx !== -1) {
+        MOCK_USERS[idx].is_active = is_active;
+        MOCK_USERS[idx].updated_at = new Date().toISOString();
+      }
+    });
+    return HttpResponse.json({ updated: ids.length, is_active, note }, { status: 200 });
   }),
 ];

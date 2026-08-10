@@ -1,58 +1,32 @@
 import { useMemo, useEffect, useState, useCallback } from "react";
-import {
-  Plus,
-  Eye,
-  Phone,
-  Calendar,
-  Trash2,
-  ExternalLink,
-  UserPlus,
-  Inbox,
-} from "lucide-react";
-import useAuth from "@/features/auth/hooks/useAuth";
+import { Eye, Phone, ExternalLink, Inbox } from "lucide-react";
 import ResourceTemplate from "@/shared/templates/resource/ResourceTemplate";
 import useListing from "@/features/listings/hooks/useListing";
 import {
-  LISTING_FILTERS,
-  LISTING_STATUS_CONFIG,
+  LISTING_ALL_FILTERS,
+  LISTING_TABLE_COLUMNS,
 } from "@/features/listings/config";
-import RegisterCallForm from "@/shared/forms/RegisterCallForm";
-import { LISTING_TABLE_COLUMNS } from "../config/listingTable.config";
-import { buildStatusConfig } from "@/constants/status.utils";
 import useDebounce from "@/shared/useDebounce";
-import ConfirmModal from "@/shared/ui/modal/ConfirmModal";
 import Button from "@/shared/ui/Button";
 import ListingDetailModal from "@/features/listings/components/ListingDetailModal";
-import AssignOperatorModal from "@/features/listings/components/AssignOperatorModal";
+import RegisterCallFromListingModal from "@/features/listings/components/RegisterCallFormListingModal";
+import callService from "@/features/calls/services/callService";
 
-const LISTING_ROW_ACTIONS = {
-  admin: [
-    { key: "view", label: "مشاهده", icon: Eye },
-    { key: "assign", label: "تخصیص به کارشناس", icon: UserPlus },
-    {
-      key: "sourceLink",
-      label: "مشاهده در منبع",
-      icon: ExternalLink,
-      visible: (row) => !!row.url,
-    },
-    { key: "delete", label: "حذف", icon: Trash2, variant: "danger" },
-  ],
-  operator: [
-    { key: "view", label: "مشاهده", icon: Eye },
-    { key: "call", label: "ثبت تماس", icon: Phone },
-    { key: "followup", label: "پیگیری", icon: Calendar },
-  ],
-};
-
-const LISTING_BULK_ACTIONS = [
-  { key: "bulkDelete", label: "حذف گروهی", icon: Trash2, variant: "danger" },
+/**
+ *suppurted actions for listings
+ */
+const LISTING_ROW_ACTIONS = [
+  { key: "view", label: "مشاهده", icon: Eye },
+  { key: "register_call", label: "ثبت تماس", icon: Phone },
+  {
+    key: "open_source",
+    label: "مشاهده منبع",
+    icon: ExternalLink,
+    visible: (row) => !!row.url,
+  },
 ];
 
 export default function ListingsPage() {
-  const { user } = useAuth();
-  const isAdmin = Boolean(user?.is_owner);
-  const role = isAdmin ? "admin" : "operator";
-
   const {
     data,
     loading,
@@ -67,28 +41,24 @@ export default function ListingsPage() {
     page,
     setPage,
     totalPages,
-    remove,
+    getById,
+    refresh,
   } = useListing();
 
-  const [selected, setSelected] = useState([]);
   const [detailListing, setDetailListing] = useState(null);
-  const [assignListingId, setAssignListingId] = useState(null);
-  const [pendingDelete, setPendingDelete] = useState(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [callListing, setCallListing] = useState(null);
 
-  // ─── Debounced search state ───
+  // ─── Search (client-side یا query؛ Backend فعلاً FilterSet ندارد) ───
   const [searchInput, setSearchInput] = useState(filterValues.search || "");
   const debouncedSearch = useDebounce(searchInput, 400);
 
-  const [callListing, setCallListing] = useState(null);
-
-  // Sync external clear → input
   useEffect(() => {
     if (filterValues.search !== searchInput) {
       setSearchInput(filterValues.search || "");
     }
   }, [filterValues.search]);
 
-  // Debounced search → API (only when value actually changes)
   useEffect(() => {
     if (debouncedSearch !== filterValues.search) {
       setFilter("search", debouncedSearch);
@@ -104,137 +74,155 @@ export default function ListingsPage() {
     [sort, setOrdering],
   );
 
-  // ─── Row actions ───
-  const handleRowAction = useCallback((actionKey, row) => {
-    switch (actionKey) {
-      case "view":
-        setDetailListing(row);
-        break;
-      case "assign":
-        setAssignListingId(row.id);
-        break;
-      case "sourceLink":
-        if (row.url) window.open(row.url, "_blank");
-        break;
-      case "delete":
-        setPendingDelete(row);
-        break;
-      case "call":
-      case "followup":
-        console.log(actionKey, row.id);
-        break;
-      default:
-        break;
-    }
-  }, []);
-
-  // ─── Bulk actions ───
-  const handleBulkAction = useCallback(
-    (actionKey) => {
-      if (actionKey === "bulkDelete") {
-        console.log("bulk delete", selected);
+  // ─── Open detail ───
+  const openDetail = useCallback(
+    async (row) => {
+      setDetailLoading(true);
+      setDetailListing(row); 
+      try {
+        if (getById) {
+          const full = await getById(row.id);
+          setDetailListing(full);
+        }
+      } catch (err) {
+        toast?.error?.("خطا در دریافت جزئیات آگهی") ||
+          console.error(err);
+      } finally {
+        setDetailLoading(false);
       }
     },
-    [selected],
+    [getById],
   );
 
-  // ─── Delete confirm ───
-  const confirmDelete = useCallback(async () => {
-    if (!pendingDelete) return;
-    await remove(pendingDelete.id);
-    setPendingDelete(null);
-    setSelected((prev) => prev.filter((id) => id !== pendingDelete.id));
-  }, [pendingDelete, remove]);
+  // ─── Row actions ───
+  const handleRowAction = useCallback(
+    (actionKey, row) => {
+      switch (actionKey) {
+        case "view":
+          openDetail(row);
+          break;
+        case "register_call":
+          setCallListing(row);
+          break;
+        case "open_source":
+          if (row.url) window.open(row.url, "_blank", "noopener,noreferrer");
+          break;
+        default:
+          break;
+      }
+    },
+    [openDetail],
+  );
 
-  // ─── Filter options ───
-  const filterOptions = useMemo(() => {
-    const statusFilter = LISTING_FILTERS.find((f) => f.key === "status");
-    const sourceFilter = LISTING_FILTERS.find((f) => f.key === "source");
-    const userFilter = LISTING_FILTERS.find((f) => f.key === "created_by");
+  // map for call log
+  const mapCallPayload = useCallback((form, listing) => {
+    const callTypeMap = {
+      inbound: "incoming",
+      incoming: "incoming",
+      outbound: "outgoing",
+      outgoing: "outgoing",
+    };
+
     return {
-      statuses: statusFilter?.options || [],
-      sources: sourceFilter?.options || [],
-      users: userFilter?.options || [],
+      customer: form.customer,
+      listing: listing?.id,
+      call_type: callTypeMap[form.call_type] || form.call_type || "outgoing",
+      result: form.result,
+      note: form.note ?? form.notes ?? "",
+      call_duration: Number(form.call_duration ?? form.duration ?? 0) || 0,
+      called_at: form.called_at || new Date().toISOString(),
+      next_follow_up_at: form.next_follow_up_at || form.nextDate || null,
+      follow_up_done: Boolean(form.follow_up_done),
+      ...(listing?.property
+        ? {
+            property:
+              typeof listing.property === "object"
+                ? listing.property.id
+                : listing.property,
+          }
+        : {}),
     };
   }, []);
 
-  // FilterBar schema excludes search (handled by SearchBox)
+  const handleRegisterCallSubmit = useCallback(
+    async (formData) => {
+      if (!callListing?.id) return;
+
+      const payload = mapCallPayload(formData, callListing);
+
+      if (!payload.customer) {
+        toast?.error?.("انتخاب مشتری الزامی است");
+        throw new Error("customer required");
+      }
+
+      await callService.create(payload);
+      toast?.success?.("تماس با موفقیت ثبت شد");
+      setCallListing(null);
+      // refresh?.();
+    },
+    [callListing, mapCallPayload],
+  );
+
+  const handleRegisterCallFromDetail = useCallback((listing) => {
+    setCallListing(listing);
+  }, []);
+
   const filters = useMemo(
     () => ({
-      schema: LISTING_FILTERS.filter((f) => f.type !== "search"),
-      options: filterOptions,
+      schema: (LISTING_ALL_FILTERS || []).filter((f) => f.type !== "search"),
+      options: {},
       values: filterValues,
       onChange: setFilter,
       onClear: clearFilter,
       onClearAll: clearAll,
-      activeChips,
+      chips: activeChips,
     }),
-    [
-      filterOptions,
-      filterValues,
-      setFilter,
-      clearFilter,
-      clearAll,
-      activeChips,
-    ],
-  );
-
-  // ─── Pagination ───
-  const pagination = useMemo(
-    () => ({
-      page,
-      totalPages: totalPages(meta?.count),
-    }),
-    [page, meta?.count, totalPages],
+    [filterValues, setFilter, clearFilter, clearAll, activeChips],
   );
 
   const searchConfig = useMemo(
     () => ({
       value: searchInput,
       onChange: setSearchInput,
-      label: "جستجو",
-      placeholder: "عنوان، شماره تلفن، توضیحات...",
+      placeholder: "جستجو در عنوان یا شناسه خارجی...",
     }),
     [searchInput],
   );
 
-  // ─── Custom header ───
+  const pagination = useMemo(
+    () => ({
+      page,
+      pageSize: 25,
+      total: meta?.count || 0,
+      totalPages: totalPages?.(meta?.count || 0) || 1,
+    }),
+    [page, meta?.count, totalPages],
+  );
+
   const customHeader = useMemo(
     () => (
-      <div className="flex items-center justify-between shrink-0">
+      <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-xl font-bold text-foreground tracking-tight">
-            مدیریت آگهی‌ها
+            آگهی‌ها
           </h1>
           <p className="text-sm text-muted mt-1">
             {(meta?.count || 0).toLocaleString("fa-IR")} آگهی
-            {selected.length > 0 && (
-              <span className="mr-2 text-(--role-primary)">
-                ({selected.length.toLocaleString("fa-IR")} انتخاب شده)
-              </span>
-            )}
           </p>
         </div>
-        <Button variant="primary" size="sm" className="gap-1.5">
-          <Plus size={16} />
-          آگهی جدید
-        </Button>
       </div>
     ),
-    [meta?.count, selected.length],
+    [meta?.count],
   );
 
-  // ─── Empty state ───
   const emptyState = useMemo(
     () => (
       <div className="py-12 text-center space-y-3">
         <Inbox size={48} className="mx-auto text-muted/40" />
         <div>
-          <p className="text-sm font-medium text-foreground">
-            آگهی‌ای یافت نشد
-          </p>
+          <p className="text-sm font-medium text-foreground">آگهی‌ای یافت نشد</p>
           <p className="text-xs text-muted mt-1">
-            با فیلترهای انتخابی هیچ آگهی‌ای پیدا نشد.
+            هنوز آگهی‌ای از اسکرپر وارد نشده یا با فیلتر فعلی نتیجه‌ای نیست.
           </p>
         </div>
         <Button variant="outline" size="sm" onClick={clearAll}>
@@ -257,58 +245,33 @@ export default function ListingsPage() {
         emptyState={emptyState}
         sort={sort}
         onSort={handleSort}
-        selectable={true}
-        selected={selected}
-        onSelectionChange={setSelected}
-        rowActions={LISTING_ROW_ACTIONS[role]}
-        bulkActions={isAdmin ? LISTING_BULK_ACTIONS : []}
+        selectable={false}
+        rowActions={LISTING_ROW_ACTIONS}
+        bulkActions={[]}
         onRowAction={handleRowAction}
-        onBulkAction={handleBulkAction}
         pagination={pagination}
         onPageChange={setPage}
       />
 
-      <ConfirmModal
-        isOpen={pendingDelete !== null}
-        onClose={() => setPendingDelete(null)}
-        onConfirm={confirmDelete}
-        title="حذف آگهی"
-        message={`آگهی "${pendingDelete?.title || ""}" حذف خواهد شد. آیا مطمئن هستید؟`}
-        variant="danger"
+      {/* Detail Serializer */}
+      <ListingDetailModal
+        isOpen={!!detailListing}
+        onClose={() => setDetailListing(null)}
+        listing={detailListing}
+        loading={detailLoading}
+        onRegisterCall={handleRegisterCallFromDetail}
       />
 
-      {detailListing && (
-        <ListingDetailModal
-          isOpen={!!detailListing}
-          onClose={() => setDetailListing(null)}
-          listing={detailListing}
-          onRegisterCall={(listing) => setCallListing(listing)}
-        />
-      )}
-
-      {callListing && (
-        <RegisterCallForm
-          isOpen={!!callListing}
-          onClose={() => setCallListing(null)}
-          listingId={callListing.id}
-          onSubmit={(data) => {
-            console.log("register call", data);
-            setCallListing(null);
-          }}
-        />
-      )}
-
-      {assignListingId && (
-        <AssignOperatorModal
-          isOpen={!!assignListingId}
-          onClose={() => setAssignListingId(null)}
-          listingId={assignListingId}
-          onAssign={(userId) => {
-            console.log("assign", assignListingId, "to", userId);
-            setAssignListingId(null);
-          }}
-        />
-      )}
+      {/* call log with listing-id*/}
+      <RegisterCallFromListingModal
+        isOpen={!!callListing}
+        onClose={() => setCallListing(null)}
+        listing={callListing}
+        onSuccess={() => {
+          setCallListing(null);
+        }}
+        onSubmit={handleRegisterCallSubmit}
+      />
     </>
   );
 }

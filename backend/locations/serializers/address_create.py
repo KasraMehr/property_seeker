@@ -26,9 +26,7 @@ class AddressCreateSerializer(serializers.ModelSerializer):
             unit=attrs.get("unit", ""),
         ).exists():
 
-            raise serializers.ValidationError(
-                "این آدرس قبلاً ثبت شده است."
-            )
+            raise serializers.ValidationError("این آدرس قبلاً ثبت شده است.")
 
         return attrs
 

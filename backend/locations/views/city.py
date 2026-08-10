@@ -3,13 +3,13 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from locations.selectors.city_selector import CitySelector
-
-from locations.serializers.city_create import CityCreateSerializer
-from locations.serializers.city_update import CityUpdateSerializer
-from locations.serializers.city_list import CityListSerializer
-from locations.serializers.city_detail import CityDetailSerializer
 from accounts.permissions import *
+from locations.selectors.city_selector import CitySelector
+from locations.serializers.city_create import CityCreateSerializer
+from locations.serializers.city_detail import CityDetailSerializer
+from locations.serializers.city_list import CityListSerializer
+from locations.serializers.city_update import CityUpdateSerializer
+
 
 class CityCreateView(APIView):
 
@@ -138,25 +138,36 @@ class CityUpdateView(APIView):
             status=status.HTTP_200_OK,
         )
 
-
-class CityDeleteView(APIView):
+class CityBulkDeleteView(APIView):
 
     permission_classes = (
         IsAuthenticated,
         HasRolePermission,
     )
 
-    required_permission = "delete_province"
+    required_permission = "delete_city"
 
-    def delete(self, request, pk):
+    def delete(self, request):
+        city_ids = request.data.get("ids", [])
 
-        city = CitySelector.by_id(pk)
+        if not city_ids:
+            return Response(
+                {"message": "حداقل یک شهر را انتخاب کنید."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-        city.delete()
+        deleted_count = 0
+
+        for city_id in city_ids:
+            city = CitySelector.by_id(city_id)
+
+            city.delete()
+            deleted_count += 1
 
         return Response(
             {
-                "message": "شهر با موفقیت حذف شد."
+                "message": f"{deleted_count} شهر با موفقیت حذف شد.",
+                "deleted_count": deleted_count,
             },
-            status=status.HTTP_204_NO_CONTENT,
+            status=status.HTTP_200_OK,
         )

@@ -1,9 +1,6 @@
 from rest_framework import serializers
 
-from locations.models import (
-    City,
-    Province,
-)
+from locations.models import City, Province
 
 
 class CityCreateSerializer(serializers.ModelSerializer):
@@ -25,8 +22,6 @@ class CityCreateSerializer(serializers.ModelSerializer):
             province=attrs["province"],
             name=attrs["name"],
         ).exists():
-            raise serializers.ValidationError(
-                "این شهر قبلاً در این استان ثبت شده است."
-            )
+            raise serializers.ValidationError("این شهر قبلاً در این استان ثبت شده است.")
 
         return attrs

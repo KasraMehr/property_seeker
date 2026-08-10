@@ -3,21 +3,13 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from locations.selectors.province_selector import ProvinceSelector
-
-from locations.serializers.province_create import (
-    ProvinceCreateSerializer,
-)
-from locations.serializers.province_update import (
-    ProvinceUpdateSerializer,
-)
-from locations.serializers.province_list import (
-    ProvinceListSerializer,
-)
-from locations.serializers.province_detail import (
-    ProvinceDetailSerializer,
-)
 from accounts.permissions import *
+from locations.selectors.province_selector import ProvinceSelector
+from locations.serializers.province_create import ProvinceCreateSerializer
+from locations.serializers.province_detail import ProvinceDetailSerializer
+from locations.serializers.province_list import ProvinceListSerializer
+from locations.serializers.province_update import ProvinceUpdateSerializer
+
 
 class ProvinceCreateView(APIView):
 
@@ -149,8 +141,7 @@ class ProvinceUpdateView(APIView):
         )
 
 
-class ProvinceDeleteView(APIView):
-
+class ProvinceBulkDeleteView(APIView):
 
     permission_classes = (
         IsAuthenticated,
@@ -159,15 +150,27 @@ class ProvinceDeleteView(APIView):
 
     required_permission = "delete_province"
 
-    def delete(self, request, pk):
+    def delete(self, request):
+        province_ids = request.data.get("ids", [])
 
-        province = ProvinceSelector.by_id(pk)
+        if not province_ids:
+            return Response(
+                {"message": "حداقل یک استان را انتخاب کنید."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-        province.delete()
+        deleted_count = 0
+
+        for province_id in province_ids:
+            province = ProvinceSelector.by_id(province_id)
+
+            province.delete()
+            deleted_count += 1
 
         return Response(
             {
-                "message": "استان با موفقیت حذف شد."
+                "message": f"{deleted_count} استان با موفقیت حذف شد.",
+                "deleted_count": deleted_count,
             },
-            status=status.HTTP_204_NO_CONTENT,
+            status=status.HTTP_200_OK,
         )

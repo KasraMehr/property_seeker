@@ -1,54 +1,90 @@
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
+from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated
 
 from accounts.models import User
 from accounts.permissions import IsAgencyOwner
 from accounts.serializers.serializers import (
-    UserSerializer,
+    RoleUpdateSerializer,
     UserCreateSerializer,
-    UserUpdateSerializer, RoleUpdateSerializer,
+    UserSerializer,
+    UserUpdateSerializer,
 )
 from audit.services.activity_log import *
+from audit.services.activity_log import ActivityLogService
+
+from ..filter.filters import UserFilter
 
 
 class UserViewSet(viewsets.ModelViewSet):
+
     permission_classes = (
         IsAuthenticated,
         IsAgencyOwner,
     )
 
+    # =========================
+    # Filters
+    # =========================
+
+    filter_backends = [
+        DjangoFilterBackend,
+        SearchFilter,
+        OrderingFilter,
+    ]
+
+    filterset_class = UserFilter
+
+    # =========================
+    # Search
+    # =========================
+
+    search_fields = [
+        "full_name",
+        "phone",
+        "national_id",
+    ]
+
+    # =========================
+    # Ordering
+    # =========================
+
+    ordering_fields = [
+        "full_name",
+        "created_at",
+        "updated_at",
+        "last_login",
+        "is_active",
+    ]
+
+    ordering = ["-created_at"]
+
+    # =========================
+    # Queryset
+    # =========================
+
     def get_queryset(self):
 
         user = self.request.user
 
-        if user.is_owner:
-            return (
-                User.objects.filter(
-                    agency=user.agency
-                )
-                .select_related(
-                    "agency",
-                )
-                .prefetch_related(
-                    "service_neighborhoods",
-                    "role",
-                    "role__permissions",
-                )
-            )
-
-        return (
-            User.objects.filter(
-                id=user.id
-            )
-            .select_related(
-                "agency",
-            )
-            .prefetch_related(
-                "service_neighborhoods",
-                "role",
-                "role__permissions",
-            )
+        queryset = User.objects.select_related(
+            "agency",
+        ).prefetch_related(
+            "service_neighborhoods",
+            "role",
+            "role__permissions",
         )
+
+        if user.is_owner:
+
+            return queryset.filter(agency=user.agency)
+
+        return queryset.filter(id=user.id)
+
+    # =========================
+    # Serializer
+    # =========================
 
     def get_serializer_class(self):
 
@@ -59,6 +95,10 @@ class UserViewSet(viewsets.ModelViewSet):
             return UserUpdateSerializer
 
         return UserSerializer
+
+    # =========================
+    # Create
+    # =========================
 
     def perform_create(self, serializer):
 
@@ -72,11 +112,13 @@ class UserViewSet(viewsets.ModelViewSet):
             message="کاربر جدید ایجاد شد.",
         )
 
+    # =========================
+    # Update
+    # =========================
+
     def perform_update(self, serializer):
 
-        old_data = UserSerializer(
-            serializer.instance
-        ).data
+        old_data = UserSerializer(serializer.instance).data
 
         user = serializer.save()
 
@@ -88,6 +130,10 @@ class UserViewSet(viewsets.ModelViewSet):
             new_data=UserSerializer(user).data,
             message="اطلاعات کاربر ویرایش شد.",
         )
+
+    # =========================
+    # Delete
+    # =========================
 
     def perform_destroy(self, instance):
 
@@ -105,22 +151,18 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 from accounts.models import Agency
-from accounts.serializers.serializers import AgencySerializer
 from accounts.permissions import IsAgencyOwner
+from accounts.serializers.serializers import AgencySerializer
 
 
 class AgencyViewSet(viewsets.ModelViewSet):
 
     serializer_class = AgencySerializer
 
-    permission_classes = (
-        IsAgencyOwner,
-    )
+    permission_classes = (IsAgencyOwner,)
 
     def get_queryset(self):
-        return Agency.objects.filter(
-            id=self.request.user.agency_id
-        )
+        return Agency.objects.filter(id=self.request.user.agency_id)
 
     def get_serializer_class(self):
         if self.action == "create":
@@ -130,7 +172,6 @@ class AgencyViewSet(viewsets.ModelViewSet):
             return AgencyUpdateSerializer
 
         return AgencySerializer
-
 
     def perform_create(self, serializer):
         agency = serializer.save()
@@ -144,9 +185,7 @@ class AgencyViewSet(viewsets.ModelViewSet):
         )
 
     def perform_update(self, serializer):
-        old_data = AgencySerializer(
-            serializer.instance
-        ).data
+        old_data = AgencySerializer(serializer.instance).data
 
         agency = serializer.save()
 
@@ -177,6 +216,7 @@ from accounts.models import Role
 from accounts.permissions import IsAgencyOwner
 from accounts.serializers.serializers import *
 
+
 class RoleViewSet(viewsets.ModelViewSet):
 
     permission_classes = (
@@ -185,10 +225,8 @@ class RoleViewSet(viewsets.ModelViewSet):
     )
 
     def get_queryset(self):
-        return (
-            Role.objects.filter(
-                agency=self.request.user.agency
-            ).prefetch_related("permissions")
+        return Role.objects.filter(agency=self.request.user.agency).prefetch_related(
+            "permissions"
         )
 
     def get_serializer_class(self):
@@ -199,9 +237,7 @@ class RoleViewSet(viewsets.ModelViewSet):
         return RoleSerializer
 
     def perform_create(self, serializer):
-        role = serializer.save(
-            agency=self.request.user.agency
-        )
+        role = serializer.save(agency=self.request.user.agency)
 
         ActivityLogService.create(
             request=self.request,
@@ -212,9 +248,7 @@ class RoleViewSet(viewsets.ModelViewSet):
         )
 
     def perform_update(self, serializer):
-        old_data = RoleSerializer(
-            serializer.instance
-        ).data
+        old_data = RoleSerializer(serializer.instance).data
 
         role = serializer.save()
 
@@ -241,29 +275,24 @@ class RoleViewSet(viewsets.ModelViewSet):
         instance.delete()
 
 
-
 from collections import defaultdict
-from ..serializers.serializers import *
+
 from django.contrib.auth.models import Permission
-from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from ..serializers.serializers import *
 
 
 class PermissionListView(APIView):
 
-    permission_classes = (
-        IsAgencyOwner,
-    )
+    permission_classes = (IsAgencyOwner,)
 
     def get(self, request):
 
-        permissions = (
-            Permission.objects
-            .select_related("content_type")
-            .order_by(
-                "content_type__model",
-                "codename",
-            )
+        permissions = Permission.objects.select_related("content_type").order_by(
+            "content_type__model",
+            "codename",
         )
 
         grouped_permissions = defaultdict(list)
@@ -272,10 +301,12 @@ class PermissionListView(APIView):
 
             model_name = permission.content_type.model
 
-            grouped_permissions[model_name].append({
-                "id": permission.id,
-                "name": permission.name,
-                "codename": permission.codename,
-            })
+            grouped_permissions[model_name].append(
+                {
+                    "id": permission.id,
+                    "name": permission.name,
+                    "codename": permission.codename,
+                }
+            )
 
         return Response(grouped_permissions)

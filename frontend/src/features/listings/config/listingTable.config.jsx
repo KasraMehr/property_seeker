@@ -1,103 +1,129 @@
-import { formatPrice } from "@/utils/formatters";
-import { buildStatusConfig } from "@/constants/status.utils";
-import { LISTING_STATUS_CONFIG } from "./listingStatus.config";
 import StatusBadge from "@/shared/ui/badges/StatusBadge";
-import ScoreBadge from "@/shared/ui/badges/ScoreBadge";
 import SourceBadge from "@/shared/ui/badges/SourceBadge";
-import Thumbnail from "@/shared/ui/Thumbnail";
-import { Phone, MapPin } from "lucide-react";
+import {
+  LISTING_STATUS_CONFIG,
+  LISTING_REVIEW_STATUS_CONFIG,
+} from "@/features/listings/config";
+import { buildStatusConfig } from "@/constants/status.utils";
+import { formatPrice, formatDate } from "@/utils/formatters";
 
+/**
+ * Listing Table Columns
+ * Backend: listing.Listing
+ */
 export const LISTING_TABLE_COLUMNS = [
   {
+    key: "id",
+    header: "شناسه",
+    width: "w-16",
+    cell: ({ id }) => (
+      <span className="text-xs text-muted-foreground font-mono">#{id}</span>
+    ),
+  },
+  {
     key: "title",
-    title: "عنوان",
-    width: "260px",
-    sortable: true,
-    render: (row) => (
-      <div className="flex items-center gap-2.5 min-w-0">
-        <Thumbnail src={row.hs_picture} alt={row.title} size="md" />
-        <div className="flex flex-col gap-0.5 min-w-0">
-          <span className="font-medium text-sm text-foreground truncate max-w-52">
-            {row.title}
-          </span>
-          <div className="flex items-center gap-1 text-muted text-[11px]">
-            <Phone size={10} />
-            <span className="dir-ltr">{row.phone}</span>
-          </div>
-        </div>
-      </div>
-    ),
-  },
-  {
-    key: "status",
-    title: "وضعیت",
-    width: "90px",
-    align: "center",
-    sortable: true,
-    render: (row) => {
-      const config = buildStatusConfig(LISTING_STATUS_CONFIG, row.status);
-      return <StatusBadge config={config} variant="soft" size="sm" />;
-    },
-  },
-  {
-    key: "score",
-    title: "امتیاز",
-    width: "80px",
-    align: "center",
-    sortable: true,
-    render: (row) => <ScoreBadge score={row.score} size="sm" showLabel={false} />,
-  },
-  {
-    key: "district",
-    title: "منطقه",
-    width: "140px",
-    sortable: false,
-    render: (row) => (
-      <div className="flex items-center gap-1 text-muted text-xs">
-        <MapPin size={12} />
-        <span>{row.district?.name || "—"}</span>
-      </div>
-    ),
-  },
-  {
-    key: "listed_sale_price",
-    title: "قیمت",
-    width: "130px",
-    sortable: true,
-    render: (row) => (
-      <div className="flex flex-col gap-0.5">
-        <span className="text-sm font-medium text-foreground">
-          {formatPrice(row.listed_sale_price || row.listed_rent_amount)}
+    header: "عنوان آگهی",
+    width: "w-56",
+    cell: ({ title, external_id }) => (
+      <div className="flex flex-col">
+        <span className="font-medium truncate max-w-50" title={title}>
+          {title}
         </span>
-        {row.price_per_meter_toman && (
-          <span className="text-[10px] text-(--role-primary)">
-            متری: {new Intl.NumberFormat("fa-IR").format(row.price_per_meter_toman)}
-          </span>
-        )}
+        <span className="text-xs text-muted-foreground font-mono">
+          {external_id || "—"}
+        </span>
       </div>
-    ),
-  },
-  {
-    key: "build_year",
-    title: "سال / اتاق / طبقه",
-    width: "120px",
-    align: "center",
-    sortable: false,
-    render: (row) => (
-      <span className="text-xs text-muted font-mono">
-        {[row.build_year, row.room_count, row.floor_number].filter(Boolean).join(" / ")}
-      </span>
     ),
   },
   {
     key: "source",
-    title: "منبع",
-    width: "80px",
-    align: "center",
-    sortable: false,
-    render: (row) => {
-      const s = typeof row.source === "string" ? row.source : row.source?.name;
-      return <SourceBadge source={s} size="sm" />;
+    header: "منبع",
+    width: "w-28",
+    cell: ({ source }) => <SourceBadge source={source?.name || "—"} />,
+  },
+  {
+    key: "price",
+    header: "قیمت / اجاره",
+    width: "w-36",
+    cell: ({ listed_sale_price, listed_rent_amount }) => {
+      if (listed_sale_price)
+        return (
+          <span className="font-medium text-emerald-600">
+            {formatPrice(listed_sale_price)}
+          </span>
+        );
+      if (listed_rent_amount)
+        return (
+          <span className="font-medium text-sky-600">
+            {formatPrice(listed_rent_amount)}
+          </span>
+        );
+      return <span className="text-muted-foreground text-xs">—</span>;
     },
+  },
+  {
+    key: "area",
+    header: "متراژ",
+    width: "w-20",
+    cell: ({ listed_area }) =>
+      listed_area ? (
+        <span>{listed_area} م²</span>
+      ) : (
+        <span className="text-muted-foreground text-xs">—</span>
+      ),
+  },
+  {
+    key: "room_count",
+    header: "اتاق",
+    width: "w-16",
+    cell: ({ room_count }) => room_count ?? "—",
+  },
+  {
+    key: "floor_number",
+    header: "طبقه",
+    width: "w-16",
+    cell: ({ floor_number }) => (floor_number != null ? floor_number : "—"),
+  },
+  {
+    key: "status",
+    header: "وضعیت آگهی",
+    width: "w-28",
+    cell: ({ status }) => (
+      <StatusBadge config={buildStatusConfig(LISTING_STATUS_CONFIG, status)} />
+    ),
+  },
+  {
+    key: "review_status",
+    header: "وضعیت بررسی",
+    width: "w-28",
+    cell: ({ review_status }) => (
+      <StatusBadge
+        config={buildStatusConfig(LISTING_REVIEW_STATUS_CONFIG, review_status)}
+      />
+    ),
+  },
+  {
+    key: "published_at",
+    header: "انتشار",
+    width: "w-32",
+    cell: ({ published_at }) => formatDate(published_at, "short"),
+  },
+  {
+    key: "first_seen",
+    header: "اولین مشاهده",
+    width: "w-32",
+    cell: ({ first_seen_at }) => formatDate(first_seen_at, "short"),
+  },
+  {
+    key: "last_seen",
+    header: "آخرین مشاهده",
+    width: "w-32",
+    cell: ({ last_seen_at }) => formatDate(last_seen_at, "short"),
+  },
+  {
+    key: "actions",
+    header: "",
+    width: "w-24",
+    actions: true,
   },
 ];

@@ -30,32 +30,32 @@ const useAuthStore = create(
 
       // Login
       login: async (phone, password) => {
-        try {
-          const response = await authService.login(phone, password);
+  try {
+    const response = await authService.login(phone, password);
 
-          if (!response.success) {
-            return response;
-          }
+    if (!response.success) {
+      return response;
+    }
 
-          // Get current user data after setting cookies
-          const current = await authService.getCurrentUser();
+    set({
+      user: response.user,
+      isAuthenticated: true,
+      loading: false,
+    });
 
-          if (current.authenticated) {
-            set({ user: current.user, isAuthenticated: true });
-          }
+    return {
+      success: true,
+      user: response.user,
+    };
+  } catch (error) {
+    console.error("Login error:", error);
 
-          return {
-            success: true,
-            user: current.user,
-          };
-        } catch (error) {
-          return {
-            success: false,
-            error: "خطا در ورود",
-          };
-        }
-      },
-
+    return {
+      success: false,
+      error: "خطا در ورود",
+    };
+  }
+},
       // Logout
       logout: async () => {
         try {
@@ -87,14 +87,33 @@ const useAuthStore = create(
         return user.role.map((r) => r.name).join("، ");
       },
 
-      // Check a special
+      // check permission
       hasPermission: (permissionCode) => {
         const user = get().user;
-        // Admin has all permissions
-        if (user?.is_owner) return true;
+        // both has complete access
+        if (user?.is_owner || user?.is_superuser) return true;
         if (!user?.role || !Array.isArray(user.role)) return false;
-
         return user.role.some((r) => r.permissions?.includes(permissionCode));
+      },
+
+      // check for at least one permission of all
+      hasAnyPermission: (codes = []) => {
+        const user = get().user;
+        if (user?.is_owner || user?.is_superuser) return true;
+        if (!user?.role || !Array.isArray(user.role)) return false;
+        return codes.some((code) =>
+          user.role.some((r) => r.permissions?.includes(code)),
+        );
+      },
+
+      // check to have all permissions exactly
+      hasAllPermissions: (codes = []) => {
+        const user = get().user;
+        if (user?.is_owner || user?.is_superuser) return true;
+        if (!user?.role || !Array.isArray(user.role)) return false;
+        return codes.every((code) =>
+          user.role.some((r) => r.permissions?.includes(code)),
+        );
       },
     }),
     {

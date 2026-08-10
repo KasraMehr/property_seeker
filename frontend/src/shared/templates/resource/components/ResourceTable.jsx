@@ -40,9 +40,7 @@ export default function ResourceTable({
     : undefined;
 
   return (
-    <div
-      className={`h-full overflow-auto rounded-xl border border-border bg-surface ${className}`}
-    >
+    <div className={` h-[calc(100vh-260px)] min-h-100 overflow-auto rounded-xl border border-border bg-surface ${className} `} >
       <Table
         data={data}
         columns={columns}

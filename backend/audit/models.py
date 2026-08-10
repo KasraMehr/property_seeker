@@ -2,58 +2,39 @@ from django.db import models
 
 # Create your models here.
 
+
 class PriceLog(models.Model):
 
     property = models.ForeignKey(
-        "properties.Property",
-        on_delete=models.CASCADE,
-        related_name="price_logs"
+        "properties.Property", on_delete=models.CASCADE, related_name="price_logs"
     )
     # قیمت هر متر مربع (برای فروش)
-    price_per_meter = models.BigIntegerField(
-        null=True,
-        blank=True
-    )
+    price_per_meter = models.BigIntegerField(null=True, blank=True)
 
     # قیمت کل ملک (برای فروش)
-    sale_price = models.BigIntegerField(
-        null=True,
-        blank=True
-    )
+    sale_price = models.BigIntegerField(null=True, blank=True)
 
     # مبلغ رهن کامل
-    mortgage_amount = models.BigIntegerField(
-        null=True,
-        blank=True
-    )
+    mortgage_amount = models.BigIntegerField(null=True, blank=True)
 
     # ودیعه اجاره
-    deposit_amount = models.BigIntegerField(
-        null=True,
-        blank=True
-    )
+    deposit_amount = models.BigIntegerField(null=True, blank=True)
 
     # اجاره ماهیانه
-    monthly_rent = models.BigIntegerField(
-        null=True,
-        blank=True
-    )
+    monthly_rent = models.BigIntegerField(null=True, blank=True)
 
     changed_by = models.ForeignKey(
-        "accounts.User",
-        on_delete=models.SET_NULL,
-        null=True
+        "accounts.User", on_delete=models.SET_NULL, null=True
     )
 
-    created_at = models.DateTimeField(
-        auto_now_add=True
-    )
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = "price_logs"
         ordering = ["-created_at"]
 
-#برای کارمندان ورود خروجشون ثت ش
+
+# برای کارمندان ورود خروجشون ثت ش
 import uuid
 
 from django.db import models
@@ -132,7 +113,7 @@ class ActivityLog(models.Model):
     entity_type = models.CharField(
         max_length=50,
         db_index=True,
-    )#روی کدوم ابجکت عملیات انجام شده
+    )  # روی کدوم ابجکت عملیات انجام شده
 
     entity_id = models.CharField(
         max_length=50,
@@ -161,7 +142,7 @@ class ActivityLog(models.Model):
     request_path = models.CharField(
         max_length=255,
         blank=True,
-    )#ادرس url
+    )  # ادرس url
 
     query_params = models.JSONField(
         default=dict,
@@ -176,7 +157,7 @@ class ActivityLog(models.Model):
     duration_ms = models.PositiveIntegerField(
         null=True,
         blank=True,
-    )#مدت زمان اجرای درخواست
+    )  # مدت زمان اجرای درخواست
 
     ip_address = models.GenericIPAddressField(
         null=True,
@@ -209,49 +190,19 @@ class ActivityLog(models.Model):
         ]
 
         indexes = [
-
-            models.Index(
-                fields=["user"]
-            ),
-
-            models.Index(
-                fields=["action"]
-            ),
-
-            models.Index(
-                fields=["entity_type"]
-            ),
-
-            models.Index(
-                fields=["entity_type", "entity_id"]
-            ),
-
-            models.Index(
-                fields=["created_at"]
-            ),
-
-            models.Index(
-                fields=["request_id"]
-            ),
-
-            models.Index(
-                fields=["source"]
-            ),
-
-            models.Index(
-                fields=["level"]
-            ),
-
-            models.Index(
-                fields=["outcome"]
-            ),
+            models.Index(fields=["user"]),
+            models.Index(fields=["action"]),
+            models.Index(fields=["entity_type"]),
+            models.Index(fields=["entity_type", "entity_id"]),
+            models.Index(fields=["created_at"]),
+            models.Index(fields=["request_id"]),
+            models.Index(fields=["source"]),
+            models.Index(fields=["level"]),
+            models.Index(fields=["outcome"]),
         ]
 
     def __str__(self):
-        return (
-            f"{self.action} | "
-            f"{self.entity_type}:{self.entity_id}"
-        )
+        return f"{self.action} | " f"{self.entity_type}:{self.entity_id}"
 
 
 """

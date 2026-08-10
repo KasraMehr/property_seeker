@@ -1,7 +1,6 @@
+from django.db import models, transaction
 from django.utils import timezone
-from django.db import models
 
-from django.db import transaction
 
 # Create your models here.
 class Owner(models.Model):
@@ -15,43 +14,30 @@ class Owner(models.Model):
     full_name = models.CharField(max_length=255)
 
     created_by = models.ForeignKey(
-        "accounts.User",related_name="owners",
+        "accounts.User",
+        related_name="owners",
         on_delete=models.CASCADE,
     )
 
-    phone = models.CharField(
-        max_length=20,
-        db_index=True
-    )
+    phone = models.CharField(max_length=20, db_index=True)
 
-    alternate_phone = models.CharField(
-        max_length=20,
-        blank=True
-    )
+    alternate_phone = models.CharField(max_length=20, blank=True)
 
-    national_id = models.CharField(
-        max_length=20,
-        blank=True
-    )
+    national_id = models.CharField(max_length=20, blank=True)
 
-    notes = models.TextField(
-        blank=True
-    )
+    notes = models.TextField(blank=True)
 
-    created_at = models.DateTimeField(
-        auto_now_add=True
-    )
+    created_at = models.DateTimeField(auto_now_add=True)
 
-    updated_at = models.DateTimeField(
-        auto_now=True
-    )
+    updated_at = models.DateTimeField(auto_now=True)
 
-    constraints = [
-        models.UniqueConstraint(
-            fields=["agency", "phone"],
-            name="unique_owner_phone_per_agency",
-        )
-    ]
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["agency", "phone"],
+                name="unique_owner_phone_per_agency",
+            )
+        ]
 
     def __str__(self):
         return self.full_name
@@ -63,7 +49,7 @@ class Property(models.Model):
         SALE = "sale", "فروش"
         RENT = "rent", "اجاره"
         MORTGAGE = "mortgage", "رهن کامل"
-        EXCHANGE = "exchange","معاوضه"
+        EXCHANGE = "exchange", "معاوضه"
 
     class Status(models.TextChoices):
         AVAILABLE = "available", "فعال"
@@ -72,10 +58,7 @@ class Property(models.Model):
         RENTED = "rented", "اجاره داده شده"
         ARCHIVED = "archived", "بایگانی"
 
-    property_code = models.CharField(
-        max_length=50,
-        editable=False
-    )
+    property_code = models.CharField(max_length=50, editable=False)
 
     agency = models.ForeignKey(
         "accounts.Agency",
@@ -85,128 +68,71 @@ class Property(models.Model):
     )
 
     owner = models.ForeignKey(
-        "properties.Owner",
-        on_delete=models.PROTECT,
-        related_name="properties"
+        "properties.Owner", on_delete=models.PROTECT, related_name="properties"
     )
 
     agent = models.ForeignKey(
-        "accounts.User",
-        on_delete=models.PROTECT,
-        related_name="properties"
+        "accounts.User", on_delete=models.PROTECT, related_name="properties"
     )
 
     address = models.ForeignKey(
-        "locations.Address",
-        on_delete=models.PROTECT,null=True,blank=True
+        "locations.Address", on_delete=models.PROTECT, null=True, blank=True
     )
 
-    title = models.CharField(
-        max_length=255
-    )
+    title = models.CharField(max_length=255)
 
-    property_type = models.CharField(
-        max_length=30,null=True,blank=True
-    )
+    property_type = models.CharField(max_length=30, null=True, blank=True)
 
-    deal_type = models.CharField(
-        max_length=30,
-        choices=DealType.choices
-    )
+    deal_type = models.CharField(max_length=30, choices=DealType.choices)
 
     area = models.PositiveIntegerField()
 
-    floor = models.PositiveIntegerField(
-        null=True,
-        blank=True
-    )
-    create_by =  models.ForeignKey(
+    floor = models.PositiveIntegerField(null=True, blank=True)
+    create_by = models.ForeignKey(
         "accounts.User",
         on_delete=models.PROTECT,
         related_name="managed_properties",
     )
-    total_floors = models.PositiveIntegerField(
-        null=True,
-        blank=True
-    )
+    total_floors = models.PositiveIntegerField(null=True, blank=True)
 
-    age = models.PositiveIntegerField(
-        default=0
-    )
+    age = models.PositiveIntegerField(default=0)
 
-    bedrooms = models.PositiveSmallIntegerField(
-        default=0
-    )
+    bedrooms = models.PositiveSmallIntegerField(default=0)
 
-    bathrooms = models.PositiveSmallIntegerField(
-        default=0
-    )
+    bathrooms = models.PositiveSmallIntegerField(default=0)
 
-    parking_count = models.PositiveSmallIntegerField(
-        default=0
-    )
+    parking_count = models.PositiveSmallIntegerField(default=0)
 
-    storage_count = models.PositiveSmallIntegerField(
-        default=0
-    )
+    storage_count = models.PositiveSmallIntegerField(default=0)
 
-    orientation = models.CharField(
-        max_length=50,
-        blank=True
-    )
+    orientation = models.CharField(max_length=50, blank=True)
 
-    condition = models.CharField(
-        max_length=100,
-        blank=True
-    )
+    condition = models.CharField(max_length=100, blank=True)
 
-    description = models.TextField(
-        blank=True
-    )
+    description = models.TextField(blank=True)
 
     # قیمت هر متر مربع (برای فروش)
-    price_per_meter = models.BigIntegerField(
-        null=True,
-        blank=True
-    )
+    price_per_meter = models.BigIntegerField(null=True, blank=True)
 
     # قیمت کل ملک (برای فروش)
-    sale_price = models.BigIntegerField(
-        null=True,
-        blank=True
-    )
+    sale_price = models.BigIntegerField(null=True, blank=True)
 
     # مبلغ رهن کامل
-    mortgage_amount = models.BigIntegerField(
-        null=True,
-        blank=True
-    )
+    mortgage_amount = models.BigIntegerField(null=True, blank=True)
 
     # ودیعه اجاره
-    deposit_amount = models.BigIntegerField(
-        null=True,
-        blank=True
-    )
+    deposit_amount = models.BigIntegerField(null=True, blank=True)
 
     # اجاره ماهیانه
-    monthly_rent = models.BigIntegerField(
-        null=True,
-        blank=True
-    )
+    monthly_rent = models.BigIntegerField(null=True, blank=True)
 
     status = models.CharField(
-        max_length=30,
-        choices=Status.choices,
-        default=Status.AVAILABLE
+        max_length=30, choices=Status.choices, default=Status.AVAILABLE
     )
 
-    created_at = models.DateTimeField(
-        auto_now_add=True
-    )
+    created_at = models.DateTimeField(auto_now_add=True)
 
-    updated_at = models.DateTimeField(
-        auto_now=True
-    )
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
 
@@ -214,10 +140,7 @@ class Property(models.Model):
 
         constraints = [
             models.UniqueConstraint(
-                fields=[
-                    "agency",
-                    "property_code"
-                ],
+                fields=["agency", "property_code"],
                 name="unique_property_code_per_agency",
             )
         ]
@@ -229,6 +152,7 @@ class Property(models.Model):
             models.Index(fields=["agent"]),
             models.Index(fields=["property_code"]),
         ]
+
     def __str__(self):
         return self.property_code
 
@@ -238,20 +162,14 @@ class Property(models.Model):
         year = timezone.now().year
 
         last_property = (
-            cls.objects
-            .select_for_update()
-            .filter(
-                agency=agency,
-                property_code__startswith=f"PR-{year}-"
-            )
+            cls.objects.select_for_update()
+            .filter(agency=agency, property_code__startswith=f"PR-{year}-")
             .order_by("-property_code")
             .first()
         )
 
         if last_property:
-            last_number = int(
-                last_property.property_code.split("-")[-1]
-            )
+            last_number = int(last_property.property_code.split("-")[-1])
         else:
             last_number = 0
 
@@ -261,17 +179,13 @@ class Property(models.Model):
 
         if not self.property_code:
             with transaction.atomic():
-                self.property_code = self.generate_property_code(
-                    self.agency
-                )
+                self.property_code = self.generate_property_code(self.agency)
 
         super().save(*args, **kwargs)
 
+
 class Feature(models.Model):
-    title = models.CharField(
-        max_length=100,
-        unique=True
-    )
+    title = models.CharField(max_length=100, unique=True)
 
     class Meta:
         db_table = "features"
@@ -279,28 +193,23 @@ class Feature(models.Model):
     def __str__(self):
         return self.title
 
+
 class PropertyFeature(models.Model):
 
     property = models.ForeignKey(
-        Property,
-        on_delete=models.CASCADE,
-        related_name="property_features"
+        Property, on_delete=models.CASCADE, related_name="property_features"
     )
 
-    feature = models.ForeignKey(
-        Feature,
-        on_delete=models.CASCADE
-    )
+    feature = models.ForeignKey(Feature, on_delete=models.CASCADE)
 
     class Meta:
         db_table = "property_features"
 
         constraints = [
-    models.UniqueConstraint(
-        fields=["property", "feature"],
-        name="unique_property_feature"
-    )
-]
+            models.UniqueConstraint(
+                fields=["property", "feature"], name="unique_property_feature"
+            )
+        ]
 
 
 class PropertyStatusHistory(models.Model):
@@ -322,14 +231,10 @@ class PropertyStatusHistory(models.Model):
         choices=Property.Status.choices,
     )
     changed_by = models.ForeignKey(
-        "accounts.User",
-        on_delete=models.SET_NULL,
-        null=True
+        "accounts.User", on_delete=models.SET_NULL, null=True
     )
 
-    created_at = models.DateTimeField(
-        auto_now_add=True
-    )
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = "property_status_history"
@@ -357,34 +262,20 @@ class PropertyHistory(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name="history"
+        related_name="history",
     )
 
-    action = models.CharField(
-        max_length=20,
-        choices=Action.choices
-    )
+    action = models.CharField(max_length=20, choices=Action.choices)
 
+    old_value = models.TextField(null=True, blank=True)
 
-    old_value = models.TextField(
-        null=True,
-        blank=True
-    )
-
-    new_value = models.TextField(
-        null=True,
-        blank=True
-    )
+    new_value = models.TextField(null=True, blank=True)
 
     changed_by = models.ForeignKey(
-        "accounts.User",
-        on_delete=models.SET_NULL,
-        null=True
+        "accounts.User", on_delete=models.SET_NULL, null=True
     )
 
-    created_at = models.DateTimeField(
-        auto_now_add=True
-    )
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = "property_history"

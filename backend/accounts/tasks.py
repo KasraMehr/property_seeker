@@ -28,5 +28,3 @@ def clear_expired_blacklisted_tokens():
 BlacklistedToken	ثبت Refresh Tokenهایی که دیگر نباید پذیرفته شوند
 ROTATE_REFRESH_TOKENS	هنگام Refresh، یک Refresh Token جدید صادر می‌کند.
 BLACKLIST_AFTER_ROTATION	Refresh Token قبلی را پس از صدور توکن جدید باطل (Blacklisted) می‌کند."""
-
-

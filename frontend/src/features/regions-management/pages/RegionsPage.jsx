@@ -5,9 +5,11 @@ import ResourceTemplate from "@/shared/templates/resource/ResourceTemplate";
 import PageTabs from "@/shared/page/PageTabs";
 import useRegion from "@/features/regions-management/hooks/useRegion";
 import {
-  REGION_FILTERS,
+  REGION_ALL_FILTERS,
   REGION_TABLE_COLUMNS,
+  REGION_ALL_ACTIONS,
 } from "@/features/regions-management/config";
+import regionService from "@/features/regions-management/services/regionService";
 import useDebounce from "@/shared/useDebounce";
 import Button from "@/shared/ui/Button";
 import RegionDetailModal from "@/features/regions-management/components/RegionDetailModal";
@@ -89,8 +91,28 @@ export default function RegionsPage() {
   );
 
   /* ─── Row actions ─── */
-  const handleRowAction = useCallback((actionKey, row) => {
-    if (actionKey === "view") setDetailRegion(row);
+  const handleRowAction = useCallback(async (actionKey, row) => {
+    const action = REGION_ALL_ACTIONS.find((a) => a.key === actionKey);
+
+    if (action?.confirm) {
+      setPendingAction({ key: actionKey, row, confirm: action.confirm });
+      return;
+    }
+
+    switch (actionKey) {
+      case "view": {
+        const res = await regionService.getById(row.id); 
+        setDetailRegion(res.data);
+        break;
+      }
+      case "edit": {
+        const res = await regionService.getById(row.id);
+        setEditRegion(res.data); 
+        break;
+      }
+      default:
+        break;
+    }
   }, []);
 
   /* ─── Tab badge counts (fetch all once for counts) ─── */
@@ -108,9 +130,9 @@ export default function RegionsPage() {
   const tabItems = useMemo(() => {
     const counts = {
       all: allDistricts.length,
-      "1": allDistricts.filter((d) => d.city?.id === 1 || d.city === 1).length,
-      "2": allDistricts.filter((d) => d.city?.id === 2 || d.city === 2).length,
-      "3": allDistricts.filter((d) => d.city?.id === 3 || d.city === 3).length,
+      1: allDistricts.filter((d) => d.city?.id === 1 || d.city === 1).length,
+      2: allDistricts.filter((d) => d.city?.id === 2 || d.city === 2).length,
+      3: allDistricts.filter((d) => d.city?.id === 3 || d.city === 3).length,
     };
     return CITY_TABS.map((t) => ({
       ...t,
@@ -120,7 +142,7 @@ export default function RegionsPage() {
 
   /* ─── Filter options (hide city from FilterBar, controlled by tabs) ─── */
   const filterOptions = useMemo(() => {
-    const listingFilter = REGION_FILTERS.find((f) => f.key === "has_listings");
+    const listingFilter = REGION_ALL_FILTERS.find((f) => f.key === "has_listings");
     return {
       listingStatuses: listingFilter?.options || [],
     };
@@ -128,7 +150,7 @@ export default function RegionsPage() {
 
   const filters = useMemo(
     () => ({
-      schema: REGION_FILTERS.filter(
+      schema: REGION_ALL_FILTERS.filter(
         (f) => f.type !== "search" && f.key !== "city",
       ),
       options: filterOptions,
@@ -245,15 +267,16 @@ export default function RegionsPage() {
           onClose={() => setDetailRegion(null)}
           region={detailRegion}
           agents={detailRegion._agents || []}
-          stats={{
-            listings_count: detailRegion.listings_count || 0,
-            properties_count: detailRegion.properties_count || 0,
-            calls_count: detailRegion.calls_count || 0,
-            followups_count: detailRegion.followups_count || 0,
-            neighborhoods_count: detailRegion.neighborhoods_count || 0,
-            addresses_count: detailRegion.addresses_count || 0,
-            agents_count: detailRegion.agents_count || 0,
-          }}
+          // fake data
+          // stats={{
+          //   listings_count: detailRegion.listings_count || 0,
+          //   properties_count: detailRegion.properties_count || 0,
+          //   calls_count: detailRegion.calls_count || 0,
+          //   followups_count: detailRegion.followups_count || 0,
+          //   neighborhoods_count: detailRegion.neighborhoods_count || 0,
+          //   addresses_count: detailRegion.addresses_count || 0,
+          //   agents_count: detailRegion.agents_count || 0,
+          // }}
         />
       )}
     </>

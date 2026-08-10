@@ -1,12 +1,7 @@
 from django.urls import path
 
-
-from ..views.contract_history import (
-    ContractHistoryListView,
-    ContractHistoryDetailView,
-)
-
-
+from ..views.contract_history import (ContractHistoryDetailView,
+                                      ContractHistoryListView)
 
 urlpatterns = [
 

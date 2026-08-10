@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from locations.models import District,City
+from locations.models import City, District
 
 
 class DistrictUpdateSerializer(serializers.ModelSerializer):
@@ -10,12 +10,9 @@ class DistrictUpdateSerializer(serializers.ModelSerializer):
     )
 
     city = serializers.PrimaryKeyRelatedField(
-
-    queryset=City.objects.all(),
-
-
-        required=False,)
-
+        queryset=City.objects.all(),
+        required=False,
+    )
 
     class Meta:
         model = District
@@ -38,9 +35,7 @@ class DistrictUpdateSerializer(serializers.ModelSerializer):
             .exists()
         ):
             raise serializers.ValidationError(
-                {
-                    "name": "این منطقه قبلاً در این شهر ثبت شده است."
-                }
+                {"name": "این منطقه قبلاً در این شهر ثبت شده است."}
             )
 
         attrs["name"] = name

@@ -1,29 +1,20 @@
 import {
-  Hash,
-  User,
-  Phone,
-  Fingerprint,
-  Shield,
-  Building2,
-  MapPin,
-  CheckCircle2,
-  XCircle,
-  Crown,
-  Calendar,
-  StickyNote,
-  Home,
-  PhoneCall,
-  ClipboardList,
-  Eye,
-  FileText,
-  UserPlus,
-  Settings,
+  Hash, User, Phone, Fingerprint, Shield, Building2, MapPin,
+  CheckCircle2, XCircle, Crown, Calendar, StickyNote, Home,
+  PhoneCall, ClipboardList, Eye, FileText, UserPlus, Settings,
+  LogIn, LogOut, Pencil, Trash2, RotateCcw, Zap, ShieldCheck, ShieldX
 } from "lucide-react";
+
+/**,
+ * User Detail Modal Config
+ * Backend: accounts.User + audit.ActivityLog
+ * Tabs: profile | activity (admin only)
+ */
 
 /* ─── Tabs ─── */
 export const USER_DETAIL_TABS = [
   { key: "profile", label: "مشخصات کاربر", icon: User },
-  { key: "activity", label: "تاریخچه فعالیت", icon: Calendar },
+  { key: "activity", label: "تاریخچه فعالیت", icon: Calendar, permission: "view_property_status_history" }, // یا هر پرمیشن admin-only
 ];
 
 /* ─── Icon Map ─── */
@@ -40,12 +31,6 @@ export const USER_ICON_MAP = {
   is_staff: Settings,
   created_at: Calendar,
   updated_at: Calendar,
-  notes: StickyNote,
-  property_count: Home,
-  call_count: PhoneCall,
-  followup_count: ClipboardList,
-  listing_count: FileText,
-  visit_count: Eye,
 };
 
 /* ─── Tab 1: Profile Fields ─── */
@@ -57,24 +42,32 @@ export const USER_PROFILE_FIELDS = [
       { key: "id", label: "شناسه", format: (v) => `#${v}` },
       { key: "full_name", label: "نام کامل", fullWidth: true },
       { key: "phone", label: "شماره تماس", type: "phone" },
-      { key: "national_id", label: "کد ملی" },
+      { key: "national_id", label: "کد ملی", type: "mono" },
     ],
   },
   {
     section: "role",
     sectionLabel: "نقش و سازمان",
     fields: [
-      { key: "role", label: "نقش", type: "role" },
+      { key: "role", label: "نقش(ها)", type: "role_list" },
       { key: "agency", label: "آژانس", type: "nested", nestedKey: "name", fullWidth: true },
     ],
   },
   {
-    section: "account",
-    sectionLabel: "وضعیت حساب",
+    section: "access",
+    sectionLabel: "دسترسی‌ها",
     fields: [
-      { key: "is_active", label: "وضعیت حساب", type: "boolean" },
-      { key: "is_owner", label: "مالک سیستم", type: "boolean" },
-      { key: "is_staff", label: "کارمند", type: "boolean" },
+      { key: "is_active", label: "وضعیت حساب", type: "boolean", trueLabel: "فعال", falseLabel: "غیرفعال" },
+      { key: "is_owner", label: "مالک آژانس", type: "boolean" },
+      { key: "is_staff", label: "کارمند سیستم", type: "boolean" },
+      { key: "is_superuser", label: "ابرکاربر", type: "boolean" },
+    ],
+  },
+  {
+    section: "service_area",
+    sectionLabel: "محله‌های سرویس",
+    fields: [
+      { key: "service_neighborhoods", label: "محله‌ها", type: "tag_list", fullWidth: true },
     ],
   },
   {
@@ -87,42 +80,13 @@ export const USER_PROFILE_FIELDS = [
   },
 ];
 
-/* ─── Tab 2: Activity History Types ─── */
-export const ACTIVITY_TYPE_CONFIG = {
-  property_created: {
-    label: "ثبت ملک",
-    icon: Home,
-    color: "text-emerald-500",
-    bg: "bg-emerald-500/10",
-  },
-  call_made: {
-    label: "تماس",
-    icon: PhoneCall,
-    color: "text-sky-500",
-    bg: "bg-sky-500/10",
-  },
-  followup_created: {
-    label: "پیگیری",
-    icon: ClipboardList,
-    color: "text-amber-500",
-    bg: "bg-amber-500/10",
-  },
-  listing_viewed: {
-    label: "مشاهده آگهی",
-    icon: Eye,
-    color: "text-violet-500",
-    bg: "bg-violet-500/10",
-  },
-  user_assigned: {
-    label: "تخصیص کاربر",
-    icon: UserPlus,
-    color: "text-indigo-500",
-    bg: "bg-indigo-500/10",
-  },
-  login: {
-    label: "ورود به سیستم",
-    icon: Shield,
-    color: "text-slate-500",
-    bg: "bg-slate-500/10",
-  },
-};
+/* ─── Tab 2: Activity History (audit.ActivityLog) ─── */
+export const USER_ACTIVITY_COLUMNS = [
+  { key: "action", header: "عملیات", type: "status", configKey: "activityLogAction" },
+  { key: "source", header: "منبع", type: "status", configKey: "activityLogSource" },
+  { key: "level", header: "سطح", type: "status", configKey: "activityLogLevel" },
+  { key: "outcome", header: "نتیجه", type: "status", configKey: "activityLogOutcome" },
+  { key: "entity_type", header: "موجودیت" },
+  { key: "message", header: "پیام", type: "text_truncate" },
+  { key: "created_at", header: "زمان", type: "date" },
+];

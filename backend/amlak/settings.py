@@ -9,16 +9,46 @@ https://docs.djangoproject.com/en/6.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
+
+import os
 from datetime import timedelta
 from pathlib import Path
+
+from celery.schedules import crontab
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 from decouple import config
 
-SECRET_KEY = config("SECRET_KEY")
-print("SECRET:", SECRET_KEY)
-print(type(SECRET_KEY))
-DEBUG = True
+
+def env_bool(name, default=False):
+    value = os.environ.get(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on", "debug", "development"}
+
+
+# ------------------------------------------------------------
+# SECRET_KEY: no unsafe fallback allowed anymore.
+# ------------------------------------------------------------
+# The old default ("unsafe-development-only-key-change-before-any-
+# deployment-2026") is a real, guessable string sitting in source
+# control — if SECRET_KEY were ever unset in production, Django
+# would have silently started up using it. Local/dev still gets a
+# clearly-fake default (so `runserver` works with zero setup);
+# production is forced to fail instead of running with it — see the
+# checks at the bottom of this file.
+SECRET_KEY = config(
+    "SECRET_KEY",
+    default="django-insecure-local-dev-only-do-not-use-in-production",
+)
+
+DEBUG = env_bool("DEBUG", default=True)
+
+# IS_PRODUCTION is the single switch every hardening check below
+# keys off. It's DEBUG=False, not a separate DJANGO_ENV var, so make
+# sure your production .env explicitly sets DEBUG=False.
+IS_PRODUCTION = not DEBUG
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
@@ -26,112 +56,137 @@ DEBUG = True
 # SECURITY WARNING: keep the secret key used in production secret!
 
 # SECURITY WARNING: don't run with debug turned on in production!
-ALLOWED_HOSTS = []
-#پکیج cors برای اینکه  فرانت و بک بتونن بهم وصل بشن
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-
-    "http://127.0.0.1:5173",
-
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in config("ALLOWED_HOSTS", default="localhost,127.0.0.1").split(",")
+    if host.strip()
 ]
-#از کوکی استفاده کنیم باید  باشد
+
+# پکیج cors برای اینکه فرانت و بک بتونن بهم وصل بشن
+# این دو تا دیگه هاردکد نیستن — هرکدوم از env خونده می‌شن، با یک
+# fallback به localhost فقط برای دولوپمنت. در production حتماً باید
+# دامنه‌ی واقعی فرانت رو در env ست کنی وگرنه مرورگر بلاکش می‌کنه.
+CORS_ALLOWED_ORIGINS = [
+    origin.strip()
+    for origin in config(
+        "CORS_ALLOWED_ORIGINS",
+        default="http://localhost:5173,http://127.0.0.1:5173",
+    ).split(",")
+    if origin.strip()
+]
+# از کوکی استفاده کنیم باید باشد
 CORS_ALLOW_CREDENTIALS = True
 # Application definition
 CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:5173",
+    origin.strip()
+    for origin in config(
+        "CSRF_TRUSTED_ORIGINS",
+        default="http://localhost:5173,http://127.0.0.1:5173",
+    ).split(",")
+    if origin.strip()
 ]
+
 INSTALLED_APPS = [
-"django.contrib.admin",
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
     "audit",
     "accounts",
     "crm",
     "deals",
     "finance",
-    # "media",
+    "media",
+    "ingestion",
     "listing",
     "locations",
     "properties",
-"django_extensions",
+    "django_extensions",
     "rest_framework",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
-"corsheaders",
-
-
+    "corsheaders",
+    "report",
 ]
+
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-'corsheaders.middleware.CorsMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    # WhiteNoise serves compressed, cache-busted static files without
+    # needing nginx/S3 in front — required in production since
+    # DEBUG=False disables Django's own static file serving.
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = 'amlak.urls'
+ROOT_URLCONF = "amlak.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates']
-        ,
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [BASE_DIR / "templates"],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'amlak.wsgi.application'
+WSGI_APPLICATION = "amlak.wsgi.application"
 
-AUTH_USER_MODEL = 'accounts.User'
+AUTH_USER_MODEL = "accounts.User"
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+DB_ENGINE = config("DB_ENGINE", default="django.db.backends.sqlite3")
+if DB_ENGINE == "django.db.backends.postgresql":
+    DATABASES = {
+        "default": {
+            "ENGINE": DB_ENGINE,
+            "NAME": config("DB_NAME", default="property_seeker"),
+            "USER": config("DB_USER", default="property_seeker"),
+            "PASSWORD": config("DB_PASSWORD", default="property_seeker"),
+            "HOST": config("DB_HOST", default="localhost"),
+            "PORT": config("DB_PORT", default="5432"),
+            "CONN_MAX_AGE": config("DB_CONN_MAX_AGE", default=60, cast=int),
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": config("SQLITE_PATH", default=BASE_DIR / "db.sqlite3"),
+        }
+    }
 
-"""DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'realestate_db',
-        'USER': 'realestate_user',
-        'PASSWORD': '123456',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
-}"""
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
@@ -139,9 +194,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = config("TIME_ZONE", default="Asia/Tehran")
 
 USE_I18N = True
 
@@ -157,16 +212,38 @@ MEDIA_URL = "/media/"
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_ROOT = BASE_DIR / "media"
-#-----------------------------------------for login jwt-------------------------------------------
+
+# WhiteNoise storage backend: compresses static files and appends a
+# content hash to filenames so they can be cached forever by the
+# browser/CDN. Needed alongside the middleware above.
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+# Kept for Django < 4.2 compatibility; redundant (but harmless) once
+# STORAGES above is honored.
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+WHITENOISE_USE_FINDERS = DEBUG
+
+# -----------------------------------------for login jwt-------------------------------------------
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "accounts.authenticate.CookieJWTAuthentication",  # فقط CookieJWTAuthentication
     ],
-
-    # "DEFAULT_PERMISSION_CLASSES": [
-    #   "rest_framework.permissions.IsAuthenticated",
-    # ],
+    # Secure by default: any view without its own explicit
+    # permission_classes now requires authentication instead of
+    # silently falling back to DRF's AllowAny. Views meant to be
+    # public must opt in explicitly with
+    # permission_classes = [AllowAny].
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
 }
 
 AUTHENTICATION_BACKENDS = [
@@ -176,36 +253,36 @@ AUTHENTICATION_BACKENDS = [
 
 CSRF_COOKIE_HTTPONLY = False
 CSRF_COOKIE_SAMESITE = "Lax"
-CSRF_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = env_bool("CSRF_COOKIE_SECURE", default=IS_PRODUCTION)
+SESSION_COOKIE_SECURE = env_bool("SESSION_COOKIE_SECURE", default=IS_PRODUCTION)
+SESSION_COOKIE_HTTPONLY = True
+SECURE_SSL_REDIRECT = env_bool("SECURE_SSL_REDIRECT", default=IS_PRODUCTION)
+SECURE_HSTS_SECONDS = config(
+    "SECURE_HSTS_SECONDS",
+    default=31536000 if IS_PRODUCTION else 0,
+    cast=int,
+)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool(
+    "SECURE_HSTS_INCLUDE_SUBDOMAINS",
+    default=IS_PRODUCTION,
+)
+SECURE_HSTS_PRELOAD = env_bool("SECURE_HSTS_PRELOAD", default=IS_PRODUCTION)
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
-
     # هر بار refresh، refresh token جدید بده
     "ROTATE_REFRESH_TOKENS": True,
-
     # refresh قبلی را باطل کن
     "BLACKLIST_AFTER_ROTATION": True,
-
     "AUTH_COOKIE": "access",
     "AUTH_COOKIE_REFRESH": "refresh",
-
     "AUTH_COOKIE_HTTP_ONLY": True,
-    "AUTH_COOKIE_SECURE": False,      # Local
+    "AUTH_COOKIE_SECURE": env_bool("AUTH_COOKIE_SECURE", default=IS_PRODUCTION),
     "AUTH_COOKIE_SAMESITE": "Lax",
-
     "ACCESS_TOKEN_LIFETIME_SECONDS": 3600,
     "REFRESH_TOKEN_LIFETIME_SECONDS": 7 * 24 * 60 * 60,
 }
-# ---------------- COOKIE & SESSION SECURITY ----------------
-"""AUTH_COOKIE_SECURE = _IS_PRODUCTION
-SESSION_COOKIE_SECURE = _IS_PRODUCTION
-CSRF_COOKIE_SECURE = _IS_PRODUCTION
-
-SESSION_COOKIE_HTTPONLY = True
-SESSION_SAVE_EVERY_REQUEST = True
-CSRF_COOKIE_SAMESITE = "Lax"
-CSRF_COOKIE_HTTPONLY = False"""
 
 # ---------------- LOGGING ----------------
 LOGGING = {
@@ -219,3 +296,100 @@ LOGGING = {
         "level": "DEBUG" if DEBUG else "INFO",
     },
 }
+
+# ---------------- BACKGROUND INGESTION ----------------
+REDIS_URL = config("REDIS_URL", default="redis://localhost:6379/0")
+CELERY_BROKER_URL = REDIS_URL
+CELERY_RESULT_BACKEND = None
+CELERY_TIMEZONE = config("CELERY_TIMEZONE", default="Asia/Tehran")
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = config("CELERY_TASK_TIME_LIMIT", default=3600, cast=int)
+CELERY_TASK_SOFT_TIME_LIMIT = config(
+    "CELERY_TASK_SOFT_TIME_LIMIT", default=3300, cast=int
+)
+CELERY_WORKER_MAX_TASKS_PER_CHILD = config(
+    "CELERY_WORKER_MAX_TASKS_PER_CHILD", default=10, cast=int
+)
+CELERY_WORKER_PREFETCH_MULTIPLIER = 1
+CELERY_TASK_REJECT_ON_WORKER_LOST = True
+CELERY_TASK_ALWAYS_EAGER = env_bool("CELERY_TASK_ALWAYS_EAGER", default=False)
+CELERY_TASK_EAGER_PROPAGATES = True
+CELERY_TASK_ROUTES = {
+    "ingestion.tasks.discover_run": {"queue": "scraping"},
+    "ingestion.tasks.process_run_batch": {"queue": "scraping"},
+}
+CELERY_BEAT_SCHEDULE = {
+    "divar-discovery-every-15-minutes": {
+        "task": "ingestion.tasks.dispatch_incremental_discovery",
+        "schedule": timedelta(minutes=15),
+    },
+    "divar-refresh-dispatch-every-15-minutes": {
+        "task": "ingestion.tasks.dispatch_due_refreshes",
+        "schedule": timedelta(minutes=15),
+    },
+    "divar-daily-token-reconciliation": {
+        "task": "ingestion.tasks.dispatch_daily_reconciliation",
+        "schedule": crontab(hour=2, minute=0),
+    },
+}
+DIVAR_REQUEST_INTERVAL_SECONDS = config(
+    "DIVAR_REQUEST_INTERVAL_SECONDS", default=2.5, cast=float
+)
+
+# ------------------------------------------------------------
+# Fail-fast production safety checks
+# ------------------------------------------------------------
+# Runs only when DEBUG=False (i.e. IS_PRODUCTION). Catches the exact
+# mistakes that are easy to make when copying this file between
+# environments: leftover dev SECRET_KEY, default DB password,
+# localhost-only ALLOWED_HOSTS/CORS/CSRF, or sqlite still active.
+# If any of these are wrong, the app refuses to start instead of
+# running in production with dev-grade settings.
+
+if IS_PRODUCTION:
+
+    _insecure_key_markers = ("django-insecure", "unsafe", "changeme", "change-me")
+
+    if not SECRET_KEY or len(SECRET_KEY) < 50:
+        raise RuntimeError(
+            "SECRET_KEY is missing or too short for production "
+            "(must be at least 50 random characters)."
+        )
+
+    if any(marker in SECRET_KEY.lower() for marker in _insecure_key_markers):
+        raise RuntimeError(
+            "SECRET_KEY is still a development placeholder. Generate a "
+            "real random key before running with DEBUG=False."
+        )
+
+    if not ALLOWED_HOSTS or any(
+        host in {"localhost", "127.0.0.1"} for host in ALLOWED_HOSTS
+    ):
+        raise RuntimeError(
+            "ALLOWED_HOSTS must be set to your real production domain(s) "
+            "(not localhost/127.0.0.1) when DEBUG=False."
+        )
+
+    if any(
+        "localhost" in origin or "127.0.0.1" in origin
+        for origin in CORS_ALLOWED_ORIGINS + CSRF_TRUSTED_ORIGINS
+    ):
+        raise RuntimeError(
+            "CORS_ALLOWED_ORIGINS / CSRF_TRUSTED_ORIGINS still point at "
+            "localhost. Set them to your real frontend origin(s) in "
+            "production."
+        )
+
+    if DB_ENGINE == "django.db.backends.postgresql":
+        _db_password = config("DB_PASSWORD", default="")
+        if not _db_password or _db_password == "property_seeker":
+            raise RuntimeError(
+                "DB_PASSWORD is missing or still set to the default "
+                "development value. Set a real database password."
+            )
+    else:
+        raise RuntimeError(
+            "DB_ENGINE is sqlite in a production run (DEBUG=False). "
+            "Set DB_ENGINE=django.db.backends.postgresql and the "
+            "matching DB_* variables for production."
+        )

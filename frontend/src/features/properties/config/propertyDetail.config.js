@@ -1,119 +1,93 @@
 import {
-  Hash,
-  FileText,
-  Phone,
-  MapPin,
-  Calendar,
-  User,
-  Home,
-  DollarSign,
-  Building,
-  Car,
-  Warehouse,
-  Compass,
-  Wrench,
-  CheckCircle,
-  XCircle,
-  Clock,
-  Briefcase,
-  StickyNote,
-  PhoneIncoming,
-  PhoneOutgoing,
-  PhoneMissed,
-  Voicemail,
-  Users,
-  MessageSquare,
+  Hash, FileText, Home, Building, DollarSign, MapPin, Calendar,
+  User, Car, Warehouse, Compass, Wrench, StickyNote, CheckCircle2,
+  Clock, History, Image, Star, Tag
 } from "lucide-react";
 
 /* ─── Tabs ─── */
 export const PROPERTY_DETAIL_TABS = [
-  { key: "property", label: "مشخصات ملک", icon: Home },
-  { key: "owner", label: "مشخصات مالک", icon: User },
-  { key: "calls", label: "تاریخچه تماس‌ها", icon: Phone },
-  { key: "followups", label: "تاریخچه پیگیری‌ها", icon: Clock },
+  { key: "details", label: "مشخصات ملک", icon: Home },
+  { key: "status_history", label: "تاریخچه وضعیت", icon: Clock },
+  { key: "change_history", label: "تاریخچه تغییرات", icon: History, permission: "view_property_status_history" },
+  { key: "features", label: "امکانات", icon: Star },
+  { key: "media", label: "رسانه", icon: Image },
 ];
 
 /* ─── Icon Map ─── */
 export const PROPERTY_ICON_MAP = {
   id: Hash,
   property_code: Hash,
+  owner: User,
+  phone: User,
+  agent: User,
+  address: MapPin,
+  agency: Building,
+  create_by: User,
   title: FileText,
   property_type: Home,
-  deal_type: Briefcase,
-  status: FileText,
+  deal_type: Tag,
   area: Home,
-  sale_price: DollarSign,
-  monthly_rent: DollarSign,
-  deposit_amount: DollarSign,
-  mortgage_amount: DollarSign,
-  price_per_meter: DollarSign,
+  floor: Home,
+  total_floors: Building,
   age: Calendar,
   bedrooms: Home,
   bathrooms: Home,
-  floor: Home,
-  total_floors: Building,
   parking_count: Car,
   storage_count: Warehouse,
   orientation: Compass,
   condition: Wrench,
-  address: MapPin,
-  district: MapPin,
   description: StickyNote,
-  notes: StickyNote,
-  owner: User,
-  agent: User,
-  created_by: User,
+  price_per_meter: DollarSign,
+  sale_price: DollarSign,
+  mortgage_amount: DollarSign,
+  deposit_amount: DollarSign,
+  monthly_rent: DollarSign,
+  status: CheckCircle2,
   created_at: Calendar,
   updated_at: Calendar,
-  full_name: User,
-  phone: Phone,
-  alternate_phone: Phone,
-  national_id: Hash,
-  agency: Building,
 };
 
-/* ─── Tab 1: Property Fields ─── */
+/* ─── Tab 1: Property Details ─── */
 export const PROPERTY_DETAIL_FIELDS = [
   {
     section: "basic",
     sectionLabel: "اطلاعات پایه",
     fields: [
-      { key: "property_code", label: "کد ملک" },
-      { key: "title", label: "عنوان", fullWidth: true },
+      { key: "property_code", label: "کد ملک", type: "mono" },
+      { key: "title", label: "عنوان ملک", fullWidth: true },
       { key: "property_type", label: "نوع ملک" },
-      { key: "deal_type", label: "نوع معامله" },
-      { key: "status", label: "وضعیت", type: "status" },
+      { key: "deal_type", label: "نوع معامله", type: "status", configKey: "propertyDealType" },
+      { key: "status", label: "وضعیت", type: "status", configKey: "propertyStatus" },
     ],
   },
   {
     section: "pricing",
     sectionLabel: "قیمت و مالی",
     fields: [
-      { key: "sale_price", label: "قیمت فروش", type: "price" },
-      { key: "monthly_rent", label: "اجاره ماهیانه", type: "price" },
-      { key: "deposit_amount", label: "ودیعه", type: "price" },
-      { key: "mortgage_amount", label: "رهن کامل", type: "price" },
       { key: "price_per_meter", label: "قیمت هر متر", type: "price" },
+      { key: "sale_price", label: "قیمت فروش", type: "price" },
+      { key: "mortgage_amount", label: "رهن کامل", type: "price" },
+      { key: "deposit_amount", label: "ودیعه", type: "price" },
+      { key: "monthly_rent", label: "اجاره ماهیانه", type: "price" },
     ],
   },
   {
     section: "location",
     sectionLabel: "موقعیت",
     fields: [
-      { key: "area", label: "متراژ", suffix: " متر" },
-      { key: "address", label: "آدرس", type: "nested", nestedKey: "full_address", fullWidth: true },
-      { key: "district", label: "منطقه", type: "nested", nestedKey: "name" },
+      { key: "area", label: "متراژ", suffix: " متر مربع" },
+      { key: "address", label: "آدرس", type: "nested", nestedKey: "full_text", fullWidth: true },
     ],
   },
   {
     section: "physical",
     sectionLabel: "مشخصات فیزیکی",
     fields: [
-      { key: "age", label: "سن بنا" },
-      { key: "bedrooms", label: "اتاق خواب" },
-      { key: "bathrooms", label: "سرویس بهداشتی" },
       { key: "floor", label: "طبقه" },
       { key: "total_floors", label: "تعداد طبقات" },
+      { key: "age", label: "سن بنا", suffix: " سال" },
+      { key: "bedrooms", label: "اتاق خواب" },
+      { key: "bathrooms", label: "سرویس بهداشتی" },
       { key: "parking_count", label: "پارکینگ" },
       { key: "storage_count", label: "انباری" },
       { key: "orientation", label: "جهت" },
@@ -124,9 +98,11 @@ export const PROPERTY_DETAIL_FIELDS = [
     section: "people",
     sectionLabel: "اشخاص",
     fields: [
-      { key: "owner", label: "مالک", type: "user" },
-      { key: "agent", label: "کارشناس", type: "user" },
-      { key: "created_by", label: "ثبت کننده", type: "user" },
+      { key: "owner", label: "مالک", type: "text"},
+      { key: "phone", label: "تلفن مالک" },
+      { key: "agent", label: "مشاور", type: "user" },
+      { key: "create_by", label: "ثبت‌کننده", type: "user" },
+      { key: "agency", label: "آژانس" },
     ],
   },
   {
@@ -146,67 +122,35 @@ export const PROPERTY_DETAIL_FIELDS = [
   },
 ];
 
-/* ─── Tab 2: Owner Fields ─── */
-export const OWNER_DETAIL_FIELDS = [
-  {
-    section: "basic",
-    sectionLabel: "اطلاعات پایه",
-    fields: [
-      { key: "full_name", label: "نام کامل", fullWidth: true },
-      { key: "phone", label: "شماره تماس", type: "phone" },
-      { key: "alternate_phone", label: "شماره جایگزین", type: "phone" },
-      { key: "national_id", label: "کد ملی" },
-    ],
-  },
-  {
-    section: "agency",
-    sectionLabel: "آژانس",
-    fields: [
-      { key: "agency", label: "آژانس", type: "nested", nestedKey: "name" },
-      { key: "created_by", label: "ثبت کننده", type: "user" },
-    ],
-  },
-  {
-    section: "notes",
-    sectionLabel: "یادداشت",
-    fields: [
-      { key: "notes", label: "یادداشت‌ها", fullWidth: true },
-    ],
-  },
-  {
-    section: "dates",
-    sectionLabel: "تاریخ‌ها",
-    fields: [
-      { key: "created_at", label: "تاریخ ثبت", type: "date" },
-      { key: "updated_at", label: "آخرین بروزرسانی", type: "date" },
-    ],
-  },
+/* ─── Tab 2: Status History ─── */
+export const PROPERTY_STATUS_HISTORY_COLUMNS = [
+  { key: "old_status", header: "وضعیت قبلی", type: "status", configKey: "propertyStatus" },
+  { key: "new_status", header: "وضعیت جدید", type: "status", configKey: "propertyStatus" },
+  { key: "changed_by", header: "تغییردهنده", type: "user" },
+  { key: "created_at", header: "زمان", type: "date" },
 ];
 
-/* ─── Tab 3: Call History Types ─── */
-export const CALL_TYPE_CONFIG = {
-  incoming: { label: "ورودی", icon: PhoneIncoming, color: "text-emerald-500", bg: "bg-emerald-500/10" },
-  outgoing: { label: "خروجی", icon: PhoneOutgoing, color: "text-sky-500", bg: "bg-sky-500/10" },
-  missed: { label: "بی‌پاسخ", icon: PhoneMissed, color: "text-rose-500", bg: "bg-rose-500/10" },
-};
+/* ─── Tab 3: Change History ─── */
+export const PROPERTY_CHANGE_HISTORY_COLUMNS = [
+  { key: "action", header: "عملیات", type: "badge", map: { create: "ایجاد", update: "ویرایش", delete: "حذف" } },
+  { key: "field_name", header: "فیلد" },
+  { key: "old_value", header: "مقدار قدیم", type: "text_truncate" },
+  { key: "new_value", header: "مقدار جدید", type: "text_truncate" },
+  { key: "changed_by", header: "تغییردهنده", type: "user" },
+  { key: "created_at", header: "زمان", type: "date" },
+];
 
-export const CALL_STATUS_CONFIG = {
-  completed: { label: "انجام شد", color: "text-emerald-500", bg: "bg-emerald-500/10" },
-  scheduled: { label: "زمان‌بندی شده", color: "text-amber-500", bg: "bg-amber-500/10" },
-  no_answer: { label: "بی‌پاسخ", color: "text-rose-500", bg: "bg-rose-500/10" },
-  voicemail: { label: "صندوق صوتی", icon: Voicemail, color: "text-violet-500", bg: "bg-violet-500/10" },
-};
+/* ─── Tab 4: Features ─── */
+export const PROPERTY_FEATURE_COLUMNS = [
+  { key: "feature_id", header: "امکان", type: "nested", nestedKey: "title" },
+];
 
-/* ─── Tab 4: Followup History Types ─── */
-export const FOLLOWUP_TYPE_CONFIG = {
-  call: { label: "تماس", icon: Phone, color: "text-sky-500", bg: "bg-sky-500/10" },
-  visit: { label: "بازدید", icon: MapPin, color: "text-emerald-500", bg: "bg-emerald-500/10" },
-  meeting: { label: "جلسه", icon: Users, color: "text-violet-500", bg: "bg-violet-500/10" },
-  contract: { label: "قرارداد", icon: FileText, color: "text-amber-500", bg: "bg-amber-500/10" },
-};
-
-export const FOLLOWUP_STATUS_CONFIG = {
-  pending: { label: "در انتظار", color: "text-amber-500", bg: "bg-amber-500/10" },
-  completed: { label: "انجام شد", color: "text-emerald-500", bg: "bg-emerald-500/10" },
-  cancelled: { label: "لغو شده", color: "text-rose-500", bg: "bg-rose-500/10" },
-};
+/* ─── Tab 5: Media ─── */
+export const PROPERTY_MEDIA_COLUMNS = [
+  { key: "file", header: "فایل", type: "image" },
+  { key: "media_type", header: "نوع", type: "status", configKey: "mediaType" },
+  { key: "is_main", header: "اصلی", type: "boolean" },
+  { key: "sort_order", header: "ترتیب" },
+  { key: "uploaded_by", header: "آپلودکننده", type: "user" },
+  { key: "created_at", header: "تاریخ", type: "date" },
+];

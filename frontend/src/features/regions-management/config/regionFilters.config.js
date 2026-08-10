@@ -1,29 +1,35 @@
-export const REGION_FILTERS = [
+export const REGION_QUICK_FILTERS = [
   {
     key: "search",
-    type: "search",
     label: "جستجو",
-    placeholder: "نام منطقه، محله...",
+    type: "search",
+    placeholder: "نام منطقه، شهر...",
+    fields: ["name", "city_name"],
+    placement: "bar",
+  },
+  {
+    key: "province",
+    label: "استان",
+    type: "select",
+    placement: "bar",
+    async: true,
+    endpoint: "/api/province/list/",
+    optionLabel: "name",
+    optionValue: "id",
   },
   {
     key: "city",
-    type: "select",
     label: "شهر",
-    optionsKey: "cities",
-    options: [
-      { value: "1", label: "کرج" },
-      { value: "2", label: "ماهدشت" },
-      { value: "3", label: "تهران" },
-    ],
-  },
-  {
-    key: "has_listings",
     type: "select",
-    label: "وضعیت آگهی",
-    optionsKey: "listingStatuses",
-    options: [
-      { value: "true", label: "دارای آگهی" },
-      { value: "false", label: "بدون آگهی" },
-    ],
+    placement: "bar",
+    async: true,
+    endpoint: "/api/city/list/",
+    depends_on: "province",
+    optionLabel: "name",
+    optionValue: "id",
   },
 ];
+
+export const REGION_ADVANCED_FILTERS = [];
+
+export const REGION_ALL_FILTERS = [...REGION_QUICK_FILTERS, ...REGION_ADVANCED_FILTERS];

@@ -2,12 +2,12 @@ import { useCallback, useEffect, useRef } from "react";
 import useResource from "@/shared/templates/resource/hooks/useResource";
 import useResourceQuery from "@/shared/templates/resource/hooks/useResourceQuery";
 import followupService from "../services/followupService";
-import { FOLLOWUP_FILTERS } from "../config";
+import { FOLLOWUP_ALL_FILTERS } from "../config";
 
 export default function useFollowup() {
   const { fetchList, ...resourceState } = useResource(followupService);
   const query = useResourceQuery({
-    filterSchema: FOLLOWUP_FILTERS,
+    filterSchema: FOLLOWUP_ALL_FILTERS,
     pageSize: 25,
     initialOrdering: "-due_at",
   });

@@ -7,14 +7,10 @@ class PropertyStatusHistorySelector:
 
     @staticmethod
     def all():
-        return (
-            PropertyStatusHistory.objects
-            .select_related(
-                "property",
-                "changed_by",
-            )
-            .order_by("-created_at")
-        )
+        return PropertyStatusHistory.objects.select_related(
+            "property",
+            "changed_by",
+        ).order_by("-created_at")
 
     @staticmethod
     def by_id(pk):
@@ -26,8 +22,7 @@ class PropertyStatusHistorySelector:
     @staticmethod
     def by_property(property_id):
         return (
-            PropertyStatusHistory.objects
-            .select_related(
+            PropertyStatusHistory.objects.select_related(
                 "property",
                 "changed_by",
             )
@@ -38,8 +33,7 @@ class PropertyStatusHistorySelector:
     @staticmethod
     def latest(property_id):
         return (
-            PropertyStatusHistory.objects
-            .select_related(
+            PropertyStatusHistory.objects.select_related(
                 "property",
                 "changed_by",
             )

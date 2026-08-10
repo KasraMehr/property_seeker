@@ -59,34 +59,45 @@ export const roleHandlers = [
     return HttpResponse.json({ detail: "deleted" }, { status: 204 });
   }),
 
-  // ─── PERMISSIONS (GET /api/accounts/permissions/) ───
+   // ─── PERMISSIONS (GET /api/accounts/permissions/) ───
   http.get("*/api/accounts/permissions/", () => {
     return HttpResponse.json(
       [
-        { codename: "add_property", name: "add property" },
-        { codename: "change_property", name: "change property" },
-        { codename: "delete_property", name: "delete property" },
-        { codename: "view_property", name: "view property" },
-        { codename: "add_user", name: "add user" },
-        { codename: "change_user", name: "change user" },
-        { codename: "delete_user", name: "delete user" },
-        { codename: "view_user", name: "view user" },
-        { codename: "add_owner", name: "add owner" },
-        { codename: "change_owner", name: "change owner" },
-        { codename: "view_owner", name: "view owner" },
-        { codename: "add_call", name: "add call" },
-        { codename: "change_call", name: "change call" },
-        { codename: "view_call", name: "view call" },
-        { codename: "add_followup", name: "add followup" },
-        { codename: "change_followup", name: "change followup" },
-        { codename: "view_followup", name: "view followup" },
-        { codename: "view_scraper", name: "view scraper" },
-        { codename: "manage_scraper", name: "manage scraper" },
-        { codename: "manage_settings", name: "manage settings" },
-        { codename: "view_reports", name: "view reports" },
-        { codename: "view_dashboard", name: "view dashboard" },
-        { codename: "export_data", name: "export data" },
-        { codename: "import_data", name: "import data" },
+        // properties
+        { codename: "add_property", name: "افزودن فایل ملکی" },
+        { codename: "change_property", name: "ویرایش فایل ملکی" },
+        { codename: "delete_property", name: "حذف فایل ملکی" },
+        { codename: "view_property", name: "مشاهده فایل ملکی" },
+        // owners
+        { codename: "add_owner", name: "افزودن مالک" },
+        { codename: "change_owner", name: "ویرایش مالک" },
+        { codename: "delete_owner", name: "حذف مالک" },
+        { codename: "view_owner", name: "مشاهده مالک" },
+        // features
+        { codename: "add_feature", name: "افزودن امکانات" },
+        { codename: "change_feature", name: "ویرایش امکانات" },
+        { codename: "delete_feature", name: "حذف امکانات" },
+        { codename: "view_feature", name: "مشاهده امکانات" },
+        // property features
+        { codename: "add_property_feature", name: "افزودن امکانات به ملک" },
+        { codename: "change_property_feature", name: "ویرایش امکانات ملک" },
+        { codename: "delete_property_feature", name: "حذف امکانات ملک" },
+        { codename: "view_property_feature", name: "مشاهده امکانات ملک" },
+        // property status history
+        { codename: "view_property_status_history", name: "مشاهده تاریخچه وضعیت" },
+        // crm
+        { codename: "create_customer", name: "افزودن مشتری" },
+        { codename: "view_customer", name: "مشاهده مشتری" },
+        { codename: "create_customer_preference", name: "افزودن اولویت مشتری" },
+        { codename: "view_customer_preference", name: "مشاهده اولویت مشتری" },
+        // locations
+        { codename: "add_province", name: "افزودن استان" },
+        { codename: "view_province", name: "مشاهده استان" },
+        { codename: "change_province", name: "ویرایش استان" },
+        { codename: "delete_province", name: "حذف استان" },
+        { codename: "list_province", name: "لیست استان‌ها" },
+        { codename: "add_city", name: "افزودن شهر" },
+        { codename: "view_city", name: "مشاهده شهر" },
       ],
       { status: 200 }
     );

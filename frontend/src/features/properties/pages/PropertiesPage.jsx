@@ -13,7 +13,7 @@ import PropertyDetailModal from "@/features/properties/components/PropertyDetail
 import ResourceTemplate from "@/shared/templates/resource/ResourceTemplate";
 import useProperty from "@/features/properties/hooks/useProperty";
 import {
-  PROPERTY_FILTERS,
+  PROPERTY_ALL_FILTERS,
   PROPERTY_STATUS_CONFIG,
   PROPERTY_TABLE_COLUMNS,
 } from "@/features/properties/config";
@@ -128,10 +128,10 @@ export default function PropertiesPage() {
 
   // ─── Filter options ───
   const filterOptions = useMemo(() => {
-    const statusFilter = PROPERTY_FILTERS.find((f) => f.key === "status");
-    const typeFilter = PROPERTY_FILTERS.find((f) => f.key === "property_type");
-    const dealFilter = PROPERTY_FILTERS.find((f) => f.key === "deal_type");
-    const userFilter = PROPERTY_FILTERS.find((f) => f.key === "created_by");
+    const statusFilter = PROPERTY_ALL_FILTERS.find((f) => f.key === "status");
+    const typeFilter = PROPERTY_ALL_FILTERS.find((f) => f.key === "property_type");
+    const dealFilter = PROPERTY_ALL_FILTERS.find((f) => f.key === "deal_type");
+    const userFilter = PROPERTY_ALL_FILTERS.find((f) => f.key === "created_by");
     return {
       statuses: statusFilter?.options || [],
       propertyTypes: typeFilter?.options || [],
@@ -143,7 +143,7 @@ export default function PropertiesPage() {
   // FilterBar schema excludes search (handled by SearchBox)
   const filters = useMemo(
     () => ({
-      schema: PROPERTY_FILTERS.filter((f) => f.type !== "search"),
+      schema: PROPERTY_ALL_FILTERS.filter((f) => f.type !== "search"),
       options: filterOptions,
       values: filterValues,
       onChange: setFilter,
