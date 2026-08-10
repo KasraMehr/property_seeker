@@ -180,14 +180,17 @@ export default function FilterBar({
         )}
       </div>
 
-      {/* Active chips */}
-      {activeChips.length > 0 && (
-        <div className="flex flex-wrap items-center gap-1.5">
-          {activeChips.map((chip, i) => (
+      {/* Active chips — always reserve space to prevent layout shift */}
+      <div className="min-h-8 flex flex-wrap items-center gap-1.5">
+        {activeChips.length > 0 &&
+          activeChips.map((chip, i) => (
             <button
               key={`${chip.key}-${chip.value || i}`}
               onClick={() => {
-                if (chip.type === "multiselect" || chip.type === "multi_select") {
+                if (
+                  chip.type === "multiselect" ||
+                  chip.type === "multi_select"
+                ) {
                   const current = filters[chip.key] || [];
                   onChange(
                     chip.key,
@@ -203,8 +206,7 @@ export default function FilterBar({
               <X size={12} />
             </button>
           ))}
-        </div>
-      )}
+      </div>
 
       {/* Drawer for advanced filters — uses position instead of size */}
       <Drawer

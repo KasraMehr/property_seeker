@@ -48,7 +48,7 @@ export default function OperatorDashboardPage() {
       variant="outline"
       size="sm"
       icon={ArrowLeft}
-      onClick={() => navigate("/operator/leads")}
+      onClick={() => navigate("/operator/listings")}
     >
       مشاهده لیدها
     </Button>

@@ -1,6 +1,8 @@
 import { useMemo, useState } from "react";
 import { ChevronDown, ChevronUp, ChevronsUpDown, Loader2 } from "lucide-react";
 
+import Checkbox from "@/shared/ui/Checkbox";
+
 export default function Table({
   data = [],
   columns = [],
@@ -13,157 +15,144 @@ export default function Table({
   onSort,
   actions,
   emptyState,
-  className = "",
+  rowKey = "id",
 }) {
-  const hasFixedWidth = columns.some((c) => c.width);
-  const minWidth = columns.reduce(
-    (sum, col) => sum + (parseInt(col.width) || 100),
-    0,
-  );
   const allSelected =
-    data.length > 0 && data.every((row) => selected.includes(row.id));
+    data.length > 0 && data.every((r) => selected.includes(r[rowKey]));
+  const someSelected =
+    data.some((r) => selected.includes(r[rowKey])) && !allSelected;
 
   const toggleAll = () => {
-    const ids = data.map((r) => r.id);
-    const next = allSelected ? [] : ids;
-    onSelectionChange?.(next);
+    if (!onSelectionChange) return;
+    if (allSelected) {
+      onSelectionChange([]);
+    } else {
+      onSelectionChange(data.map((r) => r[rowKey]));
+    }
   };
 
   const toggleRow = (id) => {
-    const next = selected.includes(id)
-      ? selected.filter((x) => x !== id)
-      : [...selected, id];
-    onSelectionChange?.(next);
+    if (!onSelectionChange) return;
+    if (selected.includes(id)) {
+      onSelectionChange(selected.filter((s) => s !== id));
+    } else {
+      onSelectionChange([...selected, id]);
+    }
   };
 
-  return (
-    <div
-      className={`bg-surface rounded-2xl border border-border shadow-sm h-full flex flex-col ${className}`}
-    >
-      <div className="overflow-auto flex-1">
-        <table
-          className={`text-sm ${hasFixedWidth ? "table-fixed" : "min-w-160 w-full"}`}
-          style={
-            hasFixedWidth
-              ? { minWidth: `${minWidth}px`, width: `${minWidth}px` }
-              : {}
-          }
-        >
-          <thead>
-            <tr className="border-b border-border bg-background/50">
-              {selectable && (
-                <th className="p-3 text-center w-12">
-                  <input
-                    type="checkbox"
-                    checked={allSelected}
-                    onChange={toggleAll}
-                    className="w-4 h-4 rounded border-border accent-primary"
-                  />
-                </th>
-              )}
-              {columns.map((col) => {
-                const active = sortKey === col.key;
-                return (
-                  <th
-                    key={col.key}
-                    style={{ width: col.width }}
-                    onClick={() => col.sortable && onSort?.(col.key)}
-                    className={`
-                      p-3 text-xs font-semibold text-muted whitespace-nowrap
-                      ${col.align === "center" ? "text-center" : "text-right"}
-                      ${col.sortable ? "cursor-pointer hover:text-foreground" : ""}
-                    `}
-                  >
-                    <span className="inline-flex items-center gap-1">
-                      {col.title || col.header || col.label}
-                      {col.sortable &&
-                        (active ? (
-                          sortDir === "asc" ? (
-                            <ChevronDown size={14} />
-                          ) : (
-                            <ChevronUp size={14} />
-                          )
-                        ) : (
-                          <ChevronsUpDown size={14} className="opacity-40" />
-                        ))}
-                    </span>
-                  </th>
-                );
-              })}
-              {actions && (
-                <th className="p-3 text-center text-xs text-muted">عملیات</th>
-              )}
-            </tr>
-          </thead>
+  const sortedData = useMemo(() => {
+    if (!sortKey || !onSort) return data;
+    return [...data];
+  }, [data, sortKey, onSort]);
 
-          <tbody className="divide-y divide-border">
-            {loading && (
-              <tr>
-                <td colSpan={100}>
-                  <div className="flex justify-center py-12">
-                    <Loader2
-                      className="animate-spin text-(--role-primary)"
-                      size={24}
-                    />
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-6 h-6 animate-spin text-muted" />
+      </div>
+    );
+  }
+
+  if (!loading && data.length === 0) {
+    return (
+      emptyState || (
+        <div className="py-12 text-center text-sm text-muted">
+          موردی یافت نشد
+        </div>
+      )
+    );
+  }
+
+  return (
+    <div className=" h-full">
+      <table className="w-full table-fixed border-collapse text-sm">
+        <thead className="sticky top-0 z-10 bg-surface">
+          <tr className="border-b border-border bg-surface">
+            {selectable && (
+              <th className="w-10 px-3 py-3 text-right">
+                <Checkbox
+                  checked={allSelected}
+                  indeterminate={someSelected}
+                  onChange={toggleAll}
+                />
+              </th>
+            )}
+            {columns.map((col) => (
+              <th
+                key={col.key}
+                className={`
+                px-3 py-3 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wide
+                whitespace-nowrap select-none
+                ${col.width || ""}
+                ${onSort && col.sortable !== false ? "cursor-pointer hover:text-foreground" : ""}
+              `}
+                style={col.minWidth ? { minWidth: col.minWidth } : undefined}
+                onClick={() => {
+                  if (onSort && col.sortable !== false) onSort(col.key);
+                }}
+              >
+                <div className="flex items-center gap-1">
+                  {col.header}
+                  {sortKey === col.key && (
+                    <span className="text-[10px]">
+                      {sortDir === "asc" ? "▲" : "▼"}
+                    </span>
+                  )}
+                </div>
+              </th>
+            ))}
+            {actions && <th className="w-20 px-3 py-3 text-right">عملیات</th>}
+          </tr>
+        </thead>
+
+        <tbody className="divide-y divide-border">
+          {sortedData.map((row) => (
+            <tr
+              key={row[rowKey]}
+              className="hover:bg-muted/40 transition-colors group"
+            >
+              {selectable && (
+                <td className="w-10 px-3 py-2.5">
+                  <Checkbox
+                    checked={selected.includes(row[rowKey])}
+                    onChange={() => toggleRow(row[rowKey])}
+                  />
+                </td>
+              )}
+              {columns.map((col) => (
+                <td
+                  key={col.key}
+                  className={`
+                  px-3 py-2.5 text-foreground align-middle
+                  whitespace-nowrap
+                  ${col.width || ""}
+                `}
+                  title={
+                    typeof row[col.key] === "string" ? row[col.key] : undefined
+                  }
+                >
+                  {col.cell ? col.cell(row) : (row[col.key] ?? "—")}
+                </td>
+              ))}
+              {actions && (
+                <td className="w-20 px-3 py-2.5 text-right">
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                    {actions(row)}
                   </div>
                 </td>
-              </tr>
-            )}
-
-            {!loading && data.length === 0 && (
-              <tr>
-                <td colSpan={100}>
-                  {emptyState || (
-                    <div className="py-12 text-center text-sm text-muted">
-                      داده‌ای یافت نشد
-                    </div>
-                  )}
-                </td>
-              </tr>
-            )}
-
-            {!loading &&
-              data.map((row) => (
-                <tr
-                  key={row.id}
-                  className={`
-                    transition-colors
-                    ${selected.includes(row.id) ? "bg-(--role-primary)/5" : "hover:bg-(--role-subtle)/20"}
-                  `}
-                >
-                  {selectable && (
-                    <td className="p-3 text-center">
-                      <input
-                        type="checkbox"
-                        checked={selected.includes(row.id)}
-                        onChange={() => toggleRow(row.id)}
-                        className="w-4 h-4 rounded border-border accent-primary"
-                      />
-                    </td>
-                  )}
-                  {columns.map((col) => (
-                    <td
-                      key={col.key}
-                      className={`
-                        p-3 text-sm text-foreground
-                        ${col.align === "center" ? "text-center" : "text-right"}
-                      `}
-                    >
-                      {col.cell
-                        ? col.cell(row)
-                        : col.render
-                          ? col.render(row)
-                          : row[col.key]}{" "}
-                    </td>
-                  ))}
-                  {actions && (
-                    <td className="p-3 text-center">{actions(row)}</td>
-                  )}
-                </tr>
-              ))}
-          </tbody>
-        </table>
-      </div>
+              )}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {loading && (
+        <div className="absolute inset-0 bg-surface/50 backdrop-blur-[1px] flex items-center justify-center z-20 rounded-xl">
+          <div className="flex flex-col items-center gap-2">
+            <Loader2 className="w-7 h-7 animate-spin text-(--role-primary)" />
+            <span className="text-xs text-muted">در حال بروزرسانی...</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
