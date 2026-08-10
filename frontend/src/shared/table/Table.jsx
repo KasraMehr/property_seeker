@@ -68,15 +68,6 @@ export default function Table({
       <table className="w-full table-fixed border-collapse text-sm">
         <thead className="sticky top-0 z-10 bg-surface">
           <tr className="border-b border-border bg-surface">
-            {selectable && (
-              <th className="w-10 px-3 py-3 text-right">
-                <Checkbox
-                  checked={allSelected}
-                  indeterminate={someSelected}
-                  onChange={toggleAll}
-                />
-              </th>
-            )}
             {columns.map((col) => (
               <th
                 key={col.key}
@@ -111,14 +102,6 @@ export default function Table({
               key={row[rowKey]}
               className="hover:bg-muted/40 transition-colors group"
             >
-              {selectable && (
-                <td className="w-10 px-3 py-2.5">
-                  <Checkbox
-                    checked={selected.includes(row[rowKey])}
-                    onChange={() => toggleRow(row[rowKey])}
-                  />
-                </td>
-              )}
               {columns.map((col) => (
                 <td
                   key={col.key}
