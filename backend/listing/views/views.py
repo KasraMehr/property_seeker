@@ -5,7 +5,7 @@ from listing.serializers.listing import (
     ListingListSerializer,
     ListingDetailSerializer,
 )
-
+from accounts.permissions import *
 
 class ListingListView(generics.ListAPIView):
     queryset = (
@@ -15,7 +15,8 @@ class ListingListView(generics.ListAPIView):
     )
 
     serializer_class = ListingListSerializer
-
+    permission_classes = (HasRolePermission,)
+    required_permission = "view_listing"
 
 class ListingDetailView(generics.RetrieveAPIView):
     queryset = (
@@ -25,6 +26,8 @@ class ListingDetailView(generics.RetrieveAPIView):
     )
 
     serializer_class = ListingDetailSerializer
+    permission_classes = (HasRolePermission,)
+    required_permission = "detail_listing"
 
 # Create your views here.
 from listing.models import ListingStatusHistory
@@ -38,7 +41,8 @@ class ListingStatusHistoryListView(
 ):
 
     serializer_class = ListingStatusHistorySerializer
-
+    permission_classes = (HasRolePermission,)
+    required_permission = "view_status_history"
 
     def get_queryset(self):
 
@@ -72,5 +76,6 @@ class ListingStatusHistoryDetailView(
     )
 
     serializer_class = ListingStatusHistorySerializer
-
+    permission_classes = (HasRolePermission,)
+    required_permission = "detail_status_history"
 

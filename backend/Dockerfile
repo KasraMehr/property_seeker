@@ -1,4 +1,9 @@
-FROM python:3.13-slim
+# syntax=docker/dockerfile:1
+
+# ==============================================================
+# BASE — shared by both dev and production
+# ==============================================================
+FROM python:3.13-slim AS base
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -11,6 +16,31 @@ RUN apt-get update \
 WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+
+
+# ==============================================================
+# DEVELOPMENT — used by docker-compose for local work
+# ==============================================================
+# No COPY . . here on purpose: docker-compose.dev.yml bind-mounts
+# your working tree over /app, so edits on the host show up inside
+# the container immediately without a rebuild. Code only gets
+# baked into the image in the "production" stage below.
+#
+# No collectstatic here either — with DEBUG=True (the dev default),
+# Django's staticfiles app serves static files directly from disk,
+# so WhiteNoise's manifest isn't needed for runserver to work.
+FROM base AS dev
+
+EXPOSE 8000
+
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
+
+# ==============================================================
+# PRODUCTION — used by the Dockerfile-based deploy / docker-compose.yml
+# ==============================================================
+FROM base AS production
+
 COPY . .
 
 # collectstatic needs settings.py to import cleanly, which needs a
@@ -20,7 +50,7 @@ COPY . .
 # hashed/compressed static manifest into the image so `web` doesn't
 # need to run it (and doesn't need write access to the image) at
 # container start.
-#RUN python manage.py collectstatic --noinput
+RUN python manage.py collectstatic --noinput
 
 # Run as a non-root user. Chromium/selenium-driven scraping and a
 # public-facing gunicorn process are exactly the kind of thing you
