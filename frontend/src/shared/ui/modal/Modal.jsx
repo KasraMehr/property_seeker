@@ -42,10 +42,10 @@ const Modal = forwardRef(
     }, [isOpen, onClose, closeOnEscape]);
 
     const sizeMap = {
-      sm: "max-w-sm",
-      md: "max-w-lg",
-      lg: "max-w-2xl",
-      xl: "max-w-4xl",
+      sm: "max-w-sm h-[55vh]",
+      md: "max-w-lg h-[75vh]",
+      lg: "max-w-2xl h-[75vh]",
+      xl: "max-w-4xl h-[85vh]",
       full: "max-w-[95vw] h-[90vh]",
     };
 

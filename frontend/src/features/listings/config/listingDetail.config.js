@@ -165,7 +165,6 @@ export const LISTING_DETAIL_FIELDS = [
 ];
 
 /* ─── Tab 2: Snapshots (ingestion.ListingSnapshot) ───
- * این تب لیستی از اسنپ‌شات‌ها رو نشون می‌ده (table/list)
  */
 export const LISTING_SNAPSHOT_COLUMNS = [
   { key: "observed_at", header: "زمان مشاهده", type: "date" },
@@ -194,8 +193,6 @@ export const LISTING_STATUS_HISTORY_COLUMNS = [
 ];
 
 /* ─── Tab 5: Property (properties.Property) ───
- * وقتی listing.property_id پر باشه، این تب نمایش داده می‌شه
- * فیلدها مشابه propertyDetail.config.js هستن
  */
 export const LISTING_PROPERTY_FIELDS = [
   {
