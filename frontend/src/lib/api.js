@@ -1,4 +1,5 @@
 import axios from "axios";
+import { API_ENDPOINTS } from "../constants/apiEndpoints";
 
 // Root API URL (without /accounts)
 const API_BASE_URL =
@@ -55,7 +56,7 @@ api.interceptors.response.use(
 
     try {
       await axios.post(
-        `${API_BASE_URL}/accounts/refresh/`,
+        API_ENDPOINTS.AUTH.REFRESH.url,
         {},
         { withCredentials: true },
       );

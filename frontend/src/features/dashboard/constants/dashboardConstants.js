@@ -10,7 +10,11 @@ import {
   NotebookTabs,
   BarChart3,
   ContactRound,
-  SquareActivity
+  SquareActivity,
+  UserRound,
+  Phone,
+  Mail,
+  CreditCard,
 } from "lucide-react";
 
 export const DASHBOARD_STRINGS = {
@@ -112,5 +116,71 @@ export const ADMIN_NAV_ITEMS = [
     label: "تاریخچه فعالیت ها",
     path: "/admin/activity-log",
     icon: SquareActivity,
+  },
+];
+
+
+/**
+ * Editable profile settings
+ *
+ * Only fields that the currently authenticated user
+ * can reasonably edit are placed here.
+ */
+export const PROFILE_SETTINGS = [
+  {
+    key: "personal",
+    title: "اطلاعات شخصی",
+    description: "اطلاعات پایه حساب کاربری خود را مدیریت کنید.",
+    icon: UserRound,
+    columns: 2,
+
+    fields: [
+      {
+        name: "full_name",
+        label: "نام و نام خانوادگی",
+        type: "text",
+        placeholder: "مثلاً علی احمدی",
+        icon: UserRound,
+        required: true,
+        fullWidth: false,
+      },
+
+      {
+        name: "national_id",
+        label: "کد ملی",
+        type: "text",
+        placeholder: "۱۰ رقم",
+        icon: CreditCard,
+        required: false,
+      },
+    ],
+  },
+
+  {
+    key: "contact",
+    title: "اطلاعات تماس",
+    description: "راه‌های ارتباطی خود را مدیریت کنید.",
+    icon: Phone,
+    columns: 2,
+
+    fields: [
+      {
+        name: "phone",
+        label: "شماره موبایل",
+        type: "phone",
+        placeholder: "۰۹۱۲۳۴۵۶۷۸۹",
+        icon: Phone,
+        required: true,
+      },
+
+      {
+        name: "email",
+        label: "ایمیل",
+        type: "email",
+        placeholder: "example@mail.com",
+        icon: Mail,
+        required: false,
+      },
+    ],
   },
 ];

@@ -1,7 +1,7 @@
 
 import ResourceTemplate from "@/shared/templates/resource/ResourceTemplate";
 import useActivityLog from "../hooks/useActivityLog";
-import { ACTIVITY_LOG_TABLE_COLUMNS, ACTIVITY_LOG_QUICK_FILTERS } from "../config";
+import { ACTIVITY_LOG_TABLE_COLUMNS } from "../config";
 import activityLogService from "../services/activityLogService";
 
 export default function ActivityLogPage() {
@@ -14,7 +14,7 @@ export default function ActivityLogPage() {
       resource={resource}
       service={activityLogService}
       columns={ACTIVITY_LOG_TABLE_COLUMNS}
-      filterSchema={ACTIVITY_LOG_QUICK_FILTERS}
+      filterSchema={[]}
       entityName="لاگ"
       permissionPrefix="audit"
       readOnly={true} // ActivityLog is read-only (no create/update/delete actions)

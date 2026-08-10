@@ -2,7 +2,7 @@ import PageHeader from "@/shared/page/PageHeader";
 import TablePagination from "@/shared/table/TablePagination";
 import ResourceToolbar from "./components/ResourceToolbar";
 import ResourceTable from "./components/ResourceTable";
-
+import {MotionDiv} from "@/animations/MotionElements"
 /**
  * ResourceTemplate — pure composition layout for CRUD/resource pages.
  *
@@ -55,21 +55,23 @@ export default function ResourceTemplate({
         onBulkAction={onBulkAction}
       />
 
-      <div className="flex-1 min-h-0 overflow-hidden flex flex-col gap-3">
-        <ResourceTable
-          columns={columns}
-          data={data}
-          loading={loading}
-          emptyState={emptyState}
-          sort={sort}
-          onSort={onSort}
-          selectable={selectable}
-          selected={selected}
-          onSelectionChange={onSelectionChange}
-          rowActions={rowActions}
-          onRowAction={onRowAction}
-        />
-      </div>
+      <MotionDiv className="space-y-6" delay={0.1}>
+        <div className="flex-1 min-h-0 overflow-hidden flex flex-col gap-3">
+          <ResourceTable
+            columns={columns}
+            data={data}
+            loading={loading}
+            emptyState={emptyState}
+            sort={sort}
+            onSort={onSort}
+            selectable={selectable}
+            selected={selected}
+            onSelectionChange={onSelectionChange}
+            rowActions={rowActions}
+            onRowAction={onRowAction}
+          />
+        </div>
+      </MotionDiv>
 
       {pagination && pagination.totalPages > 1 && (
         <TablePagination

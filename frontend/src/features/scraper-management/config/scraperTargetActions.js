@@ -62,19 +62,7 @@ export const SCRAPER_TARGET_ROW_ACTIONS = [
       message: "آیا از اجرای فوری این تارگت اطمینان دارید؟",
     },
   },
-  {
-    key: "delete",
-    label: "حذف",
-    icon: Trash2,
-    variant: "ghost",
-    type: "row",
-    permission: null, // admin-only
-    danger: true,
-    confirm: {
-      title: "حذف تارگت",
-      message: "آیا از حذف این تارگت اسکرپر اطمینان دارید؟",
-    },
-  },
+
 ];
 
 export const SCRAPER_TARGET_BULK_ACTIONS = [
@@ -99,28 +87,6 @@ export const SCRAPER_TARGET_BULK_ACTIONS = [
       title: "اجرای گروهی",
       message: "آیا از اجرای فوری تارگت‌های انتخاب‌شده اطمینان دارید؟",
     },
-  },
-  {
-    key: "delete",
-    label: "حذف انتخاب‌شده‌ها",
-    icon: Trash2,
-    variant: "outline",
-    type: "bulk",
-    permission: null,
-    danger: true,
-    confirm: {
-      title: "حذف گروهی",
-      message: "آیا از حذف تارگت‌های انتخاب‌شده اطمینان دارید؟",
-    },
-  },
-  {
-    key: "export",
-    label: "خروجی Excel",
-    icon: Download,
-    variant: "outline",
-    type: "bulk",
-    permission: null,
-    handler: "export",
   },
 ];
 

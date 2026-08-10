@@ -4,7 +4,7 @@ import Modal from "@/shared/ui/modal/Modal";
 import Button from "@/shared/ui/Button";
 import Tabs from "@/shared/ui/Tabs";
 import StatusBadge from "@/shared/ui/badges/StatusBadge";
-import { SCRAPE_TARGET_STATUS_CONFIG } from "@/constants/scrapeTargetStatus.config";
+import { SCRAPE_TARGET_STATUS_CONFIG } from "../config";
 import {
   SCRAPER_TARGET_DETAIL_TABS,
   SCRAPER_TARGET_DETAIL_FIELDS,

@@ -1,27 +1,20 @@
 import { Link } from "react-router-dom";
 
 import Logo from "@/shared/Logo";
-import ThemeToggle from "@/shared/ThemeToggle"
+import ThemeToggle from "@/shared/ThemeToggle";
 import NavigationMenu from "@/shared/navigation/NavigationMenu";
 import UserProfileDropdown from "@/features/auth/components/UserProfileDropdown";
 import Drawer from "@/shared/ui/Drawer";
 
-export default function DashboardSidebar({
-  isOpen,
-  onClose,
-  menuItems = [],
-}) {
+export default function DashboardSidebar({ isOpen, onClose, menuItems = [] }) {
   const navigation = (
     <div className="flex-1 py-6">
-      <NavigationMenu
-        items={menuItems}
-        onItemClick={onClose}
-      />
+      <NavigationMenu items={menuItems} onItemClick={onClose} />
     </div>
   );
 
   return (
-    <>
+    <div>
       {/* Desktop */}
       <aside
         className="
@@ -37,8 +30,8 @@ export default function DashboardSidebar({
           {navigation}
 
           <div className="mt-auto flex items-center justify-center border-t border-border p-3">
-            <ThemeToggle/>
-            <UserProfileDropdown fullWidth={false} showInfo={false}/>
+            <ThemeToggle />
+            <UserProfileDropdown fullWidth={false} showInfo={false} />
           </div>
         </div>
       </aside>
@@ -64,6 +57,6 @@ export default function DashboardSidebar({
           </div>
         </Drawer>
       </div>
-    </>
+    </div>
   );
 }

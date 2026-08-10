@@ -98,7 +98,7 @@ export const PROPERTY_DETAIL_FIELDS = [
     section: "people",
     sectionLabel: "اشخاص",
     fields: [
-      { key: "owner", label: "مالک", type: text },
+      { key: "owner", label: "مالک", type: "text"},
       { key: "phone", label: "تلفن مالک" },
       { key: "agent", label: "مشاور", type: "user" },
       { key: "create_by", label: "ثبت‌کننده", type: "user" },

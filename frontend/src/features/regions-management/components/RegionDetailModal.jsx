@@ -6,7 +6,7 @@ import Tabs from "@/shared/ui/Tabs";
 import {
   REGION_DETAIL_TABS,
   REGION_DETAIL_FIELDS,
-  REGION_NEIGHBORHOOD_COLUMNS,
+  REGION_TABLE_COLUMNS,
 } from "@/features/regions-management/config";
 import { DetailFieldGrid, DetailListTable } from "@/shared/page/DetailContentRenderer";
 
@@ -50,7 +50,7 @@ export default function RegionDetailModal({ isOpen, onClose, region }) {
           <Tabs.Content value="neighborhoods">
             <DetailListTable
               data={region.neighborhoods || []}
-              columns={REGION_NEIGHBORHOOD_COLUMNS}
+              columns={REGION_TABLE_COLUMNS}
               emptyText="محله‌ای ثبت نشده"
             />
           </Tabs.Content>

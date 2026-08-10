@@ -215,10 +215,6 @@ export default function ListingsPage() {
             )}
           </p>
         </div>
-        <Button variant="primary" size="sm" className="gap-1.5">
-          <Plus size={16} />
-          آگهی جدید
-        </Button>
       </div>
     ),
     [meta?.count, selected.length],

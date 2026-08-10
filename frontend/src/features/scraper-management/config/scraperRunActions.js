@@ -1,10 +1,10 @@
 import {
-  Eye, Ban, Trash2, List, AlertTriangle, Download
+  Eye, Ban, Trash2, List, AlertTriangle,Play, Download
 } from "lucide-react";
 
 /**
- * IngestionRun Actions Config
- * Backend: ingestion.IngestionRun
+ * ingestionRun Actions Config
+ * Backend: ingestion.ingestionRun
  * 
  *  Scraper management is admin/owner-only.
  */
@@ -39,67 +39,17 @@ export const SCRAPER_RUN_ROW_ACTIONS = [
     modal: "errors",
   },
   {
-    key: "cancel",
-    label: "لغو اجرا",
-    icon: Ban,
-    variant: "outline",
-    type: "row",
-    permission: null,
-    condition: (row) => row.status === "queued" || row.status === "running",
-    handler: "cancel_run",
-    confirm: {
-      title: "لغو اجرا",
-      message: "آیا از لغو این اجرای اسکرپر اطمینان دارید؟",
-    },
+  key: "resume",
+  label: "ادامه اجرا",
+  icon: Play, 
+  variant: "primary",
+  type: "row",
+  condition: (row) => row.status === "failed" || row.status === "cancelled",
+  handler: "resume_run",
+  confirm: {
+    title: "ادامه اجرا",
+    message: "آیا از ادامه این اجرا اطمینان دارید؟",
   },
-  {
-    key: "delete",
-    label: "حذف",
-    icon: Trash2,
-    variant: "ghost",
-    type: "row",
-    permission: null,
-    danger: true,
-    condition: (row) => row.status !== "running",
-    confirm: {
-      title: "حذف اجرا",
-      message: "آیا از حذف این رکورد اجرا اطمینان دارید؟",
-    },
-  },
+},
 ];
 
-export const SCRAPER_RUN_BULK_ACTIONS = [
-  {
-    key: "delete",
-    label: "حذف انتخاب‌شده‌ها",
-    icon: Trash2,
-    variant: "outline",
-    type: "bulk",
-    permission: null,
-    danger: true,
-    confirm: {
-      title: "حذف گروهی",
-      message: "آیا از حذف اجراهای انتخاب‌شده اطمینان دارید؟",
-    },
-  },
-  {
-    key: "export",
-    label: "خروجی Excel",
-    icon: Download,
-    variant: "outline",
-    type: "bulk",
-    permission: null,
-    handler: "export",
-  },
-  {
-    key: "export_json",
-    label: "خروجی JSON (گزارش)",
-    icon: Download,
-    variant: "outline",
-    type: "bulk",
-    permission: null,
-    handler: "export_json",
-  },
-];
-
-export const SCRAPER_RUN_ALL_ACTIONS = [...SCRAPER_RUN_ROW_ACTIONS, ...SCRAPER_RUN_BULK_ACTIONS];

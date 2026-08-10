@@ -283,7 +283,7 @@ export const MOCK_ACTIVITY_LOGS = [
     source: "cron",
     level: "info",
     outcome: "success",
-    entity_type: "IngestionRun",
+    entity_type: "ingestionRun",
     entity_id: "run-001",
     old_data: {},
     new_data: { discovered: 45, new: 12, changed: 8 },

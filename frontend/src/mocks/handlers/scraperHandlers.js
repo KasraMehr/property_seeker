@@ -1,8 +1,8 @@
 import { http, HttpResponse } from "msw";
 import {
   MOCK_SCRAPE_TARGETS,
-  MOCK_INGESTION_RUNS,
-  MOCK_INGESTION_RUN_ITEMS,
+  MOCK_ingestion_RUNS,
+  MOCK_ingestion_RUN_ITEMS,
   MOCK_TARGET_LISTINGS,
   MOCK_LISTING_SNAPSHOTS,
 } from "@/mocks/data/mockScraper";
@@ -22,13 +22,13 @@ function paginate(array, { page = 1, pageSize = 25 }) {
 export const scraperHandlers = [
   // DASHBOARD AGGREGATE (legacy /api/admin/scraper/*)
   http.get("*/api/admin/scraper/status/", () => {
-    const running = MOCK_INGESTION_RUNS.find((r) => r.status === "running");
-    const lastSucceeded = MOCK_INGESTION_RUNS
+    const running = MOCK_ingestion_RUNS.find((r) => r.status === "running");
+    const lastSucceeded = MOCK_ingestion_RUNS
       .filter((r) => r.status === "succeeded")
       .sort((a, b) => new Date(b.finished_at) - new Date(a.finished_at))[0];
 
     const today = new Date().toISOString().slice(0, 10);
-    const todayScraped = MOCK_INGESTION_RUNS
+    const todayScraped = MOCK_ingestion_RUNS
       .filter((r) => r.finished_at?.startsWith(today))
       .reduce((sum, r) => sum + (r.discovered_count || 0), 0);
 
@@ -37,12 +37,12 @@ export const scraperHandlers = [
         is_running: !!running,
         last_run: lastSucceeded?.finished_at || null,
         total_scraped_today: todayScraped,
-        failed_jobs: MOCK_INGESTION_RUNS.filter((r) => r.status === "failed").length,
+        failed_jobs: MOCK_ingestion_RUNS.filter((r) => r.status === "failed").length,
         sources: MOCK_SCRAPE_TARGETS.map((t) => ({
           name: t.source?.name || t.name,
           status: t.enabled ? "ACTIVE" : "PAUSED",
           last_success: t.last_discovery_at,
-          today_scraped: MOCK_INGESTION_RUNS
+          today_scraped: MOCK_ingestion_RUNS
             .filter((r) => r.target?.id === t.id && r.finished_at?.startsWith(today))
             .reduce((sum, r) => sum + (r.discovered_count || 0), 0),
         })),
@@ -53,7 +53,7 @@ export const scraperHandlers = [
 
   http.get("*/api/admin/scraper/logs/", () => {
     // Aggregate errors from runs as logs
-    const logs = MOCK_INGESTION_RUNS
+    const logs = MOCK_ingestion_RUNS
       .filter((r) => r.error_summary)
       .map((r, idx) => ({
         id: idx + 1,
@@ -122,14 +122,14 @@ export const scraperHandlers = [
     return HttpResponse.json({ detail: "deleted" }, { status: 204 });
   }),
 
-  // INGESTION RUNS
+  // ingestion RUNS
   http.get("*/api/ingestion/runs/", ({ request }) => {
     const url = new URL(request.url);
     const page = Number(url.searchParams.get("page")) || 1;
     const pageSize = Number(url.searchParams.get("page_size")) || 25;
     const targetId = url.searchParams.get("target");
     const status = url.searchParams.get("status");
-    let results = [...MOCK_INGESTION_RUNS];
+    let results = [...MOCK_ingestion_RUNS];
     if (targetId) results = results.filter((r) => r.target?.id === Number(targetId));
     if (status) results = results.filter((r) => r.status === status);
     return HttpResponse.json(paginate(results, { page, pageSize }), { status: 200 });
@@ -137,7 +137,7 @@ export const scraperHandlers = [
 
   http.get("*/api/ingestion/runs/:id/", ({ params }) => {
     const id = params.id; // UUID string
-    const run = MOCK_INGESTION_RUNS.find((r) => r.id === id);
+    const run = MOCK_ingestion_RUNS.find((r) => r.id === id);
     if (!run) return HttpResponse.json({ detail: "not found" }, { status: 404 });
     return HttpResponse.json(run, { status: 200 });
   }),
@@ -161,7 +161,7 @@ export const scraperHandlers = [
       finished_at: null,
       created_at: new Date().toISOString(),
     };
-    MOCK_INGESTION_RUNS.push(newRun);
+    MOCK_ingestion_RUNS.push(newRun);
     return HttpResponse.json(newRun, { status: 201 });
   }),
 
@@ -170,7 +170,7 @@ export const scraperHandlers = [
     const url = new URL(request.url);
     const page = Number(url.searchParams.get("page")) || 1;
     const pageSize = Number(url.searchParams.get("page_size")) || 25;
-    let results = MOCK_INGESTION_RUN_ITEMS.filter((i) => i.run?.id === id);
+    let results = MOCK_ingestion_RUN_ITEMS.filter((i) => i.run?.id === id);
     return HttpResponse.json(paginate(results, { page, pageSize }), { status: 200 });
   }),
 
@@ -215,7 +215,7 @@ export const scraperHandlers = [
       finished_at: null,
       created_at: new Date().toISOString(),
     };
-    MOCK_INGESTION_RUNS.push(newRun);
+    MOCK_ingestion_RUNS.push(newRun);
     return HttpResponse.json(newRun, { status: 201 });
   }),
 ];

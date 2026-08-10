@@ -12,3 +12,5 @@ export {
   ACTIVITY_LOG_LEVEL_CONFIG,
   ACTIVITY_LOG_OUTCOME_CONFIG,
 } from "./activityLogStatus.config";
+
+export {ACTIVITY_LOG_TABLE_COLUMNS} from "./activityLogTable"

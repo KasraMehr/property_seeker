@@ -1,14 +1,17 @@
 import propertyService from "@/features/properties/services/propertyService";
 import customerService from "@/features/customers/services/customerService";
 import followupService from "@/features/followups/services/followupService";
+import { API_ENDPOINTS } from "../../../constants/apiEndpoints";
+import api from "@/lib/api"
 
 const getAdminStats = async () => {
   try {
-    const [propertiesRes, customersRes, remindersRes] = await Promise.allSettled([
-      propertyService.getAll(),
-      customerService.getAll(),
-      followupService.getAll(),
-    ]);
+    const [propertiesRes, customersRes, remindersRes] =
+      await Promise.allSettled([
+        propertyService.getAll(),
+        customerService.getAll(),
+        followupService.getAll(),
+      ]);
 
     const properties =
       propertiesRes.status === "fulfilled"
@@ -27,9 +30,10 @@ const getAdminStats = async () => {
       data: {
         total_properties: properties.length,
         total_customers: customers.length,
-        pending_followups: reminders.filter((r) => r.status === "pending").length,
+        pending_followups: reminders.filter((r) => r.status === "pending")
+          .length,
         active_listings: properties.filter(
-          (p) => p.status === "active" || p.status === "published"
+          (p) => p.status === "active" || p.status === "published",
         ).length,
       },
     };
@@ -65,7 +69,8 @@ const getOperatorStats = async () => {
     return {
       data: {
         my_properties: properties.length,
-        my_pending_followups: reminders.filter((r) => r.status === "pending").length,
+        my_pending_followups: reminders.filter((r) => r.status === "pending")
+          .length,
       },
     };
   } catch (error) {
@@ -79,9 +84,13 @@ const getOperatorStats = async () => {
   }
 };
 
+const updateProfile = (userId, data) =>
+  api.put(API_ENDPOINTS.ACCOUNTS.USERS.UPDATE(userId).url, data);
+
 const dashboardService = {
   getAdminStats,
   getOperatorStats,
+  updateProfile,
 };
 
 export default dashboardService;

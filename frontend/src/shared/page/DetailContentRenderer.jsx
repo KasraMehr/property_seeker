@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo  ,useEffect } from "react";
 import { Link2, ExternalLink, CheckCircle2, XCircle, User, Building2 } from "lucide-react";
 import StatusBadge from "@/shared/ui/badges/StatusBadge";
 import RoleBadge from "@/shared/ui/badges/RoleBadge";
@@ -20,7 +20,7 @@ import {
   SCRAPE_TARGET_STATUS_CONFIG,
 } from "@/features/scraper-management/config";
 import {
-  ACTIVITY_LOG_ALL_ACTIONS,
+  ACTIVITY_LOG_ACTION_CONFIG,
   ACTIVITY_LOG_SOURCE_CONFIG,
   ACTIVITY_LOG_LEVEL_CONFIG,
   ACTIVITY_LOG_OUTCOME_CONFIG,
@@ -42,7 +42,7 @@ const STATUS_CONFIG_MAP = {
   ingestionRunMode: INGESTION_RUN_MODE_CONFIG,
   ingestionRunItemStatus: INGESTION_RUN_ITEM_STATUS_CONFIG,
   scrapeTargetStatus: SCRAPE_TARGET_STATUS_CONFIG,
-  activityLogAction: ACTIVITY_LOG_ALL_ACTIONS,
+  activityLogAction: ACTIVITY_LOG_ACTION_CONFIG,
   activityLogSource: ACTIVITY_LOG_SOURCE_CONFIG,
   activityLogLevel: ACTIVITY_LOG_LEVEL_CONFIG,
   activityLogOutcome: ACTIVITY_LOG_OUTCOME_CONFIG,

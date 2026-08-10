@@ -16,16 +16,6 @@ const login = async (phone, password) => {
     const errData = error.response?.data;
     let errorMessage = "شماره تلفن یا رمز عبور اشتباه است";
 
-    if (typeof errData === "string") {
-      errorMessage = errData;
-    } else if (errData?.message) {
-      errorMessage = errData.message;
-    } else if (errData?.detail) {
-      errorMessage = errData.detail;
-    } else if (errData?.non_field_errors?.[0]) {
-      errorMessage = errData.non_field_errors[0];
-    }
-
     return {
       success: false,
       error: errorMessage,
