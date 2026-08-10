@@ -240,51 +240,12 @@ export const API_ENDPOINTS = {
     LIST: {
       url: `${API_BASE}/listing/list/`,
       method: "GET",
-      status: "[OK]",
     },
-
     DETAIL: (id) => ({
       url: `${API_BASE}/listing/detail/${id}/`,
       method: "GET",
-      status: "[OK]",
     }),
   },
-  // CREATE: {
-  //   url: `${API_BASE}/listing/create/`,
-  //   method: "POST",
-  //   status: "[PEND]",
-  // },
-  // UPDATE: (id) => ({
-  //   url: `${API_BASE}/listing/update/${id}/`,
-  //   method: "PUT",
-  //   status: "[PEND]",
-  // }),
-  // DELETE: (id) => ({
-  //   url: `${API_BASE}/listing/delete/${id}/`,
-  //   method: "DELETE",
-  //   status: "[PEND]",
-  // }),
-  // ASSIGN: (id) => ({
-  //   url: `${API_BASE}/listing/assign/${id}/`,
-  //   method: "PUT",
-  //   status: "[PEND]",
-  // }),
-  // CONVERT_TO_OWNER: (id) => ({
-  //   url: `${API_BASE}/listing/convert-to-owner/${id}/`,
-  //   method: "POST",
-  //   status: "[PEND]",
-  // }),
-  // CONVERT_TO_PROPERTY: (id) => ({
-  //   url: `${API_BASE}/listing/convert-to-property/${id}/`,
-  //   method: "POST",
-  //   status: "[PEND]",
-  // }),
-  // BULK_CHANGE_REVIEW_STATUS: {
-  //   url: `${API_BASE}/listing/bulk-change-review-status/`,
-  //   method: "PUT",
-  //   status: "[PEND]",
-  // },
-  // },
 
   // 7. CRM
   CRM: {
