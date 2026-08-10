@@ -1,4 +1,4 @@
-from media.models import Media
+from ..models import Media
 
 from .checksum_service import ChecksumService
 from .image_service import ImageService

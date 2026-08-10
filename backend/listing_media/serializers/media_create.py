@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from media.models import Media
+from ..models import Media
 
 
 class MediaCreateSerializer(serializers.ModelSerializer):

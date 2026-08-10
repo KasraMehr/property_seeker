@@ -5,14 +5,14 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from media.selector.media_selector import MediaSelector
-from media.serializers.media_create import MediaCreateSerializer
-from media.serializers.media_detail import MediaDetailSerializer
-from media.serializers.media_list import MediaListSerializer
-from media.serializers.media_update import MediaUpdateSerializer
-from media.services.delete_service import DeleteService
-from media.services.update_service import UpdateService
-from media.services.upload_service import UploadService
+from listing_media.selector.media_selector import MediaSelector
+from listing_media.serializers.media_create import MediaCreateSerializer
+from listing_media.serializers.media_detail import MediaDetailSerializer
+from  listing_media.serializers.media_list import MediaListSerializer
+from listing_media.serializers.media_update import MediaUpdateSerializer
+from listing_media.services.delete_service import DeleteService
+from listing_media.services.update_service import UpdateService
+from listing_media.services.upload_service import UploadService
 
 
 class MediaCreateView(APIView):
