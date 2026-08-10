@@ -1,8 +1,3 @@
-# syntax=docker/dockerfile:1
-
-# ==============================================================
-# BASE — shared by both dev and production
-# ==============================================================
 FROM python:3.13-slim AS base
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
