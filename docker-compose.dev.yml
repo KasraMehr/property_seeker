@@ -1,0 +1,120 @@
+# Local development stack — uses the "dev" target from the
+# multi-stage Dockerfile (no collectstatic, no non-root user,
+# runserver instead of gunicorn). Every value below has a safe
+# insecure-but-working default matching .env.local, so this runs
+# with zero required setup — unlike docker-compose.yml (production),
+# nothing here uses ${VAR:?...}.
+#
+# Uses sqlite, same as .env.local — no postgres service here. The
+# db.sqlite3 file lives inside ./backend, which is already bind-
+# mounted into every container below, so it persists across
+# `docker compose down` / rebuilds without needing a separate volume.
+#
+# Usage:
+#   docker compose -f docker-compose.dev.yml up --build
+
+services:
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data_dev:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  migrate:
+    build:
+      context: ./backend
+      target: dev
+    environment: &backend_environment
+      DB_ENGINE: django.db.backends.sqlite3
+      # Path is relative to WORKDIR (/app), which is where ./backend
+      # is bind-mounted — so this resolves to the same db.sqlite3
+      # file you already use for `manage.py runserver` on the host.
+      SQLITE_PATH: ${SQLITE_PATH:-db.sqlite3}
+
+      REDIS_URL: redis://redis:6379/0
+
+      SECRET_KEY: ${SECRET_KEY:-django-insecure-local-key}
+      DEBUG: ${DEBUG:-True}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-localhost,127.0.0.1}
+
+      SECURE_SSL_REDIRECT: ${SECURE_SSL_REDIRECT:-False}
+      SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-False}
+      CSRF_COOKIE_SECURE: ${CSRF_COOKIE_SECURE:-False}
+      AUTH_COOKIE_SECURE: ${AUTH_COOKIE_SECURE:-False}
+
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}
+      CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}
+
+      CELERY_TIMEZONE: ${CELERY_TIMEZONE:-Asia/Tehran}
+      DIVAR_REQUEST_INTERVAL_SECONDS: ${DIVAR_REQUEST_INTERVAL_SECONDS:-2.5}
+    volumes:
+      - ./backend:/app
+    command: ["python", "manage.py", "migrate", "--noinput"]
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  web:
+    build:
+      context: ./backend
+      target: dev
+    environment: *backend_environment
+    volumes:
+      # Bind-mounting the whole working tree over /app is what makes
+      # this "dev": edit code on the host, StatReloader inside the
+      # container picks it up immediately — no rebuild needed unless
+      # requirements.txt changes. It's also what makes db.sqlite3
+      # persist and stay shared with the host.
+      - ./backend:/app
+    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+    ports:
+      - "8000:8000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  worker:
+    build:
+      context: ./backend
+      target: dev
+    environment: *backend_environment
+    volumes:
+      - ./backend:/app
+    command: ["celery", "-A", "amlak", "worker", "-Q", "default", "--concurrency=2", "--loglevel=INFO"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  scraper-worker:
+    build:
+      context: ./backend
+      target: dev
+    environment: *backend_environment
+    volumes:
+      - ./backend:/app
+    command: ["celery", "-A", "amlak", "worker", "-Q", "scraping", "--concurrency=1", "--loglevel=INFO"]
+    shm_size: 1gb
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  beat:
+    build:
+      context: ./backend
+      target: dev
+    environment: *backend_environment
+    volumes:
+      - ./backend:/app
+    command: ["celery", "-A", "amlak", "beat", "--loglevel=INFO", "--schedule=/tmp/celerybeat-schedule"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+volumes:
+  redis_data_dev:

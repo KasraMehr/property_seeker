@@ -1,92 +1,369 @@
+
+# ============================================================
+# PRODUCTION DOCKER COMPOSE
+# ============================================================
+#
+# Architecture:
+#
+# Browser
+#    │
+#    │ http://188.240.196.221
+#    ▼
+# frontend (Nginx :80)
+#    │
+#    ├── /              → React/Vite
+#    ├── /api/          → backend:8000
+#    ├── /admin/        → backend:8000
+#    ├── /static/       → /app/staticfiles
+#    └── /media/        → /app/media
+#
+# backend (Gunicorn :8000)
+#    │
+#    ├── postgres
+#    └── redis
+#
+# No HTTPS yet.
+# No domain yet.
+# ============================================================
+
+
 services:
+
+  # ==========================================================
+  # POSTGRESQL
+  # ==========================================================
+
   postgres:
     image: postgres:17-alpine
+    restart: unless-stopped
+
     ports:
       - "127.0.0.1:${DB_PORT_HOST:-5433}:5432"
+
     environment:
       POSTGRES_DB: ${DB_NAME:-property_seeker}
       POSTGRES_USER: ${DB_USER:-property_seeker}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-property_seeker}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in your .env file}
+
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-property_seeker} -d ${DB_NAME:-property_seeker}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${DB_USER:-property_seeker} -d ${DB_NAME:-property_seeker}"
+        ]
       interval: 5s
       timeout: 5s
       retries: 10
 
+
+  # ==========================================================
+  # REDIS
+  # ==========================================================
+
   redis:
     image: redis:7-alpine
-    command: ["redis-server", "--appendonly", "yes"]
+    restart: unless-stopped
+
+    command:
+      - redis-server
+      - --appendonly
+      - "yes"
+
     volumes:
       - redis_data:/data
+
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test:
+        [
+          "CMD",
+          "redis-cli",
+          "ping"
+        ]
       interval: 5s
       timeout: 3s
       retries: 10
 
+
+  # ==========================================================
+  # DATABASE MIGRATIONS
+  # ==========================================================
+
   migrate:
-    build: ./backend
+    build:
+      context: ./backend
+      target: production
+
     environment: &backend_environment
+
+      # -----------------------------
+      # Django
+      # -----------------------------
+
+      SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY in your .env file}
+      DEBUG: "False"
+
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS:?Set ALLOWED_HOSTS in your .env file}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:?Set CORS_ALLOWED_ORIGINS in your .env file}
+      CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS:?Set CSRF_TRUSTED_ORIGINS in your .env file}
+
+
+      # -----------------------------
+      # PostgreSQL
+      # -----------------------------
+
       DB_ENGINE: django.db.backends.postgresql
       DB_HOST: postgres
-      DB_PORT: 5432
+      DB_PORT: "5432"
       DB_NAME: ${DB_NAME:-property_seeker}
       DB_USER: ${DB_USER:-property_seeker}
-      DB_PASSWORD: ${DB_PASSWORD:-property_seeker}
+      DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in your .env file}
+
+
+      # -----------------------------
+      # Redis / Celery
+      # -----------------------------
+
       REDIS_URL: redis://redis:6379/0
-      SECRET_KEY: ${SECRET_KEY:-unsafe-compose-development-key-change-before-deployment-2026}
-      DEBUG: ${DEBUG:-false}
-      SECURE_SSL_REDIRECT: ${SECURE_SSL_REDIRECT:-false}
-      SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-false}
-      CSRF_COOKIE_SECURE: ${CSRF_COOKIE_SECURE:-false}
-      AUTH_COOKIE_SECURE: ${AUTH_COOKIE_SECURE:-false}
-    command: ["python", "manage.py", "migrate", "--noinput"]
+
+      CELERY_TIMEZONE: ${CELERY_TIMEZONE:-Asia/Tehran}
+
+      DIVAR_REQUEST_INTERVAL_SECONDS: ${DIVAR_REQUEST_INTERVAL_SECONDS:-2.5}
+
+
+      # -----------------------------
+      # No SSL yet
+      # -----------------------------
+
+      SECURE_SSL_REDIRECT: "False"
+      SESSION_COOKIE_SECURE: "False"
+      CSRF_COOKIE_SECURE: "False"
+      AUTH_COOKIE_SECURE: "False"
+
+    command:
+      - python
+      - manage.py
+      - migrate
+      - --noinput
+
     depends_on:
       postgres:
         condition: service_healthy
+
       redis:
         condition: service_healthy
 
-  web:
-    build: ./backend
+
+  # ==========================================================
+  # DJANGO BACKEND
+  # ==========================================================
+
+  backend:
+    build:
+      context: ./backend
+      target: production
+
+    restart: unless-stopped
+
     environment: *backend_environment
-    command: ["gunicorn", "amlak.wsgi:application", "--bind", "0.0.0.0:8000"]
-    ports:
-      - "8000:8000"
+
+    command:
+      - gunicorn
+      - amlak.wsgi:application
+      - --bind
+      - 0.0.0.0:8000
+      - --workers
+      - "3"
+      - --timeout
+      - "60"
+      - --access-logfile
+      - "-"
+      - --error-logfile
+      - "-"
+
+    # ----------------------------------------------------------
+    # IMPORTANT:
+    # Do NOT publish 8000 to the host.
+    # Nginx reaches backend internally using:
+    #
+    # http://backend:8000
+    # ----------------------------------------------------------
+
+    expose:
+      - "8000"
+
+    # ----------------------------------------------------------
+    # Shared volumes
+    #
+    # collectstatic is executed in the production Dockerfile.
+    # Docker copies the image contents into a newly-created named
+    # volume on first mount.
+    # ----------------------------------------------------------
+
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "-f",
+          "http://localhost:8000/admin/login/"
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
     depends_on:
       migrate:
         condition: service_completed_successfully
+
+
+  # ==========================================================
+  # CELERY WORKER
+  # ==========================================================
 
   worker:
-    build: ./backend
+    build:
+      context: ./backend
+      target: production
+
+    restart: unless-stopped
+
     environment: *backend_environment
-    command: ["celery", "-A", "amlak", "worker", "-Q", "default", "--concurrency=2", "--loglevel=INFO"]
+
+    command:
+      - celery
+      - -A
+      - amlak
+      - worker
+      - -Q
+      - default
+      - --concurrency=2
+      - --loglevel=INFO
+
     depends_on:
       migrate:
         condition: service_completed_successfully
+
+
+  # ==========================================================
+  # CELERY SCRAPER WORKER
+  # ==========================================================
 
   scraper-worker:
-    build: ./backend
+    build:
+      context: ./backend
+      target: production
+
+    restart: unless-stopped
+
     environment: *backend_environment
-    command: ["celery", "-A", "amlak", "worker", "-Q", "scraping", "--concurrency=1", "--loglevel=INFO"]
+
+    command:
+      - celery
+      - -A
+      - amlak
+      - worker
+      - -Q
+      - scraping
+      - --concurrency=1
+      - --loglevel=INFO
+
     shm_size: 1gb
+
     depends_on:
       migrate:
         condition: service_completed_successfully
+
+
+  # ==========================================================
+  # CELERY BEAT
+  # ==========================================================
 
   beat:
-    build: ./backend
+    build:
+      context: ./backend
+      target: production
+
+    restart: unless-stopped
+
     environment: *backend_environment
-    command: ["celery", "-A", "amlak", "beat", "--loglevel=INFO", "--schedule=/tmp/celerybeat-schedule"]
+
+    command:
+      - celery
+      - -A
+      - amlak
+      - beat
+      - --loglevel=INFO
+      - --schedule=/tmp/celerybeat-schedule
+
     depends_on:
       migrate:
         condition: service_completed_successfully
 
+
+  # ==========================================================
+  # FRONTEND + NGINX
+  # ==========================================================
+  #
+  # The frontend Dockerfile:
+  #
+  # Node → npm install → npm run build
+  #                     ↓
+  #                    dist
+  #                     ↓
+  #                 Nginx :80
+  #
+  # Nginx also reverse-proxies:
+  #
+  # /api/    → backend:8000
+  # /admin/  → backend:8000
+  #
+  # and directly serves:
+  #
+  # /static/ → /app/staticfiles
+  # /media/  → /app/media
+  # ==========================================================
+
+  frontend:
+    build:
+      context: ./frontend
+
+    restart: unless-stopped
+
+    ports:
+      - "80:80"
+
+    volumes:
+      # IMPORTANT:
+      # These paths must match the aliases in frontend/nginx.conf
+
+      - static_volume:/app/staticfiles:ro
+      - media_volume:/app/media:ro
+
+    depends_on:
+      backend:
+        condition: service_healthy
+
+
+# ============================================================
+# NAMED VOLUMES
+# ============================================================
+
 volumes:
+
   postgres_data:
+
   redis_data:
 
+  static_volume:
+
+  media_volume:
 
 
