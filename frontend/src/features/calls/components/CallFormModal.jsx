@@ -1,8 +1,6 @@
 import { useState } from "react";
-
 import Modal from "@/shared/ui/modal/Modal";
 import FormRenderer from "@/shared/page/FormRenderer";
-
 import { CALL_FORM } from "@/features/calls/config";
 import callService from "@/features/calls/services/callService";
 
@@ -24,12 +22,20 @@ export default function CallFormModal({
       const payload = {
         customer: Number(values.customer),
         property: values.property ? Number(values.property) : null,
+        listing: values.listing ? Number(values.listing) : null,
         call_type: values.call_type,
         result: values.result,
         note: values.note || "",
-        called_at: values.called_at ? new Date(values.called_at).toISOString() : new Date().toISOString(),
-        call_duration: values.call_duration ? Number(values.call_duration) : null,
-        next_follow_up_at: values.next_follow_up_at ? new Date(values.next_follow_up_at).toISOString() : null,
+        called_at: values.called_at
+          ? new Date(values.called_at).toISOString()
+          : new Date().toISOString(),
+        call_duration: values.call_duration
+          ? Number(values.call_duration)
+          : 0,
+        next_follow_up_at: values.next_follow_up_at
+          ? new Date(values.next_follow_up_at).toISOString()
+          : null,
+        follow_up_done: values.follow_up_done ?? false,
       };
 
       if (isEdit) {
@@ -40,10 +46,34 @@ export default function CallFormModal({
 
       onSuccess?.();
       onClose();
+    } catch (error) {
+      console.error("Call form submit error:", error);
+      // اگر toast داری اینجا نمایش بده
     } finally {
       setLoading(false);
     }
   };
+
+  // تبدیل داده‌های اولیه برای فرم (مخصوصاً در حالت Edit)
+  const defaultValues = call
+    ? {
+        ...call,
+        customer: call.customer?.id ?? call.customer,
+        property: call.property?.id ?? call.property,
+        listing: call.listing?.id ?? call.listing,
+        called_at: call.called_at
+          ? call.called_at.slice(0, 16) // برای input datetime-local
+          : "",
+        next_follow_up_at: call.next_follow_up_at
+          ? call.next_follow_up_at.slice(0, 16)
+          : "",
+      }
+    : {
+        call_type: "outgoing",
+        result: "answered",
+        call_duration: 0,
+        follow_up_done: false,
+      };
 
   return (
     <Modal
@@ -54,7 +84,7 @@ export default function CallFormModal({
     >
       <FormRenderer
         config={CALL_FORM}
-        defaultValues={call || {}}
+        defaultValues={defaultValues}
         mode={isEdit ? "edit" : "create"}
         onSubmit={handleSubmit}
         onCancel={onClose}

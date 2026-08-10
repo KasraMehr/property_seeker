@@ -1,23 +1,42 @@
 import api from "@/lib/api";
 import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 
-const getDaily = () => api.get(API_ENDPOINTS.ADMIN.REPORTS.DAILY.url);
+// Agency owner only
+const getDashboard = () =>
+  api.get(API_ENDPOINTS.REPORT.DASHBOARD.url);
 
-const getWeekly = () => api.get(API_ENDPOINTS.ADMIN.REPORTS.WEEKLY.url);
+const getStatistics = (params) =>
+  api.get(API_ENDPOINTS.REPORT.STATISTICS.url, { params });
 
-const getMonthly = () => api.get(API_ENDPOINTS.ADMIN.REPORTS.MONTHLY.url);
+const getPropertyReport = (params) =>
+  api.get(API_ENDPOINTS.REPORT.PROPERTIES.url, { params });
 
-const getStats = () => api.get(API_ENDPOINTS.ADMIN.DASHBOARD.STATS.url);
+const getMonthlyDealsChart = (params) =>
+  api.get(API_ENDPOINTS.REPORT.CHARTS.MONTHLY_DEALS.url, { params });
 
-const getOperatorStats = () =>
-  api.get(API_ENDPOINTS.ADMIN.DASHBOARD.OPERATOR_STATS.url);
+const getRevenueChart = (params) =>
+  api.get(API_ENDPOINTS.REPORT.CHARTS.REVENUE.url, { params });
 
-const reportService = {
-  getDaily,
-  getWeekly,
-  getMonthly,
-  getStats,
-  getOperatorStats,
+const getEmployeesTop = (params) =>
+  api.get(API_ENDPOINTS.REPORT.EMPLOYEES_TOP.url, { params });
+
+const getCustomersMonthly = (params) =>
+  api.get(API_ENDPOINTS.REPORT.CUSTOMERS_MONTHLY.url, { params });
+
+const getPropertiesMonthly = (params) =>
+  api.get(API_ENDPOINTS.REPORT.PROPERTIES_MONTHLY.url, { params });
+
+const getFinancial = (params) =>
+  api.get(API_ENDPOINTS.REPORT.FINANCIAL.url, { params });
+
+export default {
+  getDashboard,
+  getStatistics,
+  getPropertyReport,
+  getMonthlyDealsChart,
+  getRevenueChart,
+  getEmployeesTop,
+  getCustomersMonthly,
+  getPropertiesMonthly,
+  getFinancial,
 };
-
-export default reportService;

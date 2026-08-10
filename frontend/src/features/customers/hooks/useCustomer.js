@@ -5,7 +5,8 @@ import customerService from "../services/customerService";
 import { CUSTOMER_ALL_FILTERS } from "../config";
 
 export default function useCustomer() {
-  const { fetchList, ...resourceState } = useResource(customerService);
+  const { fetchList, remove, ...resourceState } = useResource(customerService);
+
   const query = useResourceQuery({
     filterSchema: CUSTOMER_ALL_FILTERS,
     pageSize: 25,
@@ -18,7 +19,7 @@ export default function useCustomer() {
       didFetch.current = true;
       fetchList(query.queryParams);
     }
-  }, []); // eslint-disable-line
+  }, []);
 
   const prevQueryRef = useRef(null);
   useEffect(() => {
@@ -33,9 +34,16 @@ export default function useCustomer() {
     fetchList(query.queryParams);
   }, [fetchList, query.queryParams]);
 
+  const getById = useCallback(async (id) => {
+    const res = await customerService.getById(id);
+    return res.data;
+  }, []);
+
   return {
     ...resourceState,
     fetchList,
+    remove,
+    getById,
     filters: query.filters,
     setFilter: query.setFilter,
     clearFilter: query.clearFilter,

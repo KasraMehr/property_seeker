@@ -1,5 +1,9 @@
 import StatusBadge from "@/shared/ui/badges/StatusBadge";
-import { PROPERTY_STATUS_CONFIG , PROPERTY_DEAL_TYPE_CONFIG } from "@/features/properties/config";
+import {
+  PROPERTY_STATUS_CONFIG,
+  PROPERTY_DEAL_TYPE_CONFIG,
+} from "@/features/properties/config";
+import {buildStatusConfig} from "@/constants/status.utils"
 import { formatPrice } from "@/utils/formatters";
 
 /**
@@ -78,9 +82,8 @@ export const PROPERTY_TABLE_COLUMNS = [
     key: "status",
     header: "وضعیت",
     width: "w-24",
-    filterKey: "status",
     cell: ({ status }) => (
-      <StatusBadge status={status} config={PROPERTY_STATUS_CONFIG} />
+      <StatusBadge config={buildStatusConfig(PROPERTY_STATUS_CONFIG, status)} />
     ),
   },
   {

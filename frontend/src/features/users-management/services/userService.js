@@ -22,7 +22,6 @@ const bulkChangeRole = (ids, roleId) =>
 const bulkToggleActive = (ids, isActive, note) =>
   api.put(API_ENDPOINTS.ACCOUNTS.USERS.BULK_TOGGLE_ACTIVE.url, { ids, is_active: isActive, note });
 
-// TODO: RESET PASSWORD METHOD
 const userService = {
   getAll,
   getById,

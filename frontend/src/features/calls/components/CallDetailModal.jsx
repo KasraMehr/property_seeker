@@ -1,4 +1,4 @@
-import { useState, useMemo , useEffect} from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Phone, User, Mic } from "lucide-react";
 import Modal from "@/shared/ui/modal/Modal";
 import Button from "@/shared/ui/Button";
@@ -15,11 +15,11 @@ import { DetailFieldGrid } from "@/shared/page/DetailContentRenderer";
 export default function CallDetailModal({ isOpen, onClose, call }) {
   const [activeTab, setActiveTab] = useState("call");
 
-  if (!call) return null;
-
   useEffect(() => {
     if (isOpen) setActiveTab("call");
   }, [isOpen, call?.id]);
+
+  if (!call) return null;
 
   return (
     <Modal

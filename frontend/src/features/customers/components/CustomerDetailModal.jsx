@@ -7,7 +7,7 @@ import StatusBadge from "@/shared/ui/badges/StatusBadge";
 import {
   CUSTOMER_TYPE_CONFIG,
   CUSTOMER_STATUS_CONFIG,
-  CUSTUMER_DETAIL_FIELDS,
+  CUSTOMER_DETAIL_FIELDS,
 } from "@/features/customers/config";
 import { DetailFieldGrid } from "@/shared/page/DetailContentRenderer";
 

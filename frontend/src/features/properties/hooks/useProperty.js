@@ -9,7 +9,7 @@ export default function useProperty() {
 
   const query = useResourceQuery({
     filterSchema: PROPERTY_ALL_FILTERS,
-    pageSize: 25,
+    // pageSize: 25,
     initialOrdering: "-created_at",
   });
 
@@ -27,10 +27,7 @@ export default function useProperty() {
   useEffect(() => {
     const qs = JSON.stringify(query.queryParams);
 
-    if (
-      prevQueryRef.current !== null &&
-      prevQueryRef.current !== qs
-    ) {
+    if (prevQueryRef.current !== null && prevQueryRef.current !== qs) {
       fetchList(query.queryParams);
     }
 
@@ -46,15 +43,29 @@ export default function useProperty() {
       await propertyService.bulkDelete(ids);
       await fetchList(query.queryParams);
     },
-    [fetchList, query.queryParams]
+    [fetchList, query.queryParams],
+  );
+
+  const remove = useCallback(
+    async (idOrIds) => {
+      const ids = Array.isArray(idOrIds) ? idOrIds : [idOrIds];
+      if (!ids.length) return;
+      await propertyService.bulkDelete(ids);
+      await fetchList(query.queryParams);
+    },
+    [fetchList, query.queryParams],
   );
 
   return {
     ...resourceState,
-
     fetchList,
-    bulkDelete,
-
+    remove,
+    bulkDelete: remove,
+    getById: async (id) => {
+      const res = await propertyService.getById(id);
+      return res?.data ?? res;
+    },
+    
     filters: query.filters,
     setFilter: query.setFilter,
     clearFilter: query.clearFilter,

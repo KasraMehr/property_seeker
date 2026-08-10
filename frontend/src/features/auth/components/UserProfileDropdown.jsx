@@ -19,10 +19,10 @@ export default function UserProfileDropdown({
 }) {
   const { user, logout } = useAuth();
   const roleName = user?.is_owner
-  ? "owner"
-  : Array.isArray(user?.role) && user.role.length > 0
-    ? user.role[0]?.name
-    : "operator";
+    ? "owner"
+    : Array.isArray(user?.role)
+      ? user.role[0]?.name || "operator"
+      : user?.role?.name || "operator";
   const navigate = useNavigate();
 
   const location = useLocation();
@@ -37,11 +37,6 @@ export default function UserProfileDropdown({
   const dropdownRef = useRef(null);
 
   const { modal, openModal, closeModal } = useModal();
-
-  if (!user) return null;
-
-  const avatarLetter = user.full_name?.charAt(0)?.toUpperCase() || "U";
-
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -98,6 +93,10 @@ export default function UserProfileDropdown({
     setIsOpen(false);
   };
 
+  if (!user) return null;
+
+  const avatarLetter = user.full_name?.charAt(0)?.toUpperCase() || "U";
+
   return (
     <>
       <div
@@ -147,7 +146,7 @@ export default function UserProfileDropdown({
                 {user.full_name}
               </p>
 
-              <RoleBadge role = {roleName}/>
+              <RoleBadge role={roleName} />
             </div>
           )}
 
@@ -214,7 +213,7 @@ export default function UserProfileDropdown({
                 </p>
 
                 {/* <p className="mt-1 truncate text-xs text-muted">{roleLabel}</p> */}
-              <RoleBadge role = {roleName} />
+                <RoleBadge role={roleName} />
               </div>
             </div>
 

@@ -260,7 +260,7 @@ export const API_ENDPOINTS = {
       CREATE: { url: `${API_BASE}/calls/`, method: "POST", status: "[OK]" },
       UPDATE: (id) => ({
         url: `${API_BASE}/calls/${id}/update/`,
-        method: "PUT",
+        method: "PATCH",
         status: "[OK]",
       }),
       DELETE: (id) => ({
@@ -529,6 +529,38 @@ export const API_ENDPOINTS = {
         status: "[MOCK]",
       },
     },
+  },
+
+  REPORT: {
+    DASHBOARD: {
+      url: `${API_BASE}/dashboard/`,
+      method: "GET",
+      status: "[OK]", // فقط agency owner
+    },
+    STATISTICS: {
+      url: `${API_BASE}/statistics/`,
+      method: "GET",
+      status: "[OK]",
+    },
+    PROPERTIES: {
+      url: `${API_BASE}/report/properties/`,
+      method: "GET",
+      status: "[OK]",
+    },
+    CHARTS: {
+      MONTHLY_DEALS: {
+        url: `${API_BASE}/charts/monthly-deals/`,
+        method: "GET",
+      },
+      REVENUE: { url: `${API_BASE}/charts/revenue/`, method: "GET" },
+    },
+    EMPLOYEES_TOP: { url: `${API_BASE}/employees/top/`, method: "GET" },
+    CUSTOMERS_MONTHLY: { url: `${API_BASE}/customers/monthly/`, method: "GET" },
+    PROPERTIES_MONTHLY: {
+      url: `${API_BASE}/properties/monthly/`,
+      method: "GET",
+    },
+    FINANCIAL: { url: `${API_BASE}/financial/`, method: "GET" },
   },
 
   // 16. INGESTION (scraper pipeline - backend model exists, views pending)

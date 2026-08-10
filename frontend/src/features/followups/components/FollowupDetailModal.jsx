@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { ClipboardList, UserCircle, CheckCircle2, Clock } from "lucide-react";
+import { ClipboardList, CheckCircle2, Clock } from "lucide-react";
 import Modal from "@/shared/ui/modal/Modal";
 import Button from "@/shared/ui/Button";
 import Tabs from "@/shared/ui/Tabs";
@@ -7,21 +7,22 @@ import StatusBadge from "@/shared/ui/badges/StatusBadge";
 import {
   FOLLOWUP_TYPE_CONFIG,
   FOLLOWUP_STATUS_CONFIG,
-} from "@/features/followups/config";
-import {
   FOLLOWUP_DETAIL_TABS,
   FOLLOWUP_DETAIL_FIELDS,
 } from "@/features/followups/config";
 import { DetailFieldGrid } from "@/shared/page/DetailContentRenderer";
 
-export default function FollowupDetailModal({ isOpen, onClose, followup }) {
+export default function FollowupDetailModal({
+  isOpen,
+  onClose,
+  followup,
+  onMarkDone, // اختیاری: اگر از بیرون بخوای mark done کنی
+}) {
   const [activeTab, setActiveTab] = useState("details");
 
-  if (!followup) return null;
-
-  const hasCustomer = !!followup.customer;
-
+  // همیشه قبل از هر early return باید hookها صدا زده بشن
   const availableTabs = useMemo(() => {
+    if (!followup) return [];
     return FOLLOWUP_DETAIL_TABS.filter((tab) => {
       if (tab.condition && typeof tab.condition === "function") {
         return tab.condition(followup);
@@ -31,11 +32,17 @@ export default function FollowupDetailModal({ isOpen, onClose, followup }) {
   }, [followup]);
 
   useEffect(() => {
-    if (isOpen) setActiveTab("details");
+    if (isOpen) {
+      setActiveTab("details");
+    }
   }, [isOpen, followup?.id]);
 
+  if (!followup) return null;
+
   const isOverdue =
-    followup.status === "pending" && new Date(followup.due_at) < new Date();
+    followup.status === "pending" &&
+    followup.due_at &&
+    new Date(followup.due_at) < new Date();
 
   return (
     <Modal
@@ -45,10 +52,12 @@ export default function FollowupDetailModal({ isOpen, onClose, followup }) {
       title="جزئیات پیگیری"
       className="h-[75vh]"
     >
-      {/* Header */}
+      {/* ─── Header ─── */}
       <div className="flex shrink-0 items-center gap-3 mb-4 pb-4 border-b border-border">
         <div
-          className={`w-10 h-10 rounded-full flex items-center justify-center ${isOverdue ? "bg-danger/10" : "bg-amber-500/10"}`}
+          className={`w-10 h-10 rounded-full flex items-center justify-center ${
+            isOverdue ? "bg-danger/10" : "bg-amber-500/10"
+          }`}
         >
           {isOverdue ? (
             <Clock className="w-5 h-5 text-danger" />
@@ -56,11 +65,13 @@ export default function FollowupDetailModal({ isOpen, onClose, followup }) {
             <ClipboardList className="w-5 h-5 text-amber-500" />
           )}
         </div>
+
         <div className="min-w-0 flex-1">
           <h3 className="text-base font-bold text-foreground truncate">
-            {followup.title}
+            {followup.title || "—"}
           </h3>
-          <div className="flex items-center gap-2 mt-1">
+
+          <div className="flex items-center gap-2 mt-1 flex-wrap">
             <StatusBadge
               status={followup.type}
               config={FOLLOWUP_TYPE_CONFIG}
@@ -82,7 +93,7 @@ export default function FollowupDetailModal({ isOpen, onClose, followup }) {
         </div>
       </div>
 
-      {/* Tabs */}
+      {/* ─── Tabs ─── */}
       <Tabs
         value={activeTab}
         onValueChange={setActiveTab}
@@ -105,30 +116,23 @@ export default function FollowupDetailModal({ isOpen, onClose, followup }) {
             />
           </Tabs.Content>
 
-          <Tabs.Content value="customer">
-            <DetailFieldGrid
-              data={followup}
-              sections={FOLLOWUP_CUSTOMER_FIELDS}
-              emptyText="مشتری مرتبطی ثبت نشده"
-            />
-          </Tabs.Content>
         </div>
       </Tabs>
 
-      {/* Footer */}
+      {/* ─── Footer ─── */}
       <div className="shrink-0 flex justify-end gap-2 pt-4 border-t border-border">
         <Button variant="outline" size="sm" onClick={onClose}>
           بستن
         </Button>
-        {followup.status === "pending" && (
+
+        {followup.status === "pending" && onMarkDone && (
           <Button
             variant="primary"
             size="sm"
-            onClick={() => {
-              /* mark done */
-            }}
+            className="gap-1.5"
+            onClick={() => onMarkDone(followup)}
           >
-            <CheckCircle2 size={14} className="ml-1" />
+            <CheckCircle2 size={14} />
             انجام شد
           </Button>
         )}

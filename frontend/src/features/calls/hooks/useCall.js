@@ -6,8 +6,9 @@ import { CALL_ALL_FILTERS } from "../config";
 
 export default function useCall() {
   const { fetchList, remove, ...resourceState } = useResource(callService);
+
   const query = useResourceQuery({
-    filterSchema: CALL_ALL_FILTERS,  
+    filterSchema: CALL_ALL_FILTERS,
     pageSize: 25,
     initialOrdering: "-called_at",
   });
@@ -18,7 +19,7 @@ export default function useCall() {
       didFetch.current = true;
       fetchList(query.queryParams);
     }
-  }, []); // eslint-disable-line
+  }, []);
 
   const prevQueryRef = useRef(null);
   useEffect(() => {
@@ -33,13 +34,11 @@ export default function useCall() {
     fetchList(query.queryParams);
   }, [fetchList, query.queryParams]);
 
-  /* ─── Detail (fetch full object for modal) ─── */
   const getById = useCallback(async (id) => {
     const res = await callService.getById(id);
     return res.data;
   }, []);
 
-  /* ─── Mark follow-up done ─── */
   const markFollowUpDone = useCallback(
     async (id) => {
       await callService.update(id, { follow_up_done: true });
@@ -48,10 +47,9 @@ export default function useCall() {
     [refresh]
   );
 
-  /* ─── Bulk delete ─── */
   const bulkRemove = useCallback(
     async (ids) => {
-      await Promise.all(ids.map((id) => callService.remove(id)));
+      await callService.bulkRemove(ids);
       refresh();
     },
     [refresh]
@@ -60,7 +58,7 @@ export default function useCall() {
   return {
     ...resourceState,
     fetchList,
-    remove,
+    remove, 
     getById,
     markFollowUpDone,
     bulkRemove,

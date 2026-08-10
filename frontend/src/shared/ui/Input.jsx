@@ -39,7 +39,7 @@ const Input = forwardRef(
           <input
             ref={ref}
             type={inputType}
-            placeholder={placeholder || " "}
+            placeholder={placeholder}
             dir={inputDir}
             onFocus={onFocus}
             className={`
