@@ -50,7 +50,6 @@ COPY . .
 # hashed/compressed static manifest into the image so `web` doesn't
 # need to run it (and doesn't need write access to the image) at
 # container start.
-RUN python manage.py collectstatic --noinput
 
 # Run as a non-root user. Chromium/selenium-driven scraping and a
 # public-facing gunicorn process are exactly the kind of thing you
