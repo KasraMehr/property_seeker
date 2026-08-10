@@ -212,6 +212,8 @@ services:
           "CMD",
           "curl",
           "-f",
+          "-H",
+          "Host: 188.240.196.221",
           "http://localhost:8000/admin/login/"
         ]
       interval: 15s
