@@ -1,16 +1,56 @@
-# React + Vite
+# Property Seeker — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React frontend for the Property Seeker real-estate CRM.
 
-Currently, two official plugins are available:
+## Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- React 19 + Vite 8
+- Tailwind CSS 4
+- React Router 7
+- Zustand, Axios, React Hook Form
+- Framer Motion, Lucide React
 
-## React Compiler
+## Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Auth (login / logout / token refresh)
+- Admin & Operator dashboards
+- Properties, Listings (leads), Owners
+- Customers, Calls, Follow-ups
+- Users & Roles
+- Regions (locations)
+- Activity log, Scraper, Reports
+- Public landing page
 
-## Expanding the ESLint configuration
+## Setup
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+cd frontend
+npm install
+Create .env:
+envVITE_API_BASE_URL=http://localhost:8000/api
+Bashnpm run dev      # http://127.0.0.1:5173
+npm run build
+npm run preview
+npm run lint
+Structure
+textsrc/
+├── app/              # App shell & router
+├── features/         # auth, properties, listings, customers, calls,
+│                     # followups, owners, users, regions, dashboard...
+├── shared/           # ResourceTemplate, UI, table, filters, access
+├── constants/        # apiEndpoints, permissions, roleConfig
+├── lib/              # axios instance, toast
+├── routes/           # adminRoutes, operatorRoutes, guards
+├── store/            # auth & theme (Zustand)
+└── utils/
+Conventions
+
+Backend is the source of truth — match endpoints, methods, and response shapes
+All API URLs live in src/constants/apiEndpoints.js ([OK] / [PEND] / [MOCK])
+List pages use: service → useXxx hook → ResourceTemplate + config
+Path alias: @ → src/
+Auth via JWT + Zustand; routes split by role (admin / operator)
+
+Docker
+Bashdocker build -t property-seeker-frontend ./frontend
+docker run -p 80:80 property-seeker-frontend
