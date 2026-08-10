@@ -55,8 +55,8 @@ api.interceptors.response.use(
     isRefreshing = true;
 
     try {
-      await axios.post(
-        API_ENDPOINTS.AUTH.REFRESH.url,
+      await api.post(
+        `${API_BASE_URL}${API_ENDPOINTS.AUTH.REFRESH.url}`,
         {},
         { withCredentials: true },
       );
