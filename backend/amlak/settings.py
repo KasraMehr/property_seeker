@@ -18,19 +18,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 def env_bool(name, default=False):
-    value = os.environ.get(name)
-
+    value = config(name, default=None)
     if value is None:
         return default
-
-    return value.strip().lower() in {
-        "1",
-        "true",
-        "yes",
-        "on",
-        "debug",
-        "development",
-    }
+    if isinstance(value, bool):
+        return value
+    return str(value).strip().lower() in {"1", "true", "yes", "on"}
 
 
 # ============================================================
