@@ -27,15 +27,6 @@ export const CALL_ROW_ACTIONS = [
     modal: "detail",
   },
   {
-    key: "edit",
-    label: "ویرایش",
-    icon: Pencil,
-    variant: "ghost",
-    type: "row",
-    permission: null, // or "change_call" when backend adds
-    modal: "edit",
-  },
-  {
     key: "mark_follow_up_done",
     label: "پیگیری انجام شد",
     icon: CheckCircle2,

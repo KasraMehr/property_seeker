@@ -9,7 +9,7 @@ import {
 import useDebounce from "@/shared/useDebounce";
 import Button from "@/shared/ui/Button";
 import ListingDetailModal from "@/features/listings/components/ListingDetailModal";
-import RegisterCallFromListingModal from "@/features/listings/components/RegisterCallFormListingModal";
+import RegisterCallForm from "../../../shared/forms/RegisterCallForm";
 import callService from "@/features/calls/services/callService";
 
 /**
@@ -78,15 +78,14 @@ export default function ListingsPage() {
   const openDetail = useCallback(
     async (row) => {
       setDetailLoading(true);
-      setDetailListing(row); 
+      setDetailListing(row);
       try {
         if (getById) {
           const full = await getById(row.id);
           setDetailListing(full);
         }
       } catch (err) {
-        toast?.error?.("خطا در دریافت جزئیات آگهی") ||
-          console.error(err);
+        toast?.error?.("خطا در دریافت جزئیات آگهی") || console.error(err);
       } finally {
         setDetailLoading(false);
       }
@@ -220,7 +219,9 @@ export default function ListingsPage() {
       <div className="py-12 text-center space-y-3">
         <Inbox size={48} className="mx-auto text-muted/40" />
         <div>
-          <p className="text-sm font-medium text-foreground">آگهی‌ای یافت نشد</p>
+          <p className="text-sm font-medium text-foreground">
+            آگهی‌ای یافت نشد
+          </p>
           <p className="text-xs text-muted mt-1">
             هنوز آگهی‌ای از اسکرپر وارد نشده یا با فیلتر فعلی نتیجه‌ای نیست.
           </p>
@@ -263,14 +264,11 @@ export default function ListingsPage() {
       />
 
       {/* call log with listing-id*/}
-      <RegisterCallFromListingModal
+      <RegisterCallForm
         isOpen={!!callListing}
         onClose={() => setCallListing(null)}
         listing={callListing}
-        onSuccess={() => {
-          setCallListing(null);
-        }}
-        onSubmit={handleRegisterCallSubmit}
+        onSuccess={() => setCallListing(null)}
       />
     </>
   );

@@ -56,19 +56,6 @@ export const USER_ROW_ACTIONS = [
     handler: "toggle_active",
   },
   {
-    key: "reset_password",
-    label: "ریست رمز",
-    icon: KeyRound,
-    variant: "outline",
-    type: "row",
-    permission: null, // owner-only
-    modal: "reset_password",
-    confirm: {
-      title: "ریست رمز عبور",
-      message: "رمز عبور جدید برای کاربر ارسال خواهد شد. ادامه می‌دهید؟",
-    },
-  },
-  {
     key: "delete",
     label: "حذف",
     icon: Trash2,

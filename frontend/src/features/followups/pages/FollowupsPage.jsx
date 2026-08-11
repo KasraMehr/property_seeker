@@ -1,24 +1,28 @@
 import { useMemo, useState, useCallback, useEffect } from "react";
-import { Plus, Eye, CheckCircle2, XCircle, Inbox, Clock } from "lucide-react";
+import { Plus, Eye, CheckCircle2, XCircle, Clock } from "lucide-react";
 import useAuth from "@/features/auth/hooks/useAuth";
 import ResourceTemplate from "@/shared/templates/resource/ResourceTemplate";
 import useFollowup from "@/features/followups/hooks/useFollowup";
 import {
   FOLLOWUP_ALL_FILTERS,
-  FOLLOWUP_STATUS_CONFIG,
   FOLLOWUP_TABLE_COLUMNS,
 } from "@/features/followups/config";
 import useDebounce from "@/shared/useDebounce";
 import ConfirmModal from "@/shared/ui/modal/ConfirmModal";
 import Button from "@/shared/ui/Button";
 import FollowupDetailModal from "@/features/followups/components/FollowupDetailModal";
+import FollowupFormModal from "@/features/followups/components/FollowupFormModal";
 
-/* ─── Row Actions ───
- * complete / cancel فقط وقتی نمایش داده می‌شن که status === "pending" باشه
- */
+/* ─── Row Actions ─── */
 const FOLLOWUP_ROW_ACTIONS = {
   admin: [
     { key: "view", label: "مشاهده", icon: Eye },
+    {
+      key: "edit",
+      label: "ویرایش",
+      icon: Eye, // یا Pencil اگر import کردی
+      visible: (row) => row.status === "pending",
+    },
     {
       key: "complete",
       label: "انجام شد",
@@ -72,25 +76,30 @@ export default function FollowupsPage() {
     totalPages,
     complete,
     cancel,
+    refresh,
   } = useFollowup();
 
   const [selected, setSelected] = useState([]);
   const [pendingComplete, setPendingComplete] = useState(null);
   const [pendingCancel, setPendingCancel] = useState(null);
   const [detailFollowup, setDetailFollowup] = useState(null);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [editFollowup, setEditFollowup] = useState(null);
 
   /* ─── Search ─── */
   const [searchInput, setSearchInput] = useState(filterValues.search || "");
   const debouncedSearch = useDebounce(searchInput, 400);
 
   useEffect(() => {
-    if (filterValues.search !== searchInput)
+    if (filterValues.search !== searchInput) {
       setSearchInput(filterValues.search || "");
+    }
   }, [filterValues.search]);
 
   useEffect(() => {
-    if (debouncedSearch !== filterValues.search)
+    if (debouncedSearch !== filterValues.search) {
       setFilter("search", debouncedSearch);
+    }
   }, [debouncedSearch, filterValues.search, setFilter]);
 
   /* ─── Sort ─── */
@@ -106,8 +115,10 @@ export default function FollowupsPage() {
   const handleRowAction = useCallback((actionKey, row) => {
     switch (actionKey) {
       case "view":
-      case "view":
         setDetailFollowup(row);
+        break;
+      case "edit":
+        setEditFollowup(row);
         break;
       case "complete":
         setPendingComplete(row);
@@ -137,11 +148,9 @@ export default function FollowupsPage() {
   const filterOptions = useMemo(() => {
     const statusFilter = FOLLOWUP_ALL_FILTERS.find((f) => f.key === "status");
     const typeFilter = FOLLOWUP_ALL_FILTERS.find((f) => f.key === "type");
-    const userFilter = FOLLOWUP_ALL_FILTERS.find((f) => f.key === "user");
     return {
       statuses: statusFilter?.options || [],
       types: typeFilter?.options || [],
-      users: userFilter?.options || [],
     };
   }, []);
 
@@ -197,7 +206,13 @@ export default function FollowupsPage() {
             )}
           </p>
         </div>
-        <Button variant="primary" size="sm" className="gap-1.5">
+
+        <Button
+          variant="primary"
+          size="sm"
+          className="gap-1.5"
+          onClick={() => setCreateOpen(true)}
+        >
           <Plus size={16} />
           پیگیری جدید
         </Button>
@@ -248,36 +263,55 @@ export default function FollowupsPage() {
         onPageChange={setPage}
       />
 
-      {/* ─── Confirm: Complete ─── */}
+      {/* Confirm Complete */}
       <ConfirmModal
         isOpen={pendingComplete !== null}
         onClose={() => setPendingComplete(null)}
         onConfirm={confirmComplete}
         title="تکمیل پیگیری"
-        message={`پیگیری "${pendingComplete?.title || ""}" به وضعیت "انجام شده" تغییر خواهد کرد.`}
+        message={`پیگیری «${pendingComplete?.title || ""}» به وضعیت «انجام شده» تغییر خواهد کرد.`}
         variant="primary"
         confirmLabel="تکمیل"
       />
 
-      {/* ─── Confirm: Cancel ─── */}
+      {/* Confirm Cancel */}
       <ConfirmModal
         isOpen={pendingCancel !== null}
         onClose={() => setPendingCancel(null)}
         onConfirm={confirmCancel}
         title="لغو پیگیری"
-        message={`پیگیری "${pendingCancel?.title || ""}" لغو خواهد شد. آیا مطمئن هستید؟`}
+        message={`پیگیری «${pendingCancel?.title || ""}» لغو خواهد شد. آیا مطمئن هستید؟`}
         variant="danger"
         confirmLabel="لغو"
       />
-      
+
+      {/* Detail Modal */}
       {detailFollowup && (
         <FollowupDetailModal
           isOpen={!!detailFollowup}
           onClose={() => setDetailFollowup(null)}
           followup={detailFollowup}
-          followupCount={detailFollowup._followupCount || 0} // اگه API بده، وگرنه 0
+          onMarkDone={(item) => {
+            setPendingComplete(item);
+            setDetailFollowup(null); 
+          }}
         />
       )}
+
+      {/* Create Modal */}
+      <FollowupFormModal
+        isOpen={createOpen}
+        onClose={() => setCreateOpen(false)}
+        onSuccess={refresh}
+      />
+
+      {/* Edit Modal */}
+      <FollowupFormModal
+        isOpen={!!editFollowup}
+        onClose={() => setEditFollowup(null)}
+        followup={editFollowup}
+        onSuccess={refresh}
+      />
     </>
   );
 }

@@ -322,7 +322,7 @@ function FieldRenderer({
               options={field.options || []}
               value={Array.isArray(value) ? value : []}
               onChange={onChange}
-              placeholder={field.placeholder || " "}
+              placeholder={field.placeholder}
               searchable={field.searchable !== false}
               disabled={isDisabled}
               error={error}
@@ -505,7 +505,7 @@ function FieldRenderer({
               value={formatPrice(value)}
               onChange={(e) => onChange(parsePrice(e.target.value))}
               onBlur={onBlur}
-              placeholder={field.placeholder || " "}
+              placeholder={field.placeholder}
               error={error}
               disabled={isDisabled}
               dir="ltr"
@@ -537,7 +537,7 @@ function FieldRenderer({
                 onChange(raw === "" ? "" : Number(raw));
               }}
               onBlur={onBlur}
-              placeholder={field.placeholder || " "}
+              placeholder={field.placeholder }
               error={error}
               disabled={isDisabled}
               min={field.min}
@@ -577,7 +577,7 @@ function FieldRenderer({
             value={value ?? ""}
             onChange={(e) => onChange(e.target.value)}
             onBlur={onBlur}
-            placeholder={field.placeholder || " "}
+            placeholder={field.placeholder}
             error={error}
             disabled={isDisabled}
           />

@@ -21,7 +21,7 @@ export default function QuickFollowupModal({ isOpen, onClose, call = null, onSuc
   const extraData = call ? { call } : {};
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="sm" title="ثبت پیگیری از تماس">
+    <Modal isOpen={isOpen} onClose={onClose} size="lg" title="ثبت پیگیری از تماس">
       <FormRenderer
         config={QUICK_FOLLOWUP_FROM_CALL_FORM}
         onSubmit={handleSubmit}
