@@ -73,8 +73,8 @@ const Select = forwardRef(
 
     const filtered = searchable
       ? options.filter((o) =>
-          o.label.toLowerCase().includes(search.toLowerCase())
-        )
+        o.label.toLowerCase().includes(search.toLowerCase())
+      )
       : options;
 
     const sizeMap = {
@@ -110,24 +110,11 @@ const Select = forwardRef(
           onClick={toggle}
           disabled={disabled}
           className={`
-            group
-            relative
-            w-full
-            flex
-            items-center
-            gap-2
-            rounded-xl
-            border
-            bg-surface
-            backdrop-blur-sm
-            transition-all
-            duration-200
-            ease-in-out
+            group relative w-full flex items-center gap-2 rounded-xl border bg-surface backdrop-blur-sm transition-all duration-200 ease-in-out py-4
 
-            ${
-              isError
-                ? "border-danger focus:border-danger focus:ring-2 focus:ring-danger/20"
-                : "border-border hover:border-(--role-primary)/40 focus:border-(--role-primary) focus:ring-2 focus:ring-(--role-primary)/15"
+            ${isError
+              ? "border-danger focus:border-danger focus:ring-2 focus:ring-danger/20"
+              : "border-border hover:border-(--role-primary)/40 focus:border-(--role-primary) focus:ring-2 focus:ring-(--role-primary)/15"
             }
 
             ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
@@ -144,12 +131,11 @@ const Select = forwardRef(
               transition-all
               duration-200
 
-              ${
-                hasValue
-                  ? "text-foreground"
-                  : isOpen
-                    ? "text-muted"
-                    : "text-transparent"
+              ${hasValue
+                ? "text-foreground"
+                : isOpen
+                  ? "text-muted"
+                  : "text-transparent"
               }
             `}
           >
@@ -182,10 +168,9 @@ const Select = forwardRef(
               duration-200
               shrink-0
 
-              ${
-                isOpen
-                  ? "rotate-180 text-(--role-primary)"
-                  : "group-hover:text-foreground"
+              ${isOpen
+                ? "rotate-180 text-(--role-primary)"
+                : "group-hover:text-foreground"
               }
             `}
           />
@@ -202,15 +187,14 @@ const Select = forwardRef(
                 duration-200
                 ease-in-out
 
-                ${
-                  hasValue || isOpen
-                    ? `
+                ${hasValue || isOpen
+                  ? `
                       -top-2
                       px-1
                       text-[10px]
                       bg-surface
                     `
-                    : `
+                  : `
                       top-1/2
                       -translate-y-1/2
                       px-0
@@ -218,12 +202,11 @@ const Select = forwardRef(
                     `
                 }
 
-                ${
-                  isError
-                    ? "text-danger"
-                    : hasValue || isOpen
-                      ? "text-(--role-primary)"
-                      : "text-muted"
+                ${isError
+                  ? "text-danger"
+                  : hasValue || isOpen
+                    ? "text-(--role-primary)"
+                    : "text-muted"
                 }
               `}
             >
@@ -326,10 +309,9 @@ const Select = forwardRef(
                         duration-150
                         ${s.item}
 
-                        ${
-                          isSelected
-                            ? "bg-(--role-primary)/8 text-(--role-primary) font-medium"
-                            : "text-foreground hover:bg-(--role-subtle)/30"
+                        ${isSelected
+                          ? "bg-(--role-primary)/8 text-(--role-primary) font-medium"
+                          : "text-foreground hover:bg-(--role-subtle)/30"
                         }
                       `}
                     >
