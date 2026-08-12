@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
-import Button from "../ui/Button";
 import { Menu } from "lucide-react";
 
+import Button from "../ui/Button";
 import DashboardSidebar from "./DashboardSidebar";
 
 export default function DashboardLayout({
@@ -15,17 +15,8 @@ export default function DashboardLayout({
   return (
     <div
       data-role={role}
-      className="flex h-screen overflow-hidden  bg-background text-foreground"
+      className="flex h-screen overflow-hidden bg-background text-foreground"
     >
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => setIsSidebarOpen(true)}
-        className="fixed top-4 right-4 z-40 lg:hidden"
-      >
-        <Menu size={20} />
-      </Button>
-
       <DashboardSidebar
         menuItems={menuItems}
         footerItems={footerItems}
@@ -34,8 +25,32 @@ export default function DashboardLayout({
       />
 
       <section className="flex min-w-0 flex-1 flex-col">
-        <main className="flex-1 overflow-auto bg-background px-6 py-5">
-          <Outlet />
+        {/* Topbar */}
+        <header
+          className="
+            sticky top-0 z-30 flex h-16 shrink-0 items-center gap-3
+            border-b border-border bg-surface/80 px-4 backdrop-blur
+            lg:px-6
+          "
+        >
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsSidebarOpen(true)}
+            className="lg:hidden"
+            aria-label="باز کردن منو"
+          >
+            <Menu size={20} />
+          </Button>
+
+          {/* اینجا محل breadcrumb / عنوان صفحه و اکشن‌هاست */}
+          <div id="dashboard-topbar" className="flex min-w-0 flex-1 items-center gap-3" />
+        </header>
+
+        <main className="flex-1 overflow-y-auto px-4 py-5 lg:px-6">
+          <div className="mx-auto w-full max-w-7xl">
+            <Outlet />
+          </div>
         </main>
       </section>
     </div>

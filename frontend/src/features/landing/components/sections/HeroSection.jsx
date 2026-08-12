@@ -16,12 +16,12 @@ export default function HeroSection() {
   return (
     <section
       id="home"
-      className="min-h-screen pt-20 flex items-center justify-center 
-     bg-linear-to-b from-surface/50 to-background px-4 py-6 md:px-8 md:py-10"
+      className="min-h-[100svh] pt-24 md:pt-28 flex items-center justify-center
+  bg-linear-to-b from-surface/50 to-background px-4 pb-6 md:px-8 md:pb-10"
     >
       <div
-        className="w-full h-[85vh] rounded-3xl bg-surface/30 backdrop-blur-sm 
-        border border-border relative overflow-hidden shadow-2xl shadow-primary/5"
+        className="w-full min-h-[calc(100svh-8rem)] rounded-3xl bg-surface/30 backdrop-blur-sm
+    border border-border relative overflow-hidden shadow-2xl shadow-primary/5"
       >
         {/* Background decoration */}
         <div className="absolute inset-0 bg-linear-to-br from-primary/5 to-transparent" />
@@ -67,10 +67,10 @@ export default function HeroSection() {
 
               {/* CTA Buttons */}
               <div className="flex flex-wrap gap-4 justify-center md:justify-start">
-                <Button 
-                as={Link}
-                to="/login"
-                className="bg-primary hover:bg-primary-hover shadow-lg shadow-primary/20 px-8 py-3.5 rounded-full text-base font-bold gap-2 transition-all hover:scale-105">
+                <Button
+                  as={Link}
+                  to="/login"
+                  className="bg-primary hover:bg-primary-hover shadow-lg shadow-primary/20 px-8 py-3.5 rounded-full text-base font-bold gap-2 transition-all hover:scale-105">
                   {HERO_STRINGS.primaryButton}
                   <ArrowLeft size={18} />
                 </Button>

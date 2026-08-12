@@ -69,12 +69,11 @@ const RangeSelect = forwardRef(
           onClick={() => !disabled && setIsOpen((p) => !p)}
           className={`
           group relative w-full flex items-center gap-2 rounded-xl border bg-surface
-          transition-all
-          ${
-            isError
+          transition-all py-4
+          ${isError
               ? "border-danger"
               : "border-border hover:border-(--role-primary)/40 focus:border-(--role-primary)"
-          }
+            }
           ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
           ${sizeMap[size]}
         `}
@@ -93,11 +92,10 @@ const RangeSelect = forwardRef(
               className={`
               absolute right-3 px-1 text-xs rounded-md bg-surface
               transition-all
-              ${
-                isOpen || local.min !== min || local.max !== max
+              ${isOpen || local.min !== min || local.max !== max
                   ? "-top-2 bg-surface px-1 text-[10px] text-(--role-primary)"
                   : "top-1/2 -translate-y-1/2 text-muted"
-              }
+                }
             `}
             >
               {label}

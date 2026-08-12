@@ -1,4 +1,4 @@
-import { House, Sparkles, LayoutDashboard, MessageCircle , Rocket } from "lucide-react";
+import { House, Sparkles, LayoutDashboard, MessageCircle, Rocket } from "lucide-react";
 import { href } from "react-router-dom";
 
 export const NAVBAR_STRINGS = {
@@ -11,11 +11,11 @@ export const NAVBAR_STRINGS = {
       type: "scroll",
     },
     {
-      id:"problem-solution",
-      label:"مشکلات و راه‌حل‌ها",
+      id: "problem-solution",
+      label: "مشکلات و راه‌حل‌ها",
       href: "#problem-solution",
       icon: Rocket,
-      type:"scroll",
+      type: "scroll",
     },
     {
       id: "dashboard",
@@ -71,17 +71,17 @@ export const HERO_STRINGS = {
 };
 
 export const PROBLEM_SOLUTION_STRINGS = {
-  badge: "چرا ملک‌جو؟",
+  badge: "چرا دیلان ملک",
 
   titleFirst: "از آگهی‌های پراکنده",
   titleSecond: "تا فایل‌های آماده فروش",
 
   subtitle:
-    "ملک‌جو فرآیند زمان‌بر جستجو، بررسی و ثبت فایل‌های ملکی را خودکار می‌کند تا زمان بیشتری برای مذاکره، بازدید و فروش داشته باشید.",
+    "دیلان ملک فرآیند زمان‌بر جستجو، بررسی و ثبت فایل‌های ملکی را خودکار می‌کند تا زمان بیشتری برای مذاکره، بازدید و فروش داشته باشید.",
 
   problemCardTitle: "چالش‌های رایج",
 
-  solutionCardTitle: "راه‌حل ملک‌جو",
+  solutionCardTitle: "راه‌حل دیلان ملک",
 
   items: [
     {
@@ -94,7 +94,7 @@ export const PROBLEM_SOLUTION_STRINGS = {
       solution: {
         title: "استخراج و تکمیل هوشمند اطلاعات",
         description:
-          "ملک‌جو اطلاعات آگهی را استخراج کرده و آن را به یک فایل استاندارد و قابل استفاده تبدیل می‌کند.",
+          "دیلان ملک اطلاعات آگهی را استخراج کرده و آن را به یک فایل استاندارد و قابل استفاده تبدیل می‌کند.",
       },
     },
 

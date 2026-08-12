@@ -64,7 +64,7 @@ const MultiSelect = forwardRef(({
     : options;
 
   const sizeMap = {
-    sm: { wrap: "py-1.5 px-3 text-xs min-h-[36px]", panel: "max-h-48", item: "px-3 py-1.5 text-xs" },
+    sm: { wrap: "py-4 px-3 text-xs min-h-[36px]", panel: "max-h-48", item: "px-3 py-1.5 text-xs" },
     md: { wrap: "py-2 px-4 text-sm min-h-[44px]", panel: "max-h-56", item: "px-4 py-2 text-sm" },
     lg: { wrap: "py-2.5 px-4 text-base min-h-[52px]", panel: "max-h-64", item: "px-4 py-2.5 text-base" },
   };

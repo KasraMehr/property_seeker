@@ -6,32 +6,50 @@ import NavigationMenu from "@/shared/navigation/NavigationMenu";
 import UserProfileDropdown from "@/features/auth/components/UserProfileDropdown";
 import Drawer from "@/shared/ui/Drawer";
 
-export default function DashboardSidebar({ isOpen, onClose, menuItems = [] }) {
+export default function DashboardSidebar({
+  isOpen,
+  onClose,
+  menuItems = [],
+  footerItems = [],
+}) {
   const navigation = (
-    <div className="flex-1 py-6">
+    <nav className="flex-1 overflow-y-auto overscroll-contain px-3 py-4">
       <NavigationMenu items={menuItems} onItemClick={onClose} />
-    </div>
+
+      {footerItems.length > 0 && (
+        <div className="mt-4 border-t border-border pt-4">
+          <NavigationMenu items={footerItems} onItemClick={onClose} />
+        </div>
+      )}
+    </nav>
   );
 
   return (
-    <div>
+    <>
       {/* Desktop */}
       <aside
         className="
-          hidden lg:flex
-          h-screen w-45
-          shrink-0
-          border-l border-border
-          bg-surface
-          justify-center
+          hidden lg:flex lg:flex-col
+          h-screen w-60 shrink-0
+          border-l border-border bg-surface
         "
       >
-        <div className="flex h-full flex-col w-full">
-          {navigation}
+        {/* Header */}
+        <div className="flex h-16 shrink-0 items-center border-b border-border px-4">
+          <Link to="/dashboard" className="flex items-center">
+            <Logo size="md" />
+          </Link>
+        </div>
 
-          <div className="mt-auto flex items-center justify-center border-t border-border p-3">
+        {navigation}
+
+        {/* Footer */}
+        <div className="shrink-0 border-t border-border p-3">
+          <div className="flex items-center gap-2">
+            <div className="min-w-0 flex-1">
+              <UserProfileDropdown fullWidth showInfo />
+            </div>
             <ThemeToggle />
-            <UserProfileDropdown fullWidth={false} showInfo={false} />
           </div>
         </div>
       </aside>
@@ -43,7 +61,7 @@ export default function DashboardSidebar({ isOpen, onClose, menuItems = [] }) {
           onClose={onClose}
           position="right"
           header={
-            <Link to="/dashboard">
+            <Link to="/dashboard" onClick={onClose}>
               <Logo size="md" />
             </Link>
           }
@@ -51,12 +69,17 @@ export default function DashboardSidebar({ isOpen, onClose, menuItems = [] }) {
           <div className="flex h-full flex-col">
             {navigation}
 
-            <div className="mt-auto w-full border-t border-border p-3">
-              <UserProfileDropdown fullWidth onCloseDrawer={onClose} />
+            <div className="shrink-0 border-t border-border p-3">
+              <div className="flex items-center gap-2">
+                <div className="min-w-0 flex-1">
+                  <UserProfileDropdown fullWidth onCloseDrawer={onClose} />
+                </div>
+                <ThemeToggle />
+              </div>
             </div>
           </div>
         </Drawer>
       </div>
-    </div>
+    </>
   );
 }

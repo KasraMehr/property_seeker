@@ -71,7 +71,7 @@ const SearchBox = forwardRef(
             disabled={disabled}
             dir="rtl"
             className={`
-            peer w-full px-4 pt-5 pb-2 rounded-full border bg-surface backdrop-blur-sm
+            peer w-full px-4 pt-2 pb-2 rounded-xl border bg-surface backdrop-blur-sm
             transition-all duration-200 ease-in-out text-foreground focus:outline-none focus:ring-2
             border-border focus:border-(--role-primary) focus:ring-(--role-primary)/15
             disabled:opacity-50 disabled:cursor-not-allowed
@@ -98,7 +98,7 @@ const SearchBox = forwardRef(
             <button
               type="button"
               onClick={handleClear}
-              className="absolute left-3 top-1/2 -translate-y-1/2 p-1 rounded-full text-muted hover:text-foreground hover:bg-(--role-subtle)/30 transition-colors focus:outline-none"
+              className="absolute left-3 top-1/2 -translate-y-1/2 p-1 rounded-xl text-muted hover:text-foreground hover:bg-(--role-subtle)/30 transition-colors focus:outline-none"
             >
               <X size={iconSize - 2} />
             </button>

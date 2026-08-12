@@ -1,91 +1,73 @@
 import { forwardRef } from "react";
 import { House } from "lucide-react";
+import { BRAND } from "@/config/brand";
+
+const SIZES = {
+  sm: { box: "w-8 h-8", icon: 16, text: "text-sm", gapRow: "gap-2", gapCol: "gap-1" },
+  md: { box: "w-10 h-10", icon: 20, text: "text-lg", gapRow: "gap-2.5", gapCol: "gap-1.5" },
+  lg: { box: "w-12 h-12", icon: 24, text: "text-2xl", gapRow: "gap-3", gapCol: "gap-2" },
+};
 
 /**
- * Logo — "ملک جو" brand mark, supports custom icon or PNG
-*/
-const Logo = forwardRef(({
-  icon: Icon = House,
-  iconSrc,         //path to PNG/SVG image
-  showLabel = true,
-  size = "md",      // sm | md | lg
-  labelPosition = "left",  // "left" | "right" | "bottom"
-  className = "",
-  ...props
-}, ref) => {
-  const sizeMap = {
-    sm:  {
-      box: "w-8 h-8",
-      icon: 16,
-      text: "text-sm",
-      gap: labelPosition === "bottom" ? "gap-1" : "gap-2",
-      flex: labelPosition === "bottom" ? "flex-col" : "flex-row",
-    },
-    md:  {
-      box: "w-10 h-10",
-      icon: 20,
-      text: "text-lg",
-      gap: labelPosition === "bottom" ? "gap-1.5" : "gap-2.5",
-      flex: labelPosition === "bottom" ? "flex-col" : "flex-row",
-    },
-    lg:  {
-      box: "w-12 h-12",
-      icon: 24,
-      text: "text-2xl",
-      gap: labelPosition === "bottom" ? "gap-2" : "gap-3",
-      flex: labelPosition === "bottom" ? "flex-col" : "flex-row",
-    },
-  };
+ * Logo — نشان برند «دیلان ملک»
+ */
+const Logo = forwardRef(function Logo(
+  {
+    icon: Icon = House,
+    iconSrc,
+    showIcon = true,
+    showLabel = true,
+    size = "md",
+    labelPosition = "right", // left | right | bottom
+    className = "",
+    ...props
+  },
+  ref
+) {
+  const s = SIZES[size] ?? SIZES.md;
+  const isCol = labelPosition === "bottom";
 
-  const s = sizeMap[size] || sizeMap.md;
+  const flex = isCol ? "flex-col" : "flex-row";
+  const gap = isCol ? s.gapCol : s.gapRow;
+  const labelOrder = labelPosition === "left" ? "order-first" : "";
 
   return (
     <div
       ref={ref}
-      className={`inline-flex ${s.flex} items-center ${s.gap} select-none ${className}`}
+      role="img"
+      aria-label={BRAND.name}
+      className={`inline-flex ${flex} items-center ${gap} select-none ${className}`}
       {...props}
     >
-      {/* Icon / Image */}
-      {/* <span
-        className={`
-          ${s.box} relative flex items-center justify-center shrink-0
-          rounded-xl bg-(--role-primary)/10 border border-(--role-primary)/20
-        `}
-      >
-        {iconSrc ? (
-          <img
-            src={iconSrc}
-            alt="لوگو"
-            className="w-3/5 h-3/5 object-contain"
-            draggable={false}
-          />
-        ) : (
-          <Icon
-            size={s.icon}
-            strokeWidth={2}
-            className="text-(--role-primary)"
-          />
-        )}
-        
-        {/* Role glow dot (top-right) */}
-        {/* <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-(--role-primary) shadow-[0_0_6px_2px_var(--role-primary)]" /> */}
-      {/* </span> */} 
+      {showIcon && (
+        <span
+          aria-hidden="true"
+          className={`${s.box} relative flex shrink-0 items-center justify-center
+            rounded-xl border border-(--role-primary)/20 bg-(--role-primary)/10`}
+        >
+          {iconSrc ? (
+            <img
+              src={iconSrc}
+              alt=""
+              className="h-3/5 w-3/5 object-contain"
+              draggable={false}
+            />
+          ) : (
+            <Icon size={s.icon} strokeWidth={2} className="text-(--role-primary)" />
+          )}
+        </span>
+      )}
 
-      {/* Wordmark: ملک جو */}
       {showLabel && (
         <span
-          className={`
-            ${s.text} font-bold tracking-tight leading-none
-            ${labelPosition === "left" ? "order-first" : ""}
-          `}
+          className={`${s.text} ${labelOrder} font-bold leading-none tracking-tight whitespace-nowrap`}
         >
-          <span className="text-foreground">ملک</span>
-          <span className="text-(--role-primary)">جو</span>
+          <span className="text-(--role-primary)">دیلان</span>
+          <span className="text-foreground"> ملک</span>
         </span>
       )}
     </div>
   );
 });
 
-Logo.displayName = "Logo";
 export default Logo;
