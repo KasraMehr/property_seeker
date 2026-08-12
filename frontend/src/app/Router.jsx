@@ -16,6 +16,8 @@ import { adminRoutes } from "@/routes/adminRoutes";
 import { operatorRoutes } from "@/routes/operatorRoutes";
 import AdminLayout from "@/features/dashboard/layouts/AdminLayout";
 import OperatorLayout from "@/features/dashboard/layouts/OperatorLayout";
+import NotFound from "../features/errors/pages/NotFound";
+
 // import SelectShowcase from "@/showcases/SelectShowcase";
 // import ModalShowcase from "@/showcases/ModalShowcase";
 // import TableShowcase from "@/showcases/TableShowcase";
@@ -95,6 +97,6 @@ export const Router = createBrowserRouter([
   // Not found 404 handler
   {
     path: "*",
-    element: <div>NOT FOUND PAGE !! 404 </div>,
+    element: <NotFound />,
   },
 ]);
