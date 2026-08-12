@@ -45,13 +45,12 @@ class CustomerCreateSerializer(serializers.ModelSerializer):
         return value
 
     def validate_assigned_agent(self, value):
+        if value is None:
+            return value
 
         user = self.context["request"].user
-
         if value.agency != user.agency:
-
-            raise serializers.ValidationError("این کاربر متعلق به آژانس شما نیست.")
-
+            raise serializers.ValidationError("مشاور انتخاب‌شده متعلق به آژانس شما نیست.")
         return value
 
     def create(self, validated_data):
