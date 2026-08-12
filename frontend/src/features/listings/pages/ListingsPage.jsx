@@ -134,11 +134,11 @@ export default function ListingsPage() {
       follow_up_done: Boolean(form.follow_up_done),
       ...(listing?.property
         ? {
-            property:
-              typeof listing.property === "object"
-                ? listing.property.id
-                : listing.property,
-          }
+          property:
+            typeof listing.property === "object"
+              ? listing.property.id
+              : listing.property,
+        }
         : {}),
     };
   }, []);
@@ -183,7 +183,7 @@ export default function ListingsPage() {
     () => ({
       value: searchInput,
       onChange: setSearchInput,
-      placeholder: "جستجو در عنوان یا شناسه خارجی...",
+      placeholder: "جستجو در عنوان یا شناسه",
     }),
     [searchInput],
   );
