@@ -22,7 +22,7 @@ export default function ModalShowcase() {
 
   return (
     <div className="min-h-screen bg-background p-8 space-y-12">
-      <ThemeToggle/>
+      <ThemeToggle />
 
       {/* Section: Base Modal Sizes */}
       <section>
@@ -116,14 +116,14 @@ export default function ModalShowcase() {
         variant={confirm.variant}
         title={
           confirm.variant === "danger" ? "حذف آیتم" :
-          confirm.variant === "warning" ? "هشدار" :
-          confirm.variant === "info" ? "اطلاعات" : "موفق"
+            confirm.variant === "warning" ? "هشدار" :
+              confirm.variant === "info" ? "اطلاعات" : "موفق"
         }
         message={
           confirm.variant === "danger" ? "این عملیات قابل بازگشت نیست. آیا ادامه می‌دهید؟" :
-          confirm.variant === "warning" ? "تغییرات ذخیره نشده‌اند. آیا مطمئنید؟" :
-          confirm.variant === "info" ? "لطفاً اطلاعات خود را بررسی کنید." :
-          "عملیات با موفقیت انجام شد."
+            confirm.variant === "warning" ? "تغییرات ذخیره نشده‌اند. آیا مطمئنید؟" :
+              confirm.variant === "info" ? "لطفاً اطلاعات خود را بررسی کنید." :
+                "عملیات با موفقیت انجام شد."
         }
       />
 
@@ -135,8 +135,8 @@ export default function ModalShowcase() {
         type={configConfirm.type}
         data={
           configConfirm.type === "deleteLead" ? { name: "علی احمدی" } :
-          configConfirm.type === "convertLead" ? { name: "سارا رضایی" } :
-          configConfirm.type === "archiveProperty" ? { title: "آپارتمان عظیمیه" } : {}
+            configConfirm.type === "convertLead" ? { name: "سارا رضایی" } :
+              configConfirm.type === "archiveProperty" ? { title: "آپارتمان عظیمیه" } : {}
         }
       />
 
@@ -186,7 +186,7 @@ export default function ModalShowcase() {
           <p>۷. پرداخت‌ها از طریق درگاه‌های امن بانکی صورت می‌پذیرد و رسید پرداخت به ایمیل کاربر ارسال می‌شود.</p>
           <p>۸. در صورت بروز اختلال فنی، سامانه تعهد می‌کند در اسرع وقت نسبت به رفع مشکل اقدام نماید.</p>
           <p>۹. کاربر متعهد می‌شود از افشای رمز عبور خودداری کرده و در صورت مشاهده تخلف، سریعاً اطلاع‌رسانی نماید.</p>
-          <p>۱۰. کلیه حقوق مادی و معنوی این سامانه متعلق به شرکت ملک‌جو می‌باشد.</p>
+          <p>۱۰. کلیه حقوق مادی و معنوی این سامانه متعلق به شرکت دیلان ملک می‌باشد.</p>
         </div>
       </Modal>
 
