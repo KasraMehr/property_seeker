@@ -1,5 +1,5 @@
 // shared/page/FormRenderer.jsx
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect,useRef, useMemo, useState, useCallback } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { Search, X, Upload, Eye } from "lucide-react";
 import Button from "@/shared/ui/Button";
@@ -619,8 +619,13 @@ export default function FormRenderer({
     return [];
   }, [flatFields, tabs]);
 
+  const defaultValuesKey = useMemo(
+    () => JSON.stringify(defaultValues ?? {}),
+    [defaultValues],
+  );
+
   const formDefaultValues = useMemo(() => {
-    const defs = { ...defaultValues };
+    const defs = { ...(defaultValues || {}) };
     allFields.forEach((f) => {
       if (defs[f.key] !== undefined) return;
 
@@ -639,7 +644,7 @@ export default function FormRenderer({
       else defs[f.key] = "";
     });
     return defs;
-  }, [defaultValues, allFields]);
+  }, [defaultValuesKey, allFields]);
 
   const {
     handleSubmit,
@@ -655,6 +660,13 @@ export default function FormRenderer({
   });
 
   const values = watch();
+
+  const lastResetKey = useRef(null);
+  useEffect(() => {
+    if (lastResetKey.current === defaultValuesKey) return;
+    lastResetKey.current = defaultValuesKey;
+    reset(formDefaultValues);
+  }, [defaultValuesKey, formDefaultValues, reset]);
 
   useEffect(() => {
     reset(formDefaultValues);

@@ -13,7 +13,7 @@ const createTarget = (data) =>
   api.post(API_ENDPOINTS.INGESTION.TARGETS.CREATE.url, data);
 
 const updateTarget = (id, data) =>
-  api.put(API_ENDPOINTS.INGESTION.TARGETS.UPDATE(id).url, data);
+  api.patch(API_ENDPOINTS.INGESTION.TARGETS.UPDATE(id).url, data);
 
 // ── ingestionRuns ──
 const getRuns = (params = {}) =>

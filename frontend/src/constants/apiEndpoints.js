@@ -583,7 +583,7 @@ export const API_ENDPOINTS = {
       },
       UPDATE: (id) => ({
         url: `${API_BASE}/ingestion/targets/${id}/`,
-        method: "PUT",
+        method: "PATCH",
         status: "[PEND]",
       }),
       DELETE: (id) => ({

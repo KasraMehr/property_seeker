@@ -2,15 +2,16 @@ from rest_framework import serializers
 
 from listing.serializers.listing import ListingListSerializer
 from ..models import IngestionRun, IngestionRunItem, ListingSnapshot, ScrapeTarget, TargetListing
-
+from listing.models import Source
 
 class ScrapeTargetSerializer(serializers.ModelSerializer):
-    source = serializers.SerializerMethodField()
-
+    source = serializers.PrimaryKeyRelatedField(queryset=Source.objects.all())
+    source_detail = serializers.SerializerMethodField(read_only=True)
+    
     class Meta:
         model = ScrapeTarget
         fields = (
-            "id", "name", "source", "search_url", "enabled",
+            "id", "name", "source", "source_detail", "search_url", "enabled",
             "discovery_interval_minutes", "incremental_known_streak",
             "incremental_max_cards", "last_watermark_external_id",
             "last_discovery_at", "last_full_discovery_at",
@@ -18,14 +19,13 @@ class ScrapeTargetSerializer(serializers.ModelSerializer):
         )
         read_only_fields = (
             "id", "last_watermark_external_id", "last_discovery_at",
-            "last_full_discovery_at", "created_at", "updated_at",
+            "last_full_discovery_at", "created_at", "updated_at", "source_detail",
         )
 
-    def get_source(self, obj):
+    def get_source_detail(self, obj):
         return {"id": obj.source_id, "name": obj.source.name}
 
     def validate_source(self, value):
-        # The current provider implementation supports Divar only.
         if value.name.strip().lower() != "divar":
             raise serializers.ValidationError(
                 "Only the Divar provider is supported in the current version."

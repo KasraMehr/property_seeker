@@ -12,8 +12,16 @@ export default function useScraper() {
     setLoading(true);
     try {
       const res = await scraperService.getTargets(params);
-      setTargets(res.data.results || []);
-      setMeta(res.data);
+      const payload = res.data;
+
+      const list = Array.isArray(payload) ? payload : (payload?.results ?? []);
+
+      setTargets(list);
+      setMeta(
+        Array.isArray(payload)
+          ? { count: payload.length, results: payload }
+          : payload,
+      );
     } finally {
       setLoading(false);
     }
@@ -23,17 +31,27 @@ export default function useScraper() {
     setLoading(true);
     try {
       const res = await scraperService.getRuns(params);
-      setRuns(res.data.results || []);
-      setMeta(res.data);
+      const payload = res.data;
+      const list = Array.isArray(payload) ? payload : (payload?.results ?? []);
+
+      setRuns(list);
+      setMeta(
+        Array.isArray(payload)
+          ? { count: payload.length, results: payload }
+          : payload,
+      );
     } finally {
       setLoading(false);
     }
   }, []);
 
-  const toggleTarget = useCallback(async (id, enabled) => {
-    await scraperService.updateTarget(id, { enabled: !enabled });
-    await fetchTargets({ page });        // ← auto-refresh
-  }, [fetchTargets, page]);
+  const toggleTarget = useCallback(
+    async (id, enabled) => {
+      await scraperService.updateTarget(id, { enabled: !enabled });
+      await fetchTargets({ page }); 
+    },
+    [fetchTargets, page],
+  );
 
   const triggerRun = useCallback(async (id, mode, note) => {
     await scraperService.triggerRun(id, mode, note);
