@@ -31,7 +31,7 @@ export const SCRAPER_RUN_TABLE_COLUMNS = [
     width: "w-24",
     filterKey: "mode",
     cell: ({ mode }) => {
-      const cfg = ingestion_RUN_MODE_CONFIG[mode];
+      const cfg = INGESTION_RUN_MODE_CONFIG[mode];
       if (!cfg) return <span className="text-muted-foreground text-xs">—</span>;
       return (
         <span className="inline-flex items-center gap-1.5 text-xs font-medium">
