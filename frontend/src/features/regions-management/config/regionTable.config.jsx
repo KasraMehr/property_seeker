@@ -54,10 +54,10 @@ export const REGION_TABLE_COLUMNS = [
   //     <span className="text-sm text-muted-foreground">{neighborhoods_count ?? 0} محله</span>
   //   ),
   // },
-  {
-    key: "actions",
-    header: "",
-    width: "w-20",
-    actions: true,
-  },
+  // {
+  //   key: "actions",
+  //   header: "",
+  //   width: "w-20",
+  //   actions: true,
+  // },
 ];

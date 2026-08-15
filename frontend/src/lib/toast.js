@@ -1,5 +1,6 @@
+import React from "react";
 import { toast } from "react-hot-toast";
-import {TriangleAlert , Check , X , Info} from "lucide-react"
+import { TriangleAlert, Check, X, Info } from "lucide-react";
 
 const defaultOptions = {
   duration: 3000,
@@ -14,8 +15,8 @@ const defaultOptions = {
 };
 
 export const toastService = {
-  success: (message, options = {}) => {
-    return toast.success(message, {
+  success: (message, options = {}) =>
+    toast.success(message, {
       ...defaultOptions,
       ...options,
       style: {
@@ -24,12 +25,11 @@ export const toastService = {
         color: "#FFFFFF",
         ...options.style,
       },
-      icon: Check,
-    });
-  },
+      icon: React.createElement(Check, { size: 18 }),
+    }),
 
-  error: (message, options = {}) => {
-    return toast.error(message, {
+  error: (message, options = {}) =>
+    toast.error(message, {
       ...defaultOptions,
       ...options,
       style: {
@@ -38,12 +38,11 @@ export const toastService = {
         color: "#FFFFFF",
         ...options.style,
       },
-      icon: X ,
-    });
-  },
+      icon: React.createElement(X, { size: 18 }),
+    }),
 
-  info: (message, options = {}) => {
-    return toast(message, {
+  info: (message, options = {}) =>
+    toast(message, {
       ...defaultOptions,
       ...options,
       style: {
@@ -52,12 +51,11 @@ export const toastService = {
         color: "#FFFFFF",
         ...options.style,
       },
-      icon: Info,
-    });
-  },
+      icon: React.createElement(Info, { size: 18 }),
+    }),
 
-  warning: (message, options = {}) => {
-    return toast(message, {
+  warning: (message, options = {}) =>
+    toast(message, {
       ...defaultOptions,
       ...options,
       style: {
@@ -66,16 +64,14 @@ export const toastService = {
         color: "#FFFFFF",
         ...options.style,
       },
-      icon: TriangleAlert,
-    });
-  },
+      icon: React.createElement(TriangleAlert, { size: 18 }),
+    }),
 
   dismiss: () => {
     toast.dismiss();
   },
 };
 
-// send simple toasts
 export const showSuccess = toastService.success;
 export const showError = toastService.error;
 export const showInfo = toastService.info;

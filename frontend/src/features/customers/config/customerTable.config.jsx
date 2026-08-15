@@ -5,14 +5,14 @@ import { formatDate } from "@/utils/formatters";
 import { CUSTOMER_STATUS_CONFIG } from "./customerStatus.config";
 
 export const CUSTOMER_TABLE_COLUMNS = [
-  {
-    key: "id",
-    header: "شناسه",
-    width: "w-14",
-    cell: ({ id }) => (
-      <span className="text-xs text-muted-foreground font-mono">#{id}</span>
-    ),
-  },
+  // {
+  //   key: "id",
+  //   header: "شناسه",
+  //   width: "w-14",
+  //   cell: ({ id }) => (
+  //     <span className="text-xs text-muted-foreground font-mono">#{id}</span>
+  //   ),
+  // },
   {
     key: "full_name",
     header: "نام مشتری",
@@ -73,10 +73,10 @@ export const CUSTOMER_TABLE_COLUMNS = [
     sortable: true,
     cell: ({ created_at }) => formatDate(created_at, "short"),
   },
-  {
-    key: "actions",
-    header: "",
-    width: "w-20",
-    actions: true,
-  },
+  // {
+  //   key: "actions",
+  //   header: "",
+  //   width: "w-20",
+  //   actions: true,
+  // },
 ];

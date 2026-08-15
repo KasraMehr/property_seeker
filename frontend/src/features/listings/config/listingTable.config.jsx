@@ -101,10 +101,10 @@ export const LISTING_TABLE_COLUMNS = [
     width: "w-32",
     cell: ({ last_seen_at }) => formatDate(last_seen_at, "short"),
   },
-  {
-    key: "actions",
-    header: "",
-    width: "w-24",
-    actions: true,
-  },
+  // {
+  //   key: "actions",
+  //   header: "",
+  //   width: "w-24",
+  //   actions: true,
+  // },
 ];

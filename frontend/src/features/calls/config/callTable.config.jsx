@@ -4,12 +4,12 @@ import { CALL_RESULT_CONFIG, CALL_TYPE_CONFIG } from "@/features/calls/config";
 import { formatDate } from "@/utils/formatters";
 
 export const CALL_TABLE_COLUMNS = [
-  {
-    key: "id",
-    header: "شناسه",
-    width: "w-14",
-    cell: ({ id }) => <span className="text-xs text-muted-foreground font-mono">#{id}</span>,
-  },
+  // {
+  //   key: "id",
+  //   header: "شناسه",
+  //   width: "w-14",
+  //   cell: ({ id }) => <span className="text-xs text-muted-foreground font-mono">#{id}</span>,
+  // },
   {
     key: "customer_name",
     header: "مشتری",
@@ -56,10 +56,10 @@ export const CALL_TABLE_COLUMNS = [
     width: "w-32",
     cell: ({ called_at }) => formatDate(called_at, "short"),
   },
-  {
-    key: "actions",
-    header: "",
-    width: "w-20",
-    actions: true,
-  },
+  // {
+  //   key: "actions",
+  //   header: "",
+  //   width: "w-20",
+  //   actions: true,
+  // },
 ];

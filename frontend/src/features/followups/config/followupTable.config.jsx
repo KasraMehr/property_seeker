@@ -9,14 +9,14 @@ import { formatDate } from "@/utils/formatters";
  * Backend: crm.Reminder
  */
 export const FOLLOWUP_TABLE_COLUMNS = [
-  {
-    key: "id",
-    header: "شناسه",
-    width: "w-14",
-    cell: ({ id }) => (
-      <span className="text-xs text-muted-foreground font-mono">#{id}</span>
-    ),
-  },
+  // {
+  //   key: "id",
+  //   header: "شناسه",
+  //   width: "w-14",
+  //   cell: ({ id }) => (
+  //     <span className="text-xs text-muted-foreground font-mono">#{id}</span>
+  //   ),
+  // },
   {
     key: "title",
     header: "عنوان وظیفه",
@@ -104,10 +104,10 @@ export const FOLLOWUP_TABLE_COLUMNS = [
       );
     },
   },
-  {
-    key: "actions",
-    header: "",
-    width: "w-20",
-    actions: true,
-  },
+  // {
+  //   key: "actions",
+  //   header: "",
+  //   width: "w-20",
+  //   actions: true,
+  // },
 ];

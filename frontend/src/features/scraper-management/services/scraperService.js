@@ -19,8 +19,7 @@ const updateTarget = (id, data) =>
 const getRuns = (params = {}) =>
   api.get(API_ENDPOINTS.INGESTION.RUNS.LIST.url, { params });
 
-const getRunById = (id) =>
-  api.get(API_ENDPOINTS.INGESTION.RUNS.DETAIL(id).url);
+const getRunById = (id) => api.get(API_ENDPOINTS.INGESTION.RUNS.DETAIL(id).url);
 
 const getRunItems = (runId, params = {}) =>
   api.get(API_ENDPOINTS.INGESTION.RUNS.ITEMS(runId).url, { params });
@@ -33,11 +32,19 @@ const getSnapshots = (listingId) =>
 const getTargetListings = (listingId) =>
   api.get(API_ENDPOINTS.INGESTION.TARGET_LISTINGS.LIST(listingId).url);
 
-const triggerRun = (targetId, mode, configuration = {}) =>
-  api.post(API_ENDPOINTS.INGESTION.TARGETS.TRIGGER_RUN(targetId).url, {
+const triggerRun = (targetId, mode, configuration = {}) => {
+  const config =
+    configuration &&
+    typeof configuration === "object" &&
+    !Array.isArray(configuration)
+      ? configuration
+      : {};
+
+  return api.post(API_ENDPOINTS.INGESTION.TARGETS.TRIGGER_RUN(targetId).url, {
     mode,
-    configuration,
+    configuration: config,
   });
+};
 const resumeRun = (uuid) =>
   api.post(API_ENDPOINTS.INGESTION.RUNS.RESUME(uuid).url);
 
