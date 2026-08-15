@@ -46,13 +46,13 @@ const SCRAPER_RUN_DETAIL_FIELDS = [
       { key: "created_at", label: "تاریخ ثبت", type: "dateTime" },
     ],
   },
-  {
-    section: "config",
-    sectionLabel: "تنظیمات",
-    fields: [
-      { key: "configuration", label: "Configuration", type: "json", fullWidth: true },
-    ],
-  },
+  // {
+  //   section: "config",
+  //   sectionLabel: "تنظیمات",
+  //   fields: [
+  //     { key: "configuration", label: "Configuration", type: "json", fullWidth: true },
+  //   ],
+  // },
 ];
 
 const SCRAPER_RUN_ITEM_COLUMNS = [
