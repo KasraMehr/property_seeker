@@ -1,8 +1,32 @@
 import {
-  Hash, User, Phone, CreditCard, StickyNote, Home, FileText,
-  Building, DollarSign, MapPin, Calendar, Car, Warehouse,
-  Compass, Wrench, CheckCircle2, Tag
+  Hash,
+  User,
+  Phone,
+  CreditCard,
+  StickyNote,
+  Home,
+  FileText,
+  Building,
+  DollarSign,
+  MapPin,
+  Calendar,
+  Car,
+  Warehouse,
+  Compass,
+  Wrench,
+  CheckCircle2,
+  Tag,
 } from "lucide-react";
+
+/**
+ * Owner Detail Modal Config
+ * Backend: properties.OwnerDetailSerializer
+ * فیلدهای واقعی:
+ * id, full_name, phone, alternate_phone, national_id, notes,
+ * properties_count, created_at, updated_at, created_by, properties
+ *
+ *  created_by در Serializer بدون UserSerializer است → فقط id (PK) برمی‌گردد
+ */
 
 /* ─── Icon Map ─── */
 export const OWNER_ICON_MAP = {
@@ -24,10 +48,20 @@ export const OWNER_DETAIL_FIELDS = [
     section: "basic",
     sectionLabel: "اطلاعات مالک",
     fields: [
-      { key: "full_name", label: "نام و نام خانوادگی", type: "user" },
+      { key: "full_name", label: "نام و نام خانوادگی" },
       { key: "phone", label: "شماره تماس", type: "phone" },
-      { key: "alternate_phone", label: "شماره تماس جایگزین", type: "phone" },
-      { key: "national_id", label: "کد ملی", type: "mono" },
+      {
+        key: "alternate_phone",
+        label: "شماره تماس جایگزین",
+        type: "phone",
+        condition: (v) => !!v,
+      },
+      {
+        key: "national_id",
+        label: "کد ملی",
+        type: "mono",
+        condition: (v) => !!v,
+      },
       { key: "notes", label: "یادداشت", fullWidth: true },
     ],
   },
@@ -39,23 +73,23 @@ export const OWNER_DETAIL_FIELDS = [
     ],
   },
   {
-    section: "dates",
-    sectionLabel: "تاریخ‌ها",
+    section: "meta",
+    sectionLabel: "ثبت‌کننده و تاریخ‌ها",
     fields: [
+      // created_by = فقط PK (عدد). اگر بعداً بک‌اند UserSerializer گذاشت، type را به "user" برگردان
+      {
+        key: "created_by",
+        label: "ثبت‌کننده (شناسه کاربر)",
+        type: "mono",
+        format: (v) => (v != null ? `#${v}` : "—"),
+      },
       { key: "created_at", label: "تاریخ ثبت", type: "date" },
       { key: "updated_at", label: "آخرین بروزرسانی", type: "date" },
     ],
   },
-  {
-    section: "created_by",
-    sectionLabel: "ثبت‌کننده",
-    fields: [
-      { key: "created_by", label: "ثبت‌کننده", type: "user" },
-    ],
-  },
 ];
 
-/* ─── Owner Properties ─── */
+/* ─── Owner Properties (لیست املاک داخل detail) ─── */
 export const OWNER_PROPERTY_ICON_MAP = {
   id: Hash,
   property_code: Hash,
@@ -87,15 +121,48 @@ export const OWNER_PROPERTY_ICON_MAP = {
   updated_at: Calendar,
 };
 
+/**
+ * ستون‌های جدول املاک مالک
+ * مطابق OwnerPropertySerializer در بک‌اند:
+ * agent (UserSerializer), address (AddressSerializer), create_by (UserSerializer),
+ * agency (string name), + فیلدهای ملک
+ */
 export const OWNER_PROPERTY_COLUMNS = [
   { key: "property_code", header: "کد ملک", type: "mono" },
   { key: "title", header: "عنوان ملک" },
   { key: "property_type", header: "نوع ملک" },
-  { key: "deal_type", header: "نوع معامله", type: "status", configKey: "propertyDealType" },
-  { key: "agent", header: "مشاور", type: "user" },
-  { key: "address", header: "آدرس", type: "nested", nestedKey: "full_text" },
-  { key: "agency", header: "آژانس" },
-  { key: "create_by", header: "ثبت‌کننده", type: "user" },
+  {
+    key: "deal_type",
+    header: "نوع معامله",
+    type: "status",
+    configKey: "propertyDealType",
+  },
+  {
+    key: "status",
+    header: "وضعیت",
+    type: "status",
+    configKey: "propertyStatus",
+  },
+  // agent = UserSerializer → آبجکت؛ اگر renderer فقط string می‌خواهد:
+  {
+    key: "agent",
+    header: "مشاور",
+    type: "nested",
+    nestedKey: "full_name",
+  },
+  {
+    key: "address",
+    header: "آدرس",
+    type: "nested",
+    nestedKey: "full_text",
+  },
+  { key: "agency", header: "آژانس" }, // string (agency.name)
+  {
+    key: "create_by",
+    header: "ثبت‌کننده",
+    type: "nested",
+    nestedKey: "full_name",
+  },
   { key: "area", header: "متراژ", suffix: " متر مربع" },
   { key: "floor", header: "طبقه" },
   { key: "total_floors", header: "تعداد طبقات" },
@@ -106,13 +173,12 @@ export const OWNER_PROPERTY_COLUMNS = [
   { key: "storage_count", header: "انباری" },
   { key: "orientation", header: "جهت" },
   { key: "condition", header: "وضعیت ساختمان" },
-  { key: "description", header: "توضیحات", type: "text_truncate" },
   { key: "price_per_meter", header: "قیمت هر متر", type: "price" },
   { key: "sale_price", header: "قیمت فروش", type: "price" },
   { key: "mortgage_amount", header: "رهن کامل", type: "price" },
   { key: "deposit_amount", header: "ودیعه", type: "price" },
   { key: "monthly_rent", header: "اجاره ماهیانه", type: "price" },
-  { key: "status", header: "وضعیت", type: "status", configKey: "propertyStatus" },
+  { key: "description", header: "توضیحات", type: "text_truncate" },
   { key: "created_at", header: "تاریخ ثبت", type: "date" },
   { key: "updated_at", header: "آخرین بروزرسانی", type: "date" },
 ];

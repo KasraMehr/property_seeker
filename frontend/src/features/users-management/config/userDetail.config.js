@@ -1,20 +1,32 @@
 import {
-  Hash, User, Phone, Fingerprint, Shield, Building2, MapPin,
-  CheckCircle2, XCircle, Crown, Calendar, StickyNote, Home,
-  PhoneCall, ClipboardList, Eye, FileText, UserPlus, Settings,
-  LogIn, LogOut, Pencil, Trash2, RotateCcw, Zap, ShieldCheck, ShieldX
+  Hash,
+  User,
+  Phone,
+  Fingerprint,
+  Shield,
+  Building2,
+  MapPin,
+  CheckCircle2,
+  Crown,
+  Calendar,
 } from "lucide-react";
 
-/**,
+/**
  * User Detail Modal Config
- * Backend: accounts.User + audit.ActivityLog
- * Tabs: profile | activity (admin only)
+ * Backend: accounts.UserSerializer
+ * id, full_name, phone, national_id, agency, role,
+ * service_neighborhoods, is_owner, is_active, created_at, updated_at
  */
 
 /* ─── Tabs ─── */
 export const USER_DETAIL_TABS = [
   { key: "profile", label: "مشخصات کاربر", icon: User },
-  { key: "activity", label: "تاریخچه فعالیت", icon: Calendar, permission: "view_property_status_history" }, // یا هر پرمیشن admin-only
+  {
+    key: "activity",
+    label: "تاریخچه فعالیت",
+    icon: Calendar,
+    permission: "view_property_status_history",
+  },
 ];
 
 /* ─── Icon Map ─── */
@@ -28,12 +40,11 @@ export const USER_ICON_MAP = {
   service_neighborhoods: MapPin,
   is_active: CheckCircle2,
   is_owner: Crown,
-  is_staff: Settings,
   created_at: Calendar,
   updated_at: Calendar,
 };
 
-/* ─── Tab 1: Profile Fields ─── */
+/* ─── Tab 1: Profile ─── */
 export const USER_PROFILE_FIELDS = [
   {
     section: "basic",
@@ -50,24 +61,45 @@ export const USER_PROFILE_FIELDS = [
     sectionLabel: "نقش و سازمان",
     fields: [
       { key: "role", label: "نقش(ها)", type: "role_list" },
-      { key: "agency", label: "آژانس", type: "nested", nestedKey: "name", fullWidth: true },
+      {
+        key: "agency",
+        label: "آژانس",
+        type: "nested",
+        nestedKey: "name",
+        fullWidth: true,
+      },
     ],
   },
   {
     section: "access",
     sectionLabel: "دسترسی‌ها",
     fields: [
-      { key: "is_active", label: "وضعیت حساب", type: "boolean", trueLabel: "فعال", falseLabel: "غیرفعال" },
-      { key: "is_owner", label: "مالک آژانس", type: "boolean" },
-      { key: "is_staff", label: "کارمند سیستم", type: "boolean" },
-      { key: "is_superuser", label: "ابرکاربر", type: "boolean" },
+      {
+        key: "is_active",
+        label: "وضعیت حساب",
+        type: "boolean",
+        trueLabel: "فعال",
+        falseLabel: "غیرفعال",
+      },
+      {
+        key: "is_owner",
+        label: "مالک آژانس",
+        type: "boolean",
+        trueLabel: "بله",
+        falseLabel: "خیر",
+      },
     ],
   },
   {
     section: "service_area",
     sectionLabel: "محله‌های سرویس",
     fields: [
-      { key: "service_neighborhoods", label: "محله‌ها", type: "tag_list", fullWidth: true },
+      {
+        key: "service_neighborhoods",
+        label: "محله‌ها",
+        type: "tag_list",
+        fullWidth: true,
+      },
     ],
   },
   {
@@ -82,10 +114,30 @@ export const USER_PROFILE_FIELDS = [
 
 /* ─── Tab 2: Activity History (audit.ActivityLog) ─── */
 export const USER_ACTIVITY_COLUMNS = [
-  { key: "action", header: "عملیات", type: "status", configKey: "activityLogAction" },
-  { key: "source", header: "منبع", type: "status", configKey: "activityLogSource" },
-  { key: "level", header: "سطح", type: "status", configKey: "activityLogLevel" },
-  { key: "outcome", header: "نتیجه", type: "status", configKey: "activityLogOutcome" },
+  {
+    key: "action",
+    header: "عملیات",
+    type: "status",
+    configKey: "activityLogAction",
+  },
+  {
+    key: "source",
+    header: "منبع",
+    type: "status",
+    configKey: "activityLogSource",
+  },
+  {
+    key: "level",
+    header: "سطح",
+    type: "status",
+    configKey: "activityLogLevel",
+  },
+  {
+    key: "outcome",
+    header: "نتیجه",
+    type: "status",
+    configKey: "activityLogOutcome",
+  },
   { key: "entity_type", header: "موجودیت" },
   { key: "message", header: "پیام", type: "text_truncate" },
   { key: "created_at", header: "زمان", type: "date" },

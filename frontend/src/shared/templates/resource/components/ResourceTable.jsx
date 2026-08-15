@@ -35,7 +35,7 @@ export default function ResourceTable({
     {
       key: "__rowNumber",
       header: "#",
-      width: "48px",
+      width: "w-12",
     },
     ...columns,
   ];

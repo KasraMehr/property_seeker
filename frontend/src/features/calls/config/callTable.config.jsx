@@ -1,4 +1,4 @@
-
+import { buildStatusConfig } from "@/constants/status.utils";
 import StatusBadge from "@/shared/ui/badges/StatusBadge";
 import { CALL_RESULT_CONFIG, CALL_TYPE_CONFIG } from "@/features/calls/config";
 import { formatDate } from "@/utils/formatters";
@@ -40,7 +40,7 @@ export const CALL_TABLE_COLUMNS = [
     header: "نتیجه",
     width: "w-28",
     filterKey: "result",
-    cell: ({ result }) => <StatusBadge status={result} config={CALL_RESULT_CONFIG} />,
+    cell: ({ result }) => <StatusBadge config={buildStatusConfig(CALL_RESULT_CONFIG, result)} />,
   },
   {
     key: "agent_name",

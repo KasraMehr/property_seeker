@@ -42,7 +42,7 @@ export const SCRAPER_TARGET_DETAIL_FIELDS = [
     fields: [
       { key: "id", label: "شناسه", format: (v) => `#${v}` },
       { key: "name", label: "نام تارگت", fullWidth: true },
-      { key: "source", label: "منبع", type: "nested", nestedKey: "name" },
+      { key: "source_detail", label: "منبع", type: "nested", nestedKey: "name" },
       { key: "search_url", label: "URL جستجو", type: "link", fullWidth: true },
     ],
   },

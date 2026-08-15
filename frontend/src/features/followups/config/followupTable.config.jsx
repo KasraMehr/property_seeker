@@ -3,6 +3,7 @@ import {
   FOLLOWUP_STATUS_CONFIG,
   FOLLOWUP_TYPE_CONFIG,
 } from "@/features/followups/config";
+import { buildStatusConfig } from "@/constants/status.utils";
 import { formatDate } from "@/utils/formatters";
 /**
  * Reminder (Follow-up) Table Columns
@@ -59,7 +60,7 @@ export const FOLLOWUP_TABLE_COLUMNS = [
     width: "w-24",
     filterKey: "status",
     cell: ({ status }) => (
-      <StatusBadge status={status} config={FOLLOWUP_STATUS_CONFIG} />
+      <StatusBadge config={buildStatusConfig(FOLLOWUP_STATUS_CONFIG, status)} />
     ),
   },
   {

@@ -2,6 +2,7 @@ import CustomerTypeBadge from "../components/CustomerTypeBadge";
 import SourceBadge from "@/shared/ui/badges/SourceBadge";
 import StatusBadge from "@/shared/ui/badges/StatusBadge";
 import { formatDate } from "@/utils/formatters";
+import { buildStatusConfig } from "@/constants/status.utils";
 import { CUSTOMER_STATUS_CONFIG } from "./customerStatus.config";
 
 export const CUSTOMER_TABLE_COLUMNS = [
@@ -41,8 +42,7 @@ export const CUSTOMER_TABLE_COLUMNS = [
     width: "w-28",
     cell: ({ status }) => (
       <StatusBadge
-        status={status}
-        config={CUSTOMER_STATUS_CONFIG}
+        config={buildStatusConfig(CUSTOMER_STATUS_CONFIG, status)}
         size="sm"
         variant="soft"
       />

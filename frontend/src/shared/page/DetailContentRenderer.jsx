@@ -1,7 +1,15 @@
-import { useMemo  ,useEffect } from "react";
-import { Link2, ExternalLink, CheckCircle2, XCircle, User, Building2 } from "lucide-react";
+import { useMemo, useEffect } from "react";
+import {
+  Link2,
+  ExternalLink,
+  CheckCircle2,
+  XCircle,
+  User,
+  Building2,
+} from "lucide-react";
 import StatusBadge from "@/shared/ui/badges/StatusBadge";
 import RoleBadge from "@/shared/ui/badges/RoleBadge";
+import { buildStatusConfig } from "@/constants/status.utils";
 import { formatPrice, formatDate } from "@/utils/formatters";
 import {
   LISTING_STATUS_CONFIG,
@@ -12,7 +20,10 @@ import {
   PROPERTY_DEAL_TYPE_CONFIG,
 } from "@/features/properties/config";
 import { CALL_TYPE_CONFIG, CALL_RESULT_CONFIG } from "@/features/calls/config";
-import { FOLLOWUP_TYPE_CONFIG, FOLLOWUP_STATUS_CONFIG } from "@/features/followups/config";
+import {
+  FOLLOWUP_TYPE_CONFIG,
+  FOLLOWUP_STATUS_CONFIG,
+} from "@/features/followups/config";
 import {
   INGESTION_RUN_STATUS_CONFIG,
   INGESTION_RUN_MODE_CONFIG,
@@ -25,6 +36,10 @@ import {
   ACTIVITY_LOG_LEVEL_CONFIG,
   ACTIVITY_LOG_OUTCOME_CONFIG,
 } from "@/features/activity-log/config";
+import {
+  CUSTOMER_TYPE_CONFIG,
+  CUSTOMER_STATUS_CONFIG,
+} from "@/features/customers/config";
 
 /* ─── Status Config Map ───
  * NOTE: mediaType intentionally omitted — no `features/media` config exists
@@ -46,6 +61,8 @@ const STATUS_CONFIG_MAP = {
   activityLogSource: ACTIVITY_LOG_SOURCE_CONFIG,
   activityLogLevel: ACTIVITY_LOG_LEVEL_CONFIG,
   activityLogOutcome: ACTIVITY_LOG_OUTCOME_CONFIG,
+  customerType: CUSTOMER_TYPE_CONFIG,
+  customerStatus: CUSTOMER_STATUS_CONFIG,
 };
 
 /* ─── Get nested value ─── */
@@ -84,13 +101,22 @@ export function formatFieldValue(value, field, data) {
     }
     case "nested": {
       const nestedVal = field.dataKey ? getValue(data, field.dataKey) : value;
-      const display = field.nestedKey ? getValue(nestedVal, field.nestedKey) : nestedVal;
+      const display = field.nestedKey
+        ? getValue(nestedVal, field.nestedKey)
+        : nestedVal;
       return display || "—";
     }
     case "status": {
       const cfg = STATUS_CONFIG_MAP[field.configKey];
-      if (!cfg || !cfg[value]) return String(value);
-      return <StatusBadge status={value} config={cfg} size="sm" variant="soft" />;
+      if (!cfg) return String(value);
+
+      return (
+        <StatusBadge
+          config={buildStatusConfig(cfg, value)}
+          size="sm"
+          variant="soft"
+        />
+      );
     }
     case "boolean": {
       const isTrue = value === true || value === "true";
@@ -105,16 +131,27 @@ export function formatFieldValue(value, field, data) {
       );
     }
     case "link": {
-      const linkText = field.displayKey ? getValue(value, field.displayKey) : (typeof value === "string" ? value : "لینک");
-      const href = typeof value === "string" ? value : (value?.url || "#");
+      const href = typeof value === "string" ? value : value?.url || "#";
+
       return (
-        <a href={href} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs text-primary hover:underline">
-          <ExternalLink className="w-3 h-3" /> {linkText}
+        <a
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          title={href}
+          className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
+        >
+          <span>{field.linkText || "مشاهده آگهی منبع"}</span>
+          <ExternalLink className="w-3.5 h-3.5" />
         </a>
       );
     }
     case "mono":
-      return <span className="text-xs font-mono text-muted-foreground">{String(value)}</span>;
+      return (
+        <span className="text-xs font-mono text-muted-foreground">
+          {String(value)}
+        </span>
+      );
     case "json":
       return (
         <pre className="text-[10px] font-mono bg-muted p-2 rounded overflow-auto max-h-40">
@@ -122,11 +159,20 @@ export function formatFieldValue(value, field, data) {
         </pre>
       );
     case "json_badge": {
-      const arr = Array.isArray(value) ? value : (typeof value === "object" ? Object.keys(value) : [value]);
+      const arr = Array.isArray(value)
+        ? value
+        : typeof value === "object"
+          ? Object.keys(value)
+          : [value];
       return (
         <div className="flex flex-wrap gap-1">
           {arr.map((item, i) => (
-            <span key={i} className="text-[10px] bg-secondary px-1.5 py-0.5 rounded">{item}</span>
+            <span
+              key={i}
+              className="text-[10px] bg-secondary px-1.5 py-0.5 rounded"
+            >
+              {item}
+            </span>
           ))}
         </div>
       );
@@ -134,7 +180,12 @@ export function formatFieldValue(value, field, data) {
     case "duration": {
       const mins = Math.floor(value / 60);
       const secs = value % 60;
-      return <span>{mins > 0 ? `${mins}m ` : ""}{secs}s</span>;
+      return (
+        <span>
+          {mins > 0 ? `${mins}m ` : ""}
+          {secs}s
+        </span>
+      );
     }
     case "role_list": {
       const roles = Array.isArray(value) ? value : [value];
@@ -151,15 +202,28 @@ export function formatFieldValue(value, field, data) {
       return (
         <div className="flex flex-wrap gap-1">
           {tags.map((t, i) => (
-            <span key={i} className="text-xs bg-secondary px-2 py-0.5 rounded">{t?.name || t}</span>
+            <span key={i} className="text-xs bg-secondary px-2 py-0.5 rounded">
+              {t?.name || t}
+            </span>
           ))}
         </div>
       );
     }
     case "text_truncate":
-      return <span className="text-xs text-muted-foreground truncate max-w-50" title={String(value)}>{String(value)}</span>;
+      return (
+        <span
+          className="text-xs text-muted-foreground truncate max-w-50"
+          title={String(value)}
+        >
+          {String(value)}
+        </span>
+      );
     case "code":
-      return <pre className="text-[10px] font-mono bg-muted p-2 rounded overflow-auto max-h-60">{String(value)}</pre>;
+      return (
+        <pre className="text-[10px] font-mono bg-muted p-2 rounded overflow-auto max-h-60">
+          {String(value)}
+        </pre>
+      );
     case "action":
       return null; // handled separately
     default:
@@ -171,9 +235,17 @@ export function formatFieldValue(value, field, data) {
 }
 
 /* ─── Field Grid Component ─── */
-export function DetailFieldGrid({ data, sections, emptyText = "اطلاعاتی موجود نیست" }) {
+export function DetailFieldGrid({
+  data,
+  sections,
+  emptyText = "اطلاعاتی موجود نیست",
+}) {
   if (!data) {
-    return <div className="py-12 text-center text-sm text-muted-foreground">{emptyText}</div>;
+    return (
+      <div className="py-12 text-center text-sm text-muted-foreground">
+        {emptyText}
+      </div>
+    );
   }
 
   return (
@@ -183,7 +255,9 @@ export function DetailFieldGrid({ data, sections, emptyText = "اطلاعاتی 
           if (f.condition && typeof f.condition === "function") {
             return f.condition(data);
           }
-          const val = f.dataKey ? getValue(data, f.dataKey) : getValue(data, f.key);
+          const val = f.dataKey
+            ? getValue(data, f.dataKey)
+            : getValue(data, f.key);
           return val !== null && val !== undefined && val !== "";
         });
 
@@ -196,7 +270,9 @@ export function DetailFieldGrid({ data, sections, emptyText = "اطلاعاتی 
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {visibleFields.map((field) => {
-                const rawValue = field.dataKey ? getValue(data, field.dataKey) : getValue(data, field.key);
+                const rawValue = field.dataKey
+                  ? getValue(data, field.dataKey)
+                  : getValue(data, field.key);
                 const displayValue = formatFieldValue(rawValue, field, data);
                 if (displayValue === null) return null;
 
@@ -206,10 +282,16 @@ export function DetailFieldGrid({ data, sections, emptyText = "اطلاعاتی 
                     className={`flex items-start gap-2 p-2.5 rounded-lg bg-surface border border-border ${field.fullWidth ? "sm:col-span-2" : ""}`}
                   >
                     <div className="min-w-0 flex-1">
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{field.label}</p>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wide">
+                        {field.label}
+                      </p>
                       <div className="text-sm text-foreground font-medium wrap-break-word mt-0.5">
                         {displayValue}
-                        {field.suffix && !field.type && <span className="text-xs text-muted-foreground mr-1">{field.suffix}</span>}
+                        {field.suffix && !field.type && (
+                          <span className="text-xs text-muted-foreground mr-1">
+                            {field.suffix}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -224,9 +306,17 @@ export function DetailFieldGrid({ data, sections, emptyText = "اطلاعاتی 
 }
 
 /* ─── Simple List Table for Tab Content ─── */
-export function DetailListTable({ data, columns, emptyText = "موردی یافت نشد" }) {
+export function DetailListTable({
+  data,
+  columns,
+  emptyText = "موردی یافت نشد",
+}) {
   if (!data || data.length === 0) {
-    return <div className="py-12 text-center text-sm text-muted-foreground">{emptyText}</div>;
+    return (
+      <div className="py-12 text-center text-sm text-muted-foreground">
+        {emptyText}
+      </div>
+    );
   }
 
   return (
@@ -236,7 +326,10 @@ export function DetailListTable({ data, columns, emptyText = "موردی یاف�
           <thead className="bg-muted border-b border-border">
             <tr>
               {columns.map((col) => (
-                <th key={col.key} className="px-3 py-2 text-right text-xs font-medium text-muted-foreground whitespace-nowrap">
+                <th
+                  key={col.key}
+                  className="px-3 py-2 text-right text-xs font-medium text-muted-foreground whitespace-nowrap"
+                >
                   {col.header}
                 </th>
               ))}
@@ -249,27 +342,56 @@ export function DetailListTable({ data, columns, emptyText = "موردی یاف�
                   const val = getValue(row, col.key);
                   let content = val;
                   if (col.type === "date") content = formatDate(val, "short");
-                  else if (col.type === "mono") content = <span className="text-xs font-mono text-muted-foreground">{val}</span>;
+                  else if (col.type === "mono")
+                    content = (
+                      <span className="text-xs font-mono text-muted-foreground">
+                        {val}
+                      </span>
+                    );
                   else if (col.type === "status" && col.configKey) {
                     const cfg = STATUS_CONFIG_MAP[col.configKey];
-                    content = cfg && cfg[val] ? <StatusBadge status={val} config={cfg} size="sm" variant="soft" /> : val;
+                    content = cfg ? (
+                      <StatusBadge
+                        config={buildStatusConfig(cfg, val)}
+                        size="sm"
+                        variant="soft"
+                      />
+                    ) : (
+                      (val ?? "—")
+                    );
                   } else if (col.type === "nested" && col.nestedKey) {
                     content = getValue(val, col.nestedKey) || "—";
                   } else if (col.type === "user") {
                     content = val?.full_name || "—";
                   } else if (col.type === "json_badge") {
-                    const arr = Array.isArray(val) ? val : (typeof val === "object" ? Object.keys(val) : [val]);
+                    const arr = Array.isArray(val)
+                      ? val
+                      : typeof val === "object"
+                        ? Object.keys(val)
+                        : [val];
                     content = (
                       <div className="flex flex-wrap gap-1">
                         {arr.map((item, i) => (
-                          <span key={i} className="text-[10px] bg-secondary px-1.5 py-0.5 rounded">{item}</span>
+                          <span
+                            key={i}
+                            className="text-[10px] bg-secondary px-1.5 py-0.5 rounded"
+                          >
+                            {item}
+                          </span>
                         ))}
                       </div>
                     );
                   } else if (col.format && typeof col.format === "function") {
                     content = col.format(val);
                   }
-                  return <td key={col.key} className="px-3 py-2 text-xs text-foreground whitespace-nowrap">{content || "—"}</td>;
+                  return (
+                    <td
+                      key={col.key}
+                      className="px-3 py-2 text-xs text-foreground whitespace-nowrap"
+                    >
+                      {content || "—"}
+                    </td>
+                  );
                 })}
               </tr>
             ))}

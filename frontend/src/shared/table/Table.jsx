@@ -76,10 +76,11 @@ export default function Table({
     uppercase tracking-wide whitespace-nowrap select-none
     ${onSort && col.sortable !== false ? "cursor-pointer hover:text-foreground" : ""}
   `}
-                style={{
-                  width: col.width,
-                  minWidth: col.minWidth,
-                }}
+                className={`
+  px-3 py-3 ... 
+  ${col.width || ""}
+`}
+                style={col.minWidth ? { minWidth: col.minWidth } : undefined}
                 onClick={() => {
                   if (onSort && col.sortable !== false) onSort(col.key);
                 }}
