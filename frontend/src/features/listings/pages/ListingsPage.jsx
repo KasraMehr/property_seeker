@@ -43,9 +43,13 @@ export default function ListingsPage() {
     setOrdering,
     page,
     setPage,
+    pageSize,
     totalPages,
     getById,
     refresh,
+    review,
+    bulkReview,
+    promote,
   } = useListing();
 
   const [detailListing, setDetailListing] = useState(null);
@@ -98,23 +102,33 @@ export default function ListingsPage() {
 
   // ─── Row actions ───
   const handleRowAction = useCallback(
-    (actionKey, row) => {
-      switch (actionKey) {
-        case "view":
-          openDetail(row);
-          break;
-        case "register_call":
-          setCallListing(row);
-          break;
-        case "open_source":
-          if (row.url) window.open(row.url, "_blank", "noopener,noreferrer");
-          break;
-        default:
-          break;
-      }
-    },
-    [openDetail],
-  );
+  async (actionKey, row) => {
+    switch (actionKey) {
+      case "view":
+        openDetail(row);
+        break;
+      case "register_call":
+        setCallListing(row);
+        break;
+      case "open_source":
+        if (row.url) window.open(row.url, "_blank", "noopener,noreferrer");
+        break;
+      case "shortlist":
+        await review(row.id, "shortlisted");
+        break;
+      case "reject":
+        await review(row.id, "rejected");
+        break;
+      // case "promote":
+      //   مودال promote را باز کن؛ بعد از submit: promote(row.id, formData)
+      //   setPromoteListing(row);
+      //   break;
+      default:
+        break;
+    }
+  },
+  [openDetail, review],
+);
 
   // map for call log
   const mapCallPayload = useCallback((form, listing) => {

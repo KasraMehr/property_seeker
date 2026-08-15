@@ -235,15 +235,32 @@ export const API_ENDPOINTS = {
     },
   },
 
-  // 6. LISTINGS = LEADS (backend model exists, views pending — no urls.py at all)
+  // 6. LISTINGS (backend: listing app)
   LISTINGS: {
     LIST: {
       url: `${API_BASE}/listing/list/`,
       method: "GET",
+      status: "[OK]",
     },
     DETAIL: (id) => ({
       url: `${API_BASE}/listing/detail/${id}/`,
       method: "GET",
+      status: "[OK]",
+    }),
+    REVIEW: (id) => ({
+      url: `${API_BASE}/listing/${id}/review/`,
+      method: "PUT",
+      status: "[OK]",
+    }),
+    BULK_REVIEW: {
+      url: `${API_BASE}/listing/bulk/review-change-status/`,
+      method: "PUT",
+      status: "[OK]",
+    },
+    PROMOTE: (id) => ({
+      url: `${API_BASE}/listing/${id}/promote/`,
+      method: "POST",
+      status: "[OK]",
     }),
   },
 

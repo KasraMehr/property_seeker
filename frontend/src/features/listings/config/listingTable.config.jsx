@@ -9,7 +9,10 @@ import { formatPrice, formatDate } from "@/utils/formatters";
 
 /**
  * Listing Table Columns
- * Backend: listing.Listing
+ * Backend list serializer fields only:
+ * id, source, external_id, url, status, review_status,
+ * title, listed_sale_price, listed_rent_amount,
+ * published_at, first_seen_at, last_seen_at
  */
 export const LISTING_TABLE_COLUMNS = [
   {
@@ -27,7 +30,7 @@ export const LISTING_TABLE_COLUMNS = [
     cell: ({ title, external_id }) => (
       <div className="flex flex-col">
         <span className="font-medium truncate max-w-50" title={title}>
-          {title}
+          {title || "—"}
         </span>
         <span className="text-xs text-muted-foreground font-mono">
           {external_id || "—"}
@@ -46,43 +49,22 @@ export const LISTING_TABLE_COLUMNS = [
     header: "قیمت / اجاره",
     width: "w-36",
     cell: ({ listed_sale_price, listed_rent_amount }) => {
-      if (listed_sale_price)
+      if (listed_sale_price) {
         return (
           <span className="font-medium text-emerald-600">
             {formatPrice(listed_sale_price)}
           </span>
         );
-      if (listed_rent_amount)
+      }
+      if (listed_rent_amount) {
         return (
           <span className="font-medium text-sky-600">
             {formatPrice(listed_rent_amount)}
           </span>
         );
+      }
       return <span className="text-muted-foreground text-xs">—</span>;
     },
-  },
-  {
-    key: "area",
-    header: "متراژ",
-    width: "w-20",
-    cell: ({ listed_area }) =>
-      listed_area ? (
-        <span>{listed_area} م²</span>
-      ) : (
-        <span className="text-muted-foreground text-xs">—</span>
-      ),
-  },
-  {
-    key: "room_count",
-    header: "اتاق",
-    width: "w-16",
-    cell: ({ room_count }) => room_count ?? "—",
-  },
-  {
-    key: "floor_number",
-    header: "طبقه",
-    width: "w-16",
-    cell: ({ floor_number }) => (floor_number != null ? floor_number : "—"),
   },
   {
     key: "status",
