@@ -17,12 +17,28 @@ from listing.serializers.listing import (
     ListingReviewSerializer,
 )
 
+from rest_framework import generics
+from rest_framework.pagination import PageNumberPagination
+
+
+class ListingPagination(PageNumberPagination):
+    page_size = 20
+    page_size_query_param = "page_size"
+    max_page_size = 100
+
 
 class ListingListView(generics.ListAPIView):
-    queryset = Listing.objects.select_related("source").all()
+    queryset = (
+        Listing.objects
+        .select_related("source")
+        .all()
+        .order_by("-last_seen_at", "-id")
+    )
     serializer_class = ListingListSerializer
     permission_classes = (HasRolePermission,)
     required_permission = "view_listing"
+    pagination_class = ListingPagination
+
 
 
 class ListingDetailView(generics.RetrieveAPIView):
