@@ -30,8 +30,10 @@ export const LISTING_ICON_MAP = {
   title: FileText,
   source: ExternalLink,
   url: Link2,
+
   status: FileText,
   review_status: Star,
+
   build_year: Calendar,
   created_at: Calendar,
   updated_at: Calendar,
@@ -43,19 +45,24 @@ export const LISTING_ICON_MAP = {
   last_checked_at: Calendar,
   last_changed_at: Calendar,
   removal_detected_at: Calendar,
+
   listed_area: Home,
   floor_number: Building,
   total_floors: Building,
   room_count: Home,
+
   pictures_match_property: CheckCircle2,
+
   listed_sale_price: DollarSign,
   listed_price_per_meter: DollarSign,
   listed_mortgage_amount: DollarSign,
   listed_deposit_amount: DollarSign,
   listed_rent_amount: DollarSign,
+
   media_count: Image,
   views_count: Eye,
   leads_count: UserPlus,
+
   consecutive_failures: AlertTriangle,
   content_hash: Hash,
   latest_payload: FileText,
@@ -105,18 +112,38 @@ export const LISTING_DETAIL_FIELDS = [
       },
       { key: "listed_mortgage_amount", label: "رهن (منبع)", type: "price" },
       { key: "listed_deposit_amount", label: "ودیعه (منبع)", type: "price" },
-      { key: "listed_rent_amount", label: "اجاره ماهیانه (منبع)", type: "price" },
+      {
+        key: "listed_rent_amount",
+        label: "اجاره ماهیانه (منبع)",
+        type: "price",
+      },
     ],
   },
   {
     section: "physical",
     sectionLabel: "مشخصات فیزیکی",
     fields: [
-      { key: "listed_area", label: "متراژ", suffix: " متر مربع" },
-      { key: "build_year", label: "سال ساخت" },
-      { key: "room_count", label: "تعداد اتاق" },
-      { key: "floor_number", label: "طبقه" },
-      { key: "total_floors", label: "تعداد طبقات" },
+      {
+        key: "listed_area",
+        label: "متراژ",
+        suffix: " متر مربع",
+      },
+      {
+        key: "build_year",
+        label: "سال ساخت",
+      },
+      {
+        key: "room_count",
+        label: "تعداد اتاق",
+      },
+      {
+        key: "floor_number",
+        label: "طبقه",
+      },
+      {
+        key: "total_floors",
+        label: "تعداد طبقات",
+      },
       {
         key: "pictures_match_property",
         label: "تطابق تصاویر",
@@ -176,9 +203,7 @@ export const LISTING_DETAIL_FIELDS = [
   {
     section: "description",
     sectionLabel: "توضیحات",
-    fields: [
-      { key: "description", label: "توضیحات آگهی", fullWidth: true },
-    ],
+    fields: [{ key: "description", label: "توضیحات آگهی", fullWidth: true }],
   },
 ];
 

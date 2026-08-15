@@ -14,14 +14,14 @@ import { formatPrice, formatDate } from "@/utils/formatters";
  * published_at, first_seen_at, last_seen_at
  */
 export const LISTING_TABLE_COLUMNS = [
-  {
-    key: "id",
-    header: "شناسه",
-    width: "w-16",
-    cell: ({ id }) => (
-      <span className="text-xs text-muted-foreground font-mono">#{id}</span>
-    ),
-  },
+  // {
+  //   key: "id",
+  //   header: "شناسه",
+  //   width: "w-16",
+  //   cell: ({ id }) => (
+  //     <span className="text-xs text-muted-foreground font-mono">#{id}</span>
+  //   ),
+  // },
   {
     key: "title",
     header: "عنوان آگهی",
@@ -37,12 +37,12 @@ export const LISTING_TABLE_COLUMNS = [
       </div>
     ),
   },
-  // {
-  //   key: "source",
-  //   header: "منبع",
-  //   width: "w-28",
-  //   cell: ({ source }) => <SourceBadge source={source?.name || "—"} />,
-  // },
+  {
+    key: "source",
+    header: "منبع",
+    width: "w-28",
+    cell: ({ source }) => <SourceBadge source={source?.name || "—"} />,
+  },
   {
     key: "price",
     header: "قیمت / اجاره",
@@ -73,16 +73,16 @@ export const LISTING_TABLE_COLUMNS = [
       <StatusBadge config={buildStatusConfig(LISTING_STATUS_CONFIG, status)} />
     ),
   },
-  {
-    key: "review_status",
-    header: "وضعیت بررسی",
-    width: "w-28",
-    cell: ({ review_status }) => (
-      <StatusBadge
-        config={buildStatusConfig(LISTING_REVIEW_STATUS_CONFIG, review_status)}
-      />
-    ),
-  },
+  // {
+  //   key: "review_status",
+  //   header: "وضعیت بررسی",
+  //   width: "w-28",
+  //   cell: ({ review_status }) => (
+  //     <StatusBadge
+  //       config={buildStatusConfig(LISTING_REVIEW_STATUS_CONFIG, review_status)}
+  //     />
+  //   ),
+  // },
   {
     key: "published_at",
     header: "انتشار",
@@ -95,12 +95,12 @@ export const LISTING_TABLE_COLUMNS = [
   //   width: "w-32",
   //   cell: ({ first_seen_at }) => formatDate(first_seen_at, "short"),
   // },
-  // {
-  //   key: "last_seen",
-  //   header: "آخرین مشاهده",
-  //   width: "w-32",
-  //   cell: ({ last_seen_at }) => formatDate(last_seen_at, "short"),
-  // },
+  {
+    key: "last_seen",
+    header: "آخرین مشاهده",
+    width: "w-32",
+    cell: ({ last_seen_at }) => formatDate(last_seen_at, "short"),
+  },
   {
     key: "actions",
     header: "",

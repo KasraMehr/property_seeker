@@ -33,9 +33,11 @@ const getSnapshots = (listingId) =>
 const getTargetListings = (listingId) =>
   api.get(API_ENDPOINTS.INGESTION.TARGET_LISTINGS.LIST(listingId).url);
 
-const triggerRun = (targetId, mode, note) =>
-  api.post(API_ENDPOINTS.INGESTION.TARGETS.TRIGGER_RUN(targetId).url, { mode, note });
-
+const triggerRun = (targetId, mode, configuration = {}) =>
+  api.post(API_ENDPOINTS.INGESTION.TARGETS.TRIGGER_RUN(targetId).url, {
+    mode,
+    configuration,
+  });
 const resumeRun = (uuid) =>
   api.post(API_ENDPOINTS.INGESTION.RUNS.RESUME(uuid).url);
 

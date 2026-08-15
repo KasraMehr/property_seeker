@@ -1,6 +1,8 @@
 import StatusBadge from "@/shared/ui/badges/StatusBadge";
 import { SCRAPE_TARGET_STATUS_CONFIG } from "@/features/scraper-management/config";
 import { formatDate } from "@/utils/formatters";
+import { buildStatusConfig } from "@/constants/status.utils";
+
 import { Clock, Link2 } from "lucide-react";
 
 /**
@@ -53,8 +55,7 @@ export const SCRAPER_TARGET_TABLE_COLUMNS = [
     filterKey: "enabled",
     cell: ({ enabled }) => (
       <StatusBadge
-        status={enabled ? "enabled" : "disabled"}
-        config={SCRAPE_TARGET_STATUS_CONFIG}
+        config={buildStatusConfig(SCRAPE_TARGET_STATUS_CONFIG , status)}
       />
     ),
   },

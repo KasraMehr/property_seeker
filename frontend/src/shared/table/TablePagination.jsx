@@ -1,5 +1,4 @@
 import { forwardRef } from "react";
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import Button from "../ui/Button";
 
 /**
@@ -45,33 +44,22 @@ const TablePagination = forwardRef(({
     <div
       ref={ref}
       className={`
-        flex items-center justify-between px-4 py-3 border-t border-border bg-background/30
+        flex items-center justify-center gap-2 px-4 py-3 border-t border-border bg-background/30
         ${className}
       `}
     >
-      {/* Prev */}
-      <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => onChange?.(1)}
-          disabled={page <= 1}
-          className="hidden sm:flex w-8 h-8 p-0 rounded-lg"
-        >
-          <ChevronsRight size={16} />
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => onChange?.(page - 1)}
-          disabled={page <= 1}
-          className="w-8 h-8 p-0 rounded-lg"
-        >
-          <ChevronRight size={16} />
-        </Button>
-      </div>
+      {/* prev */}
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => onChange?.(page - 1)}
+        disabled={page <= 1}
+        className="px-3 h-8 rounded-lg text-xs font-medium"
+      >
+        قبلی
+      </Button>
 
-      {/* Pages */}
+      {/* Numbers List*/}
       <div className="flex items-center gap-1">
         {pages.map((p, i) => (
           p === "..." ? (
@@ -95,26 +83,15 @@ const TablePagination = forwardRef(({
       </div>
 
       {/* Next */}
-      <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => onChange?.(page + 1)}
-          disabled={page >= totalPages}
-          className="w-8 h-8 p-0 rounded-lg"
-        >
-          <ChevronLeft size={16} />
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => onChange?.(totalPages)}
-          disabled={page >= totalPages}
-          className="hidden sm:flex w-8 h-8 p-0 rounded-lg"
-        >
-          <ChevronsLeft size={16} />
-        </Button>
-      </div>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => onChange?.(page + 1)}
+        disabled={page >= totalPages}
+        className="px-3 h-8 rounded-lg text-xs font-medium"
+      >
+        بعدی
+      </Button>
     </div>
   );
 });
