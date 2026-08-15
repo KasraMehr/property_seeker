@@ -11,11 +11,7 @@ import useDebounce from "@/shared/useDebounce";
 import Button from "@/shared/ui/Button";
 import ListingDetailModal from "@/features/listings/components/ListingDetailModal";
 import RegisterCallForm from "../../../shared/forms/RegisterCallForm";
-import callService from "@/features/calls/services/callService";
 
-/**
- *suppurted actions for listings
- */
 const LISTING_ROW_ACTIONS = [
   { key: "view", label: "مشاهده", icon: Eye },
   { key: "register_call", label: "ثبت تماس", icon: Phone },
@@ -46,17 +42,12 @@ export default function ListingsPage() {
     pageSize,
     totalPages,
     getById,
-    refresh,
-    review,
-    bulkReview,
-    promote,
   } = useListing();
 
   const [detailListing, setDetailListing] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [callListing, setCallListing] = useState(null);
 
-  // ─── Search (client-side یا query؛ Backend فعلاً FilterSet ندارد) ───
   const [searchInput, setSearchInput] = useState(filterValues.search || "");
   const debouncedSearch = useDebounce(searchInput, 400);
 
@@ -64,7 +55,7 @@ export default function ListingsPage() {
     if (filterValues.search !== searchInput) {
       setSearchInput(filterValues.search || "");
     }
-  }, [filterValues.search]);
+  }, [filterValues.search]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (debouncedSearch !== filterValues.search) {
@@ -72,7 +63,6 @@ export default function ListingsPage() {
     }
   }, [debouncedSearch, filterValues.search, setFilter]);
 
-  // ─── Sort ───
   const handleSort = useCallback(
     (key) => {
       const dir = sort?.key === key && sort?.dir === "asc" ? "desc" : "asc";
@@ -81,7 +71,6 @@ export default function ListingsPage() {
     [sort, setOrdering],
   );
 
-  // ─── Open detail ───
   const openDetail = useCallback(
     async (row) => {
       setDetailLoading(true);
@@ -92,7 +81,7 @@ export default function ListingsPage() {
           setDetailListing(full);
         }
       } catch (err) {
-        toast?.error?.("خطا در دریافت جزئیات آگهی") || console.error(err);
+        console.error(err);
       } finally {
         setDetailLoading(false);
       }
@@ -100,88 +89,24 @@ export default function ListingsPage() {
     [getById],
   );
 
-  // ─── Row actions ───
   const handleRowAction = useCallback(
-  async (actionKey, row) => {
-    switch (actionKey) {
-      case "view":
-        openDetail(row);
-        break;
-      case "register_call":
-        setCallListing(row);
-        break;
-      case "open_source":
-        if (row.url) window.open(row.url, "_blank", "noopener,noreferrer");
-        break;
-      case "shortlist":
-        await review(row.id, "shortlisted");
-        break;
-      case "reject":
-        await review(row.id, "rejected");
-        break;
-      // case "promote":
-      //   مودال promote را باز کن؛ بعد از submit: promote(row.id, formData)
-      //   setPromoteListing(row);
-      //   break;
-      default:
-        break;
-    }
-  },
-  [openDetail, review],
-);
-
-  // map for call log
-  const mapCallPayload = useCallback((form, listing) => {
-    const callTypeMap = {
-      inbound: "incoming",
-      incoming: "incoming",
-      outbound: "outgoing",
-      outgoing: "outgoing",
-    };
-
-    return {
-      customer: form.customer,
-      listing: listing?.id,
-      call_type: callTypeMap[form.call_type] || form.call_type || "outgoing",
-      result: form.result,
-      note: form.note ?? form.notes ?? "",
-      call_duration: Number(form.call_duration ?? form.duration ?? 0) || 0,
-      called_at: form.called_at || new Date().toISOString(),
-      next_follow_up_at: form.next_follow_up_at || form.nextDate || null,
-      follow_up_done: Boolean(form.follow_up_done),
-      ...(listing?.property
-        ? {
-            property:
-              typeof listing.property === "object"
-                ? listing.property.id
-                : listing.property,
-          }
-        : {}),
-    };
-  }, []);
-
-  const handleRegisterCallSubmit = useCallback(
-    async (formData) => {
-      if (!callListing?.id) return;
-
-      const payload = mapCallPayload(formData, callListing);
-
-      if (!payload.customer) {
-        toast?.error?.("انتخاب مشتری الزامی است");
-        throw new Error("customer required");
+    (actionKey, row) => {
+      switch (actionKey) {
+        case "view":
+          openDetail(row);
+          break;
+        case "register_call":
+          setCallListing(row);
+          break;
+        case "open_source":
+          if (row.url) window.open(row.url, "_blank", "noopener,noreferrer");
+          break;
+        default:
+          break;
       }
-
-      await callService.create(payload);
-      toast?.success?.("تماس با موفقیت ثبت شد");
-      setCallListing(null);
-      // refresh?.();
     },
-    [callListing, mapCallPayload],
+    [openDetail],
   );
-
-  const handleRegisterCallFromDetail = useCallback((listing) => {
-    setCallListing(listing);
-  }, []);
 
   const filters = useMemo(
     () => ({
@@ -208,40 +133,21 @@ export default function ListingsPage() {
   const pagination = useMemo(
     () => ({
       page,
-      pageSize: 25,
+      pageSize: pageSize || 20,
       total: meta?.count || 0,
       totalPages: totalPages?.(meta?.count || 0) || 1,
     }),
-    [page, meta?.count, totalPages],
+    [page, pageSize, meta?.count, totalPages],
   );
 
   useEffect(() => {
     setPageHeader({
       title: "آگهی‌ها",
-      subtitle: "آگهی‌های استخراج شده",
-      breadcrumb: [
-        // {
-        //   label: "داشبورد",
-        //   to: "/dashboard",
-        // },
-        // {
-        //   label: "آگهی‌ها",
-        // },
-      ],
-
-      // backTo: "/dashboard",
-
-      // actions: (
-      //   <Button>
-      //     ایجاد آگهی
-      //   </Button>
-      // ),
+      subtitle: "آگهی‌های استخراج‌شده از اسکراپر",
+      breadcrumb: [],
     });
-
-    return () => {
-      setPageHeader(null);
-    };
-  }, [setPageHeader, meta?.count]);
+    return () => setPageHeader(null);
+  }, [setPageHeader]);
 
   const emptyState = useMemo(
     () => (
@@ -284,16 +190,14 @@ export default function ListingsPage() {
         onPageChange={setPage}
       />
 
-      {/* Detail Serializer */}
       <ListingDetailModal
         isOpen={!!detailListing}
         onClose={() => setDetailListing(null)}
         listing={detailListing}
         loading={detailLoading}
-        onRegisterCall={handleRegisterCallFromDetail}
+        onRegisterCall={(listing) => setCallListing(listing)}
       />
 
-      {/* call log with listing-id*/}
       <RegisterCallForm
         isOpen={!!callListing}
         onClose={() => setCallListing(null)}

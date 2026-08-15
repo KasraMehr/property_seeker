@@ -27,17 +27,14 @@ const getById = (id) => api.get(API_ENDPOINTS.LISTINGS.DETAIL(id).url);
 const review = (id, review_status) =>
   api.put(API_ENDPOINTS.LISTINGS.REVIEW(id).url, { review_status });
 
-/** PUT /api/listing/bulk/review-change-status/  body: { listing_ids, review_status } */
+/** PUT /api/listing/bulk/review-change-status/ */
 const bulkReview = (listing_ids, review_status) =>
   api.put(API_ENDPOINTS.LISTINGS.BULK_REVIEW.url, {
     listing_ids,
     review_status,
   });
 
-/**
- * POST /api/listing/<id>/promote/
- * body: { owner, deal_type, area?, title?, address?, property_type?, floor?, total_floors? }
- */
+/** POST /api/listing/<id>/promote/ */
 const promote = (id, data) =>
   api.post(API_ENDPOINTS.LISTINGS.PROMOTE(id).url, data);
 

@@ -8,8 +8,7 @@ import { buildStatusConfig } from "@/constants/status.utils";
 import { formatPrice, formatDate } from "@/utils/formatters";
 
 /**
- * Listing Table Columns
- * Backend list serializer fields only:
+ * فقط فیلدهای ListingListSerializer:
  * id, source, external_id, url, status, review_status,
  * title, listed_sale_price, listed_rent_amount,
  * published_at, first_seen_at, last_seen_at
@@ -38,12 +37,12 @@ export const LISTING_TABLE_COLUMNS = [
       </div>
     ),
   },
-  {
-    key: "source",
-    header: "منبع",
-    width: "w-28",
-    cell: ({ source }) => <SourceBadge source={source?.name || "—"} />,
-  },
+  // {
+  //   key: "source",
+  //   header: "منبع",
+  //   width: "w-28",
+  //   cell: ({ source }) => <SourceBadge source={source?.name || "—"} />,
+  // },
   {
     key: "price",
     header: "قیمت / اجاره",
@@ -90,18 +89,18 @@ export const LISTING_TABLE_COLUMNS = [
     width: "w-32",
     cell: ({ published_at }) => formatDate(published_at, "short"),
   },
-  {
-    key: "first_seen",
-    header: "اولین مشاهده",
-    width: "w-32",
-    cell: ({ first_seen_at }) => formatDate(first_seen_at, "short"),
-  },
-  {
-    key: "last_seen",
-    header: "آخرین مشاهده",
-    width: "w-32",
-    cell: ({ last_seen_at }) => formatDate(last_seen_at, "short"),
-  },
+  // {
+  //   key: "first_seen",
+  //   header: "اولین مشاهده",
+  //   width: "w-32",
+  //   cell: ({ first_seen_at }) => formatDate(first_seen_at, "short"),
+  // },
+  // {
+  //   key: "last_seen",
+  //   header: "آخرین مشاهده",
+  //   width: "w-32",
+  //   cell: ({ last_seen_at }) => formatDate(last_seen_at, "short"),
+  // },
   {
     key: "actions",
     header: "",

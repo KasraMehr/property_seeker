@@ -1,27 +1,29 @@
 import {
-  Hash, FileText, ExternalLink, Link2, Clock, Calendar,
-  User, Home, Building, DollarSign, Image, Eye, UserPlus,
-  CheckCircle2, XCircle, Star, ArrowRightLeft, History,
-  Target, GitCommit, AlertTriangle, Ban, RotateCcw
+  Hash,
+  FileText,
+  ExternalLink,
+  Link2,
+  Calendar,
+  Home,
+  Building,
+  DollarSign,
+  Image,
+  Eye,
+  UserPlus,
+  CheckCircle2,
+  Star,
+  History,
+  Target,
+  GitCommit,
+  AlertTriangle,
 } from "lucide-react";
 
-/**
- * Listing Detail Modal Config
- * Backend: listing.Listing + ingestion.*
- * Tabs: details | snapshots | target_history | status_history | property_link (if promoted)
- */
-
-/* ─── Tabs ─── */
 export const LISTING_DETAIL_TABS = [
   { key: "details", label: "جزئیات آگهی", icon: FileText },
-  { key: "snapshots", label: "اسنپ‌شات‌ها", icon: GitCommit, permission: null }, // visible to all
-  { key: "targets", label: "تاریخچه تارگت", icon: Target, permission: null },
-  { key: "status_history", label: "تاریخچه وضعیت", icon: History, permission: null },
-  // تب «ملک نهایی» فقط وقتی نمایش داده می‌شه که listing.property پر باشه
-  { key: "property", label: "ملک نهایی", icon: Home, condition: (data) => !!data.property },
+  // { key: "snapshots", label: "اسنپ‌شات‌ها", icon: GitCommit },
+  // { key: "targets", label: "تاریخچه تارگت", icon: Target },
 ];
 
-/* ─── Icon Map ─── */
 export const LISTING_ICON_MAP = {
   id: Hash,
   external_id: Hash,
@@ -30,10 +32,7 @@ export const LISTING_ICON_MAP = {
   url: Link2,
   status: FileText,
   review_status: Star,
-  property: Home,
-  created_by: User,
-  agent: User,
-  age: Calendar,
+  build_year: Calendar,
   created_at: Calendar,
   updated_at: Calendar,
   published_at: Calendar,
@@ -45,9 +44,9 @@ export const LISTING_ICON_MAP = {
   last_changed_at: Calendar,
   removal_detected_at: Calendar,
   listed_area: Home,
-  floor: Building,
+  floor_number: Building,
   total_floors: Building,
-  bedrooms: Home,
+  room_count: Home,
   pictures_match_property: CheckCircle2,
   listed_sale_price: DollarSign,
   listed_price_per_meter: DollarSign,
@@ -63,7 +62,7 @@ export const LISTING_ICON_MAP = {
   description: FileText,
 };
 
-/* ─── Tab 1: Listing Details ─── */
+/** مطابق ListingDetailSerializer */
 export const LISTING_DETAIL_FIELDS = [
   {
     section: "basic",
@@ -80,9 +79,18 @@ export const LISTING_DETAIL_FIELDS = [
     section: "status",
     sectionLabel: "وضعیت‌ها",
     fields: [
-      { key: "status", label: "وضعیت آگهی", type: "status", configKey: "listingStatus" },
-      { key: "review_status", label: "وضعیت بررسی", type: "status", configKey: "listingReviewStatus" },
-      { key: "property", label: "ملک تبدیل‌شده", type: "link", linkTo: "property", displayKey: "property_code", condition: (v) => !!v },
+      {
+        key: "status",
+        label: "وضعیت آگهی",
+        type: "status",
+        configKey: "listingStatus",
+      },
+      {
+        key: "review_status",
+        label: "وضعیت بررسی",
+        type: "status",
+        configKey: "listingReviewStatus",
+      },
     ],
   },
   {
@@ -90,7 +98,11 @@ export const LISTING_DETAIL_FIELDS = [
     sectionLabel: "قیمت و مالی",
     fields: [
       { key: "listed_sale_price", label: "قیمت فروش (منبع)", type: "price" },
-      { key: "listed_price_per_meter", label: "قیمت هر متر (منبع)", type: "price" },
+      {
+        key: "listed_price_per_meter",
+        label: "قیمت هر متر (منبع)",
+        type: "price",
+      },
       { key: "listed_mortgage_amount", label: "رهن (منبع)", type: "price" },
       { key: "listed_deposit_amount", label: "ودیعه (منبع)", type: "price" },
       { key: "listed_rent_amount", label: "اجاره ماهیانه (منبع)", type: "price" },
@@ -101,11 +113,15 @@ export const LISTING_DETAIL_FIELDS = [
     sectionLabel: "مشخصات فیزیکی",
     fields: [
       { key: "listed_area", label: "متراژ", suffix: " متر مربع" },
-      { key: "age", label: "سال ساخت" },
-      { key: "bedrooms", label: "تعداد اتاق" },
-      { key: "floor", label: "طبقه" },
+      { key: "build_year", label: "سال ساخت" },
+      { key: "room_count", label: "تعداد اتاق" },
+      { key: "floor_number", label: "طبقه" },
       { key: "total_floors", label: "تعداد طبقات" },
-      { key: "pictures_match_property", label: "تطابق تصاویر", type: "boolean" },
+      {
+        key: "pictures_match_property",
+        label: "تطابق تصاویر",
+        type: "boolean",
+      },
     ],
   },
   {
@@ -127,29 +143,31 @@ export const LISTING_DETAIL_FIELDS = [
       { key: "last_changed_at", label: "آخرین تغییر", type: "date" },
       { key: "consecutive_failures", label: "تعداد خطای متوالی" },
       { key: "removal_detected_at", label: "زمان حذف از منبع", type: "date" },
-      { key: "content_hash", label: "هش محتوا", type: "mono" },
+      // { key: "content_hash", label: "هش محتوا", type: "mono" },
     ],
   },
-  {
-    section: "payload",
-    sectionLabel: "داده خام (Payload)",
-    fields: [
-      { key: "latest_payload", label: "آخرین payload", type: "json", fullWidth: true },
-    ],
-  },
-  {
-    section: "people",
-    sectionLabel: "اشخاص",
-    fields: [
-      { key: "created_by", label: "ثبت‌کننده اولیه", type: "user" },
-    ],
-  },
+  // {
+  //   section: "payload",
+  //   sectionLabel: "داده خام (Payload)",
+  //   fields: [
+  //     {
+  //       key: "latest_payload",
+  //       label: "آخرین payload",
+  //       type: "json",
+  //       fullWidth: true,
+  //     },
+  //   ],
+  // },
   {
     section: "dates",
     sectionLabel: "تاریخ‌ها",
     fields: [
       { key: "published_at", label: "تاریخ انتشار", type: "date" },
-      { key: "source_updated_at", label: "آخرین بروزرسانی منبع", type: "date" },
+      {
+        key: "source_updated_at",
+        label: "آخرین بروزرسانی منبع",
+        type: "date",
+      },
       { key: "expires_at", label: "تاریخ انقضا", type: "date" },
       { key: "created_at", label: "تاریخ ثبت در سیستم", type: "date" },
       { key: "updated_at", label: "آخرین بروزرسانی", type: "date" },
@@ -164,71 +182,28 @@ export const LISTING_DETAIL_FIELDS = [
   },
 ];
 
-/* ─── Tab 2: Snapshots (ingestion.ListingSnapshot) ───
- */
 export const LISTING_SNAPSHOT_COLUMNS = [
   { key: "observed_at", header: "زمان مشاهده", type: "date" },
-  { key: "content_hash", header: "هش محتوا", type: "mono" },
-  { key: "run", header: "اجرا", type: "nested", nestedKey: "id", format: (v) => v?.slice(0, 8) + "..." },
+  // { key: "content_hash", header: "هش محتوا", type: "mono" },
+  {
+    key: "run",
+    header: "اجرا",
+    type: "nested",
+    nestedKey: "id",
+    format: (v) => (v ? String(v).slice(0, 8) + "…" : "—"),
+  },
   { key: "changed_fields", header: "فیلدهای تغییرکرده", type: "json_badge" },
 ];
 
-/* ─── Tab 3: Target History (ingestion.TargetListing) ─── */
 export const LISTING_TARGET_COLUMNS = [
   { key: "target", header: "تارگت", type: "nested", nestedKey: "name" },
   { key: "first_seen_at", header: "اولین مشاهده", type: "date" },
   { key: "last_seen_at", header: "آخرین مشاهده", type: "date" },
-  { key: "last_seen_full_discovery_at", header: "آخرین کشف کامل", type: "date" },
+  {
+    key: "last_seen_full_discovery_at",
+    header: "آخرین کشف کامل",
+    type: "date",
+  },
   { key: "consecutive_full_absences", header: "غیبت‌های متوالی" },
   { key: "last_card_fingerprint", header: "Fingerprint", type: "mono" },
-];
-
-/* ─── Tab 4: Status History (listing.ListingStatusHistory) ─── */
-export const LISTING_STATUS_HISTORY_COLUMNS = [
-  { key: "old_status", header: "وضعیت قبلی", type: "status", configKey: "listingStatus" },
-  { key: "new_status", header: "وضعیت جدید", type: "status", configKey: "listingStatus" },
-  { key: "reason", header: "دلیل", type: "text" },
-  { key: "changed_by", header: "تغییردهنده", type: "user" },
-  { key: "created_at", header: "زمان", type: "date" },
-];
-
-/* ─── Tab 5: Property (properties.Property) ───
- */
-export const LISTING_PROPERTY_FIELDS = [
-  {
-    section: "basic",
-    sectionLabel: "اطلاعات ملک نهایی",
-    fields: [
-      { key: "property_code", label: "کد ملک" },
-      { key: "title", label: "عنوان", fullWidth: true },
-      { key: "deal_type", label: "نوع معامله", type: "status", configKey: "propertyDealType" },
-      { key: "status", label: "وضعیت", type: "status", configKey: "propertyStatus" },
-    ],
-  },
-  {
-    section: "pricing",
-    sectionLabel: "قیمت نهایی (بعد از بررسی)",
-    fields: [
-      { key: "sale_price", label: "قیمت فروش نهایی", type: "price" },
-      { key: "price_per_meter", label: "قیمت هر متر نهایی", type: "price" },
-      { key: "mortgage_amount", label: "رهن نهایی", type: "price" },
-      { key: "deposit_amount", label: "ودیعه نهایی", type: "price" },
-      { key: "monthly_rent", label: "اجاره نهایی", type: "price" },
-    ],
-  },
-  {
-    section: "people",
-    sectionLabel: "اشخاص نهایی",
-    fields: [
-      { key: "owner", label: "مالک", type: "user" },
-      { key: "agent", label: "مشاور", type: "user" },
-    ],
-  },
-  {
-    section: "link",
-    sectionLabel: "",
-    fields: [
-      { key: "id", label: "", type: "action", action: "navigate_to_property", label: "مشاهده صفحه کامل ملک →" },
-    ],
-  },
 ];

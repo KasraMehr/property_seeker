@@ -236,6 +236,7 @@ export const API_ENDPOINTS = {
   },
 
   // 6. LISTINGS (backend: listing app)
+  // 6. LISTINGS
   LISTINGS: {
     LIST: {
       url: `${API_BASE}/listing/list/`,
@@ -645,14 +646,15 @@ export const API_ENDPOINTS = {
       LIST: (listingId) => ({
         url: `${API_BASE}/ingestion/listings/${listingId}/snapshots/`,
         method: "GET",
-        status: "[PEND]",
+        status: "[OK]",
       }),
     },
     TARGET_LISTINGS: {
       LIST: (listingId) => ({
-        url: `${API_BASE}/ingestion/listings/${listingId}/target-listings/`,
+        // path("listings/<int:id>/target/", ...)
+        url: `${API_BASE}/ingestion/listings/${listingId}/target/`,
         method: "GET",
-        status: "[PEND]",
+        status: "[OK]",
       }),
     },
   },

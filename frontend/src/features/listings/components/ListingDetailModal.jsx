@@ -1,22 +1,30 @@
-import { useState, useMemo, useEffect } from "react";
-import { ExternalLink, Home, Phone } from "lucide-react";
+import { useState, useMemo, useEffect, useCallback } from "react";
+import { ExternalLink, Phone } from "lucide-react";
 import Modal from "@/shared/ui/modal/Modal";
 import Button from "@/shared/ui/Button";
 import Tabs from "@/shared/ui/Tabs";
 import StatusBadge from "@/shared/ui/badges/StatusBadge";
 import SourceBadge from "@/shared/ui/badges/SourceBadge";
 import Thumbnail from "@/shared/ui/Thumbnail";
-import { LISTING_STATUS_CONFIG, LISTING_REVIEW_STATUS_CONFIG } from "@/features/listings/config";
+import {
+  LISTING_STATUS_CONFIG,
+  LISTING_REVIEW_STATUS_CONFIG,
+} from "@/features/listings/config";
 import {
   LISTING_DETAIL_TABS,
   LISTING_DETAIL_FIELDS,
   LISTING_SNAPSHOT_COLUMNS,
   LISTING_TARGET_COLUMNS,
-  LISTING_STATUS_HISTORY_COLUMNS,
-  LISTING_PROPERTY_FIELDS,
 } from "@/features/listings/config";
 import { buildStatusConfig } from "@/constants/status.utils";
 import { DetailFieldGrid, DetailListTable } from "@/shared/page/DetailContentRenderer";
+import scraperService from "@/features/scraper-management/services/scraperService";
+
+function unwrapList(response) {
+  const payload = response?.data ?? response;
+  if (Array.isArray(payload)) return payload;
+  return payload?.results ?? [];
+}
 
 export default function ListingDetailModal({
   isOpen,
@@ -26,6 +34,9 @@ export default function ListingDetailModal({
   onRegisterCall,
 }) {
   const [activeTab, setActiveTab] = useState("details");
+  const [snapshots, setSnapshots] = useState([]);
+  const [targets, setTargets] = useState([]);
+  const [tabLoading, setTabLoading] = useState(false);
 
   const availableTabs = useMemo(() => {
     if (!listing) return [];
@@ -40,10 +51,42 @@ export default function ListingDetailModal({
   useEffect(() => {
     if (isOpen) {
       setActiveTab("details");
+      setSnapshots([]);
+      setTargets([]);
     }
   }, [isOpen, listing?.id]);
 
-  const hasProperty = !!listing?.property;
+  const loadSnapshots = useCallback(async (id) => {
+    setTabLoading(true);
+    try {
+      const res = await scraperService.getSnapshots(id);
+      setSnapshots(unwrapList(res));
+    } catch (err) {
+      console.error(err);
+      setSnapshots([]);
+    } finally {
+      setTabLoading(false);
+    }
+  }, []);
+
+  const loadTargets = useCallback(async (id) => {
+    setTabLoading(true);
+    try {
+      const res = await scraperService.getTargetListings(id);
+      setTargets(unwrapList(res));
+    } catch (err) {
+      console.error(err);
+      setTargets([]);
+    } finally {
+      setTabLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen || !listing?.id) return;
+    if (activeTab === "snapshots") loadSnapshots(listing.id);
+    if (activeTab === "targets") loadTargets(listing.id);
+  }, [activeTab, isOpen, listing?.id, loadSnapshots, loadTargets]);
 
   if (!isOpen || !listing) return null;
 
@@ -55,7 +98,6 @@ export default function ListingDetailModal({
       title="جزئیات آگهی"
       className="h-[85vh]"
     >
-      {/* Header */}
       <div className="flex shrink-0 items-center gap-3 mb-4 pb-4 border-b border-border">
         <Thumbnail
           src={listing.latest_payload?.image_url}
@@ -70,14 +112,15 @@ export default function ListingDetailModal({
           <div className="flex items-center gap-2 mt-1 flex-wrap">
             <SourceBadge source={listing.source?.name || "—"} size="sm" />
             <StatusBadge
-              status={listing.status}
-              config={buildStatusConfig(LISTING_STATUS_CONFIG , listing.status)}
+              config={buildStatusConfig(LISTING_STATUS_CONFIG, listing.status)}
               size="sm"
               variant="soft"
             />
             <StatusBadge
-              status={listing.review_status}
-              config={buildStatusConfig(LISTING_REVIEW_STATUS_CONFIG , listing.review_status)}
+              config={buildStatusConfig(
+                LISTING_REVIEW_STATUS_CONFIG,
+                listing.review_status,
+              )}
               size="sm"
               variant="soft"
             />
@@ -87,7 +130,9 @@ export default function ListingDetailModal({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => window.open(listing.url, "_blank", "noopener,noreferrer")}
+            onClick={() =>
+              window.open(listing.url, "_blank", "noopener,noreferrer")
+            }
           >
             <ExternalLink size={14} className="ml-1" />
             منبع
@@ -95,11 +140,10 @@ export default function ListingDetailModal({
         )}
       </div>
 
-      {loading && (
-        <p className="text-xs text-muted mb-2">در حال بارگذاری جزئیات...</p>
+      {(loading || tabLoading) && (
+        <p className="text-xs text-muted mb-2">در حال بارگذاری...</p>
       )}
 
-      {/* Tabs */}
       <Tabs
         value={activeTab}
         onValueChange={setActiveTab}
@@ -121,7 +165,7 @@ export default function ListingDetailModal({
 
           <Tabs.Content value="snapshots">
             <DetailListTable
-              data={listing.snapshots || []}
+              data={snapshots}
               columns={LISTING_SNAPSHOT_COLUMNS}
               emptyText="اسنپ‌شاتی ثبت نشده"
             />
@@ -129,44 +173,14 @@ export default function ListingDetailModal({
 
           <Tabs.Content value="targets">
             <DetailListTable
-              data={listing.target_listings || []}
+              data={targets}
               columns={LISTING_TARGET_COLUMNS}
               emptyText="تاریخچه تارگت خالی است"
             />
           </Tabs.Content>
-
-          <Tabs.Content value="status_history">
-            <DetailListTable
-              data={listing.status_history || []}
-              columns={LISTING_STATUS_HISTORY_COLUMNS}
-              emptyText="تاریخچه وضعیت خالی است"
-            />
-          </Tabs.Content>
-
-          <Tabs.Content value="property">
-            {hasProperty ? (
-              <>
-                <DetailFieldGrid
-                  data={listing.property}
-                  sections={LISTING_PROPERTY_FIELDS}
-                />
-                <div className="mt-4 flex justify-end">
-                  <Button variant="outline" size="sm">
-                    <Home size={14} className="ml-1" />
-                    مشاهده صفحه کامل ملک →
-                  </Button>
-                </div>
-              </>
-            ) : (
-              <div className="py-12 text-center text-sm text-muted-foreground">
-                این آگهی هنوز به ملک تبدیل نشده
-              </div>
-            )}
-          </Tabs.Content>
         </div>
       </Tabs>
 
-      {/* Footer */}
       <div className="shrink-0 flex justify-end gap-2 pt-4 border-t border-border">
         <Button variant="outline" size="sm" onClick={onClose}>
           بستن
