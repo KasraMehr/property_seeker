@@ -1,5 +1,6 @@
 import { useMemo, useState, useCallback, useEffect } from "react";
 import { Plus, Users } from "lucide-react";
+import { useOutletContext } from "react-router-dom";
 import useAuthStore from "@/store/useAuthStore";
 import ResourceTemplate from "@/shared/templates/resource/ResourceTemplate";
 import PageTabs from "@/shared/page/PageTabs";
@@ -47,6 +48,7 @@ function isBulkActionVisible(action, { isOwner }) {
 }
 
 export default function UsersPage() {
+  const { setPageHeader } = useOutletContext();
   const hasPermission = useAuthStore((s) => s.hasPermission);
   const isOwner = useAuthStore((s) => s.isOwner());
 
@@ -119,7 +121,7 @@ export default function UsersPage() {
     if (activeTab === "all") return rawData;
 
     return rawData.filter((u) => {
-const roleKey = getRoleConfig(u.role?.[0]?.name)?.key;
+      const roleKey = getRoleConfig(u.role?.[0]?.name)?.key;
       if (activeTab === "management") {
         return ["admin", "supervisor", "owner"].includes(roleKey) || u.is_owner;
       }
@@ -310,42 +312,28 @@ const roleKey = getRoleConfig(u.role?.[0]?.name)?.key;
     [searchInput],
   );
 
-  /* ─── Header with PageTabs ─── */
-  const customHeader = useMemo(
-    () => (
-      <div className="space-y-4 shrink-0">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold text-foreground tracking-tight">
-              مدیریت کاربران
-            </h1>
-            <p className="text-sm text-muted mt-1">
-              {displayData.length.toLocaleString("fa-IR")} کاربر
-              {selected.length > 0 && (
-                <span className="mr-2 text-(--role-primary)">
-                  ({selected.length.toLocaleString("fa-IR")} انتخاب شده)
-                </span>
-              )}
-            </p>
-          </div>
-          {canCreateUser && (
-            <Button
-              variant="primary"
-              size="sm"
-              className="gap-1.5"
-              onClick={() => setCreating(true)}
-            >
-              <Plus size={16} />
-              کاربر جدید
-            </Button>
-          )}
-        </div>
+  /* ─── Page Header ─── */
+  useEffect(() => {
+    setPageHeader({
+      title: "مدیریت کاربران",
+      breadcrumb: [],
+      actions: canCreateUser ? (
+        <Button
+          variant="primary"
+          size="sm"
+          className="gap-1.5"
+          onClick={() => setCreating(true)}
+        >
+          <Plus size={16} />
+          کاربر جدید
+        </Button>
+      ) : null,
+    });
 
-        <PageTabs items={tabItems} value={activeTab} onChange={setActiveTab} />
-      </div>
-    ),
-    [displayData.length, selected.length, tabItems, activeTab, canCreateUser],
-  );
+    return () => {
+      setPageHeader(null);
+    };
+  }, [setPageHeader, meta?.count, selected.length, canCreateUser]);
 
   /* ─── Empty ─── */
   const emptyState = useMemo(
@@ -368,10 +356,14 @@ const roleKey = getRoleConfig(u.role?.[0]?.name)?.key;
 
   return (
     <>
+      <div className="mb-4">
+        <PageTabs items={tabItems} value={activeTab} onChange={setActiveTab} />
+      </div>
       <ResourceTemplate
-        header={customHeader}
         search={searchConfig}
         filters={filters}
+        count={meta?.count || 0}
+        countLabel="کاربر"
         columns={USER_TABLE_COLUMNS}
         data={displayData}
         loading={loading}

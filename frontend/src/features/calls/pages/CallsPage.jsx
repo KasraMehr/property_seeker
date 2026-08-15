@@ -1,5 +1,7 @@
 import { useMemo, useState, useCallback, useEffect } from "react";
 import { Plus, Phone } from "lucide-react";
+import { useOutletContext } from "react-router-dom";
+
 import useAuth from "@/features/auth/hooks/useAuth";
 import ResourceTemplate from "@/shared/templates/resource/ResourceTemplate";
 import useCall from "@/features/calls/hooks/useCall";
@@ -19,6 +21,8 @@ import CallFormModal from "@/features/calls/components/CallFormModal";
 
 export default function CallsPage() {
   const { user } = useAuth();
+  const { setPageHeader } = useOutletContext();
+
   const isAdmin = Boolean(user?.is_owner);
 
   const {
@@ -49,6 +53,29 @@ export default function CallsPage() {
   const [pendingAction, setPendingAction] = useState(null);
   const [createOpen, setCreateOpen] = useState(false);
 
+  /* ─── Page Header ─── */
+  useEffect(() => {
+    setPageHeader({
+      title: "مدیریت تماس‌ها",
+      breadcrumb: [],
+      actions: (
+        <Button
+          variant="primary"
+          size="sm"
+          className="gap-1.5"
+          onClick={() => setCreateOpen(true)}
+        >
+          <Plus size={16} />
+          تماس جدید
+        </Button>
+      ),
+    });
+
+    return () => {
+      setPageHeader(null);
+    };
+  }, [setPageHeader, meta?.count]);
+
   /* ─── Search ─── */
   const [searchInput, setSearchInput] = useState(filterValues.search || "");
   const debouncedSearch = useDebounce(searchInput, 400);
@@ -68,7 +95,9 @@ export default function CallsPage() {
   /* ─── Sort ─── */
   const handleSort = useCallback(
     (key) => {
-      const dir = sort?.key === key && sort?.dir === "asc" ? "desc" : "asc";
+      const dir =
+        sort?.key === key && sort?.dir === "asc" ? "desc" : "asc";
+
       setOrdering(`${dir === "desc" ? "-" : ""}${key}`);
     },
     [sort, setOrdering]
@@ -80,7 +109,11 @@ export default function CallsPage() {
       const action = CALL_ALL_ACTIONS.find((a) => a.key === actionKey);
 
       if (action?.confirm) {
-        setPendingAction({ key: actionKey, row, confirm: action.confirm });
+        setPendingAction({
+          key: actionKey,
+          row,
+          confirm: action.confirm,
+        });
         return;
       }
 
@@ -90,17 +123,21 @@ export default function CallsPage() {
           setDetailCall(full);
           break;
         }
+
         case "edit": {
           const full = await getById(row.id);
           setEditCall(full);
           break;
         }
+
         case "mark_follow_up_done":
           await markFollowUpDone(row.id);
           break;
+
         case "add_followup":
           setFollowUpCall(row);
           break;
+
         default:
           break;
       }
@@ -135,8 +172,14 @@ export default function CallsPage() {
 
   /* ─── Filter options ─── */
   const filterOptions = useMemo(() => {
-    const typeFilter = CALL_ALL_FILTERS.find((f) => f.key === "call_type");
-    const resultFilter = CALL_ALL_FILTERS.find((f) => f.key === "result");
+    const typeFilter = CALL_ALL_FILTERS.find(
+      (f) => f.key === "call_type"
+    );
+
+    const resultFilter = CALL_ALL_FILTERS.find(
+      (f) => f.key === "result"
+    );
+
     return {
       callTypes: typeFilter?.options || [],
       results: resultFilter?.options || [],
@@ -153,11 +196,21 @@ export default function CallsPage() {
       onClearAll: clearAll,
       activeChips,
     }),
-    [filterOptions, filterValues, setFilter, clearFilter, clearAll, activeChips]
+    [
+      filterOptions,
+      filterValues,
+      setFilter,
+      clearFilter,
+      clearAll,
+      activeChips,
+    ]
   );
 
   const pagination = useMemo(
-    () => ({ page, totalPages: totalPages(meta?.count) }),
+    () => ({
+      page,
+      totalPages: totalPages(meta?.count),
+    }),
     [page, meta?.count, totalPages]
   );
 
@@ -171,49 +224,22 @@ export default function CallsPage() {
     [searchInput]
   );
 
-  /* ─── Header ─── */
-  const customHeader = useMemo(
-    () => (
-      <div className="flex items-center justify-between shrink-0">
-        <div>
-          <h1 className="text-xl font-bold text-foreground tracking-tight">
-            مدیریت تماس‌ها
-          </h1>
-          <p className="text-sm text-muted mt-1">
-            {(meta?.count || 0).toLocaleString("fa-IR")} تماس
-            {selected.length > 0 && (
-              <span className="mr-2 text-(--role-primary)">
-                ({selected.length.toLocaleString("fa-IR")} انتخاب شده)
-              </span>
-            )}
-          </p>
-        </div>
-
-        <Button
-          variant="primary"
-          size="sm"
-          className="gap-1.5"
-          onClick={() => setCreateOpen(true)}
-        >
-          <Plus size={16} />
-          تماس جدید
-        </Button>
-      </div>
-    ),
-    [meta?.count, selected.length]
-  );
-
   /* ─── Empty ─── */
   const emptyState = useMemo(
     () => (
       <div className="py-12 text-center space-y-3">
         <Phone size={48} className="mx-auto text-muted/40" />
+
         <div>
-          <p className="text-sm font-medium text-foreground">تماسی یافت نشد</p>
+          <p className="text-sm font-medium text-foreground">
+            تماسی یافت نشد
+          </p>
+
           <p className="text-xs text-muted mt-1">
             با فیلترهای انتخابی هیچ تماسی پیدا نشد.
           </p>
         </div>
+
         <Button variant="outline" size="sm" onClick={clearAll}>
           حذف فیلترها
         </Button>
@@ -225,9 +251,10 @@ export default function CallsPage() {
   return (
     <>
       <ResourceTemplate
-        header={customHeader}
         search={searchConfig}
         filters={filters}
+        count={meta?.count || 0}
+        countLabel="تماس"
         columns={CALL_TABLE_COLUMNS}
         data={data}
         loading={loading}

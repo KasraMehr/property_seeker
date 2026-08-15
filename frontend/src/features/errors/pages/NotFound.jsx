@@ -9,8 +9,8 @@ export default function NotFound() {
     return (
         <main
             dir="rtl"
-            className="min-h-[100svh] flex items-center justify-center px-4
-                 bg-gradient-to-b from-slate-50 to-slate-100
+            className="min-h-svh flex items-center justify-center px-4
+                 bg-linear-to-b from-slate-50 to-slate-100
                  dark:from-slate-950 dark:to-slate-900"
         >
             <motion.div
@@ -27,7 +27,7 @@ export default function NotFound() {
                 </div>
 
                 <p className="text-7xl font-black tracking-tight
-                      bg-gradient-to-l from-blue-500 to-teal-600
+                      bg-linear-to-l from-blue-500 to-teal-600
                       bg-clip-text text-transparent">
                     ۴۰۴
                 </p>

@@ -3,7 +3,11 @@ import React from "react";
 import ProblemCard from "../cards/ProblemCard";
 import SolutionCard from "../cards/SolutionCard";
 import { PROBLEM_SOLUTION_STRINGS } from "../../constants/landingConstants";
-import { MotionDiv, MotionStagger, MotionItem } from "@/animations/MotionElements";
+import {
+  MotionDiv,
+  MotionStagger,
+  MotionItem,
+} from "@/animations/MotionElements";
 
 export default function ProblemSolution() {
   const problems = PROBLEM_SOLUTION_STRINGS.items.map((item) => item.problem);
@@ -12,9 +16,21 @@ export default function ProblemSolution() {
   return (
     <section
       id="problem-solution"
-      className="min-h-screen py-12 bg-background flex items-center"
+      className="relative min-h-screen py-12 flex items-center overflow-hidden"
     >
-      <div className="max-w-7xl w-full mx-auto px-6">
+      {/* Background Image */}
+      <div className="absolute inset-0 z-0">
+        <img
+          src="/images/p-section-bg.jpg" 
+          alt=""
+          className="w-full h-full object-cover"
+        />
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-background/50 backdrop-blur-[2px]" />
+      </div>
+
+      {/* Content */}
+      <div className="relative z-10 max-w-7xl w-full mx-auto px-6">
         {/* Header*/}
         <MotionDiv delay={0.1} className="text-center max-w-3xl mx-auto mb-16">
           <span className="inline-flex items-center px-4 py-2 rounded-full bg-warning/10 text-warning text-lg font-semibold border border-warning/20 mb-6">

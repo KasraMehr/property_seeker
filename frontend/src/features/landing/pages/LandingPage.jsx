@@ -4,6 +4,10 @@ import ProblemSolution from "../components/sections/ProblemSolution"
 import DashboardPreview from "../components/sections/DashboardPreview"
 import Features from "../components/sections/Features"
 import Footer from "../components/sections/Footer"
+import HowItWorks from "../components/sections/HowItWorks";
+import Services from "../components/sections/Services";
+import Benefits from "../components/sections/Benefits";
+import ImageDivider from "../components/ImageDivider";
 
 
 export default function LandingPage() {
@@ -15,9 +19,17 @@ export default function LandingPage() {
 
       <ProblemSolution/>
 
-      <DashboardPreview/>
+      <HowItWorks/>
 
-      <Features/>
+      <Services/>
+
+      <Benefits/>
+
+      <ImageDivider src = {"/images/s-section-bg.jpg"}/>
+
+      {/* <DashboardPreview/> */}
+
+      {/* <Features/> */}
 
       <Footer/>
 

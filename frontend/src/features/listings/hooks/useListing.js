@@ -1,73 +1,144 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import useResource from "@/shared/templates/resource/hooks/useResource";
 import useResourceQuery from "@/shared/templates/resource/hooks/useResourceQuery";
 import listingService from "../services/listingService";
 import { LISTING_ALL_FILTERS } from "../config";
 
+function normalizeMulti(value) {
+  if (value == null || value === "") return [];
+  if (Array.isArray(value)) return value.filter(Boolean);
+  return String(value)
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+function applyClientFilters(rows, filters = {}) {
+  if (!Array.isArray(rows) || rows.length === 0) return rows;
+
+  let result = rows;
+
+  const search = (filters.search || "").toString().trim().toLowerCase();
+  if (search) {
+    result = result.filter((row) => {
+      const title = (row.title || "").toLowerCase();
+      const externalId = (row.external_id || "").toLowerCase();
+      return title.includes(search) || externalId.includes(search);
+    });
+  }
+
+  const statuses = normalizeMulti(filters.status);
+  if (statuses.length > 0) {
+    result = result.filter((row) => statuses.includes(row.status));
+  }
+
+  const reviewStatuses = normalizeMulti(filters.review_status);
+  if (reviewStatuses.length > 0) {
+    result = result.filter((row) =>
+      reviewStatuses.includes(row.review_status),
+    );
+  }
+
+  const dealTypes = normalizeMulti(filters.deal_type);
+  if (dealTypes.length > 0) {
+    result = result.filter((row) => {
+      const isSale = row.listed_sale_price != null;
+      const isRent = row.listed_rent_amount != null;
+      return (
+        (dealTypes.includes("sale") && isSale) ||
+        (dealTypes.includes("rent") && isRent)
+      );
+    });
+  }
+
+  return result;
+}
+
 export default function useListing() {
-  const { fetchList, remove, ...resourceState } = useResource(listingService);
+  const { fetchList, getById, remove, ...resourceState } =
+    useResource(listingService);
+
   const query = useResourceQuery({
     filterSchema: LISTING_ALL_FILTERS,
-    pageSize: 25,
-    initialOrdering: "-created_at",
+    pageSize: 20,
+    initialOrdering: "-last_seen_at",
   });
 
-  // Auto-fetch on mount
+  // just pagination
+  const serverParams = useMemo(
+    () => ({
+      page: query.page,
+      page_size: query.pageSize,
+    }),
+    [query.page, query.pageSize],
+  );
+
   const didFetch = useRef(false);
   useEffect(() => {
     if (!didFetch.current) {
       didFetch.current = true;
-      fetchList(query.queryParams);
+      fetchList(serverParams);
     }
-  }, []); // eslint-disable-line
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Re-fetch when queryParams change (page, sort, filter)
-  const prevQueryRef = useRef(null);
+  const prevServerRef = useRef(null);
   useEffect(() => {
-    const qs = JSON.stringify(query.queryParams);
-    if (prevQueryRef.current !== null && prevQueryRef.current !== qs) {
-      fetchList(query.queryParams);
+    const key = JSON.stringify(serverParams);
+    if (prevServerRef.current !== null && prevServerRef.current !== key) {
+      fetchList(serverParams);
     }
-    prevQueryRef.current = qs;
-  }, [query.queryParams, fetchList]);
+    prevServerRef.current = key;
+  }, [serverParams, fetchList]);
 
   const refresh = useCallback(() => {
-    fetchList(query.queryParams);
-  }, [fetchList, query.queryParams]);
+    return fetchList(serverParams);
+  }, [fetchList, serverParams]);
 
-  const assign = useCallback(
-    async (listingId, userId) => {
-      await listingService.assign(listingId, userId);
-      refresh();
-    },
-    [refresh]
+  const filteredData = useMemo(
+    () => applyClientFilters(resourceState.data, query.filters),
+    [resourceState.data, query.filters],
   );
 
-  const convertToOwner = useCallback(
-    async (listingId, ownerData) => {
-      await listingService.convertToOwner(listingId, ownerData);
-      refresh();
+  const review = useCallback(
+    async (listingId, review_status) => {
+      const result = await listingService.review(listingId, review_status);
+      await refresh();
+      return result?.data ?? result;
     },
-    [refresh]
+    [refresh],
   );
 
-  const convertToProperty = useCallback(
-    async (listingId, propertyData) => {
-      await listingService.convertToProperty(listingId, propertyData);
-      refresh();
+  const bulkReview = useCallback(
+    async (listingIds, review_status) => {
+      const result = await listingService.bulkReview(
+        listingIds,
+        review_status,
+      );
+      await refresh();
+      return result?.data ?? result;
     },
-    [refresh]
+    [refresh],
+  );
+
+  const promote = useCallback(
+    async (listingId, data) => {
+      const result = await listingService.promote(listingId, data);
+      await refresh();
+      return result?.data ?? result;
+    },
+    [refresh],
   );
 
   return {
-    // Spread stable resource state (data, loading, error, meta)
     ...resourceState,
+    data: filteredData,
+    rawData: resourceState.data,
 
-    // Stable actions
     fetchList,
+    getById,
     remove,
+    refresh,
 
-    // From useResourceQuery
     filters: query.filters,
     setFilter: query.setFilter,
     clearFilter: query.clearFilter,
@@ -83,10 +154,8 @@ export default function useListing() {
     queryParams: query.queryParams,
     totalPages: (count) => query.totalPages(count),
 
-    // Business actions
-    refresh,
-    assign,
-    convertToOwner,
-    convertToProperty,
+    review,
+    bulkReview,
+    promote,
   };
 }

@@ -1,22 +1,19 @@
-import PageHeader from "@/shared/page/PageHeader";
 import TablePagination from "@/shared/table/TablePagination";
 import ResourceToolbar from "./components/ResourceToolbar";
 import ResourceTable from "./components/ResourceTable";
-import {MotionDiv} from "@/animations/MotionElements"
+import { MotionDiv } from "@/animations/MotionElements";
+
 /**
  * ResourceTemplate — pure composition layout for CRUD/resource pages.
  *
- * Zero internal state. Zero business logic.
+ * Zero internal state.
+ * Zero business logic.
  */
 export default function ResourceTemplate({
-  title,
-  subtitle,
-  header, // ← NEW: custom header node (overrides PageHeader)
-  headerActions,
-  breadcrumb,
-  backTo,
   search,
   filters,
+  count,
+  countLabel,
   columns,
   data,
   loading,
@@ -34,29 +31,22 @@ export default function ResourceTemplate({
   onPageChange,
 }) {
   return (
-    <div className="space-y-5 h-full flex flex-col" dir="rtl">
-      {header ? (
-        header
-      ) : (
-        <PageHeader
-          title={title}
-          subtitle={subtitle}
-          actions={headerActions}
-          breadcrumb={breadcrumb}
-          backTo={backTo}
-        />
-      )}
-
+    <div className="flex h-full flex-col space-y-5" dir="rtl">
       <ResourceToolbar
         search={search}
         filters={filters}
+        count={count}
+        countLabel={countLabel}
         bulkActions={bulkActions}
         selectedCount={selected?.length ?? 0}
         onBulkAction={onBulkAction}
       />
 
-      <MotionDiv className="space-y-6" delay={0.1}>
-        <div className="flex-1 min-h-0 overflow-hidden flex flex-col gap-3">
+      <MotionDiv
+        className="space-y-6"
+        delay={0.1}
+      >
+        <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden">
           <ResourceTable
             columns={columns}
             data={data}
