@@ -55,9 +55,7 @@ export default function AdminDashboardPage() {
         if (listingsRes.status === "fulfilled") {
           const data = listingsRes.value?.data;
 
-          listingData = Array.isArray(data)
-            ? data
-            : data?.results ?? [];
+          listingData = Array.isArray(data) ? data : (data?.results ?? []);
         }
 
         setListings(listingData);
@@ -71,9 +69,7 @@ export default function AdminDashboardPage() {
         if (propertiesRes.status === "fulfilled") {
           const data = propertiesRes.value?.data;
 
-          propertyData = Array.isArray(data)
-            ? data
-            : data?.results ?? [];
+          propertyData = Array.isArray(data) ? data : (data?.results ?? []);
         }
 
         // -----------------------------------------
@@ -85,15 +81,15 @@ export default function AdminDashboardPage() {
           properties: propertyData.length,
 
           activeListings: listingData.filter(
-            (item) => item?.status === "active"
+            (item) => item?.status === "active",
           ).length,
 
           unreviewedListings: listingData.filter(
-            (item) => item?.review_status === "unreviewed"
+            (item) => item?.review_status === "unreviewed",
           ).length,
 
           promotedListings: listingData.filter(
-            (item) => item?.review_status === "promoted"
+            (item) => item?.review_status === "promoted",
           ).length,
         });
       } catch (error) {
@@ -134,22 +130,16 @@ export default function AdminDashboardPage() {
       icon={ArrowLeft}
       onClick={() => navigate("/admin/listings")}
     >
-      مشاهده همه لیدها
+      مشاهده همه آگهی ها
     </Button>
   );
 
   return (
-    <DashboardTemplate
-      title="داشبورد مدیریت"
-      headerActions={headerActions}
-    >
+    <DashboardTemplate title="داشبورد مدیریت" headerActions={headerActions}>
       <div className="space-y-6">
         {/* Stats */}
 
-        <AdminStatsWidget
-          stats={stats}
-          loading={loading}
-        />
+        <AdminStatsWidget stats={stats} loading={loading} />
 
         {/* Main widgets */}
 
@@ -162,10 +152,7 @@ export default function AdminDashboardPage() {
           </div>
 
           <div className="lg:col-span-1">
-            <ScraperTodayWidget
-              status={null}
-              loading={false}
-            />
+            <ScraperTodayWidget status={null} loading={false} />
           </div>
         </div>
       </div>

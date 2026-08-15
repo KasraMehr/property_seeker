@@ -1,5 +1,6 @@
 import { useMemo, useEffect, useState, useCallback } from "react";
 import { Eye, Phone, ExternalLink, Inbox } from "lucide-react";
+import { useOutletContext } from "react-router-dom";
 import ResourceTemplate from "@/shared/templates/resource/ResourceTemplate";
 import useListing from "@/features/listings/hooks/useListing";
 import {
@@ -27,6 +28,8 @@ const LISTING_ROW_ACTIONS = [
 ];
 
 export default function ListingsPage() {
+  const { setPageHeader } = useOutletContext();
+
   const {
     data,
     loading,
@@ -134,11 +137,11 @@ export default function ListingsPage() {
       follow_up_done: Boolean(form.follow_up_done),
       ...(listing?.property
         ? {
-          property:
-            typeof listing.property === "object"
-              ? listing.property.id
-              : listing.property,
-        }
+            property:
+              typeof listing.property === "object"
+                ? listing.property.id
+                : listing.property,
+          }
         : {}),
     };
   }, []);
@@ -198,21 +201,33 @@ export default function ListingsPage() {
     [page, meta?.count, totalPages],
   );
 
-  const customHeader = useMemo(
-    () => (
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-bold text-foreground tracking-tight">
-            آگهی‌ها
-          </h1>
-          <p className="text-sm text-muted mt-1">
-            {(meta?.count || 0).toLocaleString("fa-IR")} آگهی
-          </p>
-        </div>
-      </div>
-    ),
-    [meta?.count],
-  );
+  useEffect(() => {
+    setPageHeader({
+      title: "آگهی‌ها",
+      subtitle: "آگهی‌های استخراج شده",
+      breadcrumb: [
+        // {
+        //   label: "داشبورد",
+        //   to: "/dashboard",
+        // },
+        // {
+        //   label: "آگهی‌ها",
+        // },
+      ],
+
+      // backTo: "/dashboard",
+
+      // actions: (
+      //   <Button>
+      //     ایجاد آگهی
+      //   </Button>
+      // ),
+    });
+
+    return () => {
+      setPageHeader(null);
+    };
+  }, [setPageHeader, meta?.count]);
 
   const emptyState = useMemo(
     () => (
@@ -237,9 +252,10 @@ export default function ListingsPage() {
   return (
     <>
       <ResourceTemplate
-        header={customHeader}
         search={searchConfig}
         filters={filters}
+        count={meta?.count || 0}
+        countLabel="آگهی"
         columns={LISTING_TABLE_COLUMNS}
         data={data}
         loading={loading}

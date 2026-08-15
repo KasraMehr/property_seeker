@@ -1,5 +1,7 @@
 import { useMemo, useState, useCallback, useEffect } from "react";
 import { Plus, Inbox } from "lucide-react";
+import { useOutletContext } from "react-router-dom";
+
 import ResourceTemplate from "@/shared/templates/resource/ResourceTemplate";
 import useProperty from "@/features/properties/hooks/useProperty";
 import {
@@ -16,6 +18,8 @@ import PropertyFormModal from "@/features/properties/components/PropertyFormModa
 import RegisterCallForm from "../../../shared/forms/RegisterCallForm";
 
 export default function PropertiesPage() {
+  const { setPageHeader } = useOutletContext();
+
   const {
     data,
     loading,
@@ -38,10 +42,34 @@ export default function PropertiesPage() {
   const [selected, setSelected] = useState([]);
   const [detailProperty, setDetailProperty] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
-  const [formProperty, setFormProperty] = useState(null); // null=closed, {}=create, obj=edit
+  const [formProperty, setFormProperty] = useState(null);
   const [callProperty, setCallProperty] = useState(null);
   const [pendingDeleteIds, setPendingDeleteIds] = useState(null);
 
+  /* ─── Page Header ─── */
+  useEffect(() => {
+    setPageHeader({
+      title: "فایل‌های ملکی",
+      breadcrumb: [],
+      actions: (
+        <Button
+          variant="primary"
+          size="sm"
+          className="gap-1.5"
+          onClick={() => setFormProperty({})}
+        >
+          <Plus size={16} />
+          ملک جدید
+        </Button>
+      ),
+    });
+
+    return () => {
+      setPageHeader(null);
+    };
+  }, [setPageHeader]);
+
+  /* ─── Search ─── */
   const [searchInput, setSearchInput] = useState(filterValues.search || "");
   const debouncedSearch = useDebounce(searchInput, 400);
 
@@ -57,6 +85,7 @@ export default function PropertiesPage() {
     }
   }, [debouncedSearch, filterValues.search, setFilter]);
 
+  /* ─── Sort ─── */
   const handleSort = useCallback(
     (key) => {
       const dir = sort?.key === key && sort?.dir === "asc" ? "desc" : "asc";
@@ -65,10 +94,12 @@ export default function PropertiesPage() {
     [sort, setOrdering],
   );
 
+  /* ─── Open Detail ─── */
   const openDetail = useCallback(
     async (row) => {
       setDetailProperty(row);
       setDetailLoading(true);
+
       try {
         if (getById) {
           const full = await getById(row.id);
@@ -83,21 +114,26 @@ export default function PropertiesPage() {
     [getById],
   );
 
+  /* ─── Row Actions ─── */
   const handleRowAction = useCallback(
     (actionKey, row) => {
       switch (actionKey) {
         case "view":
           openDetail(row);
           break;
+
         case "edit":
           setFormProperty(row);
           break;
+
         case "register_call":
           setCallProperty(row);
           break;
+
         case "delete":
           setPendingDeleteIds([row.id]);
           break;
+
         default:
           break;
       }
@@ -105,6 +141,7 @@ export default function PropertiesPage() {
     [openDetail],
   );
 
+  /* ─── Bulk Action ─── */
   const handleBulkAction = useCallback(
     (actionKey) => {
       if (actionKey === "delete" && selected.length > 0) {
@@ -114,14 +151,18 @@ export default function PropertiesPage() {
     [selected],
   );
 
+  /* ─── Confirm Delete ─── */
   const confirmDelete = useCallback(async () => {
     if (!pendingDeleteIds?.length) return;
+
     await remove(pendingDeleteIds);
+
     setPendingDeleteIds(null);
     setSelected([]);
     refresh?.();
   }, [pendingDeleteIds, remove, refresh]);
 
+  /* ─── Filters ─── */
   const filters = useMemo(
     () => ({
       schema: (PROPERTY_ALL_FILTERS || []).filter((f) => f.type !== "search"),
@@ -135,6 +176,7 @@ export default function PropertiesPage() {
     [filterValues, setFilter, clearFilter, clearAll, activeChips],
   );
 
+  /* ─── Search Config ─── */
   const searchConfig = useMemo(
     () => ({
       value: searchInput,
@@ -144,6 +186,7 @@ export default function PropertiesPage() {
     [searchInput],
   );
 
+  /* ─── Pagination ─── */
   const pagination = useMemo(
     () => ({
       page,
@@ -153,41 +196,14 @@ export default function PropertiesPage() {
     [page, meta?.count, totalPages],
   );
 
-  const customHeader = useMemo(
-    () => (
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-bold text-foreground tracking-tight">
-            فایل‌های ملکی
-          </h1>
-          <p className="text-sm text-muted mt-1">
-            {(meta?.count || 0).toLocaleString("fa-IR")} ملک
-            {selected.length > 0 && (
-              <span className="mr-2 text-primary">
-                ({selected.length.toLocaleString("fa-IR")} انتخاب‌شده)
-              </span>
-            )}
-          </p>
-        </div>
-        <Button
-          variant="primary"
-          size="sm"
-          className="gap-1.5"
-          onClick={() => setFormProperty({})}
-        >
-          <Plus size={16} />
-          ملک جدید
-        </Button>
-      </div>
-    ),
-    [meta?.count, selected.length],
-  );
-
+  /* ─── Empty State ─── */
   const emptyState = useMemo(
     () => (
       <div className="py-12 text-center space-y-3">
         <Inbox size={48} className="mx-auto text-muted/40" />
+
         <p className="text-sm font-medium">ملکی یافت نشد</p>
+
         <Button variant="outline" size="sm" onClick={clearAll}>
           حذف فیلترها
         </Button>
@@ -199,9 +215,10 @@ export default function PropertiesPage() {
   return (
     <>
       <ResourceTemplate
-        header={customHeader}
         search={searchConfig}
         filters={filters}
+        count={meta?.count || 0}
+        countLabel="ملک"
         columns={PROPERTY_TABLE_COLUMNS}
         data={data}
         loading={loading}

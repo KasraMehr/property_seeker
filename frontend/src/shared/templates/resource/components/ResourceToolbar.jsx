@@ -5,13 +5,18 @@ import Button from "@/shared/ui/Button";
 export default function ResourceToolbar({
   search,
   filters,
+  count,
+  countLabel = "",
   bulkActions = [],
   selectedCount = 0,
   onBulkAction,
   className = "",
 }) {
   return (
-    <div className={`flex flex-col gap-3 md:flex-row md:items-start md:justify-between ${className}`}>
+    <div
+      className={`flex flex-col gap-3 md:flex-row md:items-start md:justify-between ${className}`}
+    >
+      {/* Search + Filters */}
       <div className="flex flex-col gap-3 w-full md:w-auto md:flex-row">
         {search && (
           <div className="shrink-0">
@@ -41,25 +46,39 @@ export default function ResourceToolbar({
         )}
       </div>
 
-      {bulkActions.length > 0 && selectedCount > 0 && (
-        <div className="flex items-center gap-2 shrink-0">
-          <span className="text-xs text-muted">{selectedCount} انتخاب شده</span>
-          {bulkActions.map((action) => {
-            const Icon = action.icon;
-            return (
-              <Button
-                key={action.key}
-                variant={action.variant === "danger" ? "danger" : "outline"}
-                size="sm"
-                icon={Icon}
-                onClick={() => onBulkAction?.(action.key)}
-              >
-                {action.label}
-              </Button>
-            );
-          })}
-        </div>
-      )}
+      {/* Bulk Actions + Count */}
+      <div className="flex items-center gap-4 shrink-0">
+        {bulkActions.length > 0 && selectedCount > 0 && (
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted">
+              {selectedCount.toLocaleString("fa-IR")} انتخاب شده
+            </span>
+
+            {bulkActions.map((action) => {
+              const Icon = action.icon;
+
+              return (
+                <Button
+                  key={action.key}
+                  variant={action.variant === "danger" ? "danger" : "outline"}
+                  size="sm"
+                  icon={Icon}
+                  onClick={() => onBulkAction?.(action.key)}
+                >
+                  {action.label}
+                </Button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Count */}
+        {count !== undefined && count !== null && (
+          <span className="text-sm text-muted whitespace-nowrap">
+            {count.toLocaleString("fa-IR")} {countLabel}
+          </span>
+        )}
+      </div>
     </div>
   );
 }

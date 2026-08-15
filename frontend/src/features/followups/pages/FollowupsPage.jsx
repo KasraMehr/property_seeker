@@ -1,5 +1,6 @@
 import { useMemo, useState, useCallback, useEffect } from "react";
 import { Plus, Eye, CheckCircle2, XCircle, Clock } from "lucide-react";
+import { useOutletContext } from "react-router-dom";
 import useAuth from "@/features/auth/hooks/useAuth";
 import ResourceTemplate from "@/shared/templates/resource/ResourceTemplate";
 import useFollowup from "@/features/followups/hooks/useFollowup";
@@ -20,7 +21,7 @@ const FOLLOWUP_ROW_ACTIONS = {
     {
       key: "edit",
       label: "ویرایش",
-      icon: Eye, // یا Pencil اگر import کردی
+      icon: Eye,
       visible: (row) => row.status === "pending",
     },
     {
@@ -56,6 +57,8 @@ const FOLLOWUP_ROW_ACTIONS = {
 };
 
 export default function FollowupsPage() {
+  const { setPageHeader } = useOutletContext();
+
   const { user } = useAuth();
   const isAdmin = Boolean(user?.is_owner);
   const role = isAdmin ? "admin" : "operator";
@@ -85,6 +88,29 @@ export default function FollowupsPage() {
   const [detailFollowup, setDetailFollowup] = useState(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [editFollowup, setEditFollowup] = useState(null);
+
+  /* ─── Page Header ─── */
+  useEffect(() => {
+    setPageHeader({
+      title: "مدیریت پیگیری‌ها",
+      breadcrumb: [],
+      actions: (
+        <Button
+          variant="primary"
+          size="sm"
+          className="gap-1.5"
+          onClick={() => setCreateOpen(true)}
+        >
+          <Plus size={16} />
+          پیگیری جدید
+        </Button>
+      ),
+    });
+
+    return () => {
+      setPageHeader(null);
+    };
+  }, [setPageHeader]);
 
   /* ─── Search ─── */
   const [searchInput, setSearchInput] = useState(filterValues.search || "");
@@ -117,15 +143,19 @@ export default function FollowupsPage() {
       case "view":
         setDetailFollowup(row);
         break;
+
       case "edit":
         setEditFollowup(row);
         break;
+
       case "complete":
         setPendingComplete(row);
         break;
+
       case "cancel":
         setPendingCancel(row);
         break;
+
       default:
         break;
     }
@@ -134,12 +164,14 @@ export default function FollowupsPage() {
   /* ─── Confirm handlers ─── */
   const confirmComplete = useCallback(async () => {
     if (!pendingComplete) return;
+
     await complete(pendingComplete.id);
     setPendingComplete(null);
   }, [pendingComplete, complete]);
 
   const confirmCancel = useCallback(async () => {
     if (!pendingCancel) return;
+
     await cancel(pendingCancel.id);
     setPendingCancel(null);
   }, [pendingCancel, cancel]);
@@ -148,6 +180,7 @@ export default function FollowupsPage() {
   const filterOptions = useMemo(() => {
     const statusFilter = FOLLOWUP_ALL_FILTERS.find((f) => f.key === "status");
     const typeFilter = FOLLOWUP_ALL_FILTERS.find((f) => f.key === "type");
+
     return {
       statuses: statusFilter?.options || [],
       types: typeFilter?.options || [],
@@ -175,7 +208,10 @@ export default function FollowupsPage() {
   );
 
   const pagination = useMemo(
-    () => ({ page, totalPages: totalPages(meta?.count) }),
+    () => ({
+      page,
+      totalPages: totalPages(meta?.count),
+    }),
     [page, meta?.count, totalPages],
   );
 
@@ -189,51 +225,22 @@ export default function FollowupsPage() {
     [searchInput],
   );
 
-  /* ─── Header ─── */
-  const customHeader = useMemo(
-    () => (
-      <div className="flex items-center justify-between shrink-0">
-        <div>
-          <h1 className="text-xl font-bold text-foreground tracking-tight">
-            مدیریت پیگیری‌ها
-          </h1>
-          <p className="text-sm text-muted mt-1">
-            {(meta?.count || 0).toLocaleString("fa-IR")} پیگیری
-            {selected.length > 0 && (
-              <span className="mr-2 text-(--role-primary)">
-                ({selected.length.toLocaleString("fa-IR")} انتخاب شده)
-              </span>
-            )}
-          </p>
-        </div>
-
-        <Button
-          variant="primary"
-          size="sm"
-          className="gap-1.5"
-          onClick={() => setCreateOpen(true)}
-        >
-          <Plus size={16} />
-          پیگیری جدید
-        </Button>
-      </div>
-    ),
-    [meta?.count, selected.length],
-  );
-
   /* ─── Empty ─── */
   const emptyState = useMemo(
     () => (
       <div className="py-12 text-center space-y-3">
         <Clock size={48} className="mx-auto text-muted/40" />
+
         <div>
           <p className="text-sm font-medium text-foreground">
             پیگیری‌ای یافت نشد
           </p>
+
           <p className="text-xs text-muted mt-1">
             با فیلترهای انتخابی هیچ پیگیری‌ای پیدا نشد.
           </p>
         </div>
+
         <Button variant="outline" size="sm" onClick={clearAll}>
           حذف فیلترها
         </Button>
@@ -245,9 +252,10 @@ export default function FollowupsPage() {
   return (
     <>
       <ResourceTemplate
-        header={customHeader}
         search={searchConfig}
         filters={filters}
+        count={meta?.count || 0}
+        countLabel="پیگیری"
         columns={FOLLOWUP_TABLE_COLUMNS}
         data={data}
         loading={loading}
@@ -293,7 +301,7 @@ export default function FollowupsPage() {
           followup={detailFollowup}
           onMarkDone={(item) => {
             setPendingComplete(item);
-            setDetailFollowup(null); 
+            setDetailFollowup(null);
           }}
         />
       )}

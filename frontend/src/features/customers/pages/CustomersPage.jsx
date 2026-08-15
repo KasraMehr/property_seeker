@@ -1,5 +1,7 @@
 import { useMemo, useState, useCallback, useEffect } from "react";
-import { Plus, Users, Eye, Pencil, Trash2, Phone } from "lucide-react";
+import { Plus, Users } from "lucide-react";
+import { useOutletContext } from "react-router-dom";
+
 import ResourceTemplate from "@/shared/templates/resource/ResourceTemplate";
 import useCustomer from "../hooks/useCustomer";
 import {
@@ -16,6 +18,8 @@ import CustomerFormModal from "../components/CustomerFormModal";
 import CustomerDetailModal from "../components/CustomerDetailModal";
 
 export default function CustomersPage() {
+  const { setPageHeader } = useOutletContext();
+
   const {
     data,
     loading,
@@ -41,6 +45,29 @@ export default function CustomersPage() {
   const [detailCustomer, setDetailCustomer] = useState(null);
   const [pendingAction, setPendingAction] = useState(null);
 
+  /* ─── Page Header ─── */
+  useEffect(() => {
+    setPageHeader({
+      title: "مدیریت مشتریان",
+      breadcrumb: [],
+      actions: (
+        <Button
+          variant="primary"
+          size="sm"
+          className="gap-1.5"
+          onClick={() => setCreateOpen(true)}
+        >
+          <Plus size={16} />
+          مشتری جدید
+        </Button>
+      ),
+    });
+
+    return () => {
+      setPageHeader(null);
+    };
+  }, [setPageHeader]);
+
   /* ─── Search ─── */
   const [searchInput, setSearchInput] = useState(filterValues.search || "");
   const debouncedSearch = useDebounce(searchInput, 400);
@@ -63,7 +90,7 @@ export default function CustomersPage() {
       const dir = sort?.key === key && sort?.dir === "asc" ? "desc" : "asc";
       setOrdering(`${dir === "desc" ? "-" : ""}${key}`);
     },
-    [sort, setOrdering]
+    [sort, setOrdering],
   );
 
   /* ─── Row Actions ─── */
@@ -82,16 +109,18 @@ export default function CustomersPage() {
           setDetailCustomer(full);
           break;
         }
+
         case "edit": {
           const full = await getById(row.id);
           setEditCustomer(full);
           break;
         }
+
         default:
           break;
       }
     },
-    [getById]
+    [getById],
   );
 
   /* ─── Confirm Action ─── */
@@ -112,14 +141,12 @@ export default function CustomersPage() {
   const handleBulkAction = useCallback(
     async (actionKey) => {
       if (actionKey === "delete" && selected.length > 0) {
-        // اگر bulk endpoint داری اینجا صدا بزن
-        // فعلاً تک‌تک حذف می‌کنیم
         await Promise.all(selected.map((id) => remove(id)));
         setSelected([]);
         refresh();
       }
     },
-    [selected, remove, refresh]
+    [selected, remove, refresh],
   );
 
   /* ─── Filters ─── */
@@ -132,7 +159,7 @@ export default function CustomersPage() {
       onClearAll: clearAll,
       activeChips,
     }),
-    [filterValues, setFilter, clearFilter, clearAll, activeChips]
+    [filterValues, setFilter, clearFilter, clearAll, activeChips],
   );
 
   const pagination = useMemo(
@@ -140,7 +167,7 @@ export default function CustomersPage() {
       page,
       totalPages: totalPages(meta?.count),
     }),
-    [page, meta?.count, totalPages]
+    [page, meta?.count, totalPages],
   );
 
   const searchConfig = useMemo(
@@ -150,39 +177,7 @@ export default function CustomersPage() {
       label: "جستجو",
       placeholder: "نام، شماره تماس، کد ملی...",
     }),
-    [searchInput]
-  );
-
-  /* ─── Header ─── */
-  const customHeader = useMemo(
-    () => (
-      <div className="flex items-center justify-between shrink-0">
-        <div>
-          <h1 className="text-xl font-bold text-foreground tracking-tight">
-            مدیریت مشتریان
-          </h1>
-          <p className="text-sm text-muted mt-1">
-            {(meta?.count || 0).toLocaleString("fa-IR")} مشتری
-            {selected.length > 0 && (
-              <span className="mr-2 text-(--role-primary)">
-                ({selected.length.toLocaleString("fa-IR")} انتخاب شده)
-              </span>
-            )}
-          </p>
-        </div>
-
-        <Button
-          variant="primary"
-          size="sm"
-          className="gap-1.5"
-          onClick={() => setCreateOpen(true)}
-        >
-          <Plus size={16} />
-          مشتری جدید
-        </Button>
-      </div>
-    ),
-    [meta?.count, selected.length]
+    [searchInput],
   );
 
   /* ─── Empty State ─── */
@@ -190,28 +185,32 @@ export default function CustomersPage() {
     () => (
       <div className="py-12 text-center space-y-3">
         <Users size={48} className="mx-auto text-muted/40" />
+
         <div>
           <p className="text-sm font-medium text-foreground">
             مشتری‌ای یافت نشد
           </p>
+
           <p className="text-xs text-muted mt-1">
             با فیلترهای انتخابی هیچ مشتری‌ای پیدا نشد.
           </p>
         </div>
+
         <Button variant="outline" size="sm" onClick={clearAll}>
           حذف فیلترها
         </Button>
       </div>
     ),
-    [clearAll]
+    [clearAll],
   );
 
   return (
     <>
       <ResourceTemplate
-        header={customHeader}
         search={searchConfig}
         filters={filters}
+        count={meta?.count || 0}
+        countLabel="مشتری"
         columns={CUSTOMER_TABLE_COLUMNS}
         data={data}
         loading={loading}

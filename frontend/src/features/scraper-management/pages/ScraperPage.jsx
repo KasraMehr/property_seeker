@@ -1,9 +1,8 @@
 // src/features/scraper-management/pages/ScraperPage.jsx
 import { useState, useMemo, useCallback, useEffect } from "react";
-import { Plus, Target, GitCommit, List, Inbox } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Plus, Inbox } from "lucide-react";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import PageTabs from "@/shared/page/PageTabs";
-import PageHeader from "@/shared/page/PageHeader";
 import ResourceTemplate from "@/shared/templates/resource/ResourceTemplate";
 import Button from "@/shared/ui/Button";
 import useScraper from "../hooks/useScraper";
@@ -27,38 +26,76 @@ const TABS = [
 
 export default function ScraperPage() {
   const [activeTab, setActiveTab] = useState("targets");
+  const [formTarget, setFormTarget] = useState(null);
+  const [targetsRefreshKey, setTargetsRefreshKey] = useState(0);
+
+  const { setPageHeader } = useOutletContext();
+
+  useEffect(() => {
+    setPageHeader({
+      title: "مدیریت اسکرپر",
+      subtitle: "تنظیمات تارگت‌ها، اجراها و آگهی‌های دریافتی از دیوار",
+      breadcrumb: [],
+      actions: (
+        <Button variant="primary" size="sm" onClick={() => setFormTarget({})}>
+          <Plus size={16} />
+          تارگت جدید
+        </Button>
+      ),
+    });
+
+    return () => {
+      setPageHeader(null);
+    };
+  }, [setPageHeader]);
 
   return (
-    <div className="space-y-4 h-full flex flex-col">
-      <PageHeader
-        title="مدیریت اسکرپر"
-        subtitle="تنظیمات تارگت‌ها، اجراها و آگهی‌های دریافتی از دیوار"
-      />
-      <PageTabs items={TABS} value={activeTab} onChange={setActiveTab} />
+    <>
+      <div className="flex h-full flex-col space-y-4">
+        <PageTabs items={TABS} value={activeTab} onChange={setActiveTab} />
 
-      <div className="flex-1 min-h-0">
-        {activeTab === "targets" && <TargetsTab />}
-        {activeTab === "runs" && <RunsTab />}
-        {activeTab === "listings" && <ListingsTab />}
+        <div className="min-h-0 flex-1">
+          {activeTab === "targets" && (
+            <TargetsTab refreshKey={targetsRefreshKey} />
+          )}
+
+          {activeTab === "runs" && <RunsTab />}
+
+          {activeTab === "listings" && <ListingsTab />}
+        </div>
       </div>
-    </div>
+
+      {/* Create Target */}
+      {formTarget !== null && (
+        <ScraperTargetFormModal
+          isOpen={true}
+          onClose={() => setFormTarget(null)}
+          target={formTarget?.id ? formTarget : null}
+          onSuccess={() => {
+            setFormTarget(null);
+            setTargetsRefreshKey((key) => key + 1);
+          }}
+        />
+      )}
+    </>
   );
 }
 
 /* ═══════════════════════════════════════════
    Tab 1: Targets
    ═══════════════════════════════════════════ */
-function TargetsTab() {
+function TargetsTab({ refreshKey }) {
   const { targets, loading, meta, page, setPage, fetchTargets, toggleTarget } =
     useScraper();
+
   const [selected, setSelected] = useState([]);
   const [detailTarget, setDetailTarget] = useState(null);
-  const [formTarget, setFormTarget] = useState(null);
+  const [editTarget, setEditTarget] = useState(null);
   const [triggerTarget, setTriggerTarget] = useState(null);
 
   useEffect(() => {
     fetchTargets({ page });
-  }, [fetchTargets, page]);
+  }, [fetchTargets, page, refreshKey]);
 
   const handleRowAction = useCallback(
     (key, row) => {
@@ -67,7 +104,7 @@ function TargetsTab() {
           setDetailTarget(row);
           break;
         case "edit":
-          setFormTarget(row);
+          setEditTarget(row);
           break;
         case "toggle_enabled":
         case "toggle_enabled_activate":
@@ -88,6 +125,7 @@ function TargetsTab() {
       if (key === "toggle_enabled") {
         rows.forEach((r) => toggleTarget(r.id, r.enabled));
       }
+
       if (key === "trigger_run") {
         rows.forEach((r) => setTriggerTarget(r));
       }
@@ -103,28 +141,9 @@ function TargetsTab() {
     [page, meta],
   );
 
-  const header = useMemo(
-    () => (
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-bold">تارگت‌ها</h2>
-          <p className="text-sm text-muted">
-            {(meta?.count || 0).toLocaleString("fa-IR")} تارگت
-          </p>
-        </div>
-        <Button variant="primary" size="sm" onClick={() => setFormTarget({})}>
-          <Plus size={16} />
-          تارگت جدید
-        </Button>
-      </div>
-    ),
-    [meta],
-  );
-
   return (
     <>
       <ResourceTemplate
-        header={header}
         columns={SCRAPER_TARGET_TABLE_COLUMNS}
         data={targets}
         loading={loading}
@@ -140,6 +159,7 @@ function TargetsTab() {
         emptyState={<EmptyState message="تارگتی ثبت نشده" />}
       />
 
+      {/* Target Detail */}
       {detailTarget && (
         <ScraperTargetDetailModal
           isOpen={!!detailTarget}
@@ -147,14 +167,21 @@ function TargetsTab() {
           target={detailTarget}
         />
       )}
-      {formTarget !== null && (
+
+      {/* Edit Target */}
+      {editTarget && (
         <ScraperTargetFormModal
           isOpen={true}
-          onClose={() => setFormTarget(null)}
-          target={formTarget.id ? formTarget : null}
-          onSuccess={() => fetchTargets({ page })}
+          onClose={() => setEditTarget(null)}
+          target={editTarget}
+          onSuccess={() => {
+            setEditTarget(null);
+            fetchTargets({ page });
+          }}
         />
       )}
+
+      {/* Trigger Scraper Run */}
       {triggerTarget && (
         <TriggerScraperRunModal
           isOpen={!!triggerTarget}
@@ -173,6 +200,7 @@ function TargetsTab() {
 function RunsTab() {
   const { runs, loading, meta, page, setPage, fetchRuns, resumeRun } =
     useScraper();
+
   const [selected, setSelected] = useState([]);
   const [detailRun, setDetailRun] = useState(null);
 
@@ -234,6 +262,7 @@ function RunsTab() {
         onPageChange={setPage}
         emptyState={<EmptyState message="اجرایی ثبت نشده" />}
       />
+
       {detailRun && (
         <ScraperRunDetailModal
           isOpen={!!detailRun}
@@ -249,19 +278,22 @@ function RunsTab() {
    Tab 3: Scraped Listings
    ═══════════════════════════════════════════ */
 function ListingsTab() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
   return (
     <div className="flex flex-col items-center justify-center h-full text-center space-y-4 py-12">
       <Inbox size={48} className="text-muted/40" />
+
       <div>
         <p className="text-sm font-medium text-foreground">
           آگهی‌های اسکرپ‌شده
         </p>
+
         <p className="text-xs text-muted mt-1 max-w-sm">
           آگهی‌های دریافتی از دیوار در صفحه «آگهی‌ها» قابل مشاهده و بررسی هستند.
         </p>
       </div>
+
       <Button
         variant="outline"
         size="sm"
@@ -280,6 +312,7 @@ function EmptyState({ message }) {
   return (
     <div className="py-12 text-center space-y-3">
       <Inbox size={48} className="mx-auto text-muted/40" />
+
       <p className="text-sm font-medium text-foreground">{message}</p>
     </div>
   );

@@ -4,6 +4,7 @@ import { Menu } from "lucide-react";
 
 import Button from "../ui/Button";
 import DashboardSidebar from "./DashboardSidebar";
+import PageHeader from "@/shared/page/PageHeader";
 
 export default function DashboardLayout({
   role,
@@ -11,6 +12,8 @@ export default function DashboardLayout({
   footerItems = [],
 }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const [pageHeader, setPageHeader] = useState(null);
 
   return (
     <div
@@ -28,11 +31,14 @@ export default function DashboardLayout({
         {/* Topbar */}
         <header
           className="
-            sticky top-0 z-30 flex h-16 shrink-0 items-center gap-3
-            border-b border-border bg-surface/80 px-4 backdrop-blur
+            sticky top-0 z-30
+            flex h-16 shrink-0 items-center gap-3
+            border-b border-border
+            bg-surface/80 px-4 backdrop-blur
             lg:px-6
           "
         >
+          {/* Mobile sidebar button */}
           <Button
             variant="ghost"
             size="icon"
@@ -43,13 +49,23 @@ export default function DashboardLayout({
             <Menu size={20} />
           </Button>
 
-          {/* اینجا محل breadcrumb / عنوان صفحه و اکشن‌هاست */}
-          <div id="dashboard-topbar" className="flex min-w-0 flex-1 items-center gap-3" />
+          {/* Page Header */}
+          <div
+            id="dashboard-topbar"
+            className="flex min-w-0 flex-1 items-center"
+          >
+            {pageHeader && <PageHeader {...pageHeader} compact />}
+          </div>
         </header>
 
+        {/* Page Content */}
         <main className="flex-1 overflow-y-auto px-4 py-5 lg:px-6">
           <div className="mx-auto w-full max-w-7xl">
-            <Outlet />
+            <Outlet
+              context={{
+                setPageHeader,
+              }}
+            />
           </div>
         </main>
       </section>

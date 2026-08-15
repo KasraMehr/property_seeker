@@ -96,7 +96,7 @@ export const ADMIN_NAV_ITEMS = [
     path: "/admin/calls",
     icon: PhoneCall,
   },
-  { id: "users", label: "مدیریت کارمندان", path: "/admin/users", icon: Users },
+  { id: "users", label: "مدیریت کاربران", path: "/admin/users", icon: Users },
   {
     id: "regions",
     label: "مدیریت مناطق",
