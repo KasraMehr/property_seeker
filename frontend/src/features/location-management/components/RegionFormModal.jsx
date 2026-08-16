@@ -1,8 +1,8 @@
 import { useState } from "react";
 import Modal from "@/shared/ui/modal/Modal";
 import FormRenderer from "@/shared/page/FormRenderer";
-import { REGION_FORM } from "@/features/regions-management/config";
-import regionService from "@/features/regions-management/services/regionService";
+import { REGION_FORM } from "@/features/location-management/config";
+import regionService from "@/features/location-management/services/regionService";
 
 export default function RegionFormModal({ isOpen, onClose, region = null, onSuccess }) {
   const [loading, setLoading] = useState(false);

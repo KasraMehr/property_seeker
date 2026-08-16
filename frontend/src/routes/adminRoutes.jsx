@@ -1,6 +1,6 @@
 import AdminDashboardPage from "@/features/dashboard/admin/AdminDashboardPage";
 import UsersPage from "@/features/users-management/pages/UsersPage";
-import RegionsPage from "@/features/regions-management/pages/RegionsPage";
+import LocationPage from "@/features/location-management/pages/LocationPage";
 import ScraperPage from "@/features/scraper-management/pages/ScraperPage";
 import ReportsPage from "@/features/reports/pages/ReportsPage";
 import ListingsPage from "@/features/listings/pages/ListingsPage";
@@ -18,7 +18,7 @@ export const adminRoutes = [
   { path: "calls", element: <CallsPage /> },
   { path: "customers", element: <CustomersPage /> },
   { path: "users", element: <UsersPage /> },
-  { path: "regions", element: <RegionsPage /> },
+  { path: "regions", element: <LocationPage /> },
   { path: "scraper", element: <ScraperPage /> },
   { path: "reports", element: <ReportsPage /> },
   { path: "activity-log", element: <ActivityLogPage /> },
