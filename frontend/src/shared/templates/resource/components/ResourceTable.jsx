@@ -20,9 +20,25 @@ export default function ResourceTable({
   rowActions = [],
   onRowAction,
   rowKey = "id",
+  page = 1,
+  pageSize = 20,
   className = "",
 }) {
   const hasActions = rowActions.length > 0;
+
+  const numberedData = data.map((row, index) => ({
+    ...row,
+    __rowNumber: (page - 1) * pageSize + index + 1,
+  }));
+
+  const numberedColumns = [
+    {
+      key: "__rowNumber",
+      header: "#",
+      width: "w-12",
+    },
+    ...columns,
+  ];
 
   const actionsRenderer = hasActions
     ? (row) => (
@@ -40,10 +56,12 @@ export default function ResourceTable({
     : undefined;
 
   return (
-    <div className={` h-[calc(100vh-260px)] min-h-100 overflow-auto rounded-xl border border-border bg-surface ${className} `} >
+    <div
+      className={`h-[calc(100vh-260px)] min-h-100 overflow-x-auto overflow-y-auto rounded-xl border border-border bg-surface ${className}`}
+    >
       <Table
-        data={data}
-        columns={columns}
+        data={numberedData}
+        columns={numberedColumns}
         loading={loading}
         selectable={selectable}
         selected={selected}

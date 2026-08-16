@@ -76,7 +76,7 @@ export const PROPERTY_DETAIL_FIELDS = [
     sectionLabel: "موقعیت",
     fields: [
       { key: "area", label: "متراژ", suffix: " متر مربع" },
-      { key: "address", label: "آدرس", type: "nested", nestedKey: "full_text", fullWidth: true },
+      { key: "address", label: "آدرس کامل", type: "nested", nestedKey: "full_text", fullWidth: true },
     ],
   },
   {

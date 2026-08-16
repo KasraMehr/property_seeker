@@ -42,10 +42,10 @@ export const OWNER_TABLE_COLUMNS = [
       </span>
     ),
   },
-  {
-    key: "actions",
-    header: "",
-    width: "w-20",
-    actions: true,
-  },
+  // {
+  //   key: "actions",
+  //   header: "",
+  //   width: "w-20",
+  //   actions: true,
+  // },
 ];

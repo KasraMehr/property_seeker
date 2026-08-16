@@ -1,4 +1,3 @@
-
 import {
   CUSTOMER_TYPE_CONFIG,
   CUSTOMER_STATUS_CONFIG,
@@ -6,29 +5,35 @@ import {
 
 export const CUSTOMER_DETAIL_FIELDS = [
   {
-    title: "اطلاعات پایه",
+    section: "basic",
+    sectionLabel: "اطلاعات پایه",
     fields: [
       { key: "full_name", label: "نام و نام خانوادگی" },
-      { key: "phone", label: "شماره تماس" },
-      { key: "email", label: "ایمیل", render: (v) => v || "—" }, // ADDED
+      { key: "phone", label: "شماره تماس", type: "phone" },
+      { key: "email", label: "ایمیل" },
       {
         key: "customer_type",
         label: "نوع مشتری",
-        render: (v) => CUSTOMER_TYPE_CONFIG[v]?.label || v || "—",
+        type: "status",
+        configKey: "customerType",
       },
       {
         key: "status",
         label: "وضعیت",
-        render: (v) => CUSTOMER_STATUS_CONFIG[v]?.label || v || "—",
+        type: "status",
+        configKey: "customerStatus",
       },
-      { key: "source", label: "منبع", render: (v) => v || "—" },
+      { key: "source", label: "منبع" },
     ],
   },
   {
-    title: "اطلاعات تکمیلی",
+    section: "extra",
+    sectionLabel: "اطلاعات تکمیلی",
     fields: [
-      { key: "assigned_agent_name", label: "کارشناس مسئول", render: (v) => v || "—" },
-      { key: "notes", label: "یادداشت‌ها", render: (v) => v || "—", span: 12 },
+      { key: "assigned_agent_name", label: "کارشناس مسئول" },
+      { key: "notes", label: "یادداشت‌ها", fullWidth: true },
+      { key: "created_at", label: "تاریخ ثبت", type: "dateTime" },
+      { key: "updated_at", label: "آخرین بروزرسانی", type: "dateTime" },
     ],
   },
 ];

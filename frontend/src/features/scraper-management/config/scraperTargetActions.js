@@ -1,18 +1,25 @@
 import {
-  Eye, Pencil, Trash2, Play, Pause, Zap, Settings, Download
+  Eye,
+  Pencil,
+  Trash2,
+  Play,
+  Pause,
+  Zap,
+  Settings,
+  Download,
 } from "lucide-react";
 
 /**
  * ScrapeTarget Actions Config
  * Backend: ingestion.ScrapeTarget
- * 
+ *
  * Scraper management is admin/owner-only.
  */
 
 export const SCRAPER_TARGET_ROW_ACTIONS = [
   {
     key: "view",
-    label: "مشاهده",
+    label: "مشاهده جزئیات",
     icon: Eye,
     variant: "ghost",
     type: "row",
@@ -21,16 +28,16 @@ export const SCRAPER_TARGET_ROW_ACTIONS = [
   },
   {
     key: "edit",
-    label: "ویرایش",
+    label: "ویرایش تارگت",
     icon: Pencil,
     variant: "ghost",
     type: "row",
-    permission: null, // admin-only
+    permission: null,
     modal: "edit",
   },
   {
     key: "toggle_enabled",
-    label: "فعال/غیرفعال",
+    label: "توقف (غیرفعال)",
     icon: Pause,
     variant: "outline",
     type: "row",
@@ -40,7 +47,7 @@ export const SCRAPER_TARGET_ROW_ACTIONS = [
   },
   {
     key: "toggle_enabled_activate",
-    label: "فعال‌سازی",
+    label: "فعال‌سازی مجدد",
     icon: Play,
     variant: "primary",
     type: "row",
@@ -50,7 +57,7 @@ export const SCRAPER_TARGET_ROW_ACTIONS = [
   },
   {
     key: "trigger_run",
-    label: "اجرای فوری",
+    label: "استخراج / اجرای فوری",
     icon: Zap,
     variant: "outline",
     type: "row",
@@ -62,13 +69,12 @@ export const SCRAPER_TARGET_ROW_ACTIONS = [
       message: "آیا از اجرای فوری این تارگت اطمینان دارید؟",
     },
   },
-
 ];
 
 export const SCRAPER_TARGET_BULK_ACTIONS = [
   {
     key: "toggle_enabled",
-    label: "فعال/غیرفعال",
+    label: "فعال / غیرفعال",
     icon: Play,
     variant: "outline",
     type: "bulk",
@@ -85,9 +91,12 @@ export const SCRAPER_TARGET_BULK_ACTIONS = [
     handler: "trigger_run",
     confirm: {
       title: "اجرای گروهی",
-      message: "آیا از اجرای فوری تارگت‌های انتخاب‌شده اطمینان دارید؟",
+      message: "مودال اجرا برای اولین تارگت فعال انتخاب‌شده باز می‌شود.",
     },
   },
 ];
 
-export const SCRAPER_TARGET_ALL_ACTIONS = [...SCRAPER_TARGET_ROW_ACTIONS, ...SCRAPER_TARGET_BULK_ACTIONS];
+export const SCRAPER_TARGET_ALL_ACTIONS = [
+  ...SCRAPER_TARGET_ROW_ACTIONS,
+  ...SCRAPER_TARGET_BULK_ACTIONS,
+];

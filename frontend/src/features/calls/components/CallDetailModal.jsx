@@ -8,7 +8,6 @@ import { CALL_TYPE_CONFIG, CALL_RESULT_CONFIG } from "@/features/calls/config";
 import {
   CALL_DETAIL_TABS,
   CALL_DETAIL_FIELDS,
-  CALL_RELATED_FIELDS,
 } from "@/features/calls/config";
 import { DetailFieldGrid } from "@/shared/page/DetailContentRenderer";
 
@@ -75,9 +74,6 @@ export default function CallDetailModal({ isOpen, onClose, call }) {
             <DetailFieldGrid data={call} sections={CALL_DETAIL_FIELDS} />
           </Tabs.Content>
 
-          <Tabs.Content value="related">
-            <DetailFieldGrid data={call} sections={CALL_RELATED_FIELDS} />
-          </Tabs.Content>
         </div>
       </Tabs>
 

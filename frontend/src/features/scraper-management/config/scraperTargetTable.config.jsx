@@ -1,6 +1,8 @@
 import StatusBadge from "@/shared/ui/badges/StatusBadge";
 import { SCRAPE_TARGET_STATUS_CONFIG } from "@/features/scraper-management/config";
 import { formatDate } from "@/utils/formatters";
+import { buildStatusConfig } from "@/constants/status.utils";
+
 import { Clock, Link2 } from "lucide-react";
 
 /**
@@ -8,14 +10,14 @@ import { Clock, Link2 } from "lucide-react";
  * Backend: ingestion.ScrapeTarget
  */
 export const SCRAPER_TARGET_TABLE_COLUMNS = [
-  {
-    key: "id",
-    header: "شناسه",
-    width: "w-14",
-    cell: ({ id }) => (
-      <span className="text-xs text-muted-foreground font-mono">#{id}</span>
-    ),
-  },
+  // {
+  //   key: "id",
+  //   header: "شناسه",
+  //   width: "w-14",
+  //   cell: ({ id }) => (
+  //     <span className="text-xs text-muted-foreground font-mono">#{id}</span>
+  //   ),
+  // },
   {
     key: "name",
     header: "نام تارگت",
@@ -53,8 +55,10 @@ export const SCRAPER_TARGET_TABLE_COLUMNS = [
     filterKey: "enabled",
     cell: ({ enabled }) => (
       <StatusBadge
-        status={enabled ? "enabled" : "disabled"}
-        config={SCRAPE_TARGET_STATUS_CONFIG}
+        config={buildStatusConfig(
+          SCRAPE_TARGET_STATUS_CONFIG,
+          enabled ? "enabled" : "disabled",
+        )}
       />
     ),
   },
@@ -82,10 +86,10 @@ export const SCRAPER_TARGET_TABLE_COLUMNS = [
     cell: ({ last_full_discovery_at }) =>
       formatDate(last_full_discovery_at, "short"),
   },
-  {
-    key: "actions",
-    header: "",
-    width: "w-20",
-    actions: true,
-  },
+  // {
+  //   key: "actions",
+  //   header: "",
+  //   width: "w-20",
+  //   actions: true,
+  // },
 ];

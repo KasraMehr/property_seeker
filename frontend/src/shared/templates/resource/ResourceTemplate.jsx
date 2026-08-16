@@ -42,15 +42,14 @@ export default function ResourceTemplate({
         onBulkAction={onBulkAction}
       />
 
-      <MotionDiv
-        className="space-y-6"
-        delay={0.1}
-      >
+      <MotionDiv className="flex flex-col flex-1 min-h-0" delay={0.1}>
         <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden">
           <ResourceTable
             columns={columns}
             data={data}
             loading={loading}
+            page={pagination?.page ?? 1}
+            pageSize={pagination?.pageSize ?? 20}
             emptyState={emptyState}
             sort={sort}
             onSort={onSort}

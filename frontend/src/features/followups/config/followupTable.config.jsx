@@ -3,20 +3,21 @@ import {
   FOLLOWUP_STATUS_CONFIG,
   FOLLOWUP_TYPE_CONFIG,
 } from "@/features/followups/config";
+import { buildStatusConfig } from "@/constants/status.utils";
 import { formatDate } from "@/utils/formatters";
 /**
  * Reminder (Follow-up) Table Columns
  * Backend: crm.Reminder
  */
 export const FOLLOWUP_TABLE_COLUMNS = [
-  {
-    key: "id",
-    header: "شناسه",
-    width: "w-14",
-    cell: ({ id }) => (
-      <span className="text-xs text-muted-foreground font-mono">#{id}</span>
-    ),
-  },
+  // {
+  //   key: "id",
+  //   header: "شناسه",
+  //   width: "w-14",
+  //   cell: ({ id }) => (
+  //     <span className="text-xs text-muted-foreground font-mono">#{id}</span>
+  //   ),
+  // },
   {
     key: "title",
     header: "عنوان وظیفه",
@@ -59,7 +60,7 @@ export const FOLLOWUP_TABLE_COLUMNS = [
     width: "w-24",
     filterKey: "status",
     cell: ({ status }) => (
-      <StatusBadge status={status} config={FOLLOWUP_STATUS_CONFIG} />
+      <StatusBadge config={buildStatusConfig(FOLLOWUP_STATUS_CONFIG, status)} />
     ),
   },
   {
@@ -104,10 +105,10 @@ export const FOLLOWUP_TABLE_COLUMNS = [
       );
     },
   },
-  {
-    key: "actions",
-    header: "",
-    width: "w-20",
-    actions: true,
-  },
+  // {
+  //   key: "actions",
+  //   header: "",
+  //   width: "w-20",
+  //   actions: true,
+  // },
 ];

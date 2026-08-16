@@ -29,7 +29,11 @@ export default function Button({
       "text-foreground hover:bg-surface",
     
     danger:
-      "text-danger hover:bg-danger/10 disabled:opacity-60"
+      "text-danger hover:bg-danger/10 disabled:opacity-60",
+
+      // TODO: add role-based buttons
+    // adminPrimpary:
+    //   "bg-(--role-primary) text-white hover:bg-(--role-primary-hover) disabled:opacity-60"
   };
 
   const sizes = {

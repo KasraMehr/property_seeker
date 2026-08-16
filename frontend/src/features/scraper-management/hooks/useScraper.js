@@ -48,13 +48,19 @@ export default function useScraper() {
   const toggleTarget = useCallback(
     async (id, enabled) => {
       await scraperService.updateTarget(id, { enabled: !enabled });
-      await fetchTargets({ page }); 
+      await fetchTargets({ page });
     },
     [fetchTargets, page],
   );
 
-  const triggerRun = useCallback(async (id, mode, note) => {
-    await scraperService.triggerRun(id, mode, note);
+  const triggerRun = useCallback(async (id, mode, configuration = {}) => {
+    const config =
+      configuration &&
+      typeof configuration === "object" &&
+      !Array.isArray(configuration)
+        ? configuration
+        : {};
+    await scraperService.triggerRun(id, mode, config);
   }, []);
 
   const resumeRun = useCallback(async (uuid) => {

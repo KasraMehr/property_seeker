@@ -10,7 +10,7 @@ import {
   CUSTOMER_DETAIL_FIELDS,
 } from "@/features/customers/config";
 import { DetailFieldGrid } from "@/shared/page/DetailContentRenderer";
-
+import { buildStatusConfig } from "@/constants/status.utils";
 
 export default function CustomerDetailModal({ isOpen, onClose, customer }) {
   const [activeTab, setActiveTab] = useState("info");
@@ -44,18 +44,20 @@ export default function CustomerDetailModal({ isOpen, onClose, customer }) {
             </span>
             {customer.customer_type && (
               <StatusBadge
-                status={customer.customer_type}
-                config={CUSTOMER_TYPE_CONFIG}
+                config={buildStatusConfig(
+                  CUSTOMER_TYPE_CONFIG,
+                  customer.customer_type,
+                )}
                 size="sm"
-                variant="soft"
               />
             )}
             {customer.status && (
               <StatusBadge
-                status={customer.status}
-                config={CUSTOMER_STATUS_CONFIG}
+                config={buildStatusConfig(
+                  CUSTOMER_STATUS_CONFIG,
+                  customer.status,
+                )}
                 size="sm"
-                variant="soft"
               />
             )}
           </div>

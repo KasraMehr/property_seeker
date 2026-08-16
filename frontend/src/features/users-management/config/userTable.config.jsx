@@ -120,10 +120,10 @@ export const USER_TABLE_COLUMNS = [
     width: "w-28",
     cell: ({ created_at }) => formatDate(created_at, "short"),
   },
-  {
-    key: "actions",
-    header: "",
-    width: "w-20",
-    actions: true,
-  },
+  // {
+  //   key: "actions",
+  //   header: "",
+  //   width: "w-20",
+  //   actions: true,
+  // },
 ];

@@ -140,10 +140,10 @@ export const PROPERTY_TABLE_COLUMNS = [
       return <span className="text-muted-foreground text-xs">—</span>;
     },
   },
-  {
-    key: "actions",
-    header: "",
-    width: "w-20",
-    actions: true,
-  },
+  // {
+  //   key: "actions",
+  //   header: "",
+  //   width: "w-20",
+  //   actions: true,
+  // },
 ];

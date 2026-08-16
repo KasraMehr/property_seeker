@@ -64,19 +64,22 @@ export default function Table({
   }
 
   return (
-    <div className=" h-full">
-      <table className="w-full table-fixed border-collapse text-sm">
+    <div className=" h-full min-x-max">
+      <table className="w-full border-collapse text-sm">
         <thead className="sticky top-0 z-10 bg-surface">
           <tr className="border-b border-border bg-surface">
             {columns.map((col) => (
               <th
                 key={col.key}
                 className={`
-                px-3 py-3 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wide
-                whitespace-nowrap select-none
-                ${col.width || ""}
-                ${onSort && col.sortable !== false ? "cursor-pointer hover:text-foreground" : ""}
-              `}
+    px-3 py-3 text-right text-xs font-semibold text-muted-foreground
+    uppercase tracking-wide whitespace-nowrap select-none
+    ${onSort && col.sortable !== false ? "cursor-pointer hover:text-foreground" : ""}
+  `}
+                className={`
+  px-3 py-3 ... 
+  ${col.width || ""}
+`}
                 style={col.minWidth ? { minWidth: col.minWidth } : undefined}
                 onClick={() => {
                   if (onSort && col.sortable !== false) onSort(col.key);
@@ -105,11 +108,14 @@ export default function Table({
               {columns.map((col) => (
                 <td
                   key={col.key}
-                  className={`
-                  px-3 py-2.5 text-foreground align-middle
-                  whitespace-nowrap
-                  ${col.width || ""}
-                `}
+                  className="
+    px-3 py-2.5 text-foreground align-middle
+    whitespace-nowrap
+  "
+                  style={{
+                    width: col.width,
+                    minWidth: col.minWidth,
+                  }}
                   title={
                     typeof row[col.key] === "string" ? row[col.key] : undefined
                   }

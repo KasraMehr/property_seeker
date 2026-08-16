@@ -1,159 +1,176 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { useNavigate, useOutletContext } from "react-router-dom";
+import { ArrowLeft, RefreshCw } from "lucide-react";
 
 import DashboardTemplate from "@/shared/templates/dashboard/DashboardTemplate";
 import Button from "@/shared/ui/Button";
 
+import dashboardService from "@/features/dashboard/services/dashboardService";
+import scraperService from "@/features/scraper-management/services/scraperService";
 import listingService from "@/features/listings/services/listingService";
-import propertyService from "@/features/properties/services/propertyService";
 
-import {
-  AdminStatsWidget,
-  RecentListingsWidget,
-  ScraperTodayWidget,
-} from "./widgets";
+import RecentListingsWidget from "./widgets/RecentListingsWidget";
+import AdminStatsWidget from "./widgets/AdminStatsWidget";
+import ScraperTodayWidget from "./widgets/ScraperTodayWidget";
+
+const EMPTY_STATS = {
+  customers_count: 0,
+  employees_count: 0,
+  properties_count: 0,
+  roles_count: 0,
+};
+
+const EMPTY_SCRAPER = {
+  is_running: false,
+  total_scraped_today: 0,
+  failed_jobs: 0,
+  discovered_today: 0,
+  processed_today: 0,
+  sources: [],
+  last_run: null,
+};
 
 export default function AdminDashboardPage() {
   const navigate = useNavigate();
+  const { setPageHeader } = useOutletContext();
 
-  const [stats, setStats] = useState(null);
-  const [listings, setListings] = useState([]);
-
+  const [stats, setStats] = useState(EMPTY_STATS);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    let mounted = true;
+  const [scraperStatus, setScraperStatus] = useState(EMPTY_SCRAPER);
+  const [scraperLoading, setScraperLoading] = useState(true);
 
-    const loadDashboard = async () => {
-      setLoading(true);
+  const [recentListings, setRecentListings] = useState([]);
+  const [listingsLoading, setListingsLoading] = useState(true);
 
-      try {
-        /*
-         * فقط endpointهای واقعی backend
-         *
-         * Listing:
-         * GET /api/listing/list/
-         *
-         * Property:
-         * GET /api/property/list/
-         */
+  const loadAll = useCallback(async () => {
+    setLoading(true);
+    setScraperLoading(true);
+    setListingsLoading(true);
 
-        const [listingsRes, propertiesRes] = await Promise.allSettled([
-          listingService.getAll(),
-          propertyService.getAll(),
-        ]);
+    const [dashResult, scraperResult, listingsResult] =
+      await Promise.allSettled([
+        dashboardService.getAdminStats(),
+        scraperService.getScraperTodayStatus(),
+        listingService.getAll({ page_size: 5 }),
+      ]);
 
-        if (!mounted) return;
+    // ─────────────────────────────
+    // Dashboard stats
+    // ─────────────────────────────
+    if (dashResult.status === "fulfilled") {
+      const data = dashResult.value?.data ?? dashResult.value ?? {};
 
-        // -----------------------------------------
-        // Listings
-        // -----------------------------------------
+      setStats({
+        customers_count: data.customers_count ?? 0,
+        employees_count: data.employees_count ?? 0,
+        properties_count: data.properties_count ?? 0,
+        roles_count: data.roles_count ?? 0,
+      });
+    } else {
+      console.error("Dashboard stats error:", dashResult.reason);
+      setStats(EMPTY_STATS);
+    }
 
-        let listingData = [];
+    // ─────────────────────────────
+    // Scraper
+    // ─────────────────────────────
+    if (scraperResult.status === "fulfilled") {
+      const data = scraperResult.value?.data ?? scraperResult.value ?? {};
 
-        if (listingsRes.status === "fulfilled") {
-          const data = listingsRes.value?.data;
+      setScraperStatus({
+        ...EMPTY_SCRAPER,
+        ...data,
+      });
+    } else {
+      console.error("Scraper error:", scraperResult.reason);
+      setScraperStatus(EMPTY_SCRAPER);
+    }
 
-          listingData = Array.isArray(data) ? data : (data?.results ?? []);
-        }
+    // ─────────────────────────────
+    // Recent listings
+    // ─────────────────────────────
+    if (listingsResult.status === "fulfilled") {
+      const response = listingsResult.value?.data ?? listingsResult.value;
 
-        setListings(listingData);
+      const listings = Array.isArray(response)
+        ? response
+        : (response?.results ?? []);
 
-        // -----------------------------------------
-        // Properties
-        // -----------------------------------------
+      setRecentListings(listings.slice(0, 5));
+    } else {
+      console.error("Listings error:", listingsResult.reason);
+      setRecentListings([]);
+    }
 
-        let propertyData = [];
-
-        if (propertiesRes.status === "fulfilled") {
-          const data = propertiesRes.value?.data;
-
-          propertyData = Array.isArray(data) ? data : (data?.results ?? []);
-        }
-
-        // -----------------------------------------
-        // Local dashboard stats
-        // -----------------------------------------
-
-        setStats({
-          listings: listingData.length,
-          properties: propertyData.length,
-
-          activeListings: listingData.filter(
-            (item) => item?.status === "active",
-          ).length,
-
-          unreviewedListings: listingData.filter(
-            (item) => item?.review_status === "unreviewed",
-          ).length,
-
-          promotedListings: listingData.filter(
-            (item) => item?.review_status === "promoted",
-          ).length,
-        });
-      } catch (error) {
-        /*
-         * داشبورد نباید به خاطر خطای یک endpoint
-         * کل صفحه را crash کند.
-         */
-        console.error("Admin dashboard load error:", error);
-
-        if (!mounted) return;
-
-        setListings([]);
-        setStats({
-          listings: 0,
-          properties: 0,
-          activeListings: 0,
-          unreviewedListings: 0,
-          promotedListings: 0,
-        });
-      } finally {
-        if (mounted) {
-          setLoading(false);
-        }
-      }
-    };
-
-    loadDashboard();
-
-    return () => {
-      mounted = false;
-    };
+    setLoading(false);
+    setScraperLoading(false);
+    setListingsLoading(false);
   }, []);
 
-  const headerActions = (
-    <Button
-      variant="outline"
-      size="sm"
-      icon={ArrowLeft}
-      onClick={() => navigate("/admin/listings")}
-    >
-      مشاهده همه آگهی ها
-    </Button>
-  );
+  // ─────────────────────────────
+  // Page Header
+  // ─────────────────────────────
+  useEffect(() => {
+    setPageHeader({
+      title: "داشبورد مدیریت",
+      subtitle: "نمای کلی وضعیت سامانه",
+
+      actions: (
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            icon={RefreshCw}
+            onClick={loadAll}
+            disabled={loading || scraperLoading || listingsLoading}
+          >
+            بروزرسانی
+          </Button>
+
+          <Button
+            variant="primary"
+            size="sm"
+            icon={ArrowLeft}
+            onClick={() => navigate("/admin/scraper")}
+          >
+            استخراج فوری
+          </Button>
+        </div>
+      ),
+    });
+
+    return () => setPageHeader(null);
+  }, [
+    setPageHeader,
+    loadAll,
+    loading,
+    scraperLoading,
+    listingsLoading,
+    navigate,
+  ]);
+
+  // ─────────────────────────────
+  // Initial load
+  // ─────────────────────────────
+  useEffect(() => {
+    loadAll();
+  }, [loadAll]);
 
   return (
-    <DashboardTemplate title="داشبورد مدیریت" headerActions={headerActions}>
+    <DashboardTemplate>
       <div className="space-y-6">
         {/* Stats */}
-
         <AdminStatsWidget stats={stats} loading={loading} />
 
-        {/* Main widgets */}
+        {/* Scraper + Recent Listings */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <ScraperTodayWidget status={scraperStatus} loading={scraperLoading} />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            <RecentListingsWidget
-              listings={listings.slice(0, 5)}
-              loading={loading}
-            />
-          </div>
-
-          <div className="lg:col-span-1">
-            <ScraperTodayWidget status={null} loading={false} />
-          </div>
+          <RecentListingsWidget
+            listings={recentListings}
+            loading={listingsLoading}
+          />
         </div>
       </div>
     </DashboardTemplate>

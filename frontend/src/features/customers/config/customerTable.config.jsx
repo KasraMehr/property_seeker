@@ -2,17 +2,18 @@ import CustomerTypeBadge from "../components/CustomerTypeBadge";
 import SourceBadge from "@/shared/ui/badges/SourceBadge";
 import StatusBadge from "@/shared/ui/badges/StatusBadge";
 import { formatDate } from "@/utils/formatters";
+import { buildStatusConfig } from "@/constants/status.utils";
 import { CUSTOMER_STATUS_CONFIG } from "./customerStatus.config";
 
 export const CUSTOMER_TABLE_COLUMNS = [
-  {
-    key: "id",
-    header: "شناسه",
-    width: "w-14",
-    cell: ({ id }) => (
-      <span className="text-xs text-muted-foreground font-mono">#{id}</span>
-    ),
-  },
+  // {
+  //   key: "id",
+  //   header: "شناسه",
+  //   width: "w-14",
+  //   cell: ({ id }) => (
+  //     <span className="text-xs text-muted-foreground font-mono">#{id}</span>
+  //   ),
+  // },
   {
     key: "full_name",
     header: "نام مشتری",
@@ -41,8 +42,7 @@ export const CUSTOMER_TABLE_COLUMNS = [
     width: "w-28",
     cell: ({ status }) => (
       <StatusBadge
-        status={status}
-        config={CUSTOMER_STATUS_CONFIG}
+        config={buildStatusConfig(CUSTOMER_STATUS_CONFIG, status)}
         size="sm"
         variant="soft"
       />
@@ -73,10 +73,10 @@ export const CUSTOMER_TABLE_COLUMNS = [
     sortable: true,
     cell: ({ created_at }) => formatDate(created_at, "short"),
   },
-  {
-    key: "actions",
-    header: "",
-    width: "w-20",
-    actions: true,
-  },
+  // {
+  //   key: "actions",
+  //   header: "",
+  //   width: "w-20",
+  //   actions: true,
+  // },
 ];
