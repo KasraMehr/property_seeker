@@ -2,7 +2,7 @@
 # PRODUCTION DOCKERFILE
 # ============================================================
 
-FROM python:3.13-slim AS base
+FROM python:3.13-slim AS production
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -22,8 +22,7 @@ RUN apt-get update \
 
 WORKDIR /app
 
-# Copy requirements first
-# This keeps pip install cached when application code changes.
+# Requirements first for Docker cache
 COPY requirements.txt .
 
 # Install Python dependencies from Liara PyPI mirror
@@ -32,29 +31,9 @@ RUN pip install -r requirements.txt
 # Copy application
 COPY . .
 
-# ============================================================
-# STATIC FILES
-# ============================================================
-
+# Collect static files
 #RUN python manage.py collectstatic --noinput
-
-# ============================================================
-# PRODUCTION
-# ============================================================
 
 EXPOSE 8000
 
-CMD [
-    "gunicorn",
-    "amlak.wsgi:application",
-    "--bind",
-    "0.0.0.0:8000",
-    "--workers",
-    "3",
-    "--timeout",
-    "60",
-    "--access-logfile",
-    "-",
-    "--error-logfile",
-    "-"
-]
+CMD ["gunicorn", "amlak.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3", "--timeout", "60", "--access-logfile", "-", "--error-logfile", "-"]
