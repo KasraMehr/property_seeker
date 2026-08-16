@@ -295,7 +295,9 @@ services:
 
     restart: unless-stopped
 
-    environment: *backend_environment
+    environment: *backend_environment #This Anchor itself has nothing to do with .env.production.
+    #The .env.production file provides the values for variables such as:
+    #The YAML Anchor is only used to avoid repeating the same environment configuration in multiple services.
 
     command:
       - celery
