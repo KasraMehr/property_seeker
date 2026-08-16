@@ -34,16 +34,19 @@ export default function useLocationLevel(levelKey) {
     fetchList({});
   }, [levelKey, fetchList]);
 
-  const setParentFilter = useCallback((key, value) => {
+  const setParentFilter = useCallback((key, value, meta = {}) => {
     setParentFilters((prev) => {
       const next = { ...prev, [key]: value || "" };
-      // clear dependents when parent changes
       if (key === "province") {
+        next.provinceName = meta.name || "";
         delete next.city;
         delete next.district;
       }
       if (key === "city") {
         delete next.district;
+      }
+      if (!value) {
+        if (key === "province") delete next.provinceName;
       }
       return next;
     });
@@ -57,28 +60,38 @@ export default function useLocationLevel(levelKey) {
     const q = search.trim().toLowerCase();
     if (q) {
       rows = rows.filter((r) => {
-        const name = String(r.name ?? "").toLowerCase();
-        const cityName = String(r.city_name ?? "").toLowerCase();
-        const districtName = String(r.district_name ?? "").toLowerCase();
-        const province = String(
-          r.province ?? r.province_name ?? "",
-        ).toLowerCase();
-        return (
-          name.includes(q) ||
-          cityName.includes(q) ||
-          districtName.includes(q) ||
-          province.includes(q)
-        );
+        const blob = [
+          r.name,
+          r.city_name,
+          r.district_name,
+          r.province,
+          r.province_name,
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+        return blob.includes(q);
       });
     }
 
-    // City list serializer exposes province as NAME string — match by name if needed later
+    // city tab: CityListSerializer.province = NAME string
+    if (parentFilters.province && levelKey === "city") {
+      const pid = Number(parentFilters.province);
+      const pname = parentFilters.provinceName; // from panel
+      rows = rows.filter((r) => {
+        if (r.province_id != null && Number(r.province_id) === pid) return true;
+        if (pname && String(r.province) === String(pname)) return true;
+        return false;
+      });
+    }
+
     if (parentFilters.city) {
       const cid = Number(parentFilters.city);
       rows = rows.filter(
         (r) => Number(r.city) === cid || Number(r.city_id) === cid,
       );
     }
+
     if (parentFilters.district) {
       const did = Number(parentFilters.district);
       rows = rows.filter(
@@ -87,7 +100,7 @@ export default function useLocationLevel(levelKey) {
     }
 
     return rows;
-  }, [data, search, parentFilters]);
+  }, [data, search, parentFilters, levelKey]);
 
   const refresh = useCallback(() => fetchList({}), [fetchList]);
 

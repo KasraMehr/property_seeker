@@ -5,15 +5,26 @@ import ConfirmModal from "@/shared/ui/modal/ConfirmModal";
 import Button from "@/shared/ui/Button";
 import useDebounce from "@/shared/useDebounce";
 import useLocationLevel from "../hooks/useLocationLevel";
-import { LOCATION_LEVELS } from "../config";
+import { LOCATION_LEVELS, LEVEL_FILTER_SCHEMA } from "../config";
 import LocationFormModal from "./LocationFormModal";
 import LocationDetailModal from "./LocationDetailModal";
 import { toastService } from "@/lib/toast";
+import locationService from "../services/locationService";
 
 export default function LocationLevelPanel({ levelKey, onRegisterCreate }) {
   const level = LOCATION_LEVELS[levelKey];
-  const { data, loading, meta, search, setSearch, remove, refresh } =
-    useLocationLevel(levelKey);
+  const {
+    data,
+    loading,
+    meta,
+    search,
+    setSearch,
+    parentFilters,
+    setParentFilter,
+    clearParentFilters,
+    remove,
+    refresh,
+  } = useLocationLevel(levelKey);
 
   const [selected, setSelected] = useState([]);
   const [formRecord, setFormRecord] = useState(null); // null closed; {} create; row edit
@@ -22,6 +33,87 @@ export default function LocationLevelPanel({ levelKey, onRegisterCreate }) {
 
   const [searchInput, setSearchInput] = useState(search || "");
   const debouncedSearch = useDebounce(searchInput, 300);
+
+  // client-side parent filters
+  const filterSchema = LEVEL_FILTER_SCHEMA[levelKey] || [];
+  const [filterOptions, setFilterOptions] = useState({});
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function load() {
+      try {
+        if (levelKey === "city") {
+          const res = await locationService.getProvinces();
+          const list = locationService.unwrapList(res).map((p) => ({
+            value: p.id,
+            label: p.name,
+            name: p.name,
+          }));
+          if (!cancelled) setFilterOptions({ provinces: list });
+        } else if (levelKey === "district") {
+          const res = await locationService.getCities();
+          const list = locationService.unwrapList(res).map((c) => ({
+            value: c.id,
+            label: c.name,
+          }));
+          if (!cancelled) setFilterOptions({ cities: list });
+        } else if (levelKey === "neighborhood") {
+          const res = await locationService.getDistricts();
+          const list = locationService.unwrapList(res).map((d) => ({
+            value: d.id,
+            label: d.city_name ? `${d.name} (${d.city_name})` : d.name,
+          }));
+          if (!cancelled) setFilterOptions({ districts: list });
+        } else {
+          if (!cancelled) setFilterOptions({});
+        }
+      } catch {
+        if (!cancelled) setFilterOptions({});
+      }
+    }
+
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [levelKey]);
+
+  // props for template
+  const filtersProp =
+    filterSchema.length === 0
+      ? null
+      : {
+          schema: filterSchema,
+          options: filterOptions,
+          values: parentFilters,
+          onChange: (key, value) => {
+            if (key === "province") {
+              const opt = (filterOptions.provinces || []).find(
+                (o) => o.value === value || o.value === Number(value),
+              );
+              setParentFilter(key, value, { name: opt?.name || opt?.label });
+            } else {
+              setParentFilter(key, value);
+            }
+          },
+          onClear: (key) => setParentFilter(key, ""),
+          onClearAll: clearParentFilters,
+        //   activeChips: Object.entries(parentFilters)
+        //     .filter(([k, v]) => v && k !== "provinceName")
+        //     .map(([key, value]) => {
+        //       const field = filterSchema.find((f) => f.key === key);
+        //       const opts = filterOptions[field?.optionsKey] || [];
+        //       const opt = opts.find(
+        //         (o) => o.value === value || o.value === Number(value),
+        //       );
+        //       return {
+        //         key,
+        //         label: field?.label || key,
+        //         value: opt?.label || String(value),
+        //       };
+        //     }),
+        };
 
   useEffect(() => {
     setSearchInput(search || "");
@@ -100,7 +192,7 @@ export default function LocationLevelPanel({ levelKey, onRegisterCreate }) {
     <>
       <ResourceTemplate
         search={searchConfig}
-        filters={null}
+        filters={filtersProp}
         count={meta?.count || 0}
         countLabel={level.label}
         columns={level.columns}

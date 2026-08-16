@@ -1,14 +1,35 @@
 import {
-  Hash, FileText, Home, Building, DollarSign, MapPin, Calendar,
-  User, Car, Warehouse, Compass, Wrench, StickyNote, CheckCircle2,
-  Clock, History, Image, Star, Tag
+  Hash,
+  FileText,
+  Home,
+  Building,
+  DollarSign,
+  MapPin,
+  Calendar,
+  User,
+  Car,
+  Warehouse,
+  Compass,
+  Wrench,
+  StickyNote,
+  CheckCircle2,
+  Clock,
+  History,
+  Image,
+  Star,
+  Tag,
 } from "lucide-react";
 
 /* ─── Tabs ─── */
 export const PROPERTY_DETAIL_TABS = [
   { key: "details", label: "مشخصات ملک", icon: Home },
   { key: "status_history", label: "تاریخچه وضعیت", icon: Clock },
-  { key: "change_history", label: "تاریخچه تغییرات", icon: History, permission: "view_property_status_history" },
+  {
+    key: "change_history",
+    label: "تاریخچه تغییرات",
+    icon: History,
+    permission: "view_property_status_history",
+  },
   { key: "features", label: "امکانات", icon: Star },
   { key: "media", label: "رسانه", icon: Image },
 ];
@@ -56,8 +77,18 @@ export const PROPERTY_DETAIL_FIELDS = [
       { key: "property_code", label: "کد ملک", type: "mono" },
       { key: "title", label: "عنوان ملک", fullWidth: true },
       { key: "property_type", label: "نوع ملک" },
-      { key: "deal_type", label: "نوع معامله", type: "status", configKey: "propertyDealType" },
-      { key: "status", label: "وضعیت", type: "status", configKey: "propertyStatus" },
+      {
+        key: "deal_type",
+        label: "نوع معامله",
+        type: "status",
+        configKey: "propertyDealType",
+      },
+      {
+        key: "status",
+        label: "وضعیت",
+        type: "status",
+        configKey: "propertyStatus",
+      },
     ],
   },
   {
@@ -76,7 +107,32 @@ export const PROPERTY_DETAIL_FIELDS = [
     sectionLabel: "موقعیت",
     fields: [
       { key: "area", label: "متراژ", suffix: " متر مربع" },
-      { key: "address", label: "آدرس کامل", type: "nested", nestedKey: "full_text", fullWidth: true },
+      {
+        key: "address",
+        label: "استان",
+        type: "nested",
+        nestedKey: "province_name",
+      },
+      { key: "address", label: "شهر", type: "nested", nestedKey: "city_name" },
+      {
+        key: "address",
+        label: "منطقه",
+        type: "nested",
+        nestedKey: "district_name",
+      },
+      {
+        key: "address",
+        label: "محله",
+        type: "nested",
+        nestedKey: "neighborhood_name",
+      },
+      {
+        key: "address",
+        label: "آدرس کامل",
+        type: "nested",
+        nestedKey: "full_text",
+        fullWidth: true,
+      },
     ],
   },
   {
@@ -98,7 +154,7 @@ export const PROPERTY_DETAIL_FIELDS = [
     section: "people",
     sectionLabel: "اشخاص",
     fields: [
-      { key: "owner", label: "مالک", type: "text"},
+      { key: "owner", label: "مالک", type: "text" },
       { key: "phone", label: "تلفن مالک" },
       { key: "agent", label: "مشاور", type: "user" },
       { key: "create_by", label: "ثبت‌کننده", type: "user" },
@@ -116,23 +172,36 @@ export const PROPERTY_DETAIL_FIELDS = [
   {
     section: "description",
     sectionLabel: "توضیحات",
-    fields: [
-      { key: "description", label: "توضیحات", fullWidth: true },
-    ],
+    fields: [{ key: "description", label: "توضیحات", fullWidth: true }],
   },
 ];
 
 /* ─── Tab 2: Status History ─── */
 export const PROPERTY_STATUS_HISTORY_COLUMNS = [
-  { key: "old_status", header: "وضعیت قبلی", type: "status", configKey: "propertyStatus" },
-  { key: "new_status", header: "وضعیت جدید", type: "status", configKey: "propertyStatus" },
+  {
+    key: "old_status",
+    header: "وضعیت قبلی",
+    type: "status",
+    configKey: "propertyStatus",
+  },
+  {
+    key: "new_status",
+    header: "وضعیت جدید",
+    type: "status",
+    configKey: "propertyStatus",
+  },
   { key: "changed_by", header: "تغییردهنده", type: "user" },
   { key: "created_at", header: "زمان", type: "date" },
 ];
 
 /* ─── Tab 3: Change History ─── */
 export const PROPERTY_CHANGE_HISTORY_COLUMNS = [
-  { key: "action", header: "عملیات", type: "badge", map: { create: "ایجاد", update: "ویرایش", delete: "حذف" } },
+  {
+    key: "action",
+    header: "عملیات",
+    type: "badge",
+    map: { create: "ایجاد", update: "ویرایش", delete: "حذف" },
+  },
   { key: "field_name", header: "فیلد" },
   { key: "old_value", header: "مقدار قدیم", type: "text_truncate" },
   { key: "new_value", header: "مقدار جدید", type: "text_truncate" },

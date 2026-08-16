@@ -167,7 +167,7 @@ export const CITY_FORM = {
           key: "province",
           label: "استان",
           type: "search_select",
-          displayField:"name",
+          displayField: "name",
           required: true,
           placeholder: "انتخاب استان",
           asyncSource: LOCATION_LIST_URL.provinces,
@@ -204,7 +204,7 @@ export const DISTRICT_FORM = {
           key: "city",
           label: "شهر",
           type: "search_select",
-          displayField:"name",
+          displayField: "name",
           required: true,
           placeholder: "انتخاب شهر",
           asyncSource: LOCATION_LIST_URL.cities,
@@ -241,7 +241,7 @@ export const NEIGHBORHOOD_FORM = {
           key: "district",
           label: "منطقه",
           type: "search_select",
-          displayField:"name",
+          displayField: "name",
           required: true,
           placeholder: "انتخاب منطقه",
           asyncSource: LOCATION_LIST_URL.districts,
@@ -258,7 +258,7 @@ export const NEIGHBORHOOD_FORM = {
 };
 
 /* ─── Actions ─── */
-function makeActions(entityLabel) {
+function makeActions(entityLabel , perm) {
   return {
     row: [
       {
@@ -276,7 +276,7 @@ function makeActions(entityLabel) {
         icon: Pencil,
         variant: "ghost",
         type: "row",
-        permission: PERMISSIONS?.PROVINCE?.CHANGE || null,
+        permission: perm?.CHANGE || null,
         modal: "edit",
       },
       {
@@ -285,7 +285,7 @@ function makeActions(entityLabel) {
         icon: Trash2,
         variant: "ghost",
         type: "row",
-        permission: PERMISSIONS?.PROVINCE?.DELETE || null,
+        permission: perm?.DELETE || null,
         danger: true,
         confirm: {
           title: `حذف ${entityLabel}`,
@@ -294,19 +294,19 @@ function makeActions(entityLabel) {
       },
     ],
     bulk: [
-      {
-        key: "delete",
-        label: "حذف انتخاب‌شده‌ها",
-        icon: Trash2,
-        variant: "outline",
-        type: "bulk",
-        permission: PERMISSIONS?.PROVINCE?.DELETE || null,
-        danger: true,
-        confirm: {
-          title: "حذف گروهی",
-          message: `آیا از حذف ${entityLabel}‌های انتخاب‌شده اطمینان دارید؟`,
-        },
-      },
+      // {
+      //   key: "delete",
+      //   label: "حذف انتخاب‌شده‌ها",
+      //   icon: Trash2,
+      //   variant: "outline",
+      //   type: "bulk",
+      //   permission: PERMISSIONS?.PROVINCE?.DELETE || null,
+      //   danger: true,
+      //   confirm: {
+      //     title: "حذف گروهی",
+      //     message: `آیا از حذف ${entityLabel}‌های انتخاب‌شده اطمینان دارید؟`,
+      //   },
+      // },
     ],
   };
 }
@@ -321,7 +321,7 @@ export const LOCATION_LEVELS = {
     icon: Landmark,
     columns: PROVINCE_TABLE_COLUMNS,
     form: PROVINCE_FORM,
-    actions: makeActions("استان"),
+    actions: makeActions("استان" , PERMISSIONS.PROVINCE),
     // create payload keys
     parentField: null,
   },
@@ -332,7 +332,7 @@ export const LOCATION_LEVELS = {
     icon: Building2,
     columns: CITY_TABLE_COLUMNS,
     form: CITY_FORM,
-    actions: makeActions("شهر"),
+    actions: makeActions("شهر", PERMISSIONS.CITY),
     parentField: "province",
   },
   district: {
@@ -342,7 +342,7 @@ export const LOCATION_LEVELS = {
     icon: MapPin,
     columns: DISTRICT_TABLE_COLUMNS,
     form: DISTRICT_FORM,
-    actions: makeActions("منطقه"),
+    actions: makeActions("منطقه", PERMISSIONS.DISTRICT),
     parentField: "city",
   },
   neighborhood: {
@@ -352,7 +352,7 @@ export const LOCATION_LEVELS = {
     icon: Home,
     columns: NEIGHBORHOOD_TABLE_COLUMNS,
     form: NEIGHBORHOOD_FORM,
-    actions: makeActions("محله"),
+    actions: makeActions("محله" , PERMISSIONS.NEIGHBORHOOD),
     parentField: "district",
   },
 };
@@ -363,3 +363,36 @@ export const LOCATION_TAB_ITEMS = [
   { id: "district", label: "منطقه" },
   { id: "neighborhood", label: "محله" },
 ];
+
+// parent filters only on client-side in each tab
+export const LEVEL_FILTER_SCHEMA = {
+  province: [], 
+  city: [
+    {
+      key: "province",
+      label: "استان",
+      type: "select",
+      placement: "bar",
+      optionsKey: "provinces",
+      // options بعداً از Panel پر می‌شود
+    },
+  ],
+  district: [
+    {
+      key: "city",
+      label: "شهر",
+      type: "select",
+      placement: "bar",
+      optionsKey: "cities",
+    },
+  ],
+  neighborhood: [
+    {
+      key: "district",
+      label: "منطقه",
+      type: "select",
+      placement: "bar",
+      optionsKey: "districts",
+    },
+  ],
+};
