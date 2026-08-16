@@ -1,25 +1,28 @@
-import api from "@/lib/api";
-import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 import locationService from "./locationService";
 
 /**
- * RegionService — adapter over locationService
- * Treats "districts" as the manageable "regions"
+ * RegionService — thin adapter over District (منطقه) for legacy "region" naming.
+ * Prefer locationService directly for multi-level hierarchy work.
+ *
+ * Shape expected by useResource:
+ *   getAll / getById / create / update / remove
  */
 
 const getAll = (params = {}) => locationService.getDistricts(params);
 
-const getById = (id) =>
-  api.get(API_ENDPOINTS.LOCATIONS.DISTRICTS.DETAIL(id).url);
+const getById = (id) => locationService.getDistrictById(id);
 
-const create = (data) =>
-  api.post(API_ENDPOINTS.LOCATIONS.DISTRICTS.CREATE.url, data);
+const create = (data) => locationService.createDistrict(data);
 
-const update = (id, data) =>
-  api.put(API_ENDPOINTS.LOCATIONS.DISTRICTS.UPDATE(id).url, data);
+const update = (id, data) => locationService.updateDistrict(id, data);
 
-const remove = (id) =>
-  api.delete(API_ENDPOINTS.LOCATIONS.DISTRICTS.DELETE(id).url);
+/** Single or bulk — accepts id or ids[] */
+const remove = (idOrIds) => {
+  const ids = Array.isArray(idOrIds) ? idOrIds : [idOrIds];
+  return locationService.bulkDeleteDistricts(ids);
+};
+
+const bulkRemove = (ids) => locationService.bulkDeleteDistricts(ids);
 
 const regionService = {
   getAll,
@@ -27,6 +30,7 @@ const regionService = {
   create,
   update,
   remove,
+  bulkRemove,
 };
 
 export default regionService;

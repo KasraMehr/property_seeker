@@ -129,51 +129,162 @@ export const API_ENDPOINTS = {
     },
   },
 
-  // 3. LOCATIONS — matched to actual backend urls.py
+  // 3. LOCATIONS — matched to backend/locations/location_urls/*
+  // Hierarchy: Province → City → District → Neighborhood → Address
+  // List endpoints currently return full sets (no server-side parent filter).
+  // Cascading selects must filter client-side until backend adds query filters.
+  // Bulk delete body: { ids: number[] } — HTTP method is DELETE (not POST).
+  // City bulk-delete URL requires a pk path segment (unused by view); pass any id from the set.
   LOCATIONS: {
     PROVINCES: {
-      LIST: { url: `${API_BASE}/province/list/`, method: "GET" },
-      CREATE: { url: `${API_BASE}/province/create/`, method: "POST" },
-      DETAIL: (id) => ({ url: `${API_BASE}/province/${id}/`, method: "GET" }),
+      LIST: {
+        url: `${API_BASE}/province/list/`,
+        method: "GET",
+        status: "[OK]",
+      },
+      CREATE: {
+        url: `${API_BASE}/province/create/`,
+        method: "POST",
+        status: "[OK]",
+      },
+      DETAIL: (id) => ({
+        url: `${API_BASE}/province/${id}/`,
+        method: "GET",
+        status: "[OK]",
+      }),
       UPDATE: (id) => ({
         url: `${API_BASE}/province/update/${id}/`,
         method: "PUT",
+        status: "[OK]",
       }),
-      DELETE: { url: `${API_BASE}/province/delete/`, method: "POST" },
+      /** DELETE body: { ids: number[] } */
+      BULK_DELETE: {
+        url: `${API_BASE}/province/delete/`,
+        method: "DELETE",
+        status: "[OK]",
+      },
     },
     CITIES: {
-      LIST: { url: `${API_BASE}/city/list/`, method: "GET" },
-      CREATE: { url: `${API_BASE}/city/create/`, method: "POST" },
-      DETAIL: (id) => ({ url: `${API_BASE}/city/${id}/`, method: "GET" }),
+      LIST: {
+        url: `${API_BASE}/city/list/`,
+        method: "GET",
+        status: "[OK]",
+      },
+      CREATE: {
+        url: `${API_BASE}/city/create/`,
+        method: "POST",
+        status: "[OK]",
+      },
+      DETAIL: (id) => ({
+        url: `${API_BASE}/city/${id}/`,
+        method: "GET",
+        status: "[OK]",
+      }),
       UPDATE: (id) => ({
         url: `${API_BASE}/city/${id}/update/`,
         method: "PUT",
+        status: "[OK]",
       }),
-      DELETE: (id) => ({
-        url: `${API_BASE}/city/${id}/delete/`,
-        method: "POST",
+      /**
+       * Backend path is city/<pk>/delete/ but view only reads body.ids.
+       * Use BULK_DELETE(ids[0]) or any selected id as path pk.
+       * DELETE body: { ids: number[] }
+       */
+      BULK_DELETE: (pathId) => ({
+        url: `${API_BASE}/city/${pathId}/delete/`,
+        method: "DELETE",
+        status: "[OK]",
       }),
     },
     DISTRICTS: {
-      LIST: { url: `${API_BASE}/district/`, method: "GET" },
-      CREATE: { url: `${API_BASE}/district/`, method: "POST" },
-      DETAIL: (id) => ({ url: `${API_BASE}/district/${id}/`, method: "GET" }),
-      DELETE: { url: `${API_BASE}/district/delete`, method: "POST" },
+      // List + Create share same URL
+      LIST: {
+        url: `${API_BASE}/district/`,
+        method: "GET",
+        status: "[OK]",
+      },
+      CREATE: {
+        url: `${API_BASE}/district/`,
+        method: "POST",
+        status: "[OK]",
+      },
+      DETAIL: (id) => ({
+        url: `${API_BASE}/district/${id}/`,
+        method: "GET",
+        status: "[OK]",
+      }),
+      // Update is on the detail URL (PUT/PATCH)
+      UPDATE: (id) => ({
+        url: `${API_BASE}/district/${id}/`,
+        method: "PUT",
+        status: "[OK]",
+      }),
+      /** No trailing slash (backend path: district/delete). DELETE body: { ids: number[] } */
+      BULK_DELETE: {
+        url: `${API_BASE}/district/delete`,
+        method: "DELETE",
+        status: "[OK]",
+      },
     },
     NEIGHBORHOODS: {
-      LIST: { url: `${API_BASE}/neighborhoods/`, method: "GET" },
-      CREATE: { url: `${API_BASE}/neighborhoods/`, method: "POST" },
+      // List + Create share same URL
+      LIST: {
+        url: `${API_BASE}/neighborhoods/`,
+        method: "GET",
+        status: "[OK]",
+      },
+      CREATE: {
+        url: `${API_BASE}/neighborhoods/`,
+        method: "POST",
+        status: "[OK]",
+      },
       DETAIL: (id) => ({
         url: `${API_BASE}/neighborhoods/${id}/`,
         method: "GET",
+        status: "[OK]",
       }),
-      DELETE: { url: `${API_BASE}/neighborhoods/delete/`, method: "POST" },
+      // Update is on the detail URL (PUT/PATCH)
+      UPDATE: (id) => ({
+        url: `${API_BASE}/neighborhoods/${id}/`,
+        method: "PUT",
+        status: "[OK]",
+      }),
+      /** DELETE body: { ids: number[] } */
+      BULK_DELETE: {
+        url: `${API_BASE}/neighborhoods/delete/`,
+        method: "DELETE",
+        status: "[OK]",
+      },
     },
     ADDRESSES: {
-      LIST: { url: `${API_BASE}/addresses/`, method: "GET" },
-      CREATE: { url: `${API_BASE}/addresses/`, method: "POST" },
-      DETAIL: (id) => ({ url: `${API_BASE}/addresses/${id}/`, method: "GET" }),
-      DELETE: { url: `${API_BASE}/address/delete/`, method: "POST" },
+      // List + Create share same URL
+      LIST: {
+        url: `${API_BASE}/addresses/`,
+        method: "GET",
+        status: "[OK]",
+      },
+      CREATE: {
+        url: `${API_BASE}/addresses/`,
+        method: "POST",
+        status: "[OK]",
+      },
+      DETAIL: (id) => ({
+        url: `${API_BASE}/addresses/${id}/`,
+        method: "GET",
+        status: "[OK]",
+      }),
+      // Update is on the detail URL (PUT/PATCH)
+      UPDATE: (id) => ({
+        url: `${API_BASE}/addresses/${id}/`,
+        method: "PUT",
+        status: "[OK]",
+      }),
+      /** Note path is address/delete/ (singular). DELETE body: { ids: number[] } */
+      BULK_DELETE: {
+        url: `${API_BASE}/address/delete/`,
+        method: "DELETE",
+        status: "[OK]",
+      },
     },
   },
 
