@@ -1,47 +1,24 @@
+# Stage 1: Build the React application
 FROM node:20-alpine AS builder
-
-SHELL ["/bin/sh", "-euxo", "pipefail", "-c"]
-
-RUN echo "STEP 1: builder started" && date
-
 WORKDIR /app
-RUN echo "STEP 2: workdir set" && date
 
+# کپی کردن فایل‌های پکیج برای نصب وابستگی‌ها
 COPY package*.json ./
-RUN echo "STEP 3: package files copied" && ls -lah /app
+RUN npm install
 
-RUN echo "STEP 4: npm ping start" \
-    && npm ping --registry=https://registry.npmjs.org \
-    && echo "STEP 4: npm ping done"
-
-RUN echo "STEP 5: npm install start" \
-    && npm install \
-      --registry=https://registry.npmjs.org \
-      --fetch-timeout=120000 \
-      --fetch-retries=5 \
-      --no-audit \
-      --no-fund \
-      --loglevel=verbose \
-    && echo "STEP 5: npm install done"
-
+# کپی کردن کل کدهای فرانت‌اند و گرفتن Build
 COPY . .
-RUN echo "STEP 6: source copied" && ls -lah /app
+RUN npm run build
 
-RUN echo "STEP 7: npm build start" \
-    && npm run build \
-    && echo "STEP 7: npm build done"
-
+# Stage 2: Serve the React application using Nginx
 FROM nginx:stable-alpine
 
-SHELL ["/bin/sh", "-euxo", "pipefail", "-c"]
-
-RUN echo "STEP 8: nginx stage started" && date
-
+# کپی کردن خروجی مرحله قبل به پوشه پیش‌فرض Nginx
+# (اگر از Vite استفاده می‌کنید dist و اگر از Create React App استفاده می‌کنید build بسازید)
 COPY --from=builder /app/dist /usr/share/nginx/html
-RUN echo "STEP 9: dist copied"
 
+# کپی کردن کانفیگ اختصاصی Nginx برای مدیریت مسیرها (Routing)
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-RUN echo "STEP 10: nginx.conf copied"
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
