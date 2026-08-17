@@ -53,3 +53,6 @@ backend/deals
 #repomix
 repomix-output.xml
 backend/for_me
+
+
+.gitignore
