@@ -1,37 +1,51 @@
 # Stage 1: Build the React application
 FROM node:20-alpine AS builder
 
-# تنظیم میرور ایران برای پکیج‌های سیستم‌عامل Alpine
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirror.arvancloud.ir/g' /etc/apk/repositories
+RUN echo "===> [builder] Starting stage 1: node:20-alpine" \
+    && sed -i 's/dl-cdn.alpinelinux.org/mirror.arvancloud.ir/g' /etc/apk/repositories \
+    && echo "===> [builder] Alpine repositories changed to Arvan mirror"
 
 WORKDIR /app
+RUN echo "===> [builder] Working directory set to /app"
 
-# کپی کردن فایل‌های پکیج برای نصب وابستگی‌ها
+# فقط فایل‌های وابستگی را اول کپی می‌کنیم تا cache بهتر عمل کند
 COPY package*.json ./
+RUN echo "===> [builder] package*.json copied"
 
-# نصب وابستگی‌ها از رجیستری اصلی npm
-RUN npm install \
+# نصب وابستگی‌ها
+RUN echo "===> [builder] npm install started" \
+    && npm install \
       --registry=https://registry.npmjs.org \
       --fetch-timeout=120000 \
       --fetch-retries=5 \
       --no-audit \
-      --no-fund
+      --no-fund \
+    && echo "===> [builder] npm install finished successfully"
 
-# کپی کردن کل کدهای فرانت‌اند و گرفتن Build
+# کپی کردن کل سورس
 COPY . .
-RUN npm run build
+RUN echo "===> [builder] source code copied"
+
+# build
+RUN echo "===> [builder] npm run build started" \
+    && npm run build \
+    && echo "===> [builder] npm run build finished successfully"
 
 # Stage 2: Serve the React application using Nginx
 FROM nginx:stable-alpine
 
-# تنظیم میرور آلپاین برای استیج نهایی
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirror.arvancloud.ir/g' /etc/apk/repositories
+RUN echo "===> [nginx] Starting stage 2: nginx:stable-alpine" \
+    && sed -i 's/dl-cdn.alpinelinux.org/mirror.arvancloud.ir/g' /etc/apk/repositories \
+    && echo "===> [nginx] Alpine repositories changed to Arvan mirror"
 
-# کپی کردن خروجی مرحله قبل به پوشه پیش‌فرض Nginx
+# کپی کردن خروجی مرحله قبل
+RUN echo "===> [nginx] preparing to copy built files"
 COPY --from=builder /app/dist /usr/share/nginx/html
+RUN echo "===> [nginx] build files copied to nginx html directory"
 
-# کپی کردن کانفیگ اختصاصی Nginx برای مدیریت مسیرها
+# کپی کردن کانفیگ
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+RUN echo "===> [nginx] nginx.conf copied"
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
