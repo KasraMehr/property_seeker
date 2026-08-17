@@ -10,11 +10,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     CHROME_BIN=/usr/bin/chromium
 
 # نصب ابزارهای پایه و Chromium (با میرور داخلی apt)
-RUN sed -i \
-      -e 's|deb.debian.org/debian-security|mirror.arvancloud.ir/debian-security|g' \
-      -e 's|deb.debian.org/debian|mirror.arvancloud.ir/debian|g' \
-      /etc/apt/sources.list.d/debian.sources \
-    && apt-get update \
+RUN && apt-get update \
     && apt-get install -y --no-install-recommends \
         chromium \
         chromium-driver \
