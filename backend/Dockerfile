@@ -5,21 +5,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     CHROME_BIN=/usr/bin/chromium
 
 # 1. تنظیم دقیق سورس‌های دبیان با HTTPS و مخزن معتبر
-RUN printf '%s\n' \
-    "Types: deb" \
-    "URIs: https://mirror.kargadan.ir/debian" \
-    "Suites: trixie trixie-updates" \
-    "Components: main" \
-    "Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg" \
-    > /etc/apt/sources.list.d/debian.sources \
-    && printf '%s\n' \
-    "Types: deb" \
-    "URIs: https://mirror.kargadan.ir/debian-security" \
-    "Suites: trixie-security" \
-    "Components: main" \
-    "Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg" \
-    > /etc/apt/sources.list.d/debian-security.sources \
-    && apt-get update \
+RUN apt-get update \
     && apt-get install -y --no-install-recommends chromium chromium-driver libpq5 curl \
     && rm -rf /var/lib/apt/lists/*
 
