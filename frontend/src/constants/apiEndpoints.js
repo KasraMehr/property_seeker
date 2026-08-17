@@ -378,22 +378,26 @@ export const API_ENDPOINTS = {
 
   // 7. CRM
   CRM: {
-    // Calls: combined list+create on same URL, read-only detail
     CALLS: {
       LIST: { url: `${API_BASE}/calls/`, method: "GET", status: "[OK]" },
+      CREATE: { url: `${API_BASE}/calls/`, method: "POST", status: "[OK]" },
       DETAIL: (id) => ({
         url: `${API_BASE}/calls/${id}/`,
         method: "GET",
         status: "[OK]",
       }),
-      CREATE: { url: `${API_BASE}/calls/`, method: "POST", status: "[OK]" },
       UPDATE: (id) => ({
-        url: `${API_BASE}/calls/${id}/update/`,
+        url: `${API_BASE}/calls/${id}/`,
         method: "PATCH",
-        status: "[OK]",
+        status: "[PEND]", 
       }),
+      BULK_DELETE: {
+        url: `${API_BASE}/calls/delete/`,
+        method: "DELETE",
+        status: "[OK]",
+      },
       DELETE: (id) => ({
-        url: `${API_BASE}/calls/${id}/delete/`,
+        url: `${API_BASE}/calls/delete/`,
         method: "DELETE",
         status: "[OK]",
       }),

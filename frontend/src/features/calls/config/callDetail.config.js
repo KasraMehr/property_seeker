@@ -66,7 +66,6 @@ export const CALL_DETAIL_FIELDS = [
         type: "status",
         configKey: "callType",
       },
-      // یا اگر display داری:
       // { key: "call_type_display", label: "نوع تماس" },
       {
         key: "result",

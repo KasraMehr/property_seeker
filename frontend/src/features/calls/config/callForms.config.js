@@ -13,7 +13,7 @@ export const CALL_FORM = {
           required: true,
           placeholder: "جستجوی مشتری...",
           asyncSource: "/api/customers/",
-          searchFields: ["full_name", "phone", "national_id"],
+          searchFields: ["full_name", "phone"],
           displayField: "full_name",
           validation: { required: "انتخاب مشتری الزامی است" },
           span: 12,
