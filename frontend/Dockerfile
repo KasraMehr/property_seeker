@@ -1,7 +1,7 @@
 # Stage 1: Build the React application
 FROM node:20-alpine AS builder
 
-# تنظیم میرور ایران برای پکیج‌های سیستم‌عامل Alpine (اختیاری ولی برای پایداری عالیه)
+# تنظیم میرور ایران برای پکیج‌های سیستم‌عامل Alpine
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirror.arvancloud.ir/g' /etc/apk/repositories
 
 WORKDIR /app
@@ -9,11 +9,13 @@ WORKDIR /app
 # کپی کردن فایل‌های پکیج برای نصب وابستگی‌ها
 COPY package*.json ./
 
-# نصب وابستگی‌ها با استفاده از میرور پرسرعت npm و تنظیم Timeout
+# نصب وابستگی‌ها از رجیستری اصلی npm
 RUN npm install \
-      --registry=https://registry.npmmirror.com \
+      --registry=https://registry.npmjs.org \
       --fetch-timeout=120000 \
-      --fetch-retries=5
+      --fetch-retries=5 \
+      --no-audit \
+      --no-fund
 
 # کپی کردن کل کدهای فرانت‌اند و گرفتن Build
 COPY . .
@@ -26,10 +28,9 @@ FROM nginx:stable-alpine
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirror.arvancloud.ir/g' /etc/apk/repositories
 
 # کپی کردن خروجی مرحله قبل به پوشه پیش‌فرض Nginx
-# (اگر از Vite استفاده می‌کنید dist و اگر از Create React App استفاده می‌کنید build بسازید)
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# کپی کردن کانفیگ اختصاصی Nginx برای مدیریت مسیرها (Routing)
+# کپی کردن کانفیگ اختصاصی Nginx برای مدیریت مسیرها
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
