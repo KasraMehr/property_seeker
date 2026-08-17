@@ -104,12 +104,15 @@ services:
       CSRF_COOKIE_SECURE: ${CSRF_COOKIE_SECURE:-True}
       AUTH_COOKIE_SECURE: ${AUTH_COOKIE_SECURE:-True}
 
-    command:
-      - python
-      - manage.py
-      - migrate
-      - --noinput
 
+    command:
+        - sh
+        - -c
+        - |
+          python manage.py migrate --noinput
+          python manage.py collectstatic --noinput
+    volumes:
+        - static_volume:/app/staticfiles
     depends_on:
       postgres:
         condition: service_healthy
