@@ -8,7 +8,7 @@ RUN npm install
 
 # کپی کردن کل کدهای فرانت‌اند و گرفتن Build
 COPY . .
-RUN npm run build
+RUN NODE_OPTIONS="--max-old-space-size=768" npm run build
 
 # Stage 2: Serve the React application using Nginx
 FROM nginx:stable-alpine
