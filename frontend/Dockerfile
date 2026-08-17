@@ -1,51 +1,47 @@
-# Stage 1: Build the React application
 FROM node:20-alpine AS builder
 
-RUN echo "===> [builder] Starting stage 1: node:20-alpine" \
-    && sed -i 's/dl-cdn.alpinelinux.org/mirror.arvancloud.ir/g' /etc/apk/repositories \
-    && echo "===> [builder] Alpine repositories changed to Arvan mirror"
+SHELL ["/bin/sh", "-euxo", "pipefail", "-c"]
+
+RUN echo "STEP 1: builder started" && date
 
 WORKDIR /app
-RUN echo "===> [builder] Working directory set to /app"
+RUN echo "STEP 2: workdir set" && date
 
-# فقط فایل‌های وابستگی را اول کپی می‌کنیم تا cache بهتر عمل کند
 COPY package*.json ./
-RUN echo "===> [builder] package*.json copied"
+RUN echo "STEP 3: package files copied" && ls -lah /app
 
-# نصب وابستگی‌ها
-RUN echo "===> [builder] npm install started" \
+RUN echo "STEP 4: npm ping start" \
+    && npm ping --registry=https://registry.npmjs.org \
+    && echo "STEP 4: npm ping done"
+
+RUN echo "STEP 5: npm install start" \
     && npm install \
       --registry=https://registry.npmjs.org \
       --fetch-timeout=120000 \
       --fetch-retries=5 \
       --no-audit \
       --no-fund \
-    && echo "===> [builder] npm install finished successfully"
+      --loglevel=verbose \
+    && echo "STEP 5: npm install done"
 
-# کپی کردن کل سورس
 COPY . .
-RUN echo "===> [builder] source code copied"
+RUN echo "STEP 6: source copied" && ls -lah /app
 
-# build
-RUN echo "===> [builder] npm run build started" \
+RUN echo "STEP 7: npm build start" \
     && npm run build \
-    && echo "===> [builder] npm run build finished successfully"
+    && echo "STEP 7: npm build done"
 
-# Stage 2: Serve the React application using Nginx
 FROM nginx:stable-alpine
 
-RUN echo "===> [nginx] Starting stage 2: nginx:stable-alpine" \
-    && sed -i 's/dl-cdn.alpinelinux.org/mirror.arvancloud.ir/g' /etc/apk/repositories \
-    && echo "===> [nginx] Alpine repositories changed to Arvan mirror"
+SHELL ["/bin/sh", "-euxo", "pipefail", "-c"]
 
-# کپی کردن خروجی مرحله قبل
-RUN echo "===> [nginx] preparing to copy built files"
+RUN echo "STEP 8: nginx stage started" && date
+
 COPY --from=builder /app/dist /usr/share/nginx/html
-RUN echo "===> [nginx] build files copied to nginx html directory"
+RUN echo "STEP 9: dist copied"
 
-# کپی کردن کانفیگ
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-RUN echo "===> [nginx] nginx.conf copied"
+RUN echo "STEP 10: nginx.conf copied"
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
