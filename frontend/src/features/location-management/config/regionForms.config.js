@@ -35,7 +35,8 @@ export const REGION_FORM = {
           required: true,
           placeholder: "انتخاب شهر",
           dependsOn: "province",
-          asyncSource: "/api/city/list/?province={province}",
+          // Backend returns all cities; cascade filter is client-side for now
+          asyncSource: "/api/city/list/",
           validation: { required: "شهر الزامی است" },
           span: 6,
         },
