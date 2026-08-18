@@ -11,7 +11,7 @@ const getById = (id) =>
   api.get(API_ENDPOINTS.CRM.CALLS.DETAIL(id).url);
 
 const update = (id, data) =>
-  api.patch(API_ENDPOINTS.CRM.CALLS.UPDATE(id).url, data); 
+  api.patch(API_ENDPOINTS.CRM.CALLS.UPDATE(id).url, data);
 
 const bulkRemove = (ids) =>
   api.delete(API_ENDPOINTS.CRM.CALLS.BULK_DELETE.url, {

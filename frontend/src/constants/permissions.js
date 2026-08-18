@@ -59,7 +59,8 @@ export const PERMISSIONS = {
     VIEW: "view_customer_preference",
   },
 
-  // ── locations  ──
+  // ── locations ──
+  // Django default model perms (codename). Owner/superuser bypass on backend.
   PROVINCE: {
     ADD: "add_province",
     VIEW: "view_province",
@@ -70,6 +71,21 @@ export const PERMISSIONS = {
   CITY: {
     ADD: "add_city",
     VIEW: "view_city",
+    CHANGE: "change_city",
+    DELETE: "delete_city",
+    LIST: "list_city",
+  },
+  DISTRICT: {
+    ADD: "add_district",
+    VIEW: "view_district",
+    CHANGE: "change_district",
+    DELETE: "delete_district",
+  },
+  NEIGHBORHOOD: {
+    ADD: "add_neighborhood",
+    VIEW: "view_neighborhood",
+    CHANGE: "change_neighborhood",
+    DELETE: "delete_neighborhood",
   },
 
   // ── deals TODO:──
@@ -93,5 +109,5 @@ export const OWNER_ONLY_SECTIONS = [
   "users-management",
   "roles-management",
   "agencies-management",
-  "scraper-management",   
+  "scraper-management",
 ];

@@ -7,7 +7,7 @@ import {
   REGION_DETAIL_TABS,
   REGION_DETAIL_FIELDS,
   REGION_TABLE_COLUMNS,
-} from "@/features/regions-management/config";
+} from "@/features/location-management/config";
 import { DetailFieldGrid, DetailListTable } from "@/shared/page/DetailContentRenderer";
 
 export default function RegionDetailModal({ isOpen, onClose, region }) {
