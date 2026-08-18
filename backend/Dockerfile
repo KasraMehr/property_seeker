@@ -5,12 +5,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     CHROME_BIN=/usr/bin/chromium
 
 # 1. تنظیم دقیق سورس‌های دبیان با HTTPS و مخزن معتبر
-RUN printf '%s\n' \
-  "deb http://repo.iut.ac.ir/debian trixie main contrib non-free non-free-firmware" \
-  "deb http://repo.iut.ac.ir/debian-security trixie-security main contrib non-free non-free-firmware" \
-  "deb http://repo.iut.ac.ir/debian trixie-updates main contrib non-free non-free-firmware" \
-  > /etc/apt/sources.list \
-  && apt-get update \
+RUN && apt-get update \
   && apt-get install -y --no-install-recommends chromium chromium-driver libpq5 curl \
   && rm -rf /var/lib/apt/lists/*
 
