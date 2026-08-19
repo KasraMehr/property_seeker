@@ -1,41 +1,43 @@
+# syntax=docker/dockerfile:1
 FROM python:3.13-slim AS base
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     CHROME_BIN=/usr/bin/chromium \
     PIP_DEFAULT_TIMEOUT=100 \
-    PIP_RETRIES=10
+    PIP_RETRIES=10 \
+    DEBIAN_FRONTEND=noninteractive
 
 # ============================================================
-# Debian Repository Mirror
+# apt config (retry/timeout) - بدون میرور، منابع رسمی Debian
 # ============================================================
 
-RUN set -eux; \
-    rm -f /etc/apt/sources.list.d/debian.sources; \
-    printf '%s\n' \
-      'deb https://repo.abrha.net/debian trixie main contrib non-free non-free-firmware' \
-      'deb https://repo.abrha.net/debian trixie-updates main contrib non-free non-free-firmware' \
-      'deb https://repo.abrha.net/debian-security trixie-security main contrib non-free non-free-firmware' \
-      > /etc/apt/sources.list; \
-    apt-get update; \
-    apt-get install -y --no-install-recommends \
+RUN printf 'Acquire::Retries "10";\nAcquire::http::Timeout "30";\nAcquire::https::Timeout "30";\n' \
+      > /etc/apt/apt.conf.d/80-retries
+
+# ============================================================
+# apt install با cache mount (build های بعدی سریع‌تر میشن)
+# ============================================================
+
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt-get update && apt-get install -y --no-install-recommends \
       chromium \
       chromium-driver \
       libpq5 \
       curl \
-      ca-certificates; \
-    rm -rf /var/lib/apt/lists/*
+      ca-certificates
 
 WORKDIR /app
 
+# ============================================================
+# نصب requirements جدا از کد (Layer Caching)
+# ============================================================
+
 COPY requirements.txt .
 
-# ============================================================
-# Python Packages - PyPI Mirror
-# ============================================================
-
-RUN pip install \
-    --no-cache-dir \
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install \
     --index-url https://mirror.kargadan.ir/repository/pypi-group/simple/ \
     --trusted-host mirror.kargadan.ir \
     --default-timeout=100 \
