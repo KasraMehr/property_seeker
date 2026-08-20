@@ -13,6 +13,7 @@ class CallLogCreateSerializer(serializers.ModelSerializer):
             "id",
             "agency",
             "is_deleted",
+            "handled_by",
             "created_at",
         )
 
