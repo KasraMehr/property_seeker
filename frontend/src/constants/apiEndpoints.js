@@ -292,7 +292,7 @@ export const API_ENDPOINTS = {
   OWNERS: {
     LIST: { url: `${API_BASE}/owner/list/`, method: "GET", status: "[OK]" },
     DETAIL: (id) => ({
-      url: `${API_BASE}/owner/detail/${id}`,
+      url: `${API_BASE}/owner/detail/${id}/`,
       method: "GET",
       status: "[OK]",
     }),
@@ -302,7 +302,7 @@ export const API_ENDPOINTS = {
       status: "[OK]",
     },
     UPDATE: (id) => ({
-      url: `${API_BASE}/owner/update/${id}`,
+      url: `${API_BASE}/owner/update/${id}/`,
       method: "PUT",
       status: "[OK]",
     }),
@@ -560,10 +560,13 @@ export const API_ENDPOINTS = {
       method: "PUT",
       status: "[OK]",
     }),
+    // NOTE: No single-feature delete endpoint exists in backend.
+    // Backend only supports: DELETE /api/feature/bulk-delete/ with { ids: [...] }
+    // Single delete disabled until backend adds support.
     DELETE: (id) => ({
-      url: `${API_BASE}/features/delete/${id}/`,
+      url: `${API_BASE}/feature/bulk-delete/`,
       method: "DELETE",
-      status: "[OK]",
+      status: "[PEND]",
     }),
   },
   PROPERTY_FEATURES: {
@@ -587,10 +590,12 @@ export const API_ENDPOINTS = {
       method: "PUT",
       status: "[OK]",
     }),
+    // NOTE: No single property-feature delete endpoint exists in backend.
+    // Backend only supports: DELETE /api/property-features/bulk-delete/ with { ids: [...] }
     DELETE: (id) => ({
-      url: `${API_BASE}/property-features/delete/${id}/`,
+      url: `${API_BASE}/property-features/bulk-delete/`,
       method: "DELETE",
-      status: "[OK]",
+      status: "[PEND]",
     }),
   },
 

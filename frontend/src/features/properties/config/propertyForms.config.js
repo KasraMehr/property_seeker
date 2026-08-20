@@ -80,7 +80,7 @@ export const PROPERTY_FORM = {
           type: "search_select",
           required: true,
           placeholder: "انتخاب مالک...",
-          asyncSource: "/api/properties/owners/",
+          asyncSource: "/api/owner/list",
           searchFields: ["full_name", "phone"],
           displayField: "full_name",
           span: 6,
@@ -204,7 +204,9 @@ export const PROPERTY_FORM = {
         {
           key: "orientation",
           label: "جهت",
-          type: "multi_select",
+          // NOTE: backend orientation is CharField (single string), not array.
+          // Changed from multi_select → select to match backend contract.
+          type: "select",
           required: false,
           placeholder: "انتخاب جهت",
           options: [
@@ -302,79 +304,17 @@ export const PROPERTY_FORM = {
 
 /**
  * Change Property Status Form
+ * DISABLED: No backend endpoint for bulk status change exists.
+ * Re-enable when backend implements: PUT /api/property/bulk-change-status/
  */
-export const CHANGE_PROPERTY_STATUS_FORM = {
-  title: "تغییر وضعیت ملک",
-  description: "وضعیت ملک(های) انتخاب‌شده را تغییر دهید",
-  tabs: null,
-  fields: [
-    {
-      key: "status",
-      label: "وضعیت جدید",
-      type: "select",
-      required: true,
-      placeholder: "انتخاب وضعیت",
-      options: [
-        { value: "available", label: "در دسترس" },
-        { value: "reserved", label: "رزرو شده" },
-        { value: "sold", label: "فروخته شده" },
-        { value: "rented", label: "اجاره داده شده" },
-        { value: "archived", label: "آرشیو" },
-      ],
-      validation: { required: "وضعیت الزامی است" },
-      span: 12,
-    },
-    {
-      key: "note",
-      label: "یادداشت (اختیاری)",
-      type: "textarea",
-      required: false,
-      placeholder: "دلیل تغییر وضعیت...",
-      rows: 3,
-      span: 12,
-    },
-  ],
-  actions: {
-    submit: { label: "ذخیره", variant: "primary" },
-    cancel: { label: "انصراف", variant: "ghost" },
-  },
-};
+// export const CHANGE_PROPERTY_STATUS_FORM = { ... };
 
 /**
  * Assign Agent Form
+ * DISABLED: No backend endpoint for bulk agent assignment exists.
+ * Re-enable when backend implements: PUT /api/property/bulk-assign-agent/
  */
-export const ASSIGN_AGENT_FORM = {
-  title: "تخصیص مشاور",
-  description: "مشاور املاک را برای ملک(های) انتخاب‌شده تعیین کنید",
-  tabs: null,
-  fields: [
-    {
-      key: "agent",
-      label: "مشاور",
-      type: "search_select",
-      required: true,
-      placeholder: "جستجوی مشاور...",
-      asyncSource: "/api/users/?is_active=true",
-      searchFields: ["full_name", "phone"],
-      displayField: "full_name",
-      validation: { required: "انتخاب مشاور الزامی است" },
-      span: 12,
-    },
-    {
-      key: "note",
-      label: "یادداشت",
-      type: "textarea",
-      required: false,
-      placeholder: "توضیحات...",
-      rows: 3,
-      span: 12,
-    },
-  ],
-  actions: {
-    submit: { label: "تخصیص", variant: "primary" },
-    cancel: { label: "انصراف", variant: "ghost" },
-  },
-};
+// export const ASSIGN_AGENT_FORM = { ... };
 
 /**
  * Promote Listing → Property Form
