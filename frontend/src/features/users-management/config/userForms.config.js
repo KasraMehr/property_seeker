@@ -60,32 +60,18 @@ export const USER_FORM = {
           validation: { required: "تکرار رمز عبور الزامی است", match: "password" },
           span: 6,
         },
+        // is_active: only editable on update (backend ignores it on create)
         {
           key: "is_active",
           label: "وضعیت فعال",
           type: "checkbox",
           required: false,
           defaultValue: true,
+          condition: (values, mode) => mode === "edit",
           span: 6,
         },
-        {
-          key: "is_staff",
-          label: "دسترسی staff",
-          type: "checkbox",
-          required: false,
-          defaultValue: false,
-          permission: "change_user_is_staff",
-          span: 6,
-        },
-        {
-          key: "is_superuser",
-          label: "دسترسی superuser",
-          type: "checkbox",
-          required: false,
-          defaultValue: false,
-          permission: "change_user_is_superuser",
-          span: 6,
-        },
+        // is_staff / is_superuser: backend does NOT expose these in
+        // UserCreateSerializer or UserUpdateSerializer — fields are dead.
       ],
     },
     {
@@ -96,35 +82,27 @@ export const USER_FORM = {
         {
           key: "role",
           label: "نقش",
-          type: "select",
+          type: "search_select",
           required: true,
           placeholder: "انتخاب نقش",
-          asyncSource: "/api/roles/",
+          asyncSource: "/api/accounts/roles/",
           searchFields: ["name"],
           displayField: "name",
           validation: { required: "انتخاب نقش الزامی است" },
           span: 12,
         },
+        // is_owner: only editable on update (backend ignores it on create)
         {
           key: "is_owner",
           label: "مالک آژانس",
           type: "checkbox",
           required: false,
           defaultValue: false,
-          permission: "change_user_is_owner",
+          condition: (values, mode) => mode === "edit",
           span: 12,
         },
-        {
-          key: "custom_permissions",
-          label: "دسترسی‌های سفارشی",
-          type: "multi_select",
-          required: false,
-          placeholder: "",
-          asyncSource: "/api/permissions/",
-          searchFields: ["name", "codename"],
-          displayField: "name",
-          span: 12,
-        },
+        // custom_permissions: backend does NOT accept this field in
+        // UserCreateSerializer or UserUpdateSerializer — field is dead.
       ],
     },
     {
@@ -175,10 +153,10 @@ export const CHANGE_USER_ROLE_FORM = {
     {
       key: "role",
       label: "نقش جدید",
-      type: "select",
+      type: "search_select",
       required: true,
       placeholder: "انتخاب نقش",
-      asyncSource: "/api/roles/",
+      asyncSource: "/api/accounts/roles/",
       searchFields: ["name"],
       displayField: "name",
       validation: { required: "انتخاب نقش الزامی است" },

@@ -20,6 +20,7 @@ import UserFormModal from "@/features/users-management/components/UserFormModal"
 import ChangeUserRoleModal from "@/features/users-management/components/ChangeUserRoleModal";
 import ToggleUserActiveModal from "@/features/users-management/components/ToggleUserActiveModal";
 import userService from "@/features/users-management/services/userService";
+import { toastService } from "@/lib/toast";
 
 const ROLE_TABS = [
   { id: "all", label: "همه کاربران" },
@@ -200,7 +201,8 @@ export default function UsersPage() {
       if (action.handler === "toggle_active") {
         // No confirm block on this variant (toggle_active_enable) — turning
         // a user back on doesn't need a confirmation step.
-        await userService.bulkToggleActive([row.id], true, null);
+        await userService.patch(row.id, { is_active: true });
+        toastService.success("کاربر فعال شد");
         refresh();
       }
     },
@@ -258,9 +260,16 @@ export default function UsersPage() {
     try {
       if (action.key === "delete") {
         await Promise.all(ids.map((id) => remove(id)));
+        toastService.success(ids.length > 1 ? `${ids.length} کاربر حذف شدند` : "کاربر حذف شد");
         refresh();
       } else if (action.key === "toggle_active") {
-        await userService.bulkToggleActive(ids, false, null);
+        if (ids.length === 1) {
+          await userService.patch(ids[0], { is_active: false });
+        } else {
+          // Bulk: loop through each user (no bulk endpoint on backend yet)
+          await Promise.all(ids.map((id) => userService.patch(id, { is_active: false })));
+        }
+        toastService.success(ids.length > 1 ? `${ids.length} کاربر غیرفعال شدند` : "کاربر غیرفعال شد");
         refresh();
       } else if (action.key === "reset_password") {
         // No backend endpoint exists for this at all yet (not even [PEND] in

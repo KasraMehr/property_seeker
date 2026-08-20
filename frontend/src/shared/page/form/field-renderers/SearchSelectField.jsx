@@ -42,7 +42,11 @@ export default function SearchSelectField({
             (url.includes("?") ? "&" : "?") + `search=${encodeURIComponent(q)}`;
         }
         const res = await api.get(url);
-        const data = res?.data ?? res;
+        let data = res?.data ?? res;
+        // Support optional transformResponse for non-standard API shapes
+        if (typeof field.transformResponse === "function") {
+          data = field.transformResponse(data);
+        }
         const list = Array.isArray(data) ? data : data?.results || [];
         setOptions(list);
       } catch {

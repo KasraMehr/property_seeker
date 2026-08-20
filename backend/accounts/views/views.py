@@ -2,6 +2,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from accounts.models import User
 from accounts.permissions import IsAgencyOwner
@@ -115,6 +116,20 @@ class UserViewSet(viewsets.ModelViewSet):
     # =========================
     # Update
     # =========================
+
+    def update(self, request, *args, **kwargs):
+        """Override to return UserSerializer (read) instead of UserUpdateSerializer.
+
+        UserUpdateSerializer declares role as PrimaryKeyRelatedField (single PK)
+        for write, but the model field is M2M. Using it for the response causes
+        ManyRelatedManager serialization errors.
+        """
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(UserSerializer(instance).data)
 
     def perform_update(self, serializer):
 
