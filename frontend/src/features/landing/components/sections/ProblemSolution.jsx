@@ -21,7 +21,7 @@ export default function ProblemSolution() {
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <img
-          src="/images/p-section-bg.jpg" 
+          src="/images/p-section-bg.webp" 
           alt=""
           className="w-full h-full object-cover"
         />

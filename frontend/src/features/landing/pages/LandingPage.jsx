@@ -25,7 +25,7 @@ export default function LandingPage() {
 
       <Benefits/>
 
-      <ImageDivider src = {"/images/s-section-bg.jpg"}/>
+      <ImageDivider src = {"/images/s-section-bg.webp"}/>
 
       {/* <DashboardPreview/> */}
 
