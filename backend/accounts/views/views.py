@@ -101,6 +101,19 @@ class UserViewSet(viewsets.ModelViewSet):
     # Create
     # =========================
 
+    def create(self, request, *args, **kwargs):
+        """Override to return UserSerializer (read) instead of UserCreateSerializer.
+
+        UserCreateSerializer declares role/service_neighborhoods as
+        PrimaryKeyRelatedField for write, but on the response side these
+        M2M fields cause ManyRelatedManager serialization errors.
+        """
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        user = serializer.instance
+        return Response(UserSerializer(user).data, status=201)
+
     def perform_create(self, serializer):
 
         user = serializer.save()

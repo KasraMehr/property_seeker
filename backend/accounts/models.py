@@ -90,17 +90,27 @@ class Role(models.Model):
 # User Manager
 # =========================
 class UserManager(BaseUserManager):
+
+    # M2M fields that cannot be passed to model() and must be set after save()
+    _M2M_FIELDS = ("role", "service_neighborhoods")
+
     def create_user(self, phone, password=None, **extra_fields):
         if not phone:
             raise ValueError("Phone number is required")
 
-        user = self.model(
-            phone=phone,
-            **extra_fields,
-        )
+        # Extract M2M fields before model instantiation
+        m2m = {}
+        for field in self._M2M_FIELDS:
+            if field in extra_fields:
+                m2m[field] = extra_fields.pop(field)
 
+        user = self.model(phone=phone, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
+
+        # Set M2M relations after save()
+        for field, value in m2m.items():
+            getattr(user, field).set(value if isinstance(value, (list, tuple)) else [value])
 
         return user
 

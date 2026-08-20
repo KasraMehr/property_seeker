@@ -24,6 +24,7 @@ export const USER_QUICK_FILTERS = [
     endpoint: "/api/accounts/roles/",
     optionLabel: "name",
     optionValue: "id",
+    optionsKey: "roles",
   },
   {
     key: "is_active",
@@ -65,6 +66,7 @@ export const USER_ADVANCED_FILTERS = [
     search_fields: ["name"],
     optionLabel: "name",
     optionValue: "id",
+    optionsKey: "neighborhoods",
   },
   {
     key: "service_district",
@@ -76,6 +78,7 @@ export const USER_ADVANCED_FILTERS = [
     search_fields: ["name"],
     optionLabel: "name",
     optionValue: "id",
+    optionsKey: "districts",
   },
   {
     key: "is_staff",
