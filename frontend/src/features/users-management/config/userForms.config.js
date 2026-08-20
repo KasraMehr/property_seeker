@@ -70,8 +70,6 @@ export const USER_FORM = {
           condition: (values, mode) => mode === "edit",
           span: 6,
         },
-        // is_staff / is_superuser: backend does NOT expose these in
-        // UserCreateSerializer or UserUpdateSerializer — fields are dead.
       ],
     },
     {

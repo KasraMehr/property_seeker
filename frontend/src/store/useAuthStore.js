@@ -91,7 +91,7 @@ const useAuthStore = create(
       hasPermission: (permissionCode) => {
         const user = get().user;
         // both has complete access
-        if (user?.is_owner || user?.is_superuser) return true;
+        if (user?.is_owner) return true;
         if (!user?.role || !Array.isArray(user.role)) return false;
         return user.role.some((r) => r.permissions?.includes(permissionCode));
       },
@@ -99,7 +99,7 @@ const useAuthStore = create(
       // check for at least one permission of all
       hasAnyPermission: (codes = []) => {
         const user = get().user;
-        if (user?.is_owner || user?.is_superuser) return true;
+        if (user?.is_owner) return true;
         if (!user?.role || !Array.isArray(user.role)) return false;
         return codes.some((code) =>
           user.role.some((r) => r.permissions?.includes(code)),
@@ -109,7 +109,7 @@ const useAuthStore = create(
       // check to have all permissions exactly
       hasAllPermissions: (codes = []) => {
         const user = get().user;
-        if (user?.is_owner || user?.is_superuser) return true;
+        if (user?.is_owner) return true;
         if (!user?.role || !Array.isArray(user.role)) return false;
         return codes.every((code) =>
           user.role.some((r) => r.permissions?.includes(code)),
