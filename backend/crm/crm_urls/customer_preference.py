@@ -16,5 +16,5 @@ urlpatterns = [
         CustomerPreferenceDetailView.as_view(),
         name="customer-preference-detail",
     ),
-    path("cusromer-preferences/delete", CustomerPreferenceBulkDeleteView.as_view()),
+    path("customer-preferences/delete/", CustomerPreferenceBulkDeleteView.as_view()),
 ]

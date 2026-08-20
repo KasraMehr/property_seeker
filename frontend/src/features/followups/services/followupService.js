@@ -10,7 +10,15 @@ const create = (data) => api.post(API_ENDPOINTS.CRM.REMINDERS.CREATE.url, data);
 
 const update = (id, data) => api.put(API_ENDPOINTS.CRM.REMINDERS.UPDATE(id).url, data);
 
-const remove = (id) => api.delete(API_ENDPOINTS.CRM.REMINDERS.DELETE(id).url);
+const remove = (id) =>
+  api.delete(API_ENDPOINTS.CRM.REMINDERS.DELETE(id).url, {
+    data: { ids: [id] },
+  });
+
+const bulkDelete = (ids) =>
+  api.delete(API_ENDPOINTS.CRM.REMINDERS.DELETE().url, {
+    data: { ids },
+  });
 
 const complete = (id, data) => update(id, { ...data, status: "done" });
 const cancel = (id, data) => update(id, { ...data, status: "canceled" });
@@ -23,6 +31,7 @@ const followupService = {
   complete,
   cancel,
   remove,
+  bulkDelete,
 };
 
 export default followupService;

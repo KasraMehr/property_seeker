@@ -5,12 +5,30 @@ import { API_ENDPOINTS } from "../constants/apiEndpoints";
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
 
+// Read Django CSRF cookie so it can be sent as a header on mutating requests
+function getCsrfToken() {
+  const match = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]*)/);
+  return match ? decodeURIComponent(match[1]) : "";
+}
+
 const api = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
+});
+
+// Automatically attach CSRF token for state-changing methods
+api.interceptors.request.use((config) => {
+  const method = (config.method || "").toLowerCase();
+  if ("post put patch delete".includes(method)) {
+    const token = getCsrfToken();
+    if (token) {
+      config.headers["X-CSRFToken"] = token;
+    }
+  }
+  return config;
 });
 
 let isRefreshing = false;
@@ -56,7 +74,7 @@ api.interceptors.response.use(
 
     try {
       await api.post(
-        `${API_BASE_URL}${API_ENDPOINTS.AUTH.REFRESH.url}`,
+        API_ENDPOINTS.AUTH.REFRESH.url,
         {},
         { withCredentials: true },
       );

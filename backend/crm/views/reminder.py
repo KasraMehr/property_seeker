@@ -7,6 +7,7 @@ from crm.selectors.reminder_selector import ReminderSelector
 from crm.serializers.reminder_detail import ReminderDetailSerializer
 
 from ..filter.reminder_filter import ReminderFilter
+from ..serializers.reminder_create import ReminderCreateSerializer
 from ..serializers.reminder_update import ReminderUpdateSerializer
 
 

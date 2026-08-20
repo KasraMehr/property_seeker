@@ -152,7 +152,11 @@ class UserViewSet(viewsets.ModelViewSet):
 
 from accounts.models import Agency
 from accounts.permissions import IsAgencyOwner
-from accounts.serializers.serializers import AgencySerializer
+from accounts.serializers.serializers import (
+    AgencyCreateSerializer,
+    AgencySerializer,
+    AgencyUpdateSerializer,
+)
 
 
 class AgencyViewSet(viewsets.ModelViewSet):
