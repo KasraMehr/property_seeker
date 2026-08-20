@@ -24,15 +24,6 @@ export const CHANGE_REVIEW_STATUS_FORM = {
       validation: { required: "وضعیت بررسی الزامی است" },
       span: 12,
     },
-    {
-      key: "note",
-      label: "یادداشت (اختیاری)",
-      type: "textarea",
-      required: false,
-      placeholder: "دلیل تغییر وضعیت...",
-      rows: 3,
-      span: 12,
-    },
   ],
   actions: {
     submit: { label: "ذخیره تغییرات", variant: "primary" },
