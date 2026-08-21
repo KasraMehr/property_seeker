@@ -2,7 +2,30 @@ import { useState } from "react";
 import Modal from "@/shared/ui/modal/Modal";
 import FormRenderer from "@/shared/page/FormRenderer";
 import { PROMOTE_LISTING_FORM } from "@/features/properties/config";
-import propertyService from "@/features/properties/services/propertyService";
+import listingService from "@/features/listings/services/listingService";
+
+/** Backend ListingPromotionSerializer only accepts these keys. */
+const PROMOTE_PAYLOAD_KEYS = [
+  "owner",
+  "deal_type",
+  "area",
+  "title",
+  "address",
+  "property_type",
+  "floor",
+  "total_floors",
+];
+
+function toPromotePayload(data) {
+  const payload = {};
+  for (const key of PROMOTE_PAYLOAD_KEYS) {
+    const value = data?.[key];
+    if (value !== undefined && value !== null && value !== "") {
+      payload[key] = value;
+    }
+  }
+  return payload;
+}
 
 export default function PromoteListingModal({ isOpen, onClose, listing, onSuccess }) {
   const [loading, setLoading] = useState(false);
@@ -10,7 +33,7 @@ export default function PromoteListingModal({ isOpen, onClose, listing, onSucces
   const handleSubmit = async (data) => {
     setLoading(true);
     try {
-      await propertyService.promoteFromListing(listing.id, data);
+      await listingService.promote(listing.id, toPromotePayload(data));
       onSuccess?.();
       onClose();
     } finally {

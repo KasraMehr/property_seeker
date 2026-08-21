@@ -14,7 +14,14 @@ const update = (id, data) =>
   api.put(API_ENDPOINTS.CUSTOMERS.UPDATE(id).url, data); 
 
 const remove = (id) =>
-  api.delete(API_ENDPOINTS.CUSTOMERS.DELETE(id).url);
+  api.delete(API_ENDPOINTS.CUSTOMERS.BULK_DELETE.url, {
+    data: { ids: [id] },
+  });
+
+const bulkDelete = (ids) =>
+  api.delete(API_ENDPOINTS.CUSTOMERS.BULK_DELETE.url, {
+    data: { ids },
+  });
 
 const customerService = {
   getAll,
@@ -22,6 +29,7 @@ const customerService = {
   create,
   update,
   remove,
+  bulkDelete,
 };
 
 export default customerService;

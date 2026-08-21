@@ -11,7 +11,7 @@ import useAuthStore from "@/store/useAuthStore";
 export default function RoleRoute({ allow }) {
   const isOwner = useAuthStore((s) => {
     const user = s.user;
-    return !!(user?.is_owner || user?.is_superuser);
+    return !!(user?.is_owner);
   });
   const location = useLocation();
 

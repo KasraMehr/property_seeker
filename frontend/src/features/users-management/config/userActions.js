@@ -9,7 +9,7 @@ import { PERMISSIONS } from "@/constants/permissions";
  * Backend: accounts.User
  * 
  *  User management is owner-only in backend (IsAgencyOwner).
- *    Using OWNER_ONLY_SECTIONS logic + is_owner/is_superuser bypass.
+ *    Using OWNER_ONLY_SECTIONS logic + is_owner bypass.
  */
 
 export const USER_ROW_ACTIONS = [

@@ -1,3 +1,5 @@
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
+
 export const OWNER_FILTERS = [
   {
     key: "created_by",
@@ -5,7 +7,7 @@ export const OWNER_FILTERS = [
     type: "select",
     placement: "drawer",
     async: true,
-    endpoint: "/api/accounts/users/",
+    endpoint: API_ENDPOINTS.ACCOUNTS.USERS.LIST.url,
     search_fields: ["full_name", "phone"],
     optionLabel: "full_name",
     optionValue: "id",

@@ -13,6 +13,9 @@ const create = (data) =>
 const update = (id, data) =>
   api.put(API_ENDPOINTS.ACCOUNTS.USERS.UPDATE(id).url, data);
 
+const patch = (id, data) =>
+  api.patch(API_ENDPOINTS.ACCOUNTS.USERS.UPDATE(id).url, data);
+
 const remove = (id) =>
   api.delete(API_ENDPOINTS.ACCOUNTS.USERS.DELETE(id).url);
 
@@ -27,6 +30,7 @@ const userService = {
   getById,
   create,
   update,
+  patch,
   remove,
   bulkChangeRole ,
   bulkToggleActive,

@@ -13,7 +13,7 @@ export default function Services() {
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <img
-          src="/images/serv-section-bg.jpg" 
+          src="/images/serv-section-bg.webp" 
           alt=""
           className="w-full h-full object-cover"
         />

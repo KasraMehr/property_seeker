@@ -312,6 +312,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             "role",
             "password",
             "is_active",
+            "is_owner",
             "service_neighborhoods",
         )
 
@@ -332,6 +333,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
 
         password = validated_data.pop("password", None)
+        role = validated_data.pop("role", None)
         neighborhoods = validated_data.pop("service_neighborhoods", None)
 
         for attr, value in validated_data.items():
@@ -342,6 +344,9 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
         instance.save()
 
+        # M2M fields must be set after save()
+        if role is not None:
+            instance.role.set([role])
         if neighborhoods is not None:
             instance.service_neighborhoods.set(neighborhoods)
 

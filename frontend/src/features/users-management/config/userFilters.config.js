@@ -1,7 +1,9 @@
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
+
 /**
  * User / Agent / Owner Filters Config
  * Backend: accounts.User + properties.Owner
- * 
+ *
  * Quick: search, role, is_active, is_owner
  * Advanced: agency, service_neighborhoods, dates, permissions
  */
@@ -19,15 +21,18 @@ export const USER_QUICK_FILTERS = [
     key: "role",
     label: "نقش",
     type: "multi_select",
+    placeholder: "نقش",
     placement: "bar",
     async: true,
-    endpoint: "/api/accounts/roles/",
+    endpoint: API_ENDPOINTS.ACCOUNTS.ROLES.LIST.url,
     optionLabel: "name",
     optionValue: "id",
+    optionsKey: "roles",
   },
   {
     key: "is_active",
     label: "وضعیت",
+    placeholder: "وضعیت",
     type: "select",
     placement: "bar",
     options: [
@@ -35,36 +40,20 @@ export const USER_QUICK_FILTERS = [
       { value: "false", label: "غیرفعال" },
     ],
   },
-  {
-    key: "is_owner",
-    label: "مالک آژانس",
-    type: "toggle",
-    placement: "bar",
-  },
 ];
 
 export const USER_ADVANCED_FILTERS = [
-  {
-    key: "agency",
-    label: "آژانس",
-    type: "search_select",
-    placement: "drawer",
-    async: true,
-    endpoint: "/api/accounts/agencies/",
-    search_fields: ["name"],
-    optionLabel: "name",
-    optionValue: "id",
-  },
   {
     key: "service_neighborhood",
     label: "محله سرویس",
     type: "search_select",
     placement: "drawer",
     async: true,
-    endpoint: "/api/neighborhoods/",
+    endpoint: API_ENDPOINTS.LOCATIONS.NEIGHBORHOODS.LIST.url,
     search_fields: ["name"],
     optionLabel: "name",
     optionValue: "id",
+    optionsKey: "neighborhoods",
   },
   {
     key: "service_district",
@@ -72,33 +61,11 @@ export const USER_ADVANCED_FILTERS = [
     type: "search_select",
     placement: "drawer",
     async: true,
-    endpoint: "/api/district/",
+    endpoint: API_ENDPOINTS.LOCATIONS.DISTRICTS.LIST.url,
     search_fields: ["name"],
     optionLabel: "name",
     optionValue: "id",
-  },
-  {
-    key: "is_staff",
-    label: "کارمند سیستم",
-    type: "toggle",
-    placement: "drawer",
-  },
-  {
-    key: "is_superuser",
-    label: "ابرکاربر",
-    type: "toggle",
-    placement: "drawer",
-  },
-  {
-    key: "has_permission",
-    label: "دارای پرمیشن",
-    type: "search_select",
-    placement: "drawer",
-    async: true,
-    endpoint: "/api/accounts/permissions/",
-    search_fields: ["name", "codename"],
-    optionLabel: "name",
-    optionValue: "codename",
+    optionsKey: "districts",
   },
   {
     key: "created_at",
@@ -118,7 +85,10 @@ export const USER_ADVANCED_FILTERS = [
   },
 ];
 
-export const USER_ALL_FILTERS = [...USER_QUICK_FILTERS, ...USER_ADVANCED_FILTERS];
+export const USER_ALL_FILTERS = [
+  ...USER_QUICK_FILTERS,
+  ...USER_ADVANCED_FILTERS,
+];
 
 /* ─── Owner-specific filters (properties.Owner) ─── */
 export const OWNER_QUICK_FILTERS = [
@@ -136,7 +106,7 @@ export const OWNER_QUICK_FILTERS = [
     type: "search_select",
     placement: "bar",
     async: true,
-    endpoint: "/api/accounts/agencies/",
+    endpoint: API_ENDPOINTS.ACCOUNTS.AGENCIES.LIST.url,
     search_fields: ["name"],
     optionLabel: "name",
     optionValue: "id",
@@ -171,7 +141,7 @@ export const OWNER_ADVANCED_FILTERS = [
     type: "search_select",
     placement: "drawer",
     async: true,
-    endpoint: "/api/accounts/users/",
+    endpoint: API_ENDPOINTS.ACCOUNTS.USERS.LIST.url,
     search_fields: ["full_name"],
     optionLabel: "full_name",
     optionValue: "id",
@@ -194,4 +164,7 @@ export const OWNER_ADVANCED_FILTERS = [
   },
 ];
 
-export const OWNER_ALL_FILTERS = [...OWNER_QUICK_FILTERS, ...OWNER_ADVANCED_FILTERS];
+export const OWNER_ALL_FILTERS = [
+  ...OWNER_QUICK_FILTERS,
+  ...OWNER_ADVANCED_FILTERS,
+];

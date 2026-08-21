@@ -1,3 +1,4 @@
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 
 /**
  * Create/Edit Region Form
@@ -25,7 +26,7 @@ export const REGION_FORM = {
           type: "select",
           required: true,
           placeholder: "انتخاب استان",
-          asyncSource: "/api/province/list/",
+          asyncSource: API_ENDPOINTS.LOCATIONS.PROVINCES.LIST.url,
           span: 6,
         },
         {
@@ -36,7 +37,7 @@ export const REGION_FORM = {
           placeholder: "انتخاب شهر",
           dependsOn: "province",
           // Backend returns all cities; cascade filter is client-side for now
-          asyncSource: "/api/city/list/",
+          asyncSource: API_ENDPOINTS.LOCATIONS.CITIES.LIST.url,
           validation: { required: "شهر الزامی است" },
           span: 6,
         },

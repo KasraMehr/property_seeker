@@ -4,9 +4,9 @@ import { Navigate, Outlet } from "react-router-dom";
 import useAuth from "@/features/auth/hooks/useAuth";
 
 export default function PublicRoute() {
-  const { isAuthenticated, user, isLoading } = useAuth();
+  const { isAuthenticated, user, loading } = useAuth();
 
-  if (isLoading) {
+  if (loading) {
     return <div className="flex h-screen items-center justify-center">در حال بارگذاری...</div>;
   }
 

@@ -26,8 +26,7 @@ export const REGISTER_CALL_FORM_CONFIG = {
       type: "search_select",
       required: true,
       placeholder: "جستجوی مشتری...",
-      // path را با Backend واقعی customers یکی کن
-      asyncSource: "/api/customers/",
+      asyncSource: API_ENDPOINTS.CUSTOMERS.LIST.url,
       searchFields: ["full_name", "phone"],
       displayField: "full_name",
       validation: { required: "انتخاب مشتری الزامی است" },

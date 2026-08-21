@@ -20,6 +20,8 @@ import UserFormModal from "@/features/users-management/components/UserFormModal"
 import ChangeUserRoleModal from "@/features/users-management/components/ChangeUserRoleModal";
 import ToggleUserActiveModal from "@/features/users-management/components/ToggleUserActiveModal";
 import userService from "@/features/users-management/services/userService";
+import { toastService } from "@/lib/toast";
+import api from "@/lib/api";
 
 const ROLE_TABS = [
   { id: "all", label: "همه کاربران" },
@@ -200,7 +202,8 @@ export default function UsersPage() {
       if (action.handler === "toggle_active") {
         // No confirm block on this variant (toggle_active_enable) — turning
         // a user back on doesn't need a confirmation step.
-        await userService.bulkToggleActive([row.id], true, null);
+        await userService.patch(row.id, { is_active: true });
+        toastService.success("کاربر فعال شد");
         refresh();
       }
     },
@@ -258,9 +261,16 @@ export default function UsersPage() {
     try {
       if (action.key === "delete") {
         await Promise.all(ids.map((id) => remove(id)));
+        toastService.success(ids.length > 1 ? `${ids.length} کاربر حذف شدند` : "کاربر حذف شد");
         refresh();
       } else if (action.key === "toggle_active") {
-        await userService.bulkToggleActive(ids, false, null);
+        if (ids.length === 1) {
+          await userService.patch(ids[0], { is_active: false });
+        } else {
+          // Bulk: loop through each user (no bulk endpoint on backend yet)
+          await Promise.all(ids.map((id) => userService.patch(id, { is_active: false })));
+        }
+        toastService.success(ids.length > 1 ? `${ids.length} کاربر غیرفعال شدند` : "کاربر غیرفعال شد");
         refresh();
       } else if (action.key === "reset_password") {
         // No backend endpoint exists for this at all yet (not even [PEND] in
@@ -276,18 +286,37 @@ export default function UsersPage() {
     }
   }, [pendingConfirm, remove, refresh]);
 
-  /* ─── Filters ───
-   * NOTE: role/agency/service_neighborhood/service_district filters are
-   * declared as `async`+`endpoint` in userFilters.config.js, but FilterBar
-   * (shared/filters/FilterBar.jsx) only reads static `options[field.optionsKey]`
-   * today — it doesn't fetch async option lists yet. Those specific dropdowns
-   * will render empty until FilterBar gains async support; this is a shared
-   * component limitation, not something this page can work around.
-   */
+  /* ─── Async filter options (roles, districts, neighborhoods) ─── */
+  const [filterOptions, setFilterOptions] = useState({});
+
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      try {
+        const [rolesRes, districtsRes, neighborhoodsRes] = await Promise.all([
+          api.get("/api/accounts/roles/"),
+          api.get("/api/district/"),
+          api.get("/api/neighborhoods/"),
+        ]);
+        if (cancelled) return;
+        setFilterOptions({
+          roles: (rolesRes.data || []).map((r) => ({ value: r.id, label: r.name })),
+          districts: (districtsRes.data || []).map((d) => ({ value: d.id, label: d.name })),
+          neighborhoods: (neighborhoodsRes.data || []).map((n) => ({ value: n.id, label: n.name })),
+        });
+      } catch {
+        // silent — dropdowns stay empty
+      }
+    }
+    load();
+    return () => { cancelled = true; };
+  }, []);
+
+  /* ─── Filters ─── */
   const filters = useMemo(
     () => ({
       schema: USER_ALL_FILTERS.filter((f) => f.type !== "search"),
-      options: {},
+      options: filterOptions,
       values: filterValues,
       onChange: setFilter,
       onClear: clearFilter,

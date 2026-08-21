@@ -1,3 +1,5 @@
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
+
 /**
  * Create/Edit Followup Form
  */
@@ -55,7 +57,7 @@ export const FOLLOWUP_FORM = {
           type: "search_select",
           required: true,
           placeholder: "جستجوی کاربر...",
-          asyncSource: "/api/accounts/users/?is_active=true",
+          asyncSource: `${API_ENDPOINTS.ACCOUNTS.USERS.LIST.url}?is_active=true`,
           searchFields: ["full_name", "phone"],
           displayField: "full_name",
           validation: { required: "انتخاب مسئول الزامی است" },
@@ -76,7 +78,7 @@ export const FOLLOWUP_FORM = {
           type: "search_select",
           required: false,
           placeholder: "جستجوی مشتری...",
-          asyncSource: "/api/customers/",
+          asyncSource: API_ENDPOINTS.CUSTOMERS.LIST.url,
           searchFields: ["full_name", "phone", "national_id"],
           displayField: "full_name",
           span: 6,
@@ -87,7 +89,7 @@ export const FOLLOWUP_FORM = {
           type: "search_select",
           required: false,
           placeholder: "جستجوی ملک...",
-          asyncSource: "/api/properties/",
+          asyncSource: API_ENDPOINTS.PROPERTIES.LIST.url,
           searchFields: ["title", "property_code"],
           displayField: "title",
           span: 6,

@@ -1,3 +1,4 @@
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 
 /**
  * Create / Edit Customer Form Configuration
@@ -72,7 +73,7 @@ export const CUSTOMER_FORM = {
       type: "search_select",
       required: false,
       placeholder: "انتخاب کارشناس...",
-      asyncSource: "/api/accounts/users/",
+      asyncSource: API_ENDPOINTS.ACCOUNTS.USERS.LIST.url,
       searchFields: ["full_name", "phone"],
       displayField: "full_name",
       span: 6,
@@ -90,7 +91,7 @@ export const CUSTOMER_FORM = {
       label: "برچسب‌ها",
       type: "multi_select",
       required: false,
-      asyncSource: "/api/crm/tags/",
+      asyncSource: API_ENDPOINTS.TAGS.LIST.url,
       displayField: "name",
       span: 6,
     },

@@ -19,7 +19,7 @@ export default function HeroSection() {
         {/* Background image constrained within the container */}
         <div
           className="absolute inset-0 z-0 rounded-3xl overflow-hidden opacity-30 md:opacity-100 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: "url('/images/hero-cards.jpg')" }}
+          style={{ backgroundImage: "url('/images/hero-cards.webp')" }}
         />
         {/* Overlay decoration for blending */}
         <div className="absolute inset-0 z-0 bg-linear-to-br from-primary/5 to-transparent rounded-3xl" />

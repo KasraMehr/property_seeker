@@ -2,6 +2,7 @@ import {
   CALL_RESULT_CONFIG,
   CALL_TYPE_CONFIG,
 } from "@/features/calls/config";
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 
 /**
  * Call Log Filters Config
@@ -46,7 +47,7 @@ export const CALL_QUICK_FILTERS = [
     type: "search_select",
     placement: "bar",
     async: true,
-    endpoint: "/api/accounts/users/",
+    endpoint: API_ENDPOINTS.ACCOUNTS.USERS.LIST.url,
     search_fields: ["full_name", "phone"],
     optionLabel: "full_name",
     optionValue: "id",
@@ -68,7 +69,7 @@ export const CALL_ADVANCED_FILTERS = [
     type: "search_select",
     placement: "drawer",
     async: true,
-    endpoint: "/api/customers/",
+    endpoint: API_ENDPOINTS.CUSTOMERS.LIST.url,
     search_fields: ["full_name", "phone", "national_id"],
     optionLabel: "full_name",
     optionValue: "id",
