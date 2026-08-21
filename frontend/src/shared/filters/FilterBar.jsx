@@ -14,6 +14,8 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 
+import DatePickerInput from "@/shared/ui/selectors/DatePicker";
+import SearchSelect from "@/shared/ui/selectors/SearchSelect";
 import Input from "../ui/Input";
 import Select from "../ui/selectors/Select";
 import MultiSelect from "../ui/selectors/MultiSelect";
@@ -77,7 +79,37 @@ export default function FilterBar({
         );
 
       case "select":
+        return (
+          <div key={field.key} className="min-w-35">
+            <Select
+              options={
+                fieldOptions.length > 0 ? fieldOptions : field.options || []
+              }
+              value={value || ""}
+              onChange={(v) => onChange(field.key, v)}
+              placeholder={field.label}
+              clearable={field.clearable}
+              size="sm"
+            />
+          </div>
+        );
+
       case "search_select":
+        if (field.async || field.endpoint) {
+          return (
+            <div key={field.key} className="min-w-40">
+              <SearchSelect
+                value={value ?? null}
+                onChange={(v) => onChange(field.key, v || null)}
+                endpoint={field.endpoint}
+                placeholder={field.label || field.placeholder || "جستجو..."}
+                optionLabel={field.optionLabel || "full_name"}
+                optionValue={field.optionValue || "id"}
+                clearable
+              />
+            </div>
+          );
+        }
         return (
           <div key={field.key} className="min-w-35">
             <Select
@@ -141,6 +173,33 @@ export default function FilterBar({
             <span className="text-sm text-foreground">{field.label}</span>
           </label>
         );
+      case "date_range": {
+        const range = value || { from: null, to: null };
+        return (
+          <div key={field.key} className="flex items-end gap-1.5 min-w-56">
+            <div className="flex-1 min-w-0">
+              <DatePickerInput
+                label={field.label ? `${field.label} از` : "از"}
+                value={range.from || ""}
+                onChange={(v) =>
+                  onChange(field.key, { ...range, from: v || null })
+                }
+                placeholder="از تاریخ"
+              />
+            </div>
+            <div className="flex-1 min-w-0">
+              <DatePickerInput
+                label="تا"
+                value={range.to || ""}
+                onChange={(v) =>
+                  onChange(field.key, { ...range, to: v || null })
+                }
+                placeholder="تا تاریخ"
+              />
+            </div>
+          </div>
+        );
+      }
 
       default:
         return null;

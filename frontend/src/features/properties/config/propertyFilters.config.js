@@ -2,6 +2,7 @@ import {
   PROPERTY_STATUS_CONFIG,
   PROPERTY_DEAL_TYPE_CONFIG,
 } from "@/features/properties/config";
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 
 /**
  * Property Filters Config
@@ -94,7 +95,7 @@ export const PROPERTY_ADVANCED_FILTERS = [
     type: "search_select",
     placement: "drawer",
     async: true,
-    endpoint: "/api/owner/list/",
+    endpoint: API_ENDPOINTS.OWNERS.LIST.url,
     search_fields: ["full_name", "phone", "national_id"],
     optionLabel: "full_name",
     optionValue: "id",
@@ -105,7 +106,7 @@ export const PROPERTY_ADVANCED_FILTERS = [
     type: "search_select",
     placement: "drawer",
     async: true,
-    endpoint: "/api/accounts/users/",
+    endpoint: API_ENDPOINTS.ACCOUNTS.USERS.LIST.url,
     search_fields: ["full_name", "phone"],
     optionLabel: "full_name",
     optionValue: "id",
@@ -116,7 +117,7 @@ export const PROPERTY_ADVANCED_FILTERS = [
     type: "select",
     placement: "drawer",
     async: true,
-    endpoint: "/api/province/list/",
+    endpoint: API_ENDPOINTS.LOCATIONS.PROVINCES.LIST.url,
     optionLabel: "name",
     optionValue: "id",
   },
@@ -126,7 +127,7 @@ export const PROPERTY_ADVANCED_FILTERS = [
     type: "select",
     placement: "drawer",
     async: true,
-    endpoint: "/api/city/list/",
+    endpoint: API_ENDPOINTS.LOCATIONS.CITIES.LIST.url,
     depends_on: "province",
     optionLabel: "name",
     optionValue: "id",
@@ -137,7 +138,7 @@ export const PROPERTY_ADVANCED_FILTERS = [
     type: "select",
     placement: "drawer",
     async: true,
-    endpoint: "/api/district/",
+    endpoint: API_ENDPOINTS.LOCATIONS.DISTRICTS.LIST.url,
     depends_on: "city",
     optionLabel: "name",
     optionValue: "id",
@@ -148,7 +149,7 @@ export const PROPERTY_ADVANCED_FILTERS = [
     type: "select",
     placement: "drawer",
     async: true,
-    endpoint: "/api/neighborhoods/",
+    endpoint: API_ENDPOINTS.LOCATIONS.NEIGHBORHOODS.LIST.url,
     depends_on: "district",
     optionLabel: "name",
     optionValue: "id",

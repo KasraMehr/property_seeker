@@ -93,7 +93,21 @@ class CallLogDetailView(APIView):
 
         return Response(serializer.data)
 
-    def update(self, request, pk):
+    def put(self, request, pk):
+
+        call = CallLogSelector.by_id(pk, request.user)
+
+        serializer = CallLogUpdateSerializer(
+            call, data=request.data, partial=False, context={"request": request}
+        )
+
+        serializer.is_valid(raise_exception=True)
+
+        serializer.save()
+
+        return Response(CallLogListSerializer(call).data)
+
+    def patch(self, request, pk):
 
         call = CallLogSelector.by_id(pk, request.user)
 

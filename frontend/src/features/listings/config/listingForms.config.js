@@ -1,3 +1,4 @@
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 
 /**
  * Change Review Status Form
@@ -24,15 +25,6 @@ export const CHANGE_REVIEW_STATUS_FORM = {
       validation: { required: "وضعیت بررسی الزامی است" },
       span: 12,
     },
-    {
-      key: "note",
-      label: "یادداشت (اختیاری)",
-      type: "textarea",
-      required: false,
-      placeholder: "دلیل تغییر وضعیت...",
-      rows: 3,
-      span: 12,
-    },
   ],
   actions: {
     submit: { label: "ذخیره تغییرات", variant: "primary" },
@@ -55,7 +47,7 @@ export const ASSIGN_OPERATOR_FORM = {
       type: "search_select",
       required: true,
       placeholder: "جستجوی اپراتور...",
-      asyncSource: "/api/users/?role=operator&is_active=true",
+      asyncSource: `${API_ENDPOINTS.ACCOUNTS.USERS.LIST.url}?role=operator&is_active=true`,
       searchFields: ["full_name", "phone"],
       displayField: "full_name",
       validation: { required: "انتخاب اپراتور الزامی است" },
@@ -107,7 +99,7 @@ export const REGISTER_CALL_FROM_LISTING_FORM = {
       type: "search_select",
       required: true,
       placeholder: "جستجوی مشتری...",
-      asyncSource: "/api/customers/",
+      asyncSource: API_ENDPOINTS.CUSTOMERS.LIST.url,
       searchFields: ["full_name", "phone"],
       displayField: "full_name",
       validation: { required: "انتخاب مشتری الزامی است" },
@@ -213,7 +205,8 @@ export const LISTING_FORM = {
       fields: [
         { key: "title", label: "عنوان", type: "text", required: true, span: 12 },
         { key: "external_id", label: "شناسه خارجی", type: "text", required: false, span: 6 },
-        { key: "source", label: "منبع", type: "select", required: true, options: [], asyncSource: "/api/listing/sources/", span: 6 },
+        // NOTE: No backend endpoint for listing sources exists yet (Source model has no list view)
+        { key: "source", label: "منبع", type: "select", required: true, options: [], span: 6 },
         { key: "url", label: "لینک منبع", type: "url", required: false, span: 12 },
         { key: "deal_type", label: "نوع معامله", type: "select", required: true, options: [
           { value: "sale", label: "فروش" },

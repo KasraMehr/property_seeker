@@ -10,8 +10,8 @@ export default function LoginPage() {
     // Set background photo
     <div 
       className="min-h-screen flex items-center justify-center p-4 bg-cover bg-center
-        bg-[url('/images/bg-loginpage-mob.png')] 
-        md:bg-[url('/images/login-bg.png')]"
+        bg-[url('/images/bg-loginpage-mob.webp')] 
+        md:bg-[url('/images/login-bg.webp')]"
     >
       <LoginCard />
     </div>

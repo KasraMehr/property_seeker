@@ -5,7 +5,6 @@
  * [PEND] = backend model exists, views/serializers/urls pending
  * [MOCK] = proposed for MVP, backend not started yet
  *
- * - All updates use PUT (backend does not support PATCH)
  * - Django trailing slashes: LOCATIONS have them, PROPERTIES do NOT, OWNERS mixed
  * - Listing = Lead (same entity, backend app name: "listing")
  */
@@ -292,7 +291,7 @@ export const API_ENDPOINTS = {
   OWNERS: {
     LIST: { url: `${API_BASE}/owner/list/`, method: "GET", status: "[OK]" },
     DETAIL: (id) => ({
-      url: `${API_BASE}/owner/detail/${id}`,
+      url: `${API_BASE}/owner/detail/${id}/`,
       method: "GET",
       status: "[OK]",
     }),
@@ -302,12 +301,17 @@ export const API_ENDPOINTS = {
       status: "[OK]",
     },
     UPDATE: (id) => ({
-      url: `${API_BASE}/owner/update/${id}`,
+      url: `${API_BASE}/owner/update/${id}/`,
       method: "PUT",
       status: "[OK]",
     }),
+    BULK_DELETE: {
+      url: `${API_BASE}/owner/bulk-delete/`,
+      method: "DELETE",
+      status: "[OK]",
+    },
     DELETE: (id) => ({
-      url: `${API_BASE}/owner/delete/${id}`,
+      url: `${API_BASE}/owner/bulk-delete/`,
       method: "DELETE",
       status: "[OK]",
     }),
@@ -389,7 +393,7 @@ export const API_ENDPOINTS = {
       UPDATE: (id) => ({
         url: `${API_BASE}/calls/${id}/`,
         method: "PATCH",
-        status: "[PEND]", 
+        status: "[OK]",
       }),
       BULK_DELETE: {
         url: `${API_BASE}/calls/delete/`,
@@ -420,11 +424,11 @@ export const API_ENDPOINTS = {
         method: "PUT",
         status: "[OK]",
       }),
-      DELETE: (id) => ({
-        url: `${API_BASE}/reminders/delete/${id}/`,
+      BULK_DELETE: {
+        url: `${API_BASE}/reminders/delete/`,
         method: "DELETE",
         status: "[OK]",
-      }),
+      },
     },
   },
 
@@ -442,8 +446,13 @@ export const API_ENDPOINTS = {
       method: "PUT",
       status: "[OK]",
     }),
+    BULK_DELETE: {
+      url: `${API_BASE}/customer/delete`,
+      method: "DELETE",
+      status: "[OK]",
+    },
     DELETE: (id) => ({
-      url: `${API_BASE}/customers/${id}/`,
+      url: `${API_BASE}/customer/delete`,
       method: "DELETE",
       status: "[OK]",
     }),
@@ -464,6 +473,16 @@ export const API_ENDPOINTS = {
       method: "GET",
       status: "[OK]",
     }),
+    UPDATE: (id) => ({
+      url: `${API_BASE}/customer-preferences/${id}/`,
+      method: "PATCH",
+      status: "[OK]",
+    }),
+    BULK_DELETE: {
+      url: `${API_BASE}/customer-preferences/delete/`,
+      method: "DELETE",
+      status: "[OK]",
+    },
   },
 
   // 9. VISITS (PropertyVisit)
@@ -550,8 +569,10 @@ export const API_ENDPOINTS = {
       method: "PUT",
       status: "[OK]",
     }),
+    // No single-feature delete endpoint in backend.
+    // Backend only supports: DELETE /api/feature/bulk-delete/ with { ids: [...] }
     DELETE: (id) => ({
-      url: `${API_BASE}/features/delete/${id}/`,
+      url: `${API_BASE}/feature/bulk-delete/`,
       method: "DELETE",
       status: "[OK]",
     }),
@@ -577,8 +598,10 @@ export const API_ENDPOINTS = {
       method: "PUT",
       status: "[OK]",
     }),
+    // No single property-feature delete endpoint in backend.
+    // Backend only supports: DELETE /api/property-features/bulk-delete/ with { ids: [...] }
     DELETE: (id) => ({
-      url: `${API_BASE}/property-features/delete/${id}/`,
+      url: `${API_BASE}/property-features/bulk-delete/`,
       method: "DELETE",
       status: "[OK]",
     }),
@@ -618,48 +641,48 @@ export const API_ENDPOINTS = {
   ADMIN: {
     DASHBOARD: {
       STATS: {
-        url: `${API_BASE}/admin/dashboard/stats/`,
+        url: `${API_BASE}/dashboard/`,
         method: "GET",
-        status: "[MOCK]",
+        status: "[OK]",
       },
       OPERATOR_STATS: {
-        url: `${API_BASE}/admin/dashboard/operator/`,
+        url: `${API_BASE}/statistics/`,
         method: "GET",
-        status: "[MOCK]",
+        status: "[OK]",
       },
     },
     SCRAPER: {
       STATUS: {
-        url: `${API_BASE}/admin/scraper/status/`,
+        url: `${API_BASE}/ingestion/targets/`,
         method: "GET",
-        status: "[MOCK]",
+        status: "[OK]",
       },
       LOGS: {
-        url: `${API_BASE}/admin/scraper/logs/`,
+        url: `${API_BASE}/ingestion/runs/`,
         method: "GET",
-        status: "[MOCK]",
+        status: "[OK]",
       },
       SOURCES: {
-        url: `${API_BASE}/admin/scraper/sources/`,
+        url: `${API_BASE}/ingestion/targets/`,
         method: "GET",
-        status: "[MOCK]",
+        status: "[OK]",
       },
     },
     REPORTS: {
       DAILY: {
-        url: `${API_BASE}/admin/reports/daily/`,
+        url: `${API_BASE}/report/properties/`,
         method: "GET",
-        status: "[MOCK]",
+        status: "[OK]",
       },
       WEEKLY: {
-        url: `${API_BASE}/admin/reports/weekly/`,
+        url: `${API_BASE}/charts/monthly-deals/`,
         method: "GET",
-        status: "[MOCK]",
+        status: "[OK]",
       },
       MONTHLY: {
-        url: `${API_BASE}/admin/reports/monthly/`,
+        url: `${API_BASE}/statistics/`,
         method: "GET",
-        status: "[MOCK]",
+        status: "[OK]",
       },
     },
   },
@@ -702,59 +725,54 @@ export const API_ENDPOINTS = {
       LIST: {
         url: `${API_BASE}/ingestion/targets/`,
         method: "GET",
-        status: "[PEND]",
+        status: "[OK]",
       },
       DETAIL: (id) => ({
         url: `${API_BASE}/ingestion/targets/${id}/`,
         method: "GET",
-        status: "[PEND]",
+        status: "[OK]",
       }),
       CREATE: {
         url: `${API_BASE}/ingestion/targets/`,
         method: "POST",
-        status: "[PEND]",
+        status: "[OK]",
       },
       UPDATE: (id) => ({
         url: `${API_BASE}/ingestion/targets/${id}/`,
         method: "PATCH",
-        status: "[PEND]",
+        status: "[OK]",
       }),
       DELETE: (id) => ({
         url: `${API_BASE}/ingestion/targets/${id}/`,
         method: "DELETE",
-        status: "[PEND]",
+        status: "[OK]",
       }),
       TRIGGER_RUN: (id) => ({
         url: `${API_BASE}/ingestion/targets/${id}/trigger/`,
         method: "POST",
-        status: "[PEND]",
+        status: "[OK]",
       }),
     },
     RUNS: {
       LIST: {
         url: `${API_BASE}/ingestion/runs/`,
         method: "GET",
-        status: "[PEND]",
+        status: "[OK]",
       },
       DETAIL: (id) => ({
         url: `${API_BASE}/ingestion/runs/${id}/`,
         method: "GET",
-        status: "[PEND]",
+        status: "[OK]",
       }),
-      CREATE: {
-        url: `${API_BASE}/ingestion/runs/`,
-        method: "POST",
-        status: "[PEND]",
-      },
       ITEMS: (id) => ({
         url: `${API_BASE}/ingestion/runs/${id}/items/`,
         method: "GET",
-        status: "[PEND]",
+        status: "[OK]",
       }),
       RESUME: (id) => ({
         url: `${API_BASE}/ingestion/runs/${id}/resume/`,
         method: "POST",
-        status: "[PEND]",
+        status: "[OK]",
       }),
     },
     SNAPSHOTS: {

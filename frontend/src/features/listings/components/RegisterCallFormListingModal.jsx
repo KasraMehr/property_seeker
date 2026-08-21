@@ -5,6 +5,8 @@ import { REGISTER_CALL_FROM_LISTING_FORM } from "@/features/listings/config";
 import callService from "@/features/calls/services/callService";
 import api from "@/lib/api";
 import { API_ENDPOINTS } from "@/constants/apiEndpoints";
+import useAuthStore from "@/store/useAuthStore";
+import { toastService } from "@/lib/toast";
 
 export default function RegisterCallFromListingModal({
   isOpen,
@@ -13,13 +15,14 @@ export default function RegisterCallFromListingModal({
   onSuccess,
 }) {
   const [loading, setLoading] = useState(false);
+  const user = useAuthStore((s) => s.user);
 
   const initialValues = useMemo(
     () => ({
       call_type: "outgoing",
       call_duration: 0,
       follow_up_done: false,
-      called_at: new Date().toISOString().slice(0, 16), 
+      called_at: new Date().toISOString().slice(0, 16),
       note: "",
     }),
     [listing?.id, isOpen],
@@ -32,7 +35,7 @@ export default function RegisterCallFromListingModal({
 
       if (hasFile) {
         const fd = new FormData();
-        fd.append("customer", data.customer);
+        fd.append("customer", String(Number(data.customer)));
         fd.append("listing", String(listing.id));
         fd.append("call_type", data.call_type);
         fd.append("result", data.result);
@@ -51,6 +54,9 @@ export default function RegisterCallFromListingModal({
           );
         }
         fd.append("follow_up_done", data.follow_up_done ? "true" : "false");
+        if (user?.id != null) {
+          fd.append("handled_by", String(user.id));
+        }
         fd.append("record_file", data.record_file);
 
         await api.post(API_ENDPOINTS.CRM.CALLS.CREATE.url, fd, {
@@ -58,9 +64,9 @@ export default function RegisterCallFromListingModal({
         });
       } else {
         await callService.create({
-          customer: data.customer,
+          customer: Number(data.customer),
           listing: listing.id,
-          call_type: data.call_type, // incoming | outgoing
+          call_type: data.call_type,
           result: data.result,
           note: data.note || "",
           call_duration: Number(data.call_duration) || 0,
@@ -71,23 +77,24 @@ export default function RegisterCallFromListingModal({
             ? new Date(data.next_follow_up_at).toISOString()
             : null,
           follow_up_done: Boolean(data.follow_up_done),
+          handled_by: user?.id,
         });
       }
 
+      toastService.success("تماس با موفقیت ثبت شد.");
+
       onSuccess?.();
       onClose();
+    } catch (error) {
+      console.error(error);
+      toastService.error("خطا در ثبت تماس.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      size="xl"
-      title="ثبت تماس از آگهی"
-    >
+    <Modal isOpen={isOpen} onClose={onClose} size="xl" title="ثبت تماس از آگهی">
       {listing && (
         <p className="text-sm text-muted mb-3 truncate">
           آگهی: <strong>{listing.title}</strong>
@@ -97,7 +104,7 @@ export default function RegisterCallFromListingModal({
 
       <FormRenderer
         config={REGISTER_CALL_FROM_LISTING_FORM}
-        initialValues={initialValues}
+        defaultValues={initialValues}
         onSubmit={handleSubmit}
         onCancel={onClose}
         loading={loading}

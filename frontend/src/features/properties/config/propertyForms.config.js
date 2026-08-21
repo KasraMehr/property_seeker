@@ -1,3 +1,5 @@
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
+
 /**
  * Create/Edit Property Form
  * Multi-tab: basic, location, specs, price, owner_agent
@@ -80,7 +82,7 @@ export const PROPERTY_FORM = {
           type: "search_select",
           required: true,
           placeholder: "انتخاب مالک...",
-          asyncSource: "/api/properties/owners/",
+          asyncSource: API_ENDPOINTS.OWNERS.LIST.url,
           searchFields: ["full_name", "phone"],
           displayField: "full_name",
           span: 6,
@@ -91,7 +93,7 @@ export const PROPERTY_FORM = {
           type: "search_select",
           required: false,
           placeholder: "انتخاب مشاور...",
-          asyncSource: "/api/accounts/users/",
+          asyncSource: API_ENDPOINTS.ACCOUNTS.USERS.LIST.url,
           searchFields: ["full_name", "phone"],
           displayField: "full_name",
           span: 6,
@@ -119,7 +121,7 @@ export const PROPERTY_FORM = {
           type: "search_select",
           required: false,
           placeholder: "انتخاب آدرس...",
-          asyncSource: "/api/addresses/",
+          asyncSource: API_ENDPOINTS.LOCATIONS.ADDRESSES.LIST.url,
           displayField: "full_text",
           span: 12,
         },
@@ -204,7 +206,9 @@ export const PROPERTY_FORM = {
         {
           key: "orientation",
           label: "جهت",
-          type: "multi_select",
+          // NOTE: backend orientation is CharField (single string), not array.
+          // Changed from multi_select → select to match backend contract.
+          type: "select",
           required: false,
           placeholder: "انتخاب جهت",
           options: [
@@ -302,392 +306,110 @@ export const PROPERTY_FORM = {
 
 /**
  * Change Property Status Form
+ * DISABLED: No backend endpoint for bulk status change exists.
+ * Re-enable when backend implements: PUT /api/property/bulk-change-status/
  */
-export const CHANGE_PROPERTY_STATUS_FORM = {
-  title: "تغییر وضعیت ملک",
-  description: "وضعیت ملک(های) انتخاب‌شده را تغییر دهید",
-  tabs: null,
-  fields: [
-    {
-      key: "status",
-      label: "وضعیت جدید",
-      type: "select",
-      required: true,
-      placeholder: "انتخاب وضعیت",
-      options: [
-        { value: "available", label: "در دسترس" },
-        { value: "reserved", label: "رزرو شده" },
-        { value: "sold", label: "فروخته شده" },
-        { value: "rented", label: "اجاره داده شده" },
-        { value: "archived", label: "آرشیو" },
-      ],
-      validation: { required: "وضعیت الزامی است" },
-      span: 12,
-    },
-    {
-      key: "note",
-      label: "یادداشت (اختیاری)",
-      type: "textarea",
-      required: false,
-      placeholder: "دلیل تغییر وضعیت...",
-      rows: 3,
-      span: 12,
-    },
-  ],
-  actions: {
-    submit: { label: "ذخیره", variant: "primary" },
-    cancel: { label: "انصراف", variant: "ghost" },
-  },
-};
+// export const CHANGE_PROPERTY_STATUS_FORM = { ... };
 
 /**
  * Assign Agent Form
+ * DISABLED: No backend endpoint for bulk agent assignment exists.
+ * Re-enable when backend implements: PUT /api/property/bulk-assign-agent/
  */
-export const ASSIGN_AGENT_FORM = {
-  title: "تخصیص مشاور",
-  description: "مشاور املاک را برای ملک(های) انتخاب‌شده تعیین کنید",
-  tabs: null,
-  fields: [
-    {
-      key: "agent",
-      label: "مشاور",
-      type: "search_select",
-      required: true,
-      placeholder: "جستجوی مشاور...",
-      asyncSource: "/api/users/?is_active=true",
-      searchFields: ["full_name", "phone"],
-      displayField: "full_name",
-      validation: { required: "انتخاب مشاور الزامی است" },
-      span: 12,
-    },
-    {
-      key: "note",
-      label: "یادداشت",
-      type: "textarea",
-      required: false,
-      placeholder: "توضیحات...",
-      rows: 3,
-      span: 12,
-    },
-  ],
-  actions: {
-    submit: { label: "تخصیص", variant: "primary" },
-    cancel: { label: "انصراف", variant: "ghost" },
-  },
-};
+// export const ASSIGN_AGENT_FORM = { ... };
 
 /**
- * Promote Listing → Property Form
- * Multi-tab: listing info (read-only), property data, owner, price
- * Auto-fills from listing data
+ * Promote Listing → Property
+ * Backend: POST /api/listing/<id>/promote/
+ * ListingPromotionSerializer fields only:
+ *   owner (required), deal_type (required),
+ *   area, title, address, property_type, floor, total_floors (optional)
+ * area is required by backend when listing has no listed_area.
  */
 export const PROMOTE_LISTING_FORM = {
   title: "تبدیل آگهی به ملک",
   description:
-    "آگهی انتخاب‌شده به پرونده ملک تبدیل می‌شود — اطلاعات قابل ویرایش هستند",
-  tabs: [
-    {
-      key: "listing_info",
-      label: "اطلاعات آگهی",
-      icon: "FileText",
-      fields: [
-        {
-          key: "listing_title",
-          label: "عنوان آگهی",
-          type: "text",
-          required: false,
-          autoFill: { source: "listing", field: "title", readOnly: true },
-          span: 12,
-        },
-        {
-          key: "listing_source",
-          label: "منبع",
-          type: "text",
-          required: false,
-          autoFill: { source: "listing", field: "source", readOnly: true },
-          span: 6,
-        },
-        {
-          key: "listing_url",
-          label: "لینک منبع",
-          type: "link",
-          required: false,
-          autoFill: { source: "listing", field: "url", readOnly: true },
-          span: 6,
-        },
-        {
-          key: "listing_deal_type",
-          label: "نوع معامله آگهی",
-          type: "text",
-          required: false,
-          autoFill: { source: "listing", field: "deal_type", readOnly: true },
-          span: 6,
-        },
-        {
-          key: "listing_price",
-          label: "قیمت آگهی",
-          type: "price",
-          required: false,
-          autoFill: { source: "listing", field: "price", readOnly: true },
-          span: 6,
-        },
-        {
-          key: "listing_area",
-          label: "متراژ آگهی",
-          type: "number",
-          required: false,
-          autoFill: { source: "listing", field: "area", readOnly: true },
-          span: 6,
-        },
-        {
-          key: "listing_age",
-          label: "سال ساخت آگهی",
-          type: "number",
-          required: false,
-          autoFill: { source: "listing", field: "age", readOnly: true },
-          span: 6,
-        },
-        {
-          key: "listing_bedrooms",
-          label: "تعداد اتاق آگهی",
-          type: "number",
-          required: false,
-          autoFill: { source: "listing", field: "bedrooms", readOnly: true },
-          span: 6,
-        },
-        {
-          key: "listing_description",
-          label: "توضیحات آگهی",
-          type: "textarea",
-          required: false,
-          autoFill: { source: "listing", field: "description", readOnly: true },
-          rows: 4,
-          span: 12,
-        },
-      ],
-    },
-    {
-      key: "property_data",
-      label: "اطلاعات ملک نهایی",
-      icon: "Home",
-      fields: [
-        {
-          key: "property_code",
-          label: "کد ملک",
-          type: "text",
-          required: true,
-          placeholder: "مثلاً PR-1403-001",
-          validation: { required: "کد ملک الزامی است" },
-          span: 6,
-        },
-        {
-          key: "title",
-          label: "عنوان ملک",
-          type: "text",
-          required: true,
-          placeholder: "عنوان نهایی ملک",
-          autoFill: { source: "listing", field: "title", readOnly: false },
-          validation: { required: "عنوان ملک الزامی است" },
-          span: 6,
-        },
-        {
-          key: "deal_type",
-          label: "نوع معامله",
-          type: "select",
-          required: true,
-          options: [
-            { value: "sale", label: "فروش" },
-            { value: "rent", label: "اجاره" },
-            { value: "presale", label: "پیش‌فروش" },
-          ],
-          autoFill: { source: "listing", field: "deal_type", readOnly: false },
-          validation: { required: "نوع معامله الزامی است" },
-          span: 6,
-        },
-        {
-          key: "status",
-          label: "وضعیت",
-          type: "select",
-          required: true,
-          options: [
-            { value: "available", label: "در دسترس" },
-            { value: "reserved", label: "رزرو شده" },
-          ],
-          defaultValue: "available",
-          validation: { required: "وضعیت الزامی است" },
-          span: 6,
-        },
-        {
-          key: "price",
-          label: "قیمت نهایی (تومان)",
-          type: "price",
-          required: false,
-          placeholder: "قیمت نهایی توافق‌شده",
-          autoFill: { source: "listing", field: "price", readOnly: false },
-          span: 6,
-        },
-        {
-          key: "area",
-          label: "متراژ نهایی",
-          type: "number",
-          required: false,
-          autoFill: { source: "listing", field: "area", readOnly: false },
-          span: 6,
-        },
-        {
-          key: "age",
-          label: "سال ساخت",
-          type: "number",
-          required: false,
-          autoFill: { source: "listing", field: "age", readOnly: false },
-          span: 6,
-        },
-        {
-          key: "bedrooms",
-          label: "تعداد اتاق",
-          type: "number",
-          required: false,
-          autoFill: { source: "listing", field: "bedrooms", readOnly: false },
-          span: 6,
-        },
-        {
-          key: "floor",
-          label: "شماره طبقه",
-          type: "number",
-          required: false,
-          autoFill: { source: "listing", field: "floor", readOnly: false },
-          span: 6,
-        },
-        {
-          key: "total_floors",
-          label: "تعداد طبقات",
-          type: "number",
-          required: false,
-          autoFill: {
-            source: "listing",
-            field: "total_floors",
-            readOnly: false,
-          },
-          span: 6,
-        },
-        {
-          key: "description",
-          label: "توضیحات",
-          type: "textarea",
-          required: false,
-          autoFill: {
-            source: "listing",
-            field: "description",
-            readOnly: false,
-          },
-          rows: 4,
-          span: 12,
-        },
-      ],
-    },
+    "آگهی انتخاب‌شده به پرونده ملک تبدیل می‌شود — فقط فیلدهای پشتیبانی‌شده توسط سرور",
+  tabs: null,
+  fields: [
     {
       key: "owner",
       label: "مالک",
-      icon: "User",
-      fields: [
-        {
-          key: "owner",
-          label: "مالک",
-          type: "search_select",
-          required: false,
-          placeholder: "جستجوی مالک...",
-          asyncSource: "/api/customers/",
-          searchFields: ["full_name", "phone", "national_id"],
-          displayField: "full_name",
-          autoFill: {
-            source: "listing",
-            field: "owner_snapshot",
-            readOnly: false,
-          },
-          span: 12,
-        },
-        {
-          key: "create_new_owner",
-          label: "مالک جدید ثبت کنم",
-          type: "checkbox",
-          required: false,
-          defaultValue: false,
-          span: 12,
-        },
-      ],
+      type: "search_select",
+      required: true,
+      placeholder: "جستجوی مالک...",
+      asyncSource: API_ENDPOINTS.OWNERS.LIST.url,
+      searchFields: ["full_name", "phone"],
+      displayField: "full_name",
+      validation: { required: "انتخاب مالک الزامی است" },
+      span: 12,
     },
     {
-      key: "location",
-      label: "آدرس",
-      icon: "MapPin",
-      fields: [
-        {
-          key: "province",
-          label: "استان",
-          type: "search_select",
-          required: true,
-          placeholder: "انتخاب استان",
-          asyncSource: "/api/province/list/",
-          displayField: "name",
-          validation: { required: "استان الزامی است" },
-          span: 6,
-        },
-        {
-          key: "city",
-          label: "شهر",
-          type: "search_select",
-          required: true,
-          placeholder: "انتخاب شهر",
-          dependsOn: "province",
-          asyncSource: "/api/city/list/",
-          displayField: "name",
-          validation: { required: "شهر الزامی است" },
-          span: 6,
-        },
-        {
-          key: "district",
-          label: "منطقه",
-          type: "search_select",
-          required: false,
-          placeholder: "انتخاب منطقه",
-          dependsOn: "city",
-          asyncSource: "/api/district/",
-          displayField: "name",
-          span: 6,
-        },
-        {
-          key: "neighborhood",
-          label: "محله",
-          type: "search_select",
-          required: false,
-          placeholder: "انتخاب محله",
-          dependsOn: "district",
-          asyncSource: "/api/neighborhoods/",
-          displayField: "name",
-          span: 6,
-        },
-        {
-          key: "street",
-          label: "خیابان",
-          type: "text",
-          required: false,
-          span: 6,
-        },
-        {
-          key: "alley",
-          label: "کوچه",
-          type: "text",
-          required: false,
-          span: 6,
-        },
-        {
-          key: "plaque",
-          label: "پلاک",
-          type: "text",
-          required: false,
-          span: 6,
-        },
+      key: "deal_type",
+      label: "نوع معامله",
+      type: "select",
+      required: true,
+      placeholder: "انتخاب نوع معامله",
+      options: [
+        { value: "sale", label: "فروش" },
+        { value: "rent", label: "اجاره" },
+        { value: "presale", label: "پیش‌فروش" },
       ],
+      validation: { required: "نوع معامله الزامی است" },
+      span: 6,
+    },
+    {
+      key: "title",
+      label: "عنوان",
+      type: "text",
+      required: false,
+      placeholder: "عنوان ملک (اختیاری)",
+      autoFill: { source: "listing", field: "title", readOnly: false },
+      span: 6,
+    },
+    {
+      key: "area",
+      label: "متراژ",
+      type: "number",
+      required: false,
+      placeholder: "متر مربع",
+      autoFill: { source: "listing", field: "listed_area", readOnly: false },
+      span: 6,
+    },
+    {
+      key: "address",
+      label: "آدرس",
+      type: "search_select",
+      required: false,
+      placeholder: "انتخاب آدرس...",
+      asyncSource: API_ENDPOINTS.LOCATIONS.ADDRESSES.LIST.url,
+      searchFields: ["name", "full_address"],
+      displayField: "name",
+      span: 6,
+    },
+    {
+      key: "property_type",
+      label: "نوع ملک",
+      type: "text",
+      required: false,
+      placeholder: "مثلاً آپارتمان",
+      span: 6,
+    },
+    {
+      key: "floor",
+      label: "طبقه",
+      type: "number",
+      required: false,
+      autoFill: { source: "listing", field: "floor_number", readOnly: false },
+      span: 6,
+    },
+    {
+      key: "total_floors",
+      label: "تعداد کل طبقات",
+      type: "number",
+      required: false,
+      autoFill: { source: "listing", field: "total_floors", readOnly: false },
+      span: 6,
     },
   ],
   actions: {

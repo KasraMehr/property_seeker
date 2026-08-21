@@ -209,8 +209,9 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
 
         case "multiselect":
         case "multi_select":
-          if (Array.isArray(value) && value.length > 0)
-            params[field.key] = value;
+          if (Array.isArray(value) && value.length > 0) {
+            params[field.key] = value.join(",");
+          }
           break;
 
         case "range":
@@ -223,8 +224,12 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
           break;
 
         case "date_range":
-          if (value.from) params[`${field.key}_from`] = value.from;
-          if (value.to) params[`${field.key}_to`] = value.to;
+          if (value?.from || value?.to) {
+            const fromKey = field.from_key || `${field.key}_from`;
+            const toKey = field.to_key || `${field.key}_to`;
+            if (value.from) params[fromKey] = value.from;
+            if (value.to) params[toKey] = value.to;
+          }
           break;
 
         case "toggle":

@@ -56,7 +56,7 @@ export default function Benefits() {
             {/* Background Image */}
             <div className="absolute inset-0 z-0">
               <img
-                src="/images/hand-shaking-bg.jpg" 
+                src="/images/hand-shaking-bg.webp" 
                 alt=""
                 className="w-full h-full object-cover"
               />

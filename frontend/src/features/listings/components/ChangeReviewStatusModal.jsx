@@ -4,15 +4,25 @@ import FormRenderer from "@/shared/page/FormRenderer";
 import { CHANGE_REVIEW_STATUS_FORM } from "@/features/listings/config";
 import listingService from "@/features/listings/services/listingService";
 
-export default function ChangeReviewStatusModal({ isOpen, onClose, listings = [], onSuccess }) {
+export default function ChangeReviewStatusModal({
+  isOpen,
+  onClose,
+  listings = [],
+  onSuccess,
+}) {
   const [loading, setLoading] = useState(false);
   const isBulk = listings.length > 1;
 
   const handleSubmit = async (data) => {
     setLoading(true);
     try {
-      const ids = listings.map((l) => l.id);
-      await listingService.bulkChangeReviewStatus(ids, data.review_status, data.note);
+      const review_status = data.review_status;
+      if (isBulk) {
+        const listing_ids = listings.map((l) => l.id);
+        await listingService.bulkReview(listing_ids, review_status);
+      } else if (listings[0]?.id != null) {
+        await listingService.review(listings[0].id, review_status);
+      }
       onSuccess?.();
       onClose();
     } finally {
@@ -21,7 +31,14 @@ export default function ChangeReviewStatusModal({ isOpen, onClose, listings = []
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="sm" title={isBulk ? `تغییر وضعیت بررسی (${listings.length})` : "تغییر وضعیت بررسی"}>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      size="sm"
+      title={
+        isBulk ? `تغییر وضعیت بررسی (${listings.length})` : "تغییر وضعیت بررسی"
+      }
+    >
       <FormRenderer
         config={CHANGE_REVIEW_STATUS_FORM}
         onSubmit={handleSubmit}

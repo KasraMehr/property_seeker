@@ -19,7 +19,7 @@ urlpatterns = [
         name="media-detail",
     ),
     path(
-        "medai/update/<int:pk>/",
+        "media/update/<int:pk>/",
         MediaUpdateView.as_view(),
         name="media-update",
     ),

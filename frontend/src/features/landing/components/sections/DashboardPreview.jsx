@@ -40,7 +40,7 @@ export default function DashboardPreview() {
             shadow-2xl shadow-primary/10
           ">
             <img
-              src="/images/preview2.png"
+              src="/images/preview2.webp"
               alt="Dashboard preview"
               className="w-full object-cover"
             />
