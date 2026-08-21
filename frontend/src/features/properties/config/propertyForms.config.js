@@ -1,3 +1,5 @@
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
+
 /**
  * Create/Edit Property Form
  * Multi-tab: basic, location, specs, price, owner_agent
@@ -80,7 +82,7 @@ export const PROPERTY_FORM = {
           type: "search_select",
           required: true,
           placeholder: "انتخاب مالک...",
-          asyncSource: "/api/owner/list",
+          asyncSource: API_ENDPOINTS.OWNERS.LIST.url,
           searchFields: ["full_name", "phone"],
           displayField: "full_name",
           span: 6,
@@ -91,7 +93,7 @@ export const PROPERTY_FORM = {
           type: "search_select",
           required: false,
           placeholder: "انتخاب مشاور...",
-          asyncSource: "/api/accounts/users/",
+          asyncSource: API_ENDPOINTS.ACCOUNTS.USERS.LIST.url,
           searchFields: ["full_name", "phone"],
           displayField: "full_name",
           span: 6,
@@ -119,7 +121,7 @@ export const PROPERTY_FORM = {
           type: "search_select",
           required: false,
           placeholder: "انتخاب آدرس...",
-          asyncSource: "/api/addresses/",
+          asyncSource: API_ENDPOINTS.LOCATIONS.ADDRESSES.LIST.url,
           displayField: "full_text",
           span: 12,
         },
@@ -336,7 +338,7 @@ export const PROMOTE_LISTING_FORM = {
       type: "search_select",
       required: true,
       placeholder: "جستجوی مالک...",
-      asyncSource: "/api/owner/list/",
+      asyncSource: API_ENDPOINTS.OWNERS.LIST.url,
       searchFields: ["full_name", "phone"],
       displayField: "full_name",
       validation: { required: "انتخاب مالک الزامی است" },
@@ -380,7 +382,7 @@ export const PROMOTE_LISTING_FORM = {
       type: "search_select",
       required: false,
       placeholder: "انتخاب آدرس...",
-      asyncSource: "/api/address/list/",
+      asyncSource: API_ENDPOINTS.LOCATIONS.ADDRESSES.LIST.url,
       searchFields: ["name", "full_address"],
       displayField: "name",
       span: 6,

@@ -1,3 +1,4 @@
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 
 /**
  * Create/Edit User Form
@@ -83,7 +84,7 @@ export const USER_FORM = {
           type: "search_select",
           required: true,
           placeholder: "انتخاب نقش",
-          asyncSource: "/api/accounts/roles/",
+          asyncSource: API_ENDPOINTS.ACCOUNTS.ROLES.LIST.url,
           searchFields: ["name"],
           displayField: "name",
           validation: { required: "انتخاب نقش الزامی است" },
@@ -114,7 +115,7 @@ export const USER_FORM = {
           type: "multi_select",
           required: false,
           placeholder: "",
-          asyncSource: "/api/district/",
+          asyncSource: API_ENDPOINTS.LOCATIONS.DISTRICTS.LIST.url,
           searchFields: ["name"],
           displayField: "name",
           span: 12,
@@ -125,7 +126,7 @@ export const USER_FORM = {
           type: "multi_select",
           required: false,
           placeholder: "",
-          asyncSource: "/api/neighborhoods/",
+          asyncSource: API_ENDPOINTS.LOCATIONS.NEIGHBORHOODS.LIST.url,
           searchFields: ["name"],
           displayField: "name",
           dependsOn: "service_districts",
@@ -154,7 +155,7 @@ export const CHANGE_USER_ROLE_FORM = {
       type: "search_select",
       required: true,
       placeholder: "انتخاب نقش",
-      asyncSource: "/api/accounts/roles/",
+      asyncSource: API_ENDPOINTS.ACCOUNTS.ROLES.LIST.url,
       searchFields: ["name"],
       displayField: "name",
       validation: { required: "انتخاب نقش الزامی است" },

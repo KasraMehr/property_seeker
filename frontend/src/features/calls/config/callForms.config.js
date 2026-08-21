@@ -1,3 +1,5 @@
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
+
 export const CALL_FORM = {
   title: "تماس",
   tabs: [
@@ -12,7 +14,7 @@ export const CALL_FORM = {
           type: "search_select",
           required: true,
           placeholder: "جستجوی مشتری...",
-          asyncSource: "/api/customers/",
+          asyncSource: API_ENDPOINTS.CUSTOMERS.LIST.url,
           searchFields: ["full_name", "phone"],
           displayField: "full_name",
           validation: { required: "انتخاب مشتری الزامی است" },
@@ -47,7 +49,7 @@ export const CALL_FORM = {
           type: "search_select",
           required: false,
           placeholder: "جستجوی آگهی...",
-          asyncSource: "/api/listing/list",
+          asyncSource: API_ENDPOINTS.LISTINGS.LIST.url,
           searchFields: ["title", "external_id"],
           displayField: "title",
           span: 6,
@@ -58,7 +60,7 @@ export const CALL_FORM = {
           type: "search_select",
           required: false,
           placeholder: "جستجوی ملک...",
-          asyncSource: "/api/property/list",
+          asyncSource: API_ENDPOINTS.PROPERTIES.LIST.url,
           searchFields: ["title", "property_code"],
           displayField: "title",
           span: 6,
@@ -144,6 +146,81 @@ export const CALL_FORM = {
   ],
   actions: {
     submit: { label: "ذخیره تماس", variant: "primary" },
+    cancel: { label: "انصراف", variant: "ghost" },
+  },
+};
+
+/**
+ * Quick Call Form — lightweight version for QuickCallModal.
+ * Listing/Property are injected by the modal as props, not selected in the form.
+ */
+export const QUICK_CALL_FORM = {
+  title: "ثبت تماس سریع",
+  tabs: null,
+  fields: [
+    {
+      key: "customer",
+      label: "مشتری",
+      type: "search_select",
+      required: true,
+      placeholder: "جستجوی مشتری...",
+      asyncSource: API_ENDPOINTS.CUSTOMERS.LIST.url,
+      searchFields: ["full_name", "phone"],
+      displayField: "full_name",
+      validation: { required: "انتخاب مشتری الزامی است" },
+      span: 12,
+    },
+    {
+      key: "call_type",
+      label: "نوع تماس",
+      type: "select",
+      required: true,
+      options: [
+        { value: "incoming", label: "ورودی" },
+        { value: "outgoing", label: "خروجی" },
+      ],
+      defaultValue: "outgoing",
+      validation: { required: "نوع تماس الزامی است" },
+      span: 6,
+    },
+    {
+      key: "called_at",
+      label: "زمان تماس",
+      type: "datetime",
+      required: true,
+      defaultValue: "now",
+      validation: { required: "زمان تماس الزامی است" },
+      span: 6,
+    },
+    {
+      key: "result",
+      label: "نتیجه تماس",
+      type: "select",
+      required: true,
+      options: [
+        { value: "answered", label: "پاسخ داده" },
+        { value: "no_answer", label: "بدون پاسخ" },
+        { value: "busy", label: "مشغول" },
+        { value: "interested", label: "علاقه‌مند" },
+        { value: "not_interested", label: "عدم علاقه" },
+        { value: "follow_up", label: "نیاز به پیگیری" },
+        { value: "visit_booked", label: "قرار بازدید" },
+      ],
+      validation: { required: "نتیجه تماس الزامی است" },
+      span: 12,
+    },
+    {
+      key: "note",
+      label: "یادداشت",
+      type: "textarea",
+      required: false,
+      placeholder: "جزئیات تماس...",
+      rows: 3,
+      span: 12,
+    },
+  ],
+  actions: {
+    submit: { label: "ثبت تماس", variant: "primary" },
     cancel: { label: "انصراف", variant: "ghost" },
   },
 };

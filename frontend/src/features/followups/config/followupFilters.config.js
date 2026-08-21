@@ -2,6 +2,7 @@ import {
   FOLLOWUP_STATUS_CONFIG,
   FOLLOWUP_TYPE_CONFIG,
 } from "@/features/followups/config";
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 
 /**
  * Reminder (Follow-up) Filters Config
@@ -46,7 +47,7 @@ export const FOLLOWUP_QUICK_FILTERS = [
     type: "search_select",
     placement: "bar",
     async: true,
-    endpoint: "/api/accounts/users/",
+    endpoint: API_ENDPOINTS.ACCOUNTS.USERS.LIST.url,
     search_fields: ["full_name", "phone"],
     optionLabel: "full_name",
     optionValue: "id",
@@ -68,7 +69,7 @@ export const FOLLOWUP_ADVANCED_FILTERS = [
     type: "search_select",
     placement: "drawer",
     async: true,
-    endpoint: "/api/customers/",
+    endpoint: API_ENDPOINTS.CUSTOMERS.LIST.url,
     search_fields: ["full_name", "phone", "national_id"],
     optionLabel: "full_name",
     optionValue: "id",
@@ -79,7 +80,7 @@ export const FOLLOWUP_ADVANCED_FILTERS = [
     type: "search_select",
     placement: "drawer",
     async: true,
-    endpoint: "/api/property/list/",
+    endpoint: API_ENDPOINTS.PROPERTIES.LIST.url,
     search_fields: ["title", "property_code"],
     optionLabel: "title",
     optionValue: "id",

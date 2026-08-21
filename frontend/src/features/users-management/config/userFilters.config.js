@@ -1,3 +1,5 @@
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
+
 /**
  * User / Agent / Owner Filters Config
  * Backend: accounts.User + properties.Owner
@@ -22,7 +24,7 @@ export const USER_QUICK_FILTERS = [
     placeholder: "نقش",
     placement: "bar",
     async: true,
-    endpoint: "/api/accounts/roles/",
+    endpoint: API_ENDPOINTS.ACCOUNTS.ROLES.LIST.url,
     optionLabel: "name",
     optionValue: "id",
     optionsKey: "roles",
@@ -47,7 +49,7 @@ export const USER_ADVANCED_FILTERS = [
     type: "search_select",
     placement: "drawer",
     async: true,
-    endpoint: "/api/neighborhoods/",
+    endpoint: API_ENDPOINTS.LOCATIONS.NEIGHBORHOODS.LIST.url,
     search_fields: ["name"],
     optionLabel: "name",
     optionValue: "id",
@@ -59,7 +61,7 @@ export const USER_ADVANCED_FILTERS = [
     type: "search_select",
     placement: "drawer",
     async: true,
-    endpoint: "/api/district/",
+    endpoint: API_ENDPOINTS.LOCATIONS.DISTRICTS.LIST.url,
     search_fields: ["name"],
     optionLabel: "name",
     optionValue: "id",
@@ -104,7 +106,7 @@ export const OWNER_QUICK_FILTERS = [
     type: "search_select",
     placement: "bar",
     async: true,
-    endpoint: "/api/accounts/agencies/",
+    endpoint: API_ENDPOINTS.ACCOUNTS.AGENCIES.LIST.url,
     search_fields: ["name"],
     optionLabel: "name",
     optionValue: "id",
@@ -139,7 +141,7 @@ export const OWNER_ADVANCED_FILTERS = [
     type: "search_select",
     placement: "drawer",
     async: true,
-    endpoint: "/api/accounts/users/",
+    endpoint: API_ENDPOINTS.ACCOUNTS.USERS.LIST.url,
     search_fields: ["full_name"],
     optionLabel: "full_name",
     optionValue: "id",

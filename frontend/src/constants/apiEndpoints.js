@@ -5,7 +5,6 @@
  * [PEND] = backend model exists, views/serializers/urls pending
  * [MOCK] = proposed for MVP, backend not started yet
  *
- * - All updates use PUT (backend does not support PATCH)
  * - Django trailing slashes: LOCATIONS have them, PROPERTIES do NOT, OWNERS mixed
  * - Listing = Lead (same entity, backend app name: "listing")
  */
@@ -425,11 +424,11 @@ export const API_ENDPOINTS = {
         method: "PUT",
         status: "[OK]",
       }),
-      DELETE: (id) => ({
+      BULK_DELETE: {
         url: `${API_BASE}/reminders/delete/`,
         method: "DELETE",
         status: "[OK]",
-      }),
+      },
     },
   },
 
@@ -474,6 +473,16 @@ export const API_ENDPOINTS = {
       method: "GET",
       status: "[OK]",
     }),
+    UPDATE: (id) => ({
+      url: `${API_BASE}/customer-preferences/${id}/`,
+      method: "PATCH",
+      status: "[OK]",
+    }),
+    BULK_DELETE: {
+      url: `${API_BASE}/customer-preferences/delete/`,
+      method: "DELETE",
+      status: "[OK]",
+    },
   },
 
   // 9. VISITS (PropertyVisit)
@@ -560,13 +569,12 @@ export const API_ENDPOINTS = {
       method: "PUT",
       status: "[OK]",
     }),
-    // NOTE: No single-feature delete endpoint exists in backend.
+    // No single-feature delete endpoint in backend.
     // Backend only supports: DELETE /api/feature/bulk-delete/ with { ids: [...] }
-    // Single delete disabled until backend adds support.
     DELETE: (id) => ({
       url: `${API_BASE}/feature/bulk-delete/`,
       method: "DELETE",
-      status: "[PEND]",
+      status: "[OK]",
     }),
   },
   PROPERTY_FEATURES: {
@@ -590,12 +598,12 @@ export const API_ENDPOINTS = {
       method: "PUT",
       status: "[OK]",
     }),
-    // NOTE: No single property-feature delete endpoint exists in backend.
+    // No single property-feature delete endpoint in backend.
     // Backend only supports: DELETE /api/property-features/bulk-delete/ with { ids: [...] }
     DELETE: (id) => ({
       url: `${API_BASE}/property-features/bulk-delete/`,
       method: "DELETE",
-      status: "[PEND]",
+      status: "[OK]",
     }),
   },
 
@@ -756,11 +764,6 @@ export const API_ENDPOINTS = {
         method: "GET",
         status: "[OK]",
       }),
-      CREATE: {
-        url: `${API_BASE}/ingestion/runs/`,
-        method: "POST",
-        status: "[OK]",
-      },
       ITEMS: (id) => ({
         url: `${API_BASE}/ingestion/runs/${id}/items/`,
         method: "GET",

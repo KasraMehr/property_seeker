@@ -1,3 +1,5 @@
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
+
 export const REGION_QUICK_FILTERS = [
   {
     key: "search",
@@ -13,7 +15,7 @@ export const REGION_QUICK_FILTERS = [
     type: "select",
     placement: "bar",
     async: true,
-    endpoint: "/api/province/list/",
+    endpoint: API_ENDPOINTS.LOCATIONS.PROVINCES.LIST.url,
     optionLabel: "name",
     optionValue: "id",
   },
@@ -23,7 +25,7 @@ export const REGION_QUICK_FILTERS = [
     type: "select",
     placement: "bar",
     async: true,
-    endpoint: "/api/city/list/",
+    endpoint: API_ENDPOINTS.LOCATIONS.CITIES.LIST.url,
     depends_on: "province",
     optionLabel: "name",
     optionValue: "id",
