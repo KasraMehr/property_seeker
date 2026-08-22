@@ -3,7 +3,7 @@ import useAuthStore from "@/store/useAuthStore";
 
 /**
  * address gate only for checking in frontend urls
- * if it's owner -> /admin/
+ * if it's owner -> /owner/
  * else -> /operator/ (any other roles)
  * 
  * can be generic later for /role/
@@ -22,7 +22,7 @@ export default function RoleRoute({ allow }) {
 
   // logged in user except owner
   if (allow === "operator" && isOwner) {
-    return <Navigate to="/admin/dashboard" replace state={{ from: location }} />;
+    return <Navigate to="/owner/dashboard" replace state={{ from: location }} />;
   }
 
   return <Outlet />;

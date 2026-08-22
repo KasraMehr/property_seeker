@@ -45,7 +45,7 @@ export default function AdminSettingPage() {
       variant="outline"
       size="sm"
       icon={ArrowLeft}
-      onClick={() => navigate("/admin/listings")}
+      onClick={() => navigate("/owner/listings")}
     >
       مشاهده همه لیدها
     </Button>
