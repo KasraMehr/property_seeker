@@ -78,6 +78,7 @@ export const LISTING_DETAIL_FIELDS = [
       { key: "id", label: "شناسه داخلی", format: (v) => `#${v}` },
       { key: "external_id", label: "شناسه خارجی (منبع)" },
       { key: "title", label: "عنوان آگهی", fullWidth: true },
+      { key: "contact_phone", label: "شماره تماس آگهی" },
       { key: "source", label: "منبع", type: "nested", nestedKey: "name" },
       { key: "url", label: "لینک منبع", type: "link", fullWidth: true },
     ],
@@ -231,4 +232,54 @@ export const LISTING_TARGET_COLUMNS = [
   },
   { key: "consecutive_full_absences", header: "غیبت‌های متوالی" },
   { key: "last_card_fingerprint", header: "Fingerprint", type: "mono" },
+];
+
+/* ─── Tab 4: Status History (listing.ListingStatusHistory) ─── */
+export const LISTING_STATUS_HISTORY_COLUMNS = [
+  { key: "old_status", header: "وضعیت قبلی", type: "status", configKey: "listingStatus" },
+  { key: "new_status", header: "وضعیت جدید", type: "status", configKey: "listingStatus" },
+  { key: "reason", header: "دلیل", type: "text" },
+  { key: "changed_by", header: "تغییردهنده", type: "user" },
+  { key: "created_at", header: "زمان", type: "date" },
+];
+
+/* ─── Tab 5: Property (properties.Property) ───
+ */
+export const LISTING_PROPERTY_FIELDS = [
+  {
+    section: "basic",
+    sectionLabel: "اطلاعات ملک نهایی",
+    fields: [
+      { key: "property_code", label: "کد ملک" },
+      { key: "title", label: "عنوان", fullWidth: true },
+      { key: "deal_type", label: "نوع معامله", type: "status", configKey: "propertyDealType" },
+      { key: "status", label: "وضعیت", type: "status", configKey: "propertyStatus" },
+    ],
+  },
+  {
+    section: "pricing",
+    sectionLabel: "قیمت نهایی (بعد از بررسی)",
+    fields: [
+      { key: "sale_price", label: "قیمت فروش نهایی", type: "price" },
+      { key: "price_per_meter", label: "قیمت هر متر نهایی", type: "price" },
+      { key: "mortgage_amount", label: "رهن نهایی", type: "price" },
+      { key: "deposit_amount", label: "ودیعه نهایی", type: "price" },
+      { key: "monthly_rent", label: "اجاره نهایی", type: "price" },
+    ],
+  },
+  {
+    section: "people",
+    sectionLabel: "اشخاص نهایی",
+    fields: [
+      { key: "owner", label: "مالک", type: "user" },
+      { key: "agent", label: "مشاور", type: "user" },
+    ],
+  },
+  {
+    section: "link",
+    sectionLabel: "",
+    fields: [
+      { key: "id", label: "", type: "action", action: "navigate_to_property", label: "مشاهده صفحه کامل ملک →" },
+    ],
+  },
 ];

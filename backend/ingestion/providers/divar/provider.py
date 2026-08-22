@@ -1,14 +1,17 @@
 import hashlib
 import json
+import logging
 import os
 import re
 from contextlib import contextmanager
 from dataclasses import fields
+from pathlib import Path
 from urllib.parse import urljoin, urlparse
 
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException, WebDriverException
+from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.edge.options import Options as EdgeOptions
 from selenium.webdriver.support.ui import WebDriverWait
@@ -16,7 +19,14 @@ from selenium.webdriver.support.ui import WebDriverWait
 from ingestion.providers.base import DiscoveredListing
 
 from .limiter import LocalRequestLimiter
-from .parser import listing_token_from_url, parse_listing_page, parse_preloaded_state
+from .parser import (
+    extract_contact_phone,
+    listing_token_from_url,
+    parse_listing_page,
+    parse_preloaded_state,
+)
+
+logger = logging.getLogger(__name__)
 
 
 class RateLimitDetected(RuntimeError):
@@ -31,6 +41,14 @@ class ProviderError(RuntimeError):
     pass
 
 
+class DivarAuthenticationRequired(ProviderError):
+    pass
+
+
+class DivarContactChallengeRequired(ProviderError):
+    pass
+
+
 RATE_LIMIT_MARKERS = (
     "too many requests",
     "error 429",
@@ -42,6 +60,12 @@ RATE_LIMIT_MARKERS = (
 REMOVED_MARKERS = (
     "این صفحه حذف شده یا وجود ندارد",
     "این آگهی حذف شده است",
+)
+CONTACT_TRIGGER_MARKERS = (
+    "\u0627\u0637\u0644\u0627\u0639\u0627\u062a \u062a\u0645\u0627\u0633",
+    "\u0646\u0645\u0627\u06cc\u0634 \u0634\u0645\u0627\u0631\u0647",
+    "\u0634\u0645\u0627\u0631\u0647 \u062a\u0645\u0627\u0633",
+    "\u062a\u0645\u0627\u0633",
 )
 
 
@@ -61,29 +85,76 @@ def normalize_url(href):
 
 
 class DivarProvider:
-    def __init__(self, driver_factory=None, limiter=None):
+    def __init__(
+        self,
+        driver_factory=None,
+        limiter=None,
+        *,
+        profile_dir=None,
+        phone_ingestion_enabled=None,
+        contact_timeout=8,
+    ):
         self.driver_factory = driver_factory or self._create_driver
         self.limiter = limiter or LocalRequestLimiter()
+        self.profile_dir = str(
+            profile_dir
+            if profile_dir is not None
+            else os.environ.get("DIVAR_PROFILE_DIR", "")
+        ).strip()
+        if phone_ingestion_enabled is None:
+            phone_ingestion_enabled = os.environ.get(
+                "DIVAR_PHONE_INGESTION_ENABLED", "false"
+            ).lower() in {"1", "true", "yes", "on"}
+        self.phone_ingestion_enabled = bool(phone_ingestion_enabled)
+        self.contact_timeout = contact_timeout
 
-    @staticmethod
-    def _common_arguments(options):
+    def _common_arguments(self, options):
         for argument in (
             "--headless=new",
             "--disable-gpu",
             "--no-sandbox",
             "--disable-dev-shm-usage",
             "--disable-extensions",
+            "--password-store=basic",
             "--window-size=1365,900",
         ):
             options.add_argument(argument)
+        if self.profile_dir:
+            profile_path = Path(self.profile_dir).expanduser().resolve()
+            profile_path.mkdir(parents=True, exist_ok=True)
+            options.add_argument(f"--user-data-dir={profile_path}")
+            options.add_argument("--profile-directory=Default")
         options.page_load_strategy = "eager"
         options.add_experimental_option(
             "prefs",
-            {"profile.managed_default_content_settings.images": 2},
+            {
+                "profile.managed_default_content_settings.images": 2,
+                "profile.default_content_setting_values.notifications": 2,
+            },
         )
         return options
 
+    def _remove_stale_profile_locks(self):
+        """Remove Chrome locks left behind when the worker container restarts."""
+        if not self.profile_dir:
+            return
+        profile_path = Path(self.profile_dir).expanduser().resolve()
+        for name in ("SingletonCookie", "SingletonLock", "SingletonSocket"):
+            lock_path = profile_path / name
+            try:
+                lock_path.unlink(missing_ok=True)
+            except OSError as error:
+                logger.warning(
+                    "Could not remove stale Chrome lock %s: %s",
+                    lock_path,
+                    error,
+                )
+
     def _create_driver(self):
+        if self.phone_ingestion_enabled and not self.profile_dir:
+            raise ProviderError(
+                "Phone ingestion requires DIVAR_PROFILE_DIR so login state can persist"
+            )
         errors = []
         chrome_options = self._common_arguments(ChromeOptions())
         chrome_binary = os.environ.get("CHROME_BIN")
@@ -95,6 +166,7 @@ class DivarProvider:
         )
         for factory in factories:
             try:
+                self._remove_stale_profile_locks()
                 driver = factory()
                 driver.set_page_load_timeout(15)
                 return driver
@@ -168,6 +240,92 @@ class DivarProvider:
             ):
                 setattr(primary, name, getattr(fallback, name))
         return primary
+
+    @staticmethod
+    def _visible_elements(driver, selector):
+        elements = []
+        for element in driver.find_elements(By.CSS_SELECTOR, selector):
+            try:
+                if element.is_displayed():
+                    elements.append(element)
+            except WebDriverException:
+                continue
+        return elements
+
+    def _contact_trigger(self, driver):
+        candidates = []
+        for element in self._visible_elements(driver, "button, a[role='button']"):
+            try:
+                label = " ".join(
+                    filter(
+                        None,
+                        (
+                            element.text,
+                            element.get_attribute("aria-label"),
+                            element.get_attribute("title"),
+                        ),
+                    )
+                ).strip()
+            except WebDriverException:
+                continue
+            candidates.append((element, label))
+        # Prefer the listing-specific "contact information" action over the
+        # global navbar's "chat and contact" link.
+        for marker in CONTACT_TRIGGER_MARKERS:
+            for element, label in candidates:
+                if marker in label:
+                    return element
+        return None
+
+    def _contact_result(self, driver):
+        phone = extract_contact_phone(driver.page_source)
+        if phone:
+            return "phone", phone
+        if self._visible_elements(
+            driver,
+            "input[type='tel'], input[autocomplete='tel'], input[name='phone']",
+        ):
+            return "authentication", ""
+        if self._visible_elements(
+            driver,
+            "input[autocomplete='one-time-code'], input[name='otp'], "
+            "iframe[src*='captcha'], [class*='captcha']",
+        ):
+            return "challenge", ""
+        return None
+
+    def _fetch_phone_number(self, driver):
+        existing = extract_contact_phone(driver.page_source)
+        if existing:
+            return existing
+
+        trigger = self._contact_trigger(driver)
+        if trigger is None:
+            logger.info("Divar listing does not expose a contact button")
+            return ""
+        try:
+            trigger.click()
+        except WebDriverException:
+            driver.execute_script("arguments[0].click();", trigger)
+
+        try:
+            result = WebDriverWait(driver, self.contact_timeout).until(
+                lambda current: self._contact_result(current)
+            )
+        except TimeoutException:
+            logger.warning("Divar contact reveal timed out")
+            return extract_contact_phone(driver.page_source)
+
+        state, phone = result
+        if state == "authentication":
+            raise DivarAuthenticationRequired(
+                "Divar login has expired; run the divar_login command again"
+            )
+        if state == "challenge":
+            raise DivarContactChallengeRequired(
+                "Divar requested an OTP or CAPTCHA while revealing contact details"
+            )
+        return phone
 
     @staticmethod
     def _extract_links(page_source):
@@ -339,9 +497,14 @@ class DivarProvider:
             if details is not None:
                 best_details = self._fill_missing_details(best_details, details)
             if details is not None and self._detail_page_ready(page_source):
-                return self._fill_missing_details(details, best_details)
+                details = self._fill_missing_details(details, best_details)
+                if self.phone_ingestion_enabled:
+                    details.phone = self._fetch_phone_number(driver)
+                return details
             if attempt < 2:
                 self.limiter.block(5 * (2**attempt))
         if best_details is not None:
+            if self.phone_ingestion_enabled:
+                best_details.phone = self._fetch_phone_number(driver)
             return best_details
         raise ProviderError("Listing page did not contain a substantive listing")

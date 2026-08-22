@@ -32,6 +32,21 @@ const getSnapshots = (listingId) =>
 const getTargetListings = (listingId) =>
   api.get(API_ENDPOINTS.INGESTION.TARGET_LISTINGS.LIST(listingId).url);
 
+const startDivarLogin = (phone) =>
+  api.post(API_ENDPOINTS.INGESTION.DIVAR_LOGIN.START.url, { phone });
+
+const getDivarLogin = (attemptId) =>
+  api.get(API_ENDPOINTS.INGESTION.DIVAR_LOGIN.DETAIL(attemptId).url);
+
+const confirmDivarLogin = (attemptId, otp) =>
+  api.post(API_ENDPOINTS.INGESTION.DIVAR_LOGIN.CONFIRM(attemptId).url, { otp });
+
+const getDivarSession = () =>
+  api.get(API_ENDPOINTS.INGESTION.DIVAR_SESSION.STATUS.url);
+
+const checkDivarSession = () =>
+  api.post(API_ENDPOINTS.INGESTION.DIVAR_SESSION.CHECK.url);
+
 const triggerRun = (targetId, mode, configuration = {}) => {
   const config =
     configuration &&
@@ -135,6 +150,11 @@ const scraperService = {
   getRunItems,
   getSnapshots,
   getTargetListings,
+  startDivarLogin,
+  getDivarLogin,
+  confirmDivarLogin,
+  getDivarSession,
+  checkDivarSession,
   triggerRun,
   resumeRun,
   getScraperTodayStatus,

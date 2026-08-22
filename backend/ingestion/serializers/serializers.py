@@ -1,7 +1,25 @@
 from rest_framework import serializers
 
 from listing.serializers.listing import ListingListSerializer
+from ingestion.providers.divar.parser import normalize_iran_mobile
 from ..models import IngestionRun, IngestionRunItem, ListingSnapshot, ScrapeTarget, TargetListing
+
+
+class DivarLoginStartSerializer(serializers.Serializer):
+    phone = serializers.CharField(max_length=20)
+
+    def validate_phone(self, value):
+        normalized = normalize_iran_mobile(value)
+        if not normalized:
+            raise serializers.ValidationError("Enter a valid Iranian mobile number.")
+        return normalized
+
+
+class DivarLoginOtpSerializer(serializers.Serializer):
+    otp = serializers.RegexField(
+        regex=r"^\d{4,8}$",
+        error_messages={"invalid": "OTP must contain 4 to 8 digits."},
+    )
 from listing.models import Source
 
 class ScrapeTargetSerializer(serializers.ModelSerializer):

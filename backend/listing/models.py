@@ -72,6 +72,13 @@ class Listing(models.Model):
 
     title = models.CharField(max_length=255)
 
+    contact_phone = models.CharField(
+        max_length=20,
+        blank=True,
+        default="",
+        db_index=True,
+    )
+
     description = models.TextField(blank=True)
 
     listed_sale_price = models.BigIntegerField(null=True, blank=True)

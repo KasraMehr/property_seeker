@@ -10,14 +10,117 @@ from accounts.permissions import HasRolePermission
 from listing.models import Listing
 from .models import IngestionRun, IngestionRunItem, ListingSnapshot, ScrapeTarget, TargetListing
 from .serializers.serializers import (
+    DivarLoginOtpSerializer,
+    DivarLoginStartSerializer,
     IngestionRunItemSerializer,
     IngestionRunSerializer,
     ListingSnapshotSerializer,
     ScrapeTargetSerializer,
     TargetListingSerializer,
 )
+from .services.divar_login import (
+    DivarLoginAttemptActive,
+    DivarLoginAttemptError,
+    DivarLoginAttemptNotFound,
+    create_attempt,
+    get_attempt,
+    submit_otp,
+)
+from .services.divar_session import (
+    DivarSessionRequired,
+    begin_session_check,
+    get_session_state,
+    set_session_state,
+)
 from .services.runs import RunAlreadyActive, create_run, resume_run
-from .tasks import discover_run, process_run_batch
+from .tasks import (
+    authenticate_divar_session,
+    check_divar_session,
+    discover_run,
+    process_run_batch,
+)
+
+
+class DivarSessionStatusView(APIView):
+    permission_classes = (HasRolePermission,)
+    required_permission = "run_scrape_target"
+
+    def get(self, request):
+        return Response(get_session_state())
+
+
+class DivarSessionCheckView(APIView):
+    permission_classes = (HasRolePermission,)
+    required_permission = "run_scrape_target"
+
+    def post(self, request):
+        if begin_session_check():
+            check_divar_session.delay()
+        return Response(get_session_state(), status=status.HTTP_202_ACCEPTED)
+
+
+class DivarLoginStartView(APIView):
+    permission_classes = (HasRolePermission,)
+    required_permission = "run_scrape_target"
+
+    def post(self, request):
+        serializer = DivarLoginStartSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        phone = serializer.validated_data["phone"]
+        try:
+            attempt = create_attempt(phone)
+        except DivarLoginAttemptActive as error:
+            return Response(
+                get_attempt(error.attempt_id),
+                status=status.HTTP_409_CONFLICT,
+            )
+        set_session_state(
+            "authenticating",
+            "Divar login is queued on the scraper worker.",
+            phone_masked=attempt["phone_masked"],
+        )
+        authenticate_divar_session.delay(attempt["id"], phone)
+        return Response(attempt, status=status.HTTP_202_ACCEPTED)
+
+
+class DivarLoginDetailView(APIView):
+    permission_classes = (HasRolePermission,)
+    required_permission = "run_scrape_target"
+
+    def get(self, request, attempt_id):
+        try:
+            attempt = get_attempt(attempt_id)
+        except DivarLoginAttemptNotFound as error:
+            return Response(
+                {"detail": str(error)},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        return Response(attempt)
+
+
+class DivarLoginConfirmView(APIView):
+    permission_classes = (HasRolePermission,)
+    required_permission = "run_scrape_target"
+
+    def post(self, request, attempt_id):
+        serializer = DivarLoginOtpSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            attempt = submit_otp(
+                attempt_id,
+                serializer.validated_data["otp"],
+            )
+        except DivarLoginAttemptNotFound as error:
+            return Response(
+                {"detail": str(error)},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        except DivarLoginAttemptError as error:
+            return Response(
+                {"detail": str(error)},
+                status=status.HTTP_409_CONFLICT,
+            )
+        return Response(attempt, status=status.HTTP_202_ACCEPTED)
 
 
 class ScrapeTargetListCreateView(generics.ListCreateAPIView):
@@ -91,6 +194,15 @@ class ScrapeTargetTriggerView(APIView):
                 {"detail": str(exc)},
                 status=status.HTTP_409_CONFLICT,
             )
+        except DivarSessionRequired as exc:
+            return Response(
+                {
+                    "code": "divar_session_required",
+                    "detail": str(exc),
+                    "session": get_session_state(),
+                },
+                status=status.HTTP_409_CONFLICT,
+            )
 
         discover_run.delay(str(run.pk))
         return Response(
@@ -140,6 +252,15 @@ class IngestionRunResumeView(APIView):
                 {"detail": str(exc)},
                 status=status.HTTP_409_CONFLICT,
             )
+        except DivarSessionRequired as exc:
+            return Response(
+                {
+                    "code": "divar_session_required",
+                    "detail": str(exc),
+                    "session": get_session_state(),
+                },
+                status=status.HTTP_409_CONFLICT,
+            )
 
         if run.items.exists():
             process_run_batch.delay(str(run.pk))
@@ -166,6 +287,7 @@ class IngestionRunExportView(APIView):
 
         fields = (
             "external_id", "url", "title", "listed_area", "build_year",
+            "contact_phone",
             "room_count", "listed_sale_price", "listed_price_per_meter",
             "listed_mortgage_amount", "listed_deposit_amount",
             "listed_rent_amount", "floor_number", "total_floors",

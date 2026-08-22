@@ -1,13 +1,31 @@
 import logging
 
 from celery import shared_task
+from django.conf import settings
 from django.db.models import Count, Q
 from django.utils import timezone
 
 from ingestion.models import IngestionRun, IngestionRunItem, ScrapeTarget
 from ingestion.provider_factory import create_divar_provider
-from ingestion.providers.divar import ListingRemoved, RateLimitDetected
+from ingestion.providers.divar import (
+    DivarAuthenticationRequired,
+    ListingRemoved,
+    RateLimitDetected,
+)
+from ingestion.providers.divar.login import DivarLoginError, DivarLoginFlow
 from ingestion.providers.divar.provider import ProviderError
+from ingestion.services.divar_login import (
+    DivarLoginAttemptError,
+    finish_attempt,
+    update_attempt,
+    wait_for_otp,
+)
+from ingestion.services.divar_session import (
+    DivarSessionRequired,
+    finish_session_check,
+    require_authenticated_session,
+    set_session_state,
+)
 from ingestion.services.persistence import (
     record_listing_removed,
     upsert_scraped_listing,
@@ -23,6 +41,105 @@ from listing.models import Listing
 logger = logging.getLogger(__name__)
 BATCH_SIZE = 50
 MAX_ITEM_ATTEMPTS = 3
+
+
+@shared_task(queue="scraping", acks_late=True)
+def authenticate_divar_session(attempt_id, phone):
+    try:
+        attempt = update_attempt(
+            attempt_id,
+            status="starting",
+            detail="Opening Divar with the persistent scraper profile.",
+        )
+        set_session_state(
+            "authenticating",
+            "Waiting for Divar login to complete.",
+            phone_masked=attempt["phone_masked"],
+        )
+        provider = create_divar_provider(phone_ingestion_enabled=False)
+        flow = DivarLoginFlow(
+            provider,
+            step_timeout=settings.DIVAR_LOGIN_STEP_TIMEOUT_SECONDS,
+        )
+
+        def mark_waiting():
+            update_attempt(
+                attempt_id,
+                status="waiting_otp",
+                detail="Divar sent the OTP. Enter it in the dashboard.",
+            )
+
+        result = flow.authenticate(
+            phone,
+            read_otp=lambda _step_timeout: wait_for_otp(
+                attempt_id,
+                settings.DIVAR_LOGIN_OTP_TIMEOUT_SECONDS,
+            ),
+            on_otp_requested=mark_waiting,
+        )
+        detail = (
+            "The scraper profile was already logged in."
+            if result == "already_authenticated"
+            else "Divar login succeeded and the scraper session was saved."
+        )
+        finish_attempt(attempt_id, status="succeeded", detail=detail)
+        set_session_state(
+            "authenticated",
+            "The persistent Divar browser session is logged in.",
+            phone_masked=attempt["phone_masked"],
+        )
+    except (DivarLoginError, DivarLoginAttemptError, ProviderError) as error:
+        logger.warning("Divar login attempt %s failed: %s", attempt_id, error)
+        finish_attempt(attempt_id, status="failed", detail=str(error))
+        set_session_state("unauthenticated", str(error))
+    except Exception as error:
+        logger.exception("Unexpected Divar login failure for attempt %s", attempt_id)
+        finish_attempt(
+            attempt_id,
+            status="failed",
+            detail="Unexpected login failure. Check the scraper worker logs.",
+        )
+        set_session_state(
+            "error",
+            "Unexpected login failure. Check the scraper worker logs.",
+        )
+        raise
+    return attempt_id
+
+
+@shared_task(queue="scraping", acks_late=True)
+def check_divar_session():
+    try:
+        provider = create_divar_provider(phone_ingestion_enabled=False)
+        flow = DivarLoginFlow(
+            provider,
+            step_timeout=settings.DIVAR_LOGIN_STEP_TIMEOUT_SECONDS,
+        )
+        authenticated = flow.check_authenticated()
+        if authenticated:
+            set_session_state(
+                "authenticated",
+                "The persistent Divar browser session is logged in.",
+            )
+        else:
+            set_session_state(
+                "unauthenticated",
+                "The persistent Divar browser session is logged out.",
+            )
+        return authenticated
+    except (DivarLoginError, ProviderError) as error:
+        logger.warning("Divar session check failed: %s", error)
+        set_session_state("error", str(error))
+        return False
+    finally:
+        finish_session_check()
+
+
+def _fail_run_for_session(run, error):
+    run.status = IngestionRun.Status.FAILED
+    run.error_summary = str(error)
+    run.finished_at = timezone.now()
+    run.save(update_fields=["status", "error_summary", "finished_at"])
 
 
 def refresh_run_counters(run):
@@ -83,6 +200,11 @@ def discover_run(run_id, enqueue_details=True):
     run = IngestionRun.objects.select_related("target__source").get(pk=run_id)
     if run.status not in {IngestionRun.Status.QUEUED, IngestionRun.Status.RUNNING}:
         return str(run.pk)
+    try:
+        require_authenticated_session()
+    except DivarSessionRequired as error:
+        _fail_run_for_session(run, error)
+        return str(run.pk)
     run.status = IngestionRun.Status.RUNNING
     run.started_at = run.started_at or timezone.now()
     run.save(update_fields=["status", "started_at"])
@@ -125,6 +247,11 @@ def process_run_batch(run_id, batch_size=BATCH_SIZE, enqueue_next=True):
     run = IngestionRun.objects.select_related("target__source").get(pk=run_id)
     if run.status not in {IngestionRun.Status.RUNNING, IngestionRun.Status.QUEUED}:
         return str(run.pk)
+    try:
+        require_authenticated_session()
+    except DivarSessionRequired as error:
+        _fail_run_for_session(run, error)
+        return str(run.pk)
     items = list(
         run.items.filter(status=IngestionRunItem.Status.PENDING)
         .select_related("listing")
@@ -135,6 +262,7 @@ def process_run_batch(run_id, batch_size=BATCH_SIZE, enqueue_next=True):
         return str(run.pk)
 
     provider = create_divar_provider()
+    session_error = None
     with provider.session() as driver:
         for item in items:
             item.status = IngestionRunItem.Status.RUNNING
@@ -167,6 +295,11 @@ def process_run_batch(run_id, batch_size=BATCH_SIZE, enqueue_next=True):
                     else IngestionRunItem.Status.FAILED
                 )
                 item.error = str(error)
+            except DivarAuthenticationRequired as error:
+                item.status = IngestionRunItem.Status.FAILED
+                item.error = str(error)
+                session_error = error
+                set_session_state("unauthenticated", str(error))
             except ProviderError as error:
                 item.retry_count += 1
                 provider.limiter.block(5 * (2 ** (item.retry_count - 1)))
@@ -201,7 +334,12 @@ def process_run_batch(run_id, batch_size=BATCH_SIZE, enqueue_next=True):
                     "finished_at",
                 ]
             )
+            if session_error:
+                break
 
+    if session_error:
+        _fail_run_for_session(run, session_error)
+        return str(run.pk)
     aggregate = refresh_run_counters(run)
     if enqueue_next and aggregate["remaining"]:
         process_run_batch.apply_async(args=[str(run.pk)], countdown=2)
@@ -231,7 +369,7 @@ def dispatch_incremental_discovery():
             continue
         try:
             run = create_run(target=target, mode=IngestionRun.Mode.DISCOVERY)
-        except RunAlreadyActive:
+        except (RunAlreadyActive, DivarSessionRequired):
             continue
         discover_run.delay(str(run.pk))
         started.append(str(run.pk))
@@ -244,7 +382,7 @@ def dispatch_due_refreshes():
     for target in ScrapeTarget.objects.filter(enabled=True):
         try:
             run = build_refresh_run(target=target)
-        except RunAlreadyActive:
+        except (RunAlreadyActive, DivarSessionRequired):
             continue
         if run:
             process_run_batch.delay(str(run.pk))
@@ -258,7 +396,7 @@ def dispatch_daily_reconciliation():
     for target in ScrapeTarget.objects.filter(enabled=True):
         try:
             run = create_run(target=target, mode=IngestionRun.Mode.RECONCILIATION)
-        except RunAlreadyActive:
+        except (RunAlreadyActive, DivarSessionRequired):
             continue
         discover_run.delay(str(run.pk))
         started.append(str(run.pk))

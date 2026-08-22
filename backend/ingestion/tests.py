@@ -1,16 +1,20 @@
 import json
 import threading
+import uuid
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
-from datetime import timedelta
+from datetime import datetime, timedelta
 from unittest import skipUnless
 from unittest.mock import patch
+from zoneinfo import ZoneInfo
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import close_old_connections, connection
-from django.test import SimpleTestCase, TestCase, TransactionTestCase
+from django.test import SimpleTestCase, TestCase, TransactionTestCase, override_settings
+from django.urls import reverse
 from django.utils import timezone
+from rest_framework.test import APIClient
 
 from accounts.models import Agency
 from ingestion.models import (
@@ -20,11 +24,24 @@ from ingestion.models import (
     ScrapeTarget,
 )
 from ingestion.providers.base import DiscoveredListing, ScrapedListing
-from ingestion.providers.divar.parser import parse_area_from_title, parse_listing_page
-from ingestion.providers.divar.provider import DivarProvider
+from ingestion.providers.divar.parser import (
+    extract_contact_phone,
+    normalize_iran_mobile,
+    normalize_iran_phone,
+    parse_area_from_title,
+    parse_listing_page,
+)
+from ingestion.providers.divar.provider import (
+    DivarAuthenticationRequired,
+    DivarProvider,
+)
 from ingestion.services.persistence import (
     record_listing_removed,
     upsert_scraped_listing,
+)
+from ingestion.services.divar_session import (
+    DivarSessionRequired,
+    require_authenticated_session,
 )
 from ingestion.services.promotion import promote_listing
 from ingestion.services.runs import (
@@ -39,7 +56,122 @@ from listing.models import Listing, Source
 from properties.models import Owner
 
 
+class DivarLoginApiTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_superuser(
+            phone="09120000001",
+            password="test-password",
+            full_name="Test Operator",
+            national_id="0012345678",
+        )
+        self.client = APIClient()
+        self.client.force_authenticate(self.user)
+
+    @patch("ingestion.views.set_session_state")
+    @patch("ingestion.views.authenticate_divar_session.delay")
+    @patch("ingestion.views.create_attempt")
+    def test_start_normalizes_phone_and_queues_worker(self, create, delay, set_state):
+        attempt = {
+            "id": "6fdd358d-b321-4baa-a843-b9991170d725",
+            "status": "queued",
+            "detail": "queued",
+            "phone_masked": "0912***4567",
+            "created_at": "now",
+            "updated_at": "now",
+        }
+        create.return_value = attempt
+
+        response = self.client.post(
+            reverse("divar-login-start"),
+            {"phone": "+98 912 123 4567"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 202)
+        create.assert_called_once_with("09121234567")
+        delay.assert_called_once_with(attempt["id"], "09121234567")
+        set_state.assert_called_once()
+
+    @patch("ingestion.views.submit_otp")
+    def test_confirm_forwards_valid_otp_without_persisting_it(self, submit):
+        attempt_id = "6fdd358d-b321-4baa-a843-b9991170d725"
+        submit.return_value = {
+            "id": attempt_id,
+            "status": "verifying",
+            "detail": "verifying",
+            "phone_masked": "0912***4567",
+            "created_at": "now",
+            "updated_at": "now",
+        }
+
+        response = self.client.post(
+            reverse("divar-login-confirm", kwargs={"attempt_id": attempt_id}),
+            {"otp": "123456"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 202)
+        submit.assert_called_once_with(uuid.UUID(attempt_id), "123456")
+        self.assertNotContains(response, "123456", status_code=202)
+
+    def test_start_rejects_invalid_mobile(self):
+        response = self.client.post(
+            reverse("divar-login-start"),
+            {"phone": "02112345678"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+
+    @patch("ingestion.views.get_session_state")
+    def test_session_status_is_exposed_to_dashboard(self, get_state):
+        get_state.return_value = {
+            "status": "authenticated",
+            "authenticated": True,
+            "detail": "ready",
+            "phone_masked": "0912***4567",
+            "checked_at": "now",
+        }
+        response = self.client.get(reverse("divar-session-status"))
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.data["authenticated"])
+
+
+class DivarSessionGateTests(SimpleTestCase):
+    @override_settings(DIVAR_REQUIRE_AUTHENTICATED_SESSION=True)
+    @patch("ingestion.services.divar_session.get_session_state")
+    def test_ingestion_is_blocked_without_authenticated_session(self, get_state):
+        get_state.return_value = {
+            "status": "unauthenticated",
+            "authenticated": False,
+        }
+        with self.assertRaises(DivarSessionRequired):
+            require_authenticated_session()
+
+    @override_settings(DIVAR_REQUIRE_AUTHENTICATED_SESSION=True)
+    @patch("ingestion.services.divar_session.get_session_state")
+    def test_ingestion_is_allowed_with_authenticated_session(self, get_state):
+        get_state.return_value = {
+            "status": "authenticated",
+            "authenticated": True,
+        }
+        self.assertTrue(require_authenticated_session()["authenticated"])
+
+
 class DivarParserTests(SimpleTestCase):
+    def test_contact_phone_is_normalized_without_reading_ad_description(self):
+        self.assertEqual(normalize_iran_mobile("+98 912 123 4567"), "09121234567")
+        self.assertEqual(normalize_iran_phone("+98 21 1234 5678"), "02112345678")
+        self.assertEqual(
+            extract_contact_phone(
+                '<div role="dialog">شماره تماس: ۰۹۱۲ ۱۲۳ ۴۵۶۷</div>'
+            ),
+            "09121234567",
+        )
+        self.assertEqual(
+            extract_contact_phone("<p>توضیحات آگهی 09121234567</p>"),
+            "",
+        )
+
     def test_area_title_fallback_requires_an_explicit_area_unit(self):
         self.assertEqual(parse_area_from_title("آپارتمان ۸۵متری دو خواب"), 85)
         self.assertEqual(parse_area_from_title("۱۲۰ متر مربع فاز دو"), 120)
@@ -119,8 +251,14 @@ class DivarParserTests(SimpleTestCase):
         self.assertEqual(result.area_m2, 80)
         self.assertEqual(result.build_year, 1401)
         self.assertEqual(result.room_count, 2)
-        self.assertIsNotNone(result.source_published_at)
-        self.assertIsNotNone(result.source_updated_at)
+        self.assertEqual(
+            result.source_published_at,
+            datetime(2026, 7, 28, 11, 52, tzinfo=ZoneInfo("Asia/Tehran")),
+        )
+        self.assertEqual(
+            result.source_updated_at,
+            datetime(2026, 7, 30, 9, 56, tzinfo=ZoneInfo("Asia/Tehran")),
+        )
 
     def test_metadata_only_description_widget_is_rejected(self):
         state = {
@@ -147,6 +285,72 @@ class DivarParserTests(SimpleTestCase):
         )
         result = parse_listing_page(html, "https://divar.ir/v/metadata1")
         self.assertEqual(result.description, "")
+
+
+class DivarContactRevealTests(SimpleTestCase):
+    class FakeElement:
+        def __init__(self, driver, text=""):
+            self.driver = driver
+            self.text = text
+
+        def is_displayed(self):
+            return True
+
+        def get_attribute(self, _name):
+            return None
+
+        def click(self):
+            self.driver.revealed = True
+            if self.driver.phone:
+                self.driver.page_source = (
+                    f'<div role="dialog">شماره تماس: {self.driver.phone}</div>'
+                )
+
+    class FakeDriver:
+        def __init__(self, phone=""):
+            self.phone = phone
+            self.page_source = "<main>listing</main>"
+            self.revealed = False
+            self.button = DivarContactRevealTests.FakeElement(
+                self, "اطلاعات تماس"
+            )
+
+        def find_elements(self, _by, selector):
+            if selector == "button, a[role='button']":
+                return [self.button]
+            if self.revealed and not self.phone and "input[type='tel']" in selector:
+                return [DivarContactRevealTests.FakeElement(self)]
+            return []
+
+        def execute_script(self, _script, element):
+            element.click()
+
+    def test_contact_button_reveal_returns_phone(self):
+        provider = DivarProvider(phone_ingestion_enabled=True, contact_timeout=0.1)
+
+        self.assertEqual(
+            provider._fetch_phone_number(self.FakeDriver("09121234567")),
+            "09121234567",
+        )
+
+    def test_listing_contact_action_wins_over_global_chat_link(self):
+        provider = DivarProvider(phone_ingestion_enabled=True)
+        driver = self.FakeDriver("09121234567")
+        global_chat = self.FakeElement(driver, "چت و تماس")
+        listing_contact = self.FakeElement(driver, "اطلاعات تماس")
+        driver.find_elements = lambda _by, selector: (
+            [global_chat, listing_contact]
+            if selector == "button, a[role='button']"
+            else []
+        )
+
+        self.assertIs(provider._contact_trigger(driver), listing_contact)
+
+    def test_contact_button_reports_expired_login(self):
+        provider = DivarProvider(phone_ingestion_enabled=True, contact_timeout=0.1)
+
+        with self.assertRaises(DivarAuthenticationRequired):
+            provider._fetch_phone_number(self.FakeDriver())
 
 
 class IngestionPersistenceTests(TestCase):
@@ -189,6 +393,44 @@ class IngestionPersistenceTests(TestCase):
         self.assertEqual(
             ListingSnapshot.objects.first().changed_fields["description"]["old"],
             "Original description",
+        )
+
+    def test_upsert_preserves_phone_when_contact_reveal_is_temporarily_missing(self):
+        first = upsert_scraped_listing(
+            payload=self.payload(phone="09121234567"),
+            target=self.target,
+        )
+        second = upsert_scraped_listing(
+            payload=self.payload(phone=""),
+            target=self.target,
+        )
+
+        second.listing.refresh_from_db()
+        self.assertEqual(second.listing.contact_phone, "09121234567")
+        self.assertEqual(second.listing.latest_payload["phone"], "09121234567")
+        self.assertFalse(second.changed)
+        self.assertEqual(ListingSnapshot.objects.count(), 1)
+        self.assertTrue(first.created)
+
+    def test_upsert_persists_divar_publication_timestamp(self):
+        published_at = datetime(
+            2026,
+            7,
+            28,
+            11,
+            52,
+            tzinfo=ZoneInfo("Asia/Tehran"),
+        )
+
+        result = upsert_scraped_listing(
+            payload=self.payload(source_published_at=published_at),
+            target=self.target,
+        )
+
+        self.assertEqual(result.listing.published_at, published_at)
+        self.assertEqual(
+            result.listing.latest_payload["source_published_at"],
+            published_at.isoformat(),
         )
 
     def test_two_confirmed_removals_six_hours_apart_expire_listing(self):

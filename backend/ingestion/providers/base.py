@@ -17,6 +17,7 @@ class ScrapedListing:
     external_id: str
     url: str
     title: str
+    phone: str = ""
     description: str = ""
     area_m2: int | None = None
     build_year: int | None = None

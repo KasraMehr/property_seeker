@@ -22,18 +22,26 @@ class ListingAdmin(admin.ModelAdmin):
         "source",
         "status",
         "review_status",
+        "contact_phone",
         "listed_area",
         "listed_sale_price",
         "last_checked_at",
     )
     list_filter = ("source", "status", "review_status")
-    search_fields = ("external_id", "title", "url", "description")
+    search_fields = (
+        "external_id",
+        "title",
+        "contact_phone",
+        "url",
+        "description",
+    )
     readonly_fields = (
         "property",
         "external_id",
         "source",
         "url",
         "title",
+        "contact_phone",
         "description",
         "listed_sale_price",
         "listed_price_per_meter",

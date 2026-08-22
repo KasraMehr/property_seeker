@@ -6,6 +6,7 @@ from django.utils import timezone
 
 from ingestion.models import IngestionRun, IngestionRunItem, TargetListing
 from listing.models import Listing
+from ingestion.services.divar_session import require_authenticated_session
 
 
 class RunAlreadyActive(RuntimeError):
@@ -33,6 +34,7 @@ def listing_refresh_due(listing, now=None):
 
 
 def create_run(*, target, mode, configuration=None):
+    require_authenticated_session()
     try:
         with transaction.atomic():
             return IngestionRun.objects.create(
@@ -163,6 +165,7 @@ def populate_discovery_run(*, run, discovered):
 
 @transaction.atomic
 def resume_run(*, run):
+    require_authenticated_session()
     run = IngestionRun.objects.select_for_update().get(pk=run.pk)
     if run.status in {IngestionRun.Status.QUEUED, IngestionRun.Status.RUNNING}:
         raise RunAlreadyActive(f"Run {run.pk} is already active")

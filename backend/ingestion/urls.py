@@ -1,6 +1,11 @@
 from django.urls import path
 
 from .views import (
+    DivarLoginConfirmView,
+    DivarLoginDetailView,
+    DivarLoginStartView,
+    DivarSessionCheckView,
+    DivarSessionStatusView,
     IngestionRunDetailView,
     IngestionRunExportView,
     IngestionRunItemsView,
@@ -14,6 +19,28 @@ from .views import (
 )
 
 urlpatterns = [
+    path(
+        "divar-session/",
+        DivarSessionStatusView.as_view(),
+        name="divar-session-status",
+    ),
+    path(
+        "divar-session/check/",
+        DivarSessionCheckView.as_view(),
+        name="divar-session-check",
+    ),
+    path("divar-login/", DivarLoginStartView.as_view(), name="divar-login-start"),
+    path(
+        "divar-login/<uuid:attempt_id>/",
+        DivarLoginDetailView.as_view(),
+        name="divar-login-detail",
+    ),
+    path(
+        "divar-login/<uuid:attempt_id>/confirm/",
+        DivarLoginConfirmView.as_view(),
+        name="divar-login-confirm",
+    ),
+
     path("targets/", ScrapeTargetListCreateView.as_view(), name="ingestion-target-list"),
     path("targets/<int:pk>/", ScrapeTargetDetailView.as_view(), name="ingestion-target-detail"),
     path("targets/<int:pk>/trigger/", ScrapeTargetTriggerView.as_view(), name="ingestion-target-trigger"),

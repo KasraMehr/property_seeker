@@ -20,6 +20,7 @@ class UpsertResult:
 
 LISTING_FIELD_MAP = {
     "title": "title",
+    "phone": "contact_phone",
     "description": "description",
     "total_price_toman": "listed_sale_price",
     "price_per_meter_toman": "listed_price_per_meter",
@@ -72,7 +73,6 @@ def upsert_scraped_listing(
 ):
     now = timezone.now()
     normalized = canonical_payload(payload)
-    digest = payload_hash(normalized)
     try:
         with transaction.atomic():
             listing, created = Listing.objects.get_or_create(
@@ -95,12 +95,20 @@ def upsert_scraped_listing(
     listing = Listing.objects.select_for_update().get(pk=listing.pk)
 
     old_payload = listing.latest_payload or {}
+    # Contact reveal can temporarily fail when Divar refreshes auth or applies
+    # an anti-abuse challenge. Do not erase a phone number already captured.
+    if not normalized.get("phone") and old_payload.get("phone"):
+        normalized["phone"] = old_payload["phone"]
+    digest = payload_hash(normalized)
     changed_fields = payload_diff(old_payload, normalized)
     changed = created or bool(changed_fields)
 
     listing.url = payload.url
     for payload_field, model_field in LISTING_FIELD_MAP.items():
-        setattr(listing, model_field, getattr(payload, payload_field))
+        value = getattr(payload, payload_field)
+        if payload_field == "phone" and not value and listing.contact_phone:
+            continue
+        setattr(listing, model_field, value)
     listing.status = Listing.Status.ACTIVE
     listing.last_seen_at = now
     listing.last_checked_at = now

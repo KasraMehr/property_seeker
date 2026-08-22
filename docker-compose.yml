@@ -97,6 +97,7 @@ services:
       CELERY_TIMEZONE: ${CELERY_TIMEZONE:-Asia/Tehran}
 
       DIVAR_REQUEST_INTERVAL_SECONDS: ${DIVAR_REQUEST_INTERVAL_SECONDS:-2.5}
+      DIVAR_REQUIRE_AUTHENTICATED_SESSION: "true"
 
       # HTTPS
       SECURE_SSL_REDIRECT: ${SECURE_SSL_REDIRECT:-False}
@@ -208,7 +209,12 @@ services:
 
     restart: unless-stopped
 
-    environment: *backend_environment
+    environment:
+      <<: *backend_environment
+      DIVAR_PROFILE_DIR: /app/divar-profile
+      DIVAR_PHONE_INGESTION_ENABLED: "true"
+      DIVAR_LOGIN_STEP_TIMEOUT_SECONDS: ${DIVAR_LOGIN_STEP_TIMEOUT_SECONDS:-90}
+      DIVAR_LOGIN_OTP_TIMEOUT_SECONDS: ${DIVAR_LOGIN_OTP_TIMEOUT_SECONDS:-600}
 
     command:
       - celery
@@ -221,6 +227,9 @@ services:
       - --loglevel=INFO
 
     shm_size: 1gb
+
+    volumes:
+      - divar_profile:/app/divar-profile
 
     depends_on:
       migrate:
@@ -291,3 +300,5 @@ volumes:
   static_volume:
 
   media_volume:
+
+  divar_profile:

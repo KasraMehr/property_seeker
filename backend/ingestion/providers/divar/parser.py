@@ -11,6 +11,14 @@ DIGIT_TRANSLATION = str.maketrans(
     "۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩",
     "01234567890123456789",
 )
+IRAN_MOBILE_PATTERN = re.compile(
+    r"(?<!\d)(?:(?:\+|00)?98|0)?[\s\-()]*9"
+    r"(?:[\s\-()]*\d){9}(?!\d)"
+)
+IRAN_PHONE_PATTERN = re.compile(
+    r"(?<!\d)(?:(?:\+|00)?98|0)[\s\-()]*"
+    r"(?:\d[\s\-()]*){9}\d(?!\d)"
+)
 PERSIAN_MONTHS = {
     "فروردین": 1,
     "اردیبهشت": 2,
@@ -74,6 +82,70 @@ def clean_description(text):
     if not cleaned or any(marker in cleaned for marker in DESCRIPTION_MARKERS):
         return ""
     return cleaned
+
+
+def normalize_iran_mobile(value):
+    """Return an Iranian mobile number in local 09xxxxxxxxx form."""
+    normalized = str(value or "").translate(DIGIT_TRANSLATION)
+    match = IRAN_MOBILE_PATTERN.search(normalized)
+    if not match:
+        return ""
+    digits = re.sub(r"\D", "", match.group(0))
+    if digits.startswith("0098"):
+        digits = digits[4:]
+    elif digits.startswith("98"):
+        digits = digits[2:]
+    elif digits.startswith("0"):
+        digits = digits[1:]
+    return f"0{digits}" if len(digits) == 10 and digits.startswith("9") else ""
+
+
+def normalize_iran_phone(value):
+    """Return an Iranian mobile or landline number in local form."""
+    mobile = normalize_iran_mobile(value)
+    if mobile:
+        return mobile
+    normalized = str(value or "").translate(DIGIT_TRANSLATION)
+    match = IRAN_PHONE_PATTERN.search(normalized)
+    if not match:
+        return ""
+    digits = re.sub(r"\D", "", match.group(0))
+    if digits.startswith("0098"):
+        digits = digits[4:]
+    elif digits.startswith("98"):
+        digits = digits[2:]
+    elif digits.startswith("0"):
+        digits = digits[1:]
+    return f"0{digits}" if len(digits) == 10 and digits[0] in "123456789" else ""
+
+
+def extract_contact_phone(page_source):
+    """Extract only contact UI phone values, not numbers in the ad body."""
+    soup = BeautifulSoup(page_source or "", "html.parser")
+    for anchor in soup.select("a[href^='tel:']"):
+        phone = normalize_iran_phone(anchor.get("href", "")[4:])
+        if phone:
+            return phone
+
+    contact_markers = (
+        "\u0634\u0645\u0627\u0631\u0647",
+        "\u062a\u0645\u0627\u0633",
+        "\u0645\u0648\u0628\u0627\u06cc\u0644",
+        "phone",
+        "mobile",
+    )
+    for row in soup.select(
+        "div.kt-unexpandable-row, [role='dialog'], "
+        "[class*='contact'], [data-testid*='contact']"
+    ):
+        text = row.get_text(" ", strip=True)
+        lowered = text.lower()
+        if not any(marker in lowered for marker in contact_markers):
+            continue
+        phone = normalize_iran_phone(text)
+        if phone:
+            return phone
+    return ""
 
 
 def parse_preloaded_state(page_source):
@@ -183,6 +255,19 @@ def parse_source_datetime(text):
     return parsed
 
 
+def extract_source_datetime(soup):
+    """Extract Divar's publication metadata from its listing info row."""
+    info_text = "\n".join(
+        row.get_text("\n", strip=True) for row in soup.select(".kt-info-row")
+    )
+    metadata = parse_source_datetime(info_text)
+    if metadata:
+        return metadata
+    # Keep a fallback for Divar markup variants that expose the same labels
+    # without the current kt-info-row wrapper.
+    return parse_source_datetime(soup.get_text("\n", strip=True))
+
+
 def extract_rendered_description(soup):
     for section in soup.select("section.post-page__section--padded"):
         heading = section.select_one("h2.kt-title-row__title")
@@ -208,6 +293,7 @@ def parse_listing_page(page_source, url):
         "external_id": token,
         "url": url,
         "title": "",
+        "phone": "",
         "description": "",
         "area_m2": None,
         "build_year": None,
@@ -297,7 +383,7 @@ def parse_listing_page(page_source, url):
     )
     if payload["area_m2"] is None:
         payload["area_m2"] = parse_area_from_title(payload["title"])
-    metadata = parse_source_datetime(soup.get_text("\n", strip=True))
+    metadata = extract_source_datetime(soup)
     payload["source_published_at"] = metadata.get("published")
     payload["source_updated_at"] = metadata.get("updated")
 

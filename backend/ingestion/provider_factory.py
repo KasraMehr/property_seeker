@@ -6,7 +6,7 @@ from ingestion.providers.divar.limiter import LocalRequestLimiter, RedisRequestL
 _local_limiter = None
 
 
-def create_divar_provider():
+def create_divar_provider(**overrides):
     global _local_limiter
     interval = settings.DIVAR_REQUEST_INTERVAL_SECONDS
     try:
@@ -23,4 +23,12 @@ def create_divar_provider():
         if _local_limiter is None or _local_limiter.interval_seconds != interval:
             _local_limiter = LocalRequestLimiter(interval_seconds=interval)
         limiter = _local_limiter
-    return DivarProvider(limiter=limiter)
+    options = {
+        "limiter": limiter,
+        "profile_dir": settings.DIVAR_PROFILE_DIR,
+        "phone_ingestion_enabled": settings.DIVAR_PHONE_INGESTION_ENABLED,
+    }
+    options.update(overrides)
+    return DivarProvider(
+        **options,
+    )

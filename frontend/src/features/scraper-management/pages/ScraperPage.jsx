@@ -1,6 +1,6 @@
 // src/features/scraper-management/pages/ScraperPage.jsx
 import { useState, useCallback, useEffect, useMemo } from "react";
-import { Plus, RefreshCw, Zap } from "lucide-react";
+import { Plus, RefreshCw, ShieldAlert, ShieldCheck, Zap } from "lucide-react";
 import { useOutletContext } from "react-router-dom";
 import PageTabs from "@/shared/page/PageTabs";
 import Button from "@/shared/ui/Button";
@@ -10,6 +10,7 @@ import TargetPickerModal from "../components/TargetPickerModal";
 import TargetsTab from "../components/tabs/TargetsTab";
 import RunsTab from "../components/tabs/RunsTab";
 import ListingsTab from "../components/tabs/ListingsTab";
+import DivarLoginTab from "../components/tabs/DivarLoginTab";
 import scraperService from "../services/scraperService";
 import { toastService } from "@/lib/toast";
 
@@ -17,6 +18,7 @@ const TABS = [
   { id: "targets", label: "تارگت‌ها" },
   { id: "runs", label: "اجراها" },
   { id: "listings", label: "آگهی‌های استخراج شده" },
+  { id: "divar-login", label: "ورود دیوار" },
 ];
 
 function unwrapList(res) {
@@ -38,6 +40,10 @@ export default function ScraperPage() {
   const [pickerTargets, setPickerTargets] = useState([]);
   const [pickerLoading, setPickerLoading] = useState(false);
   const [triggerTarget, setTriggerTarget] = useState(null);
+  const [divarSession, setDivarSession] = useState({
+    status: "unknown",
+    authenticated: false,
+  });
 
   const { setPageHeader } = useOutletContext();
 
@@ -45,7 +51,34 @@ export default function ScraperPage() {
     setActiveHeader(state);
   }, []);
 
+  const fetchDivarSession = useCallback(async () => {
+    try {
+      const response = await scraperService.getDivarSession();
+      setDivarSession(response.data);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      setDivarSession({
+        status: "error",
+        authenticated: false,
+        detail: "دریافت وضعیت نشست دیوار ناموفق بود.",
+      });
+      return null;
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchDivarSession();
+    const timer = window.setInterval(fetchDivarSession, 10000);
+    return () => window.clearInterval(timer);
+  }, [fetchDivarSession]);
+
   const openTriggerPicker = useCallback(async () => {
+    if (!divarSession.authenticated) {
+      toastService.error("ابتدا وارد حساب دیوار شوید");
+      setActiveTab("divar-login");
+      return;
+    }
     setPickerOpen(true);
     setPickerLoading(true);
     try {
@@ -62,11 +95,34 @@ export default function ScraperPage() {
     } finally {
       setPickerLoading(false);
     }
-  }, []);
+  }, [divarSession.authenticated]);
+
+  const sessionLabel = divarSession.authenticated
+    ? "نشست دیوار فعال"
+    : ["checking", "authenticating"].includes(divarSession.status)
+      ? "در حال بررسی نشست"
+      : "نیاز به ورود دیوار";
 
   const headerActions = useMemo(
     () => (
       <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setActiveTab("divar-login")}
+          className={`inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-medium transition-colors ${
+            divarSession.authenticated
+              ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600"
+              : "border-danger/30 bg-danger/10 text-danger"
+          }`}
+          title={divarSession.detail}
+        >
+          {divarSession.authenticated ? (
+            <ShieldCheck size={15} />
+          ) : (
+            <ShieldAlert size={15} />
+          )}
+          {sessionLabel}
+        </button>
         <Button
           variant="outline"
           size="sm"
@@ -84,7 +140,7 @@ export default function ScraperPage() {
           variant="outline"
           size="sm"
           onClick={openTriggerPicker}
-          disabled={pickerLoading}
+          disabled={pickerLoading || !divarSession.authenticated}
         >
           <Zap size={14} />
           اجرای فوری
@@ -96,7 +152,14 @@ export default function ScraperPage() {
         </Button>
       </div>
     ),
-    [activeHeader, openTriggerPicker, pickerLoading],
+    [
+      activeHeader,
+      divarSession.authenticated,
+      divarSession.detail,
+      openTriggerPicker,
+      pickerLoading,
+      sessionLabel,
+    ],
   );
 
   useEffect(() => {
@@ -131,6 +194,12 @@ export default function ScraperPage() {
           )}
           {activeTab === "listings" && (
             <ListingsTab onHeaderStateChange={onHeaderStateChange} />
+          )}
+          {activeTab === "divar-login" && (
+            <DivarLoginTab
+              session={divarSession}
+              onSessionRefresh={fetchDivarSession}
+            />
           )}
         </div>
       </div>

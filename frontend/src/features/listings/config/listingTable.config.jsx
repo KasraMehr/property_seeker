@@ -44,6 +44,12 @@ export const LISTING_TABLE_COLUMNS = [
     cell: ({ source }) => <SourceBadge source={source?.name || "—"} />,
   },
   {
+    key: "contact_phone",
+    header: "شماره تماس",
+    width: "w-28",
+    cell: ({ contact_phone }) => contact_phone || "—",
+  },
+  {
     key: "price",
     header: "قیمت / اجاره",
     width: "w-36",
@@ -85,7 +91,7 @@ export const LISTING_TABLE_COLUMNS = [
   // },
   {
     key: "published_at",
-    header: "انتشار",
+    header: "انتشار آگهی",
     width: "w-32",
     cell: ({ published_at }) => formatDate(published_at, "short"),
   },

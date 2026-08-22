@@ -721,6 +721,35 @@ export const API_ENDPOINTS = {
 
   // 16. INGESTION (scraper pipeline - backend model exists, views pending)
   INGESTION: {
+    DIVAR_SESSION: {
+      STATUS: {
+        url: `${API_BASE}/ingestion/divar-session/`,
+        method: "GET",
+        status: "[OK]",
+      },
+      CHECK: {
+        url: `${API_BASE}/ingestion/divar-session/check/`,
+        method: "POST",
+        status: "[OK]",
+      },
+    },
+    DIVAR_LOGIN: {
+      START: {
+        url: `${API_BASE}/ingestion/divar-login/`,
+        method: "POST",
+        status: "[OK]",
+      },
+      DETAIL: (id) => ({
+        url: `${API_BASE}/ingestion/divar-login/${id}/`,
+        method: "GET",
+        status: "[OK]",
+      }),
+      CONFIRM: (id) => ({
+        url: `${API_BASE}/ingestion/divar-login/${id}/confirm/`,
+        method: "POST",
+        status: "[OK]",
+      }),
+    },
     TARGETS: {
       LIST: {
         url: `${API_BASE}/ingestion/targets/`,

@@ -542,6 +542,33 @@ DIVAR_REQUEST_INTERVAL_SECONDS = config(
     cast=float,
 )
 
+DIVAR_PROFILE_DIR = config(
+    "DIVAR_PROFILE_DIR",
+    default="",
+)
+
+DIVAR_PHONE_INGESTION_ENABLED = env_bool(
+    "DIVAR_PHONE_INGESTION_ENABLED",
+    default=False,
+)
+
+DIVAR_LOGIN_STEP_TIMEOUT_SECONDS = config(
+    "DIVAR_LOGIN_STEP_TIMEOUT_SECONDS",
+    default=90,
+    cast=int,
+)
+
+DIVAR_LOGIN_OTP_TIMEOUT_SECONDS = config(
+    "DIVAR_LOGIN_OTP_TIMEOUT_SECONDS",
+    default=600,
+    cast=int,
+)
+
+DIVAR_REQUIRE_AUTHENTICATED_SESSION = env_bool(
+    "DIVAR_REQUIRE_AUTHENTICATED_SESSION",
+    default=False,
+)
+
 
 # ============================================================
 # PRODUCTION SAFETY CHECKS
