@@ -67,6 +67,13 @@ CONTACT_TRIGGER_MARKERS = (
     "\u0634\u0645\u0627\u0631\u0647 \u062a\u0645\u0627\u0633",
     "\u062a\u0645\u0627\u0633",
 )
+CONTACT_CHALLENGE_MARKERS = (
+    "\u0686\u0627\u0644\u0634 \u0632\u06cc\u0631 \u0631\u0627 \u062d\u0644 \u06a9\u0646\u06cc\u062f",
+    "\u067e\u0627\u0632\u0644 \u0631\u0648 \u062f\u0631\u0633\u062a \u06a9\u0646",
+    "\u0622\u0631\u06a9\u067e\u0686\u0627",
+    "arkose",
+    "funcaptcha",
+)
 
 
 def canonical_url(url):
@@ -278,6 +285,10 @@ class DivarProvider:
         return None
 
     def _contact_result(self, driver):
+        page_source = driver.page_source
+        page_text = self._page_text(page_source)
+        if any(marker in page_text for marker in CONTACT_CHALLENGE_MARKERS):
+            return "challenge", ""
         phone = extract_contact_phone(driver.page_source)
         if phone:
             return "phone", phone
@@ -289,7 +300,9 @@ class DivarProvider:
         if self._visible_elements(
             driver,
             "input[autocomplete='one-time-code'], input[name='otp'], "
-            "iframe[src*='captcha'], [class*='captcha']",
+            "iframe[src*='captcha'], iframe[src*='arkose'], "
+            "iframe[src*='funcaptcha'], [class*='captcha'], "
+            "[class*='arkose'], [class*='funcaptcha']",
         ):
             return "challenge", ""
         return None
@@ -323,7 +336,8 @@ class DivarProvider:
             )
         if state == "challenge":
             raise DivarContactChallengeRequired(
-                "Divar requested an OTP or CAPTCHA while revealing contact details"
+                "Divar requested a security puzzle while revealing contact details; "
+                "phone ingestion is paused"
             )
         return phone
 

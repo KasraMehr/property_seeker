@@ -75,7 +75,11 @@ export default function ScraperPage() {
 
   const openTriggerPicker = useCallback(async () => {
     if (!divarSession.authenticated) {
-      toastService.error("ابتدا وارد حساب دیوار شوید");
+      toastService.error(
+        divarSession.status === "challenge"
+          ? "چالش امنیتی دیوار باید رفع شود"
+          : "ابتدا وارد حساب دیوار شوید",
+      );
       setActiveTab("divar-login");
       return;
     }
@@ -95,13 +99,16 @@ export default function ScraperPage() {
     } finally {
       setPickerLoading(false);
     }
-  }, [divarSession.authenticated]);
+  }, [divarSession.authenticated, divarSession.status]);
 
-  const sessionLabel = divarSession.authenticated
-    ? "نشست دیوار فعال"
-    : ["checking", "authenticating"].includes(divarSession.status)
-      ? "در حال بررسی نشست"
-      : "نیاز به ورود دیوار";
+  const sessionLabel =
+    divarSession.status === "challenge"
+      ? "چالش امنیتی دیوار"
+      : divarSession.authenticated
+        ? "نشست دیوار فعال"
+        : ["checking", "authenticating"].includes(divarSession.status)
+          ? "در حال بررسی نشست"
+          : "نیاز به ورود دیوار";
 
   const headerActions = useMemo(
     () => (
@@ -110,7 +117,9 @@ export default function ScraperPage() {
           type="button"
           onClick={() => setActiveTab("divar-login")}
           className={`inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-medium transition-colors ${
-            divarSession.authenticated
+            divarSession.status === "challenge"
+              ? "border-amber-500/30 bg-amber-500/10 text-amber-600"
+              : divarSession.authenticated
               ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600"
               : "border-danger/30 bg-danger/10 text-danger"
           }`}
@@ -156,6 +165,7 @@ export default function ScraperPage() {
       activeHeader,
       divarSession.authenticated,
       divarSession.detail,
+      divarSession.status,
       openTriggerPicker,
       pickerLoading,
       sessionLabel,

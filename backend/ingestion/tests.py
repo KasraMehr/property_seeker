@@ -33,6 +33,7 @@ from ingestion.providers.divar.parser import (
 )
 from ingestion.providers.divar.provider import (
     DivarAuthenticationRequired,
+    DivarContactChallengeRequired,
     DivarProvider,
 )
 from ingestion.services.persistence import (
@@ -351,6 +352,14 @@ class DivarContactRevealTests(SimpleTestCase):
 
         with self.assertRaises(DivarAuthenticationRequired):
             provider._fetch_phone_number(self.FakeDriver())
+
+    def test_contact_button_reports_security_puzzle(self):
+        provider = DivarProvider(phone_ingestion_enabled=True, contact_timeout=0.1)
+        driver = self.FakeDriver()
+        driver.page_source = "<div>\u0686\u0627\u0644\u0634 \u0632\u06cc\u0631 \u0631\u0627 \u062d\u0644 \u06a9\u0646\u06cc\u062f</div>"
+
+        with self.assertRaises(DivarContactChallengeRequired):
+            provider._fetch_phone_number(driver)
 
 
 class IngestionPersistenceTests(TestCase):

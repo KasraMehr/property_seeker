@@ -25,6 +25,7 @@ const STATUS_COPY = {
   checking: ["در حال بررسی نشست", "مرورگر اسکرپر در صف بررسی ورود دیوار است."],
   authenticating: ["در حال ورود", "فرآیند ورود روی مرورگر دائمی سرور فعال است."],
   unauthenticated: ["نشست دیوار غیرفعال", "تا زمان ورود موفق، اجرای اسکرپر مسدود است."],
+  challenge: ["چالش امنیتی دیوار", "دیوار برای نمایش شماره تماس یک پازل امنیتی درخواست کرده است. استخراج شماره‌ها تا رفع چالش متوقف شده است."],
   error: ["خطا در بررسی نشست", "بررسی را دوباره اجرا کنید یا گزارش worker را ببینید."],
   queued: ["در صف اجرا", "درخواست ورود به صف اسکرپر اضافه شد."],
   starting: ["در حال باز کردن دیوار", "مرورگر امن اسکرپر در حال اجرا است."],
@@ -155,7 +156,7 @@ export default function DivarLoginTab({ session, onSessionRefresh }) {
 
   const isBusy = loading || ["queued", "starting", "verifying", "checking", "authenticating"].includes(displayStatus);
   const isSuccess = displayStatus === "succeeded";
-  const isFailure = ["failed", "expired", "unauthenticated", "error"].includes(displayStatus);
+  const isFailure = ["failed", "expired", "unauthenticated", "challenge", "error"].includes(displayStatus);
   const showPhoneForm = !attempt && (!session?.authenticated || forceLogin);
 
   return (

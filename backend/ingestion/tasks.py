@@ -9,6 +9,7 @@ from ingestion.models import IngestionRun, IngestionRunItem, ScrapeTarget
 from ingestion.provider_factory import create_divar_provider
 from ingestion.providers.divar import (
     DivarAuthenticationRequired,
+    DivarContactChallengeRequired,
     ListingRemoved,
     RateLimitDetected,
 )
@@ -300,6 +301,11 @@ def process_run_batch(run_id, batch_size=BATCH_SIZE, enqueue_next=True):
                 item.error = str(error)
                 session_error = error
                 set_session_state("unauthenticated", str(error))
+            except DivarContactChallengeRequired as error:
+                item.status = IngestionRunItem.Status.FAILED
+                item.error = str(error)
+                session_error = error
+                set_session_state("challenge", str(error))
             except ProviderError as error:
                 item.retry_count += 1
                 provider.limiter.block(5 * (2 ** (item.retry_count - 1)))
