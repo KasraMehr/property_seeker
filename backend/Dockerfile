@@ -38,8 +38,6 @@ COPY requirements.txt .
 
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install \
-    --index-url https://mirror.kargadan.ir/repository/pypi-group/simple/ \
-    --trusted-host mirror.kargadan.ir \
     --default-timeout=100 \
     --retries=10 \
     -r requirements.txt
