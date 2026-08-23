@@ -294,11 +294,19 @@ services:
 volumes:
 
   postgres_data:
+    external: true
+    name: property_seeker_postgres_data
 
   redis_data:
+    external: true
+    name: property_seeker_redis_data
 
   static_volume:
 
   media_volume:
+    external: true
+    name: property_seeker_media_volume
 
   divar_profile:
+    external: true
+    name: property_seeker_divar_profile
