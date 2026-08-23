@@ -132,7 +132,7 @@ export default function AdminDashboardPage() {
             variant="primary"
             size="sm"
             icon={ArrowLeft}
-            onClick={() => navigate("/admin/scraper")}
+            onClick={() => navigate("/owner/scraper")}
           >
             استخراج فوری
           </Button>

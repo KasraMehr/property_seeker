@@ -31,7 +31,7 @@ export default function RecentPropertiesWidget({
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => navigate("/admin/properties")}
+          onClick={() => navigate("/owner/properties")}
         >
           همه
         </Button>

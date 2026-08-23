@@ -27,8 +27,8 @@ export default function UserProfileDropdown({
 
   const location = useLocation();
 
-  const basePath = location.pathname.startsWith("/admin")
-    ? "/admin"
+  const basePath = location.pathname.startsWith("/owner")
+    ? "/owner"
     : "/operator";
 
   const [isOpen, setIsOpen] = useState(false);
