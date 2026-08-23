@@ -160,8 +160,8 @@ services:
           "curl",
           "-f",
           "-H",
-          "Host: backend",
-          "http://127.0.0.1:8000/admin/login/"
+          "Host: dilanmelk.ir",
+          "http://localhost:8000/admin/login/"
         ]
       interval: 15s
       timeout: 5s
