@@ -159,7 +159,9 @@ services:
           "CMD",
           "curl",
           "-f",
-          "http://localhost:8000/admin/login/"
+          "-H",
+          "Host: backend",
+          "http://127.0.0.1:8000/admin/login/"
         ]
       interval: 15s
       timeout: 5s
