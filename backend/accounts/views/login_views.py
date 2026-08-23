@@ -15,6 +15,7 @@ from ..serializers.login_serializers import LoginSerializer
 from ..serializers.serializers import UserSerializer
 
 
+
 def _set_jwt_cookies(response, refresh_token: RefreshToken):
     simple_jwt = settings.SIMPLE_JWT
 
