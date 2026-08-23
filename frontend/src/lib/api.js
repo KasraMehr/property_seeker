@@ -3,7 +3,7 @@ import { API_ENDPOINTS } from "../constants/apiEndpoints";
 
 // Root API URL (without /accounts)
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "https://dilanmelk.ir:8000";
+  import.meta.env.VITE_API_BASE_URL || "https://dilanmelk.ir";
 
 // Read Django CSRF cookie so it can be sent as a header on mutating requests
 function getCsrfToken() {
