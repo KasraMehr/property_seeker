@@ -50,7 +50,7 @@ export const Router = createBrowserRouter([
         element: <RoleRoute allow="owner" />,
         children: [
           {
-            path: "/admin",
+            path: "/owner",
             element: <AdminLayout />,
             children: [...adminRoutes],
           },

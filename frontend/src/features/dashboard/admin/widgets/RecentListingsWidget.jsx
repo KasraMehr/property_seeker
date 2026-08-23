@@ -11,7 +11,7 @@ export default function RecentListingsWidget({ listings = [], loading }) {
         <h2 className="text-lg font-bold text-foreground">آخرین آگهی‌ها</h2>
 
         <Link
-          to="/admin/listings"
+          to="/owner/listings"
           className="text-sm text-primary hover:underline"
         >
           مشاهده همه

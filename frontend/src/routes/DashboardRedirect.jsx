@@ -20,7 +20,7 @@ export default function DashboardRedirect() {
   }
 
   if (user.is_owner === true) {
-    return <Navigate to="/admin/dashboard" replace />;
+    return <Navigate to="/owner/dashboard" replace />;
   }
 
   return <Navigate to="/operator/dashboard" replace />;
