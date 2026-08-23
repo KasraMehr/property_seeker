@@ -61,7 +61,6 @@ class LoginPasswordView(APIView):
                 request=request,
                 phone=request.data.get("phone"),
                 message="شماره تلفن یا رمز عبور اشتباه است",
-                status_code=400,
             )
 
             return Response(
