@@ -18,6 +18,7 @@ import FollowUpModal from "../../followups/components/QuickFollowupModal";
 import Button from "@/shared/ui/Button";
 import CallDetailModal from "@/features/calls/components/CallDetailModal";
 import CallFormModal from "@/features/calls/components/CallFormModal";
+import { toastService } from "@/lib/toast";
 
 export default function CallsPage() {
   const { user } = useAuth();
@@ -131,7 +132,12 @@ export default function CallsPage() {
         }
 
         case "mark_follow_up_done":
-          await markFollowUpDone(row.id);
+          try {
+            await markFollowUpDone(row.id);
+            toastService.success("پیگیری با موفقیت انجام شد.");
+          } catch {
+            toastService.error("خطا در ثبت پیگیری.");
+          }
           break;
 
         case "add_followup":
@@ -152,8 +158,13 @@ export default function CallsPage() {
     const { key, row } = pendingAction;
 
     if (key === "delete") {
-      await remove(row.id);
-      setSelected((prev) => prev.filter((id) => id !== row.id));
+      try {
+        await remove(row.id);
+        setSelected((prev) => prev.filter((id) => id !== row.id));
+        toastService.success("تماس با موفقیت حذف شد.");
+      } catch {
+        toastService.error("خطا در حذف تماس.");
+      }
     }
 
     setPendingAction(null);
@@ -163,8 +174,13 @@ export default function CallsPage() {
   const handleBulkAction = useCallback(
     async (actionKey) => {
       if (actionKey === "delete" && selected.length > 0) {
-        await bulkRemove(selected);
-        setSelected([]);
+        try {
+          await bulkRemove(selected);
+          setSelected([]);
+          toastService.success("تماس‌ها با موفقیت حذف شدند.");
+        } catch {
+          toastService.error("خطا در حذف تماس‌ها.");
+        }
       }
     },
     [selected, bulkRemove]

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { ChevronDown, ChevronUp, ChevronsUpDown, Loader2 } from "lucide-react";
 
 import Checkbox from "@/shared/ui/Checkbox";
@@ -39,6 +39,26 @@ export default function Table({
       onSelectionChange([...selected, id]);
     }
   };
+
+  const [openMenuRowKey, setOpenMenuRowKey] = useState(null);
+  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
+
+  // Close open menu when clicking outside any table row
+  useEffect(() => {
+    if (openMenuRowKey === null) return;
+    const handleMouseDown = (e) => {
+      if (!e.target.closest('tr[data-row]')) {
+        setOpenMenuRowKey(null);
+      }
+    };
+    document.addEventListener('mousedown', handleMouseDown);
+    return () => document.removeEventListener('mousedown', handleMouseDown);
+  }, [openMenuRowKey]);
+
+  // Reset open menu when data changes
+  useEffect(() => {
+    setOpenMenuRowKey(null);
+  }, [data]);
 
   const sortedData = useMemo(() => {
     if (!sortKey || !onSort) return data;
@@ -103,7 +123,12 @@ export default function Table({
           {sortedData.map((row) => (
             <tr
               key={row[rowKey]}
-              className="hover:bg-muted/40 transition-colors group"
+              data-row
+              className="hover:bg-muted/40 transition-colors group cursor-pointer"
+              onClick={(e) => {
+                setMenuPosition({ x: e.clientX, y: e.clientY });
+                setOpenMenuRowKey(row[rowKey]);
+              }}
             >
               {columns.map((col) => (
                 <td
@@ -124,10 +149,19 @@ export default function Table({
                 </td>
               ))}
               {actions && (
-                <td className="w-20 px-3 py-2.5 text-right">
-                  <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                    {actions(row)}
-                  </div>
+                <td
+                  data-actions-cell
+                  className="w-20 px-3 py-2.5 text-right"
+                  onClick={(e) => {
+                    setMenuPosition({ x: e.clientX, y: e.clientY });
+                    e.stopPropagation();
+                  }}
+                >
+                  {actions(row, {
+                    isOpen: openMenuRowKey === row[rowKey],
+                    onOpenChange: (open) => setOpenMenuRowKey(open ? row[rowKey] : null),
+                    position: menuPosition,
+                  })}
                 </td>
               )}
             </tr>

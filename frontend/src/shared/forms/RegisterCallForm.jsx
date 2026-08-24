@@ -5,6 +5,7 @@ import FormRenderer from "@/shared/page/FormRenderer";
 import callService from "@/features/calls/services/callService";
 import api from "@/lib/api";
 import { API_ENDPOINTS } from "@/constants/apiEndpoints";
+import { toastService } from "@/lib/toast";
 
 /**
  * CallLog (Backend):
@@ -207,8 +208,11 @@ export default function RegisterCallForm({
         await callService.create(payload);
       }
 
+      toastService.success("تماس با موفقیت ثبت شد.");
       onSuccess?.(payload);
       onClose?.();
+    } catch (error) {
+      toastService.error(error?.response?.data?.detail || "خطا در ثبت تماس.");
     } finally {
       setLoading(false);
     }

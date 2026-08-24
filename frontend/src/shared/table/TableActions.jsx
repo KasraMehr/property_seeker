@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, forwardRef } from "react";
+import { useState, useRef, useEffect, useMemo, forwardRef } from "react";
 import { MoreVertical, Pencil, Trash2, Eye } from "lucide-react";
 
 /**
@@ -10,19 +10,41 @@ const TableActions = forwardRef(({
   onEdit,
   onDelete,
   className = "",
+  isOpen: controlledOpen,
+  onOpenChange,
+  position,
 }, ref) => {
-  const [open, setOpen] = useState(false);
+  const isControlled = controlledOpen !== undefined;
+  const [openInternal, setOpenInternal] = useState(false);
+  const open = isControlled ? controlledOpen : openInternal;
   const containerRef = useRef(null);
 
+  const setOpen = (value) => {
+    if (isControlled) {
+      onOpenChange?.(value);
+    } else {
+      setOpenInternal(value);
+    }
+  };
+
+  // Only attach outside-click listener in uncontrolled mode
   useEffect(() => {
+    if (isControlled) return;
     const handle = (e) => {
       if (containerRef.current && !containerRef.current.contains(e.target)) {
-        setOpen(false);
+        setOpenInternal(false);
       }
     };
     document.addEventListener("mousedown", handle);
     return () => document.removeEventListener("mousedown", handle);
-  }, []);
+  }, [isControlled]);
+
+  // Auto-close after 3 seconds
+  useEffect(() => {
+    if (!open) return;
+    const timer = setTimeout(() => setOpen(false), 2000);
+    return () => clearTimeout(timer);
+  }, [open]);
 
   // Build from shorthands
   const builtActions = [
@@ -38,7 +60,7 @@ const TableActions = forwardRef(({
     <div ref={containerRef} className={`relative inline-block ${className}`}>
       <button
         type="button"
-        onClick={() => setOpen((p) => !p)}
+        onClick={() => setOpen(!open)}
         className="
           p-1.5 rounded-lg text-muted hover:text-foreground hover:bg-(--role-subtle)/30
           transition-colors duration-150 cursor-pointer
@@ -48,12 +70,30 @@ const TableActions = forwardRef(({
       </button>
 
       {open && (
-        <div className="
-          absolute left-0 top-full mt-1 z-50
-          min-w-35 bg-surface/95 backdrop-blur-xl
-          border border-border rounded-xl shadow-xl
-          overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150
-        ">
+        <div
+          className="
+            z-50
+            min-w-35 bg-surface/95 backdrop-blur-xl
+            border border-border rounded-xl shadow-xl
+            overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150
+          "
+          style={position ? (() => {
+            const MENU_W = 160;
+            const MENU_H = builtActions.length * 36 + 16;
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
+            let x = position.x;
+            let y = position.y;
+            if (x + MENU_W > vw) x = vw - MENU_W - 8;
+            if (y + MENU_H > vh) y = position.y - MENU_H;
+            return { position: 'fixed', left: x, top: y };
+          })() : {
+            position: 'absolute',
+            left: 0,
+            top: '100%',
+            marginTop: 4,
+          }}
+        >
           {builtActions.map((action, i) => {
             const Icon = action.icon;
             const isDanger = action.variant === "danger";
