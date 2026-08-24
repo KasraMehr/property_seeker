@@ -41,7 +41,7 @@ export default function ResourceTable({
   ];
 
   const actionsRenderer = hasActions
-    ? (row) => (
+    ? (row, { isOpen, onOpenChange, position } = {}) => (
         <TableActions
           actions={rowActions
             .filter((action) => !action.visible || action.visible(row))
@@ -51,6 +51,9 @@ export default function ResourceTable({
               variant: action.variant,
               onClick: () => onRowAction?.(action.key, row),
             }))}
+          isOpen={isOpen}
+          onOpenChange={onOpenChange}
+          position={position}
         />
       )
     : undefined;
