@@ -76,12 +76,9 @@ export const OWNER_DETAIL_FIELDS = [
     section: "meta",
     sectionLabel: "ثبت‌کننده و تاریخ‌ها",
     fields: [
-      // created_by = فقط PK (عدد). اگر بعداً بک‌اند UserSerializer گذاشت، type را به "user" برگردان
       {
         key: "created_by",
-        label: "ثبت‌کننده (شناسه کاربر)",
-        type: "mono",
-        format: (v) => (v != null ? `#${v}` : "—"),
+        label: "ثبت‌کننده",
       },
       { key: "created_at", label: "تاریخ ثبت", type: "date" },
       { key: "updated_at", label: "آخرین بروزرسانی", type: "date" },

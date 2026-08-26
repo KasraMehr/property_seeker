@@ -184,7 +184,7 @@ export default function FormRenderer({
           </div>
         </Tabs>
       ) : (
-        <div className="flex-1 min-h-0 overflow-y-auto pr-1">
+        <div className="flex-1 min-h-0 overflow-y-auto pr-1 pt-3">
           {renderFields(flatFields || [])}
         </div>
       )}

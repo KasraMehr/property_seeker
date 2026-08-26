@@ -6,7 +6,7 @@ import ReportsPage from "@/features/reports/pages/ReportsPage";
 import ListingsPage from "@/features/listings/pages/ListingsPage";
 import ProfilePage from "../features/dashboard/pages/ProfilePage";
 // import SettingPage from "../features/dashboard/pages/SettingPage";
-import PropertiesPage from "../features/properties/pages/PropertiesPage";
+import PropertyFilesPage from "../features/properties/pages/PropertyFilesPage";
 import CustomersPage from "../features/customers/pages/CustomersPage";
 import CallsPage from "../features/calls/pages/CallsPage"
 import ActivityLogPage from "../features/activity-log/pages/ActivityLogPage";
@@ -14,7 +14,7 @@ import ActivityLogPage from "../features/activity-log/pages/ActivityLogPage";
 export const adminRoutes = [
   { path: "dashboard", element: <AdminDashboardPage /> },
   { path: "listings", element: <ListingsPage /> },
-  { path: "properties", element: <PropertiesPage /> },
+  { path: "properties", element: <PropertyFilesPage /> },
   { path: "calls", element: <CallsPage /> },
   { path: "customers", element: <CustomersPage /> },
   { path: "users", element: <UsersPage /> },

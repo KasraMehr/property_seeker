@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useState, useEffect } from "react";
 import DatePickerPackage from "react-multi-date-picker";
 import DateObject from "react-date-object";
 import persian from "react-date-object/calendars/persian";
@@ -7,34 +7,51 @@ import gregorian from "react-date-object/calendars/gregorian";
 
 const DatePicker = DatePickerPackage.default;
 
+/**
+ * Convert gregorian date string (YYYY-MM-DD) to Persian DateObject
+ */
+function toPersianDateObject(dateStr) {
+  if (!dateStr) return null;
+  try {
+    return new DateObject({
+      date: dateStr,
+      calendar: gregorian,
+      format: "YYYY-MM-DD",
+    }).convert(persian);
+  } catch {
+    return null;
+  }
+}
+
 export default function DatePickerInput({
   label,
   value,
   onChange,
   placeholder = "انتخاب تاریخ",
 }) {
+  // Use state instead of useMemo to ensure controlled mode works
+  const [displayDate, setDisplayDate] = useState(() => toPersianDateObject(value));
 
-  // value : میلادی , display : شمسی
-  const displayValue = useMemo(() => {
-    if (!value) return null;
-    try {
-      return new DateObject({
-        date: value,
-        calendar: gregorian,
-        format: "YYYY-MM-DD",
-      }).convert(persian);
-    } catch {
-      return null;
-    }
+  // Sync with external value changes
+  useEffect(() => {
+    setDisplayDate(toPersianDateObject(value));
   }, [value]);
 
   const handleChange = (date) => {
     if (!date) {
+      setDisplayDate(null);
       onChange?.("");
       return;
     }
-    const gregorianDate = date.convert(gregorian).format("YYYY-MM-DD");
-    onChange?.(gregorianDate);
+    // Update display immediately
+    setDisplayDate(date);
+    // Convert to gregorian string for parent
+    try {
+      const gregorianDate = date.convert(gregorian).format("YYYY-MM-DD");
+      onChange?.(gregorianDate);
+    } catch {
+      onChange?.("");
+    }
   };
 
   return (
@@ -46,7 +63,8 @@ export default function DatePickerInput({
       )}
 
       <DatePicker
-        value={displayValue}
+        key={value || "empty"}
+        value={displayDate}
         onChange={handleChange}
         calendar={persian}
         locale={persian_fa}

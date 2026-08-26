@@ -1,16 +1,13 @@
 import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 
-export const OWNER_FILTERS = [
+export const OWNER_QUICK_FILTERS = [
   {
-    key: "created_by",
-    label: "ثبت‌کننده",
-    type: "select",
-    placement: "drawer",
-    async: true,
-    endpoint: API_ENDPOINTS.ACCOUNTS.USERS.LIST.url,
-    search_fields: ["full_name", "phone"],
-    optionLabel: "full_name",
-    optionValue: "id",
+    key: "search",
+    label: "جستجو",
+    type: "search",
+    placeholder: "نام، شماره تماس، کد ملی...",
+    fields: ["full_name", "phone", "national_id", "alternate_phone"],
+    placement: "bar",
   },
   {
     key: "has_alternate_phone",
@@ -18,18 +15,33 @@ export const OWNER_FILTERS = [
     type: "toggle",
     placement: "drawer",
   },
-  {
-    key: "has_national_id",
-    label: "دارای کد ملی",
-    type: "toggle",
-    placement: "drawer",
-  },
+  // {
+  //   key: "has_national_id",
+  //   label: "دارای کد ملی",
+  //   type: "toggle",
+  //   placement: "drawer",
+  // },
   {
     key: "has_notes",
     label: "دارای یادداشت",
     type: "toggle",
     placement: "drawer",
   },
+];
+
+export const OWNER_ADVANCED_FILTERS = [
+  {
+    key: "created_by",
+    label: "ثبت‌کننده",
+    type: "search_select",
+    placement: "drawer",
+    async: true,
+    endpoint: API_ENDPOINTS.ACCOUNTS.USERS.LIST.url,
+    search_fields: ["full_name", "phone"],
+    optionLabel: "full_name",
+    optionValue: "id",
+  },
+  
   {
     key: "created_at",
     label: "تاریخ ثبت",
@@ -48,4 +60,4 @@ export const OWNER_FILTERS = [
   },
 ];
 
-export const OWNER_ALL_FILTERS = [...OWNER_FILTERS];
+export const OWNER_ALL_FILTERS = [...OWNER_QUICK_FILTERS, ...OWNER_ADVANCED_FILTERS];

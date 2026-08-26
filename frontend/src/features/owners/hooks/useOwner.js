@@ -36,9 +36,25 @@ export default function useOwner() {
     fetchList(query.queryParams);
   }, [fetchList, query.queryParams]);
 
+  const remove = useCallback(
+    async (idOrIds) => {
+      const ids = Array.isArray(idOrIds) ? idOrIds : [idOrIds];
+      if (!ids.length) return;
+      await ownerService.bulkDelete(ids);
+      await fetchList(query.queryParams);
+    },
+    [fetchList, query.queryParams],
+  );
+
   return {
     ...resourceState,
     fetchList,
+    remove,
+    bulkDelete: remove,
+    getById: async (id) => {
+      const res = await ownerService.getById(id);
+      return res?.data ?? res;
+    },
     filters: query.filters,
     setFilter: query.setFilter,
     clearFilter: query.clearFilter,

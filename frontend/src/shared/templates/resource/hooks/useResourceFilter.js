@@ -1,4 +1,23 @@
 import { useState, useCallback, useMemo, useRef } from "react";
+import DateObject from "react-date-object";
+import persian from "react-date-object/calendars/persian";
+import gregorian from "react-date-object/calendars/gregorian";
+
+/**
+ * Convert gregorian date string (YYYY-MM-DD) to Persian display string (YYYY/MM/DD)
+ */
+function toPersianDateString(dateStr) {
+  if (!dateStr) return null;
+  try {
+    return new DateObject({
+      date: dateStr,
+      calendar: gregorian,
+      format: "YYYY-MM-DD",
+    }).convert(persian).format("YYYY/MM/DD");
+  } catch {
+    return dateStr;
+  }
+}
 
 /**
  * useResourceFilter
@@ -171,9 +190,14 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
 
         case "date_range":
           if (value.from || value.to) {
+            const fromFa = toPersianDateString(value.from);
+            const toFa = toPersianDateString(value.to);
+            const parts = [];
+            if (fromFa) parts.push(`از ${fromFa}`);
+            if (toFa) parts.push(`تا ${toFa}`);
             chips.push({
               key: field.key,
-              label: `${value.from ?? "..."} تا ${value.to ?? "..."}`,
+              label: parts.join(" — "),
               type: "date_range",
             });
           }
@@ -227,8 +251,9 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
           if (value?.from || value?.to) {
             const fromKey = field.from_key || `${field.key}_from`;
             const toKey = field.to_key || `${field.key}_to`;
-            if (value.from) params[fromKey] = value.from;
-            if (value.to) params[toKey] = value.to;
+            // Convert YYYY-MM-DD to ISO datetime for backend IsoDateTimeFilter
+            if (value.from) params[fromKey] = `${value.from}T00:00:00`;
+            if (value.to) params[toKey] = `${value.to}T23:59:59`;
           }
           break;
 

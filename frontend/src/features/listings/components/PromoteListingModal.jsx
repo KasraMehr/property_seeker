@@ -3,6 +3,7 @@ import Modal from "@/shared/ui/modal/Modal";
 import FormRenderer from "@/shared/page/FormRenderer";
 import { PROMOTE_LISTING_FORM } from "@/features/properties/config";
 import listingService from "@/features/listings/services/listingService";
+import { toastService } from "@/lib/toast";
 
 /** Backend ListingPromotionSerializer only accepts these keys. */
 const PROMOTE_PAYLOAD_KEYS = [
@@ -34,8 +35,11 @@ export default function PromoteListingModal({ isOpen, onClose, listing, onSucces
     setLoading(true);
     try {
       await listingService.promote(listing.id, toPromotePayload(data));
+      toastService.success("آگهی با موفقیت به ملک تبدیل شد.");
       onSuccess?.();
       onClose();
+    } catch (error) {
+      toastService.error(error?.response?.data?.detail || "خطا در تبدیل آگهی به ملک.");
     } finally {
       setLoading(false);
     }
