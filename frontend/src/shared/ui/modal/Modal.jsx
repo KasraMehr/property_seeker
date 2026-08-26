@@ -93,7 +93,7 @@ const Modal = forwardRef(
                     <button
                       type="button"
                       onClick={onClose}
-                      className="p-1.5 rounded-lg text-muted hover:text-foreground hover:bg-(--role-subtle)/40 transition-colors"
+                      className="p-1.5 rounded-lg cursor-pointer text-muted hover:text-foreground hover:bg-(--role-subtle)/40 transition-colors"
                     >
                       <X size={18} />
                     </button>

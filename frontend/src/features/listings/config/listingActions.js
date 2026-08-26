@@ -20,6 +20,25 @@ export const LISTING_ROW_ACTIONS = [
     modal: "detail",
   },
   {
+    key: "promote",
+    label: "تبدیل به ملک",
+    icon: ArrowRightLeft,
+    variant: "default",
+    type: "row",
+    permission: null, // بعداً: PERMISSIONS.PROMOTE_LISTING
+    condition: (row) => row.review_status !== "promoted",
+    modal: "promote",
+  },
+  {
+    key: "register_call",
+    label: "ثبت تماس",
+    icon: Phone,
+    variant: "outline",
+    type: "row",
+    permission: null,
+    modal: "register_call",
+  },
+  {
     key: "open_source",
     label: "مشاهده منبع",
     icon: ExternalLink,
@@ -52,25 +71,8 @@ export const LISTING_ROW_ACTIONS = [
   //   handler: "review",
   //   handlerPayload: () => ({ review_status: "rejected" }),
   // },
-  {
-    key: "promote",
-    label: "تبدیل به ملک",
-    icon: ArrowRightLeft,
-    variant: "default",
-    type: "row",
-    permission: null, // بعداً: PERMISSIONS.PROMOTE_LISTING
-    condition: (row) => row.review_status !== "promoted",
-    modal: "promote",
-  },
-  {
-    key: "register_call",
-    label: "ثبت تماس",
-    icon: Phone,
-    variant: "outline",
-    type: "row",
-    permission: null,
-    modal: "register_call",
-  },
+  
+
 ];
 
 export const LISTING_BULK_ACTIONS = [

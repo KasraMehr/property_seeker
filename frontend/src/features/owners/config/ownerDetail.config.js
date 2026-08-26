@@ -175,7 +175,7 @@ export const OWNER_PROPERTY_COLUMNS = [
   { key: "mortgage_amount", header: "رهن کامل", type: "price" },
   { key: "deposit_amount", header: "ودیعه", type: "price" },
   { key: "monthly_rent", header: "اجاره ماهیانه", type: "price" },
-  { key: "description", header: "توضیحات", type: "text_truncate" },
+  // { key: "description", header: "توضیحات", type: "text_truncate" },
   { key: "created_at", header: "تاریخ ثبت", type: "date" },
   { key: "updated_at", header: "آخرین بروزرسانی", type: "date" },
 ];

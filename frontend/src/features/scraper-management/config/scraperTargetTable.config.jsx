@@ -4,6 +4,7 @@ import { formatDate } from "@/utils/formatters";
 import { buildStatusConfig } from "@/constants/status.utils";
 
 import { Clock, Link2 } from "lucide-react";
+import SourceBadge from "../../../shared/ui/badges/SourceBadge";
 
 /**
  * ScrapeTarget Table Columns
@@ -43,9 +44,11 @@ export const SCRAPER_TARGET_TABLE_COLUMNS = [
     header: "منبع",
     width: "w-28",
     cell: ({ source }) => (
-      <span className="text-sm">
-        {typeof source === "object" ? source?.name || "—" : source || "—"}
-      </span>
+      // TODO: use badge to render the currect source object name
+      // <SourceBadge
+      // source={source}
+      // />
+      "دیوار"
     ),
   },
   {
