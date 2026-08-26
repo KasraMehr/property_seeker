@@ -25,7 +25,7 @@ export default function PageTabs({
             onClick={() => onChange?.(item.id)}
             className={`
               relative flex shrink-0 items-center gap-2
-              px-4 py-3 text-sm font-medium
+              px-4 py-3 text-sm font-medium cursor-pointer
               transition-colors duration-200
               ${
                 isActive

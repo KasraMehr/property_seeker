@@ -3,6 +3,7 @@ import Modal from "@/shared/ui/modal/Modal";
 import FormRenderer from "@/shared/page/FormRenderer";
 import { PROPERTY_FORM } from "@/features/properties/config";
 import propertyService from "@/features/properties/services/propertyService";
+import { toastService } from "@/lib/toast";
 
 export default function PropertyFormModal({ isOpen, onClose, property = null, onSuccess }) {
   const [loading, setLoading] = useState(false);
@@ -13,11 +14,15 @@ export default function PropertyFormModal({ isOpen, onClose, property = null, on
     try {
       if (isEdit) {
         await propertyService.update(property.id, data);
+        toastService.success("ملک با موفقیت ویرایش شد.");
       } else {
         await propertyService.create(data);
+        toastService.success("ملک جدید با موفقیت ثبت شد.");
       }
       onSuccess?.();
       onClose();
+    } catch (error) {
+      toastService.error(error?.response?.data?.detail || "خطا در ذخیره ملک.");
     } finally {
       setLoading(false);
     }

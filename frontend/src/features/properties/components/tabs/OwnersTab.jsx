@@ -1,25 +1,22 @@
-import { useMemo, useState, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { Plus, Inbox } from "lucide-react";
-import { useOutletContext } from "react-router-dom";
-
 import ResourceTemplate from "@/shared/templates/resource/ResourceTemplate";
-import useProperty from "@/features/properties/hooks/useProperty";
+import useOwner from "@/features/owners/hooks/useOwner";
+import useUsersMap from "@/features/users-management/hooks/useUsersMap";
 import {
-  PROPERTY_ALL_FILTERS,
-  PROPERTY_TABLE_COLUMNS,
-  PROPERTY_ROW_ACTIONS,
-  PROPERTY_BULK_ACTIONS,
-} from "@/features/properties/config";
-import useDebounce from "@/shared/useDebounce";
+  OWNER_TABLE_COLUMNS,
+  OWNER_ROW_ACTIONS,
+  OWNER_BULK_ACTIONS,
+  OWNER_ALL_FILTERS,
+} from "@/features/owners/config";
+import OwnerDetailModal from "@/features/owners/components/OwnerDetailModal";
+import OwnerFormModal from "@/features/owners/components/OwnerFormModal";
 import ConfirmModal from "@/shared/ui/modal/ConfirmModal";
 import Button from "@/shared/ui/Button";
-import PropertyDetailModal from "@/features/properties/components/PropertyDetailModal";
-import PropertyFormModal from "@/features/properties/components/PropertyFormModal";
-import RegisterCallForm from "../../../shared/forms/RegisterCallForm";
+import useDebounce from "@/shared/useDebounce";
+import { toastService } from "@/lib/toast";
 
-export default function PropertiesPage() {
-  const { setPageHeader } = useOutletContext();
-
+export default function OwnersTab({ onHeaderStateChange }) {
   const {
     data,
     loading,
@@ -37,37 +34,44 @@ export default function PropertiesPage() {
     getById,
     remove,
     refresh,
-  } = useProperty();
+  } = useOwner();
+
+  const usersMap = useUsersMap();
 
   const [selected, setSelected] = useState([]);
-  const [detailProperty, setDetailProperty] = useState(null);
+  const [detailOwner, setDetailOwner] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
-  const [formProperty, setFormProperty] = useState(null);
-  const [callProperty, setCallProperty] = useState(null);
+  const [formOwner, setFormOwner] = useState(null);
   const [pendingDeleteIds, setPendingDeleteIds] = useState(null);
 
-  /* ─── Page Header ─── */
+  /* ─── Resolve created_by IDs to names ─── */
+  const resolvedData = useMemo(() => {
+    if (!data?.length || !Object.keys(usersMap).length) return data;
+    return data.map((row) => ({
+      ...row,
+      created_by: usersMap[row.created_by] || row.created_by,
+    }));
+  }, [data, usersMap]);
+
+  /* ─── Header Actions ─── */
   useEffect(() => {
-    setPageHeader({
-      title: "فایل‌های ملکی",
-      breadcrumb: [],
+    onHeaderStateChange?.({
+      loading,
+      onRefresh: refresh,
       actions: (
         <Button
           variant="primary"
           size="sm"
           className="gap-1.5"
-          onClick={() => setFormProperty({})}
+          onClick={() => setFormOwner({})}
         >
           <Plus size={16} />
-          ملک جدید
+          مالک جدید
         </Button>
       ),
     });
-
-    return () => {
-      setPageHeader(null);
-    };
-  }, [setPageHeader]);
+    return () => onHeaderStateChange?.(null);
+  }, [loading, refresh, onHeaderStateChange]);
 
   /* ─── Search ─── */
   const [searchInput, setSearchInput] = useState(filterValues.search || "");
@@ -97,13 +101,12 @@ export default function PropertiesPage() {
   /* ─── Open Detail ─── */
   const openDetail = useCallback(
     async (row) => {
-      setDetailProperty(row);
+      setDetailOwner(row);
       setDetailLoading(true);
-
       try {
         if (getById) {
           const full = await getById(row.id);
-          setDetailProperty(full?.data ?? full);
+          setDetailOwner(full?.data ?? full);
         }
       } catch (e) {
         console.error(e);
@@ -121,19 +124,12 @@ export default function PropertiesPage() {
         case "view":
           openDetail(row);
           break;
-
         case "edit":
-          setFormProperty(row);
+          setFormOwner(row);
           break;
-
-        case "register_call":
-          setCallProperty(row);
-          break;
-
         case "delete":
           setPendingDeleteIds([row.id]);
           break;
-
         default:
           break;
       }
@@ -154,18 +150,25 @@ export default function PropertiesPage() {
   /* ─── Confirm Delete ─── */
   const confirmDelete = useCallback(async () => {
     if (!pendingDeleteIds?.length) return;
-
-    await remove(pendingDeleteIds);
-
-    setPendingDeleteIds(null);
-    setSelected([]);
-    refresh?.();
+    try {
+      await remove(pendingDeleteIds);
+      toastService.success(
+        pendingDeleteIds.length > 1
+          ? `${pendingDeleteIds.length} مالک حذف شدند.`
+          : "مالک با موفقیت حذف شد."
+      );
+      setPendingDeleteIds(null);
+      setSelected([]);
+      refresh?.();
+    } catch (error) {
+      toastService.error(error?.response?.data?.detail || "خطا در حذف مالک.");
+    }
   }, [pendingDeleteIds, remove, refresh]);
 
   /* ─── Filters ─── */
   const filters = useMemo(
     () => ({
-      schema: (PROPERTY_ALL_FILTERS || []).filter((f) => f.type !== "search"),
+      schema: (OWNER_ALL_FILTERS || []).filter((f) => f.type !== "search"),
       options: {},
       values: filterValues,
       onChange: setFilter,
@@ -181,7 +184,7 @@ export default function PropertiesPage() {
     () => ({
       value: searchInput,
       onChange: setSearchInput,
-      placeholder: "عنوان، کد ملک...",
+      placeholder: "نام، شماره تماس، کد ملی...",
     }),
     [searchInput],
   );
@@ -201,9 +204,7 @@ export default function PropertiesPage() {
     () => (
       <div className="py-12 text-center space-y-3">
         <Inbox size={48} className="mx-auto text-muted/40" />
-
-        <p className="text-sm font-medium">ملکی یافت نشد</p>
-
+        <p className="text-sm font-medium">مالکی یافت نشد</p>
         <Button variant="outline" size="sm" onClick={clearAll}>
           حذف فیلترها
         </Button>
@@ -214,70 +215,63 @@ export default function PropertiesPage() {
 
   return (
     <>
-      <ResourceTemplate
-        search={searchConfig}
-        filters={filters}
-        count={meta?.count || 0}
-        countLabel="ملک"
-        columns={PROPERTY_TABLE_COLUMNS}
-        data={data}
-        loading={loading}
-        emptyState={emptyState}
-        sort={sort}
-        onSort={handleSort}
-        selectable
-        selected={selected}
-        onSelectionChange={setSelected}
-        rowActions={PROPERTY_ROW_ACTIONS}
-        bulkActions={PROPERTY_BULK_ACTIONS}
-        onRowAction={handleRowAction}
-        onBulkAction={handleBulkAction}
-        pagination={pagination}
-        onPageChange={setPage}
-      />
+      <div className="flex h-full flex-col min-h-0">
+        <ResourceTemplate
+          search={searchConfig}
+          filters={filters}
+          count={meta?.count || 0}
+          countLabel="مالک"
+          columns={OWNER_TABLE_COLUMNS}
+          data={resolvedData}
+          loading={loading}
+          emptyState={emptyState}
+          sort={sort}
+          onSort={handleSort}
+          selectable
+          selected={selected}
+          onSelectionChange={setSelected}
+          rowActions={OWNER_ROW_ACTIONS}
+          bulkActions={OWNER_BULK_ACTIONS}
+          onRowAction={handleRowAction}
+          onBulkAction={handleBulkAction}
+          pagination={pagination}
+          onPageChange={setPage}
+        />
+      </div>
 
-      <PropertyDetailModal
-        isOpen={!!detailProperty}
-        onClose={() => setDetailProperty(null)}
-        property={detailProperty}
+      <OwnerDetailModal
+        isOpen={!!detailOwner}
+        onClose={() => setDetailOwner(null)}
+        owner={detailOwner}
         loading={detailLoading}
-        onRegisterCall={(p) => {
-          setCallProperty(p);
-        }}
-        onEdit={(p) => {
-          setDetailProperty(null);
-          setFormProperty(p);
+        usersMap={usersMap}
+        onEdit={(o) => {
+          setDetailOwner(null);
+          setFormOwner(o);
         }}
       />
 
-      {formProperty !== null && (
-        <PropertyFormModal
+      {formOwner !== null && (
+        <OwnerFormModal
           isOpen
-          onClose={() => setFormProperty(null)}
-          property={formProperty?.id ? formProperty : null}
+          onClose={() => setFormOwner(null)}
+          owner={formOwner?.id ? formOwner : null}
           onSuccess={() => {
-            setFormProperty(null);
+            setFormOwner(null);
             refresh?.();
           }}
         />
       )}
 
-      <RegisterCallForm
-        isOpen={!!callProperty}
-        onClose={() => setCallProperty(null)}
-        property={callProperty}
-        onSuccess={() => setCallProperty(null)}
-      />
-
       <ConfirmModal
         isOpen={!!pendingDeleteIds?.length}
         onClose={() => setPendingDeleteIds(null)}
         onConfirm={confirmDelete}
-        title="حذف ملک"
+        title="حذف مالک"
         message={
           pendingDeleteIds?.length > 1
-            ? `${pendingDeleteIds.length} ملک حذف می‌شود. ادامه می‌دهید؟`
-            : "این فایل ملکی حذف می‌شود. ادامه می‌دهید؟"
+            ? `${pendingDeleteIds.length} مالک حذف می‌شود. ادامه می‌دهید؟`
+            : "این مالک حذف می‌شود. ادامه می‌دهید؟"
         }
         variant="danger"
       />

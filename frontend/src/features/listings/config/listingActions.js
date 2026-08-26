@@ -20,39 +20,6 @@ export const LISTING_ROW_ACTIONS = [
     modal: "detail",
   },
   {
-    key: "open_source",
-    label: "مشاهده منبع",
-    icon: ExternalLink,
-    variant: "ghost",
-    type: "row",
-    permission: null,
-    condition: (row) => !!row.url,
-    handler: "open_url",
-    handlerPayload: (row) => row.url,
-  },
-  {
-    key: "shortlist",
-    label: "منتخب",
-    icon: Star,
-    variant: "outline",
-    type: "row",
-    permission: null, // بعداً: PERMISSIONS.REVIEW_LISTING
-    condition: (row) => row.review_status !== "shortlisted",
-    handler: "review",
-    handlerPayload: () => ({ review_status: "shortlisted" }),
-  },
-  {
-    key: "reject",
-    label: "رد کردن",
-    icon: XCircle,
-    variant: "outline",
-    type: "row",
-    permission: null,
-    condition: (row) => row.review_status !== "rejected",
-    handler: "review",
-    handlerPayload: () => ({ review_status: "rejected" }),
-  },
-  {
     key: "promote",
     label: "تبدیل به ملک",
     icon: ArrowRightLeft,
@@ -71,6 +38,41 @@ export const LISTING_ROW_ACTIONS = [
     permission: null,
     modal: "register_call",
   },
+  {
+    key: "open_source",
+    label: "مشاهده منبع",
+    icon: ExternalLink,
+    variant: "ghost",
+    type: "row",
+    permission: null,
+    condition: (row) => !!row.url,
+    handler: "open_url",
+    handlerPayload: (row) => row.url,
+  },
+  // {
+  //   key: "shortlist",
+  //   label: "منتخب",
+  //   icon: Star,
+  //   variant: "outline",
+  //   type: "row",
+  //   permission: null, // بعداً: PERMISSIONS.REVIEW_LISTING
+  //   condition: (row) => row.review_status !== "shortlisted",
+  //   handler: "review",
+  //   handlerPayload: () => ({ review_status: "shortlisted" }),
+  // },
+  // {
+  //   key: "reject",
+  //   label: "رد کردن",
+  //   icon: XCircle,
+  //   variant: "outline",
+  //   type: "row",
+  //   permission: null,
+  //   condition: (row) => row.review_status !== "rejected",
+  //   handler: "review",
+  //   handlerPayload: () => ({ review_status: "rejected" }),
+  // },
+  
+
 ];
 
 export const LISTING_BULK_ACTIONS = [

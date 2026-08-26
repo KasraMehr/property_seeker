@@ -1,27 +1,20 @@
 import { useMemo, useEffect, useState, useCallback } from "react";
-import { Eye, Phone, ExternalLink, Inbox } from "lucide-react";
+import { Inbox } from "lucide-react";
 import { useOutletContext } from "react-router-dom";
 import ResourceTemplate from "@/shared/templates/resource/ResourceTemplate";
 import useListing from "@/features/listings/hooks/useListing";
+import useListingModals from "@/features/listings/hooks/useListingModals";
 import {
   LISTING_ALL_FILTERS,
   LISTING_TABLE_COLUMNS,
+  LISTING_ROW_ACTIONS,
 } from "@/features/listings/config";
 import useDebounce from "@/shared/useDebounce";
 import Button from "@/shared/ui/Button";
 import ListingDetailModal from "@/features/listings/components/ListingDetailModal";
+import PromoteListingModal from "@/features/listings/components/PromoteListingModal";
+import PromoteSuccessModal from "@/features/listings/components/PromoteSuccessModal";
 import RegisterCallForm from "../../../shared/forms/RegisterCallForm";
-
-const LISTING_ROW_ACTIONS = [
-  { key: "view", label: "مشاهده", icon: Eye },
-  { key: "register_call", label: "ثبت تماس", icon: Phone },
-  {
-    key: "open_source",
-    label: "مشاهده منبع",
-    icon: ExternalLink,
-    visible: (row) => !!row.url,
-  },
-];
 
 export default function ListingsPage() {
   const { setPageHeader } = useOutletContext();
@@ -42,11 +35,23 @@ export default function ListingsPage() {
     pageSize,
     totalPages,
     getById,
+    refresh,
   } = useListing();
 
-  const [detailListing, setDetailListing] = useState(null);
+  const {
+    detail,
+    promote,
+    registerCall,
+    openDetail,
+    closeDetail,
+    openPromote,
+    closePromote,
+    openRegisterCall,
+    closeRegisterCall,
+  } = useListingModals();
+
   const [detailLoading, setDetailLoading] = useState(false);
-  const [callListing, setCallListing] = useState(null);
+  const [promoteResult, setPromoteResult] = useState(null);
 
   const [searchInput, setSearchInput] = useState(filterValues.search || "");
   const debouncedSearch = useDebounce(searchInput, 400);
@@ -71,14 +76,14 @@ export default function ListingsPage() {
     [sort, setOrdering],
   );
 
-  const openDetail = useCallback(
+  const handleOpenDetail = useCallback(
     async (row) => {
       setDetailLoading(true);
-      setDetailListing(row);
+      openDetail(row);
       try {
         if (getById) {
           const full = await getById(row.id);
-          setDetailListing(full);
+          openDetail(full);
         }
       } catch (err) {
         console.error(err);
@@ -86,17 +91,35 @@ export default function ListingsPage() {
         setDetailLoading(false);
       }
     },
-    [getById],
+    [getById, openDetail],
+  );
+
+  const handleOpenPromote = useCallback(
+    async (row) => {
+      // Fetch full listing detail so auto-fill fields are available
+      try {
+        const full = await getById(row.id);
+        openPromote(full?.data ?? full);
+      } catch (err) {
+        console.error(err);
+        // Fallback: open with whatever data we have
+        openPromote(row);
+      }
+    },
+    [getById, openPromote],
   );
 
   const handleRowAction = useCallback(
     (actionKey, row) => {
       switch (actionKey) {
         case "view":
-          openDetail(row);
+          handleOpenDetail(row);
           break;
         case "register_call":
-          setCallListing(row);
+          openRegisterCall(row);
+          break;
+        case "promote":
+          handleOpenPromote(row);
           break;
         case "open_source":
           if (row.url) window.open(row.url, "_blank", "noopener,noreferrer");
@@ -105,7 +128,7 @@ export default function ListingsPage() {
           break;
       }
     },
-    [openDetail],
+    [handleOpenDetail, openRegisterCall, handleOpenPromote],
   );
 
   const filters = useMemo(
@@ -191,18 +214,35 @@ export default function ListingsPage() {
       />
 
       <ListingDetailModal
-        isOpen={!!detailListing}
-        onClose={() => setDetailListing(null)}
-        listing={detailListing}
+        isOpen={detail.open}
+        onClose={closeDetail}
+        listing={detail.listing}
         loading={detailLoading}
-        onRegisterCall={(listing) => setCallListing(listing)}
+        onRegisterCall={(listing) => openRegisterCall(listing)}
+      />
+
+      <PromoteListingModal
+        isOpen={promote.open}
+        onClose={closePromote}
+        listing={promote.listing}
+        onSuccess={(result) => {
+          closePromote();
+          setPromoteResult(result);
+          refresh?.();
+        }}
+      />
+
+      <PromoteSuccessModal
+        isOpen={!!promoteResult}
+        onClose={() => setPromoteResult(null)}
+        result={promoteResult}
       />
 
       <RegisterCallForm
-        isOpen={!!callListing}
-        onClose={() => setCallListing(null)}
-        listing={callListing}
-        onSuccess={() => setCallListing(null)}
+        isOpen={registerCall.open}
+        onClose={closeRegisterCall}
+        listing={registerCall.listing}
+        onSuccess={() => closeRegisterCall()}
       />
     </>
   );
