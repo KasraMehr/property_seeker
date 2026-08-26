@@ -1,4 +1,5 @@
 import { API_ENDPOINTS } from "@/constants/apiEndpoints";
+import { PROPERTY_DEAL_TYPE_CONFIG } from "./propertyDealType.config";
 
 /**
  * Create/Edit Property Form
@@ -329,7 +330,7 @@ export const PROPERTY_FORM = {
 export const PROMOTE_LISTING_FORM = {
   title: "تبدیل آگهی به ملک",
   description:
-    "آگهی انتخاب‌شده به پرونده ملک تبدیل می‌شود — فقط فیلدهای پشتیبانی‌شده توسط سرور",
+    "فیلدهای دارای * الزامی هستند. اطلاعات ملک از آگهی به صورت خودکار پر می‌شود.",
   tabs: null,
   fields: [
     {
@@ -350,11 +351,14 @@ export const PROMOTE_LISTING_FORM = {
       type: "select",
       required: true,
       placeholder: "انتخاب نوع معامله",
-      options: [
-        { value: "sale", label: "فروش" },
-        { value: "rent", label: "اجاره" },
-        { value: "presale", label: "پیش‌فروش" },
-      ],
+      options: Object.entries(PROPERTY_DEAL_TYPE_CONFIG).map(
+        ([value, config]) => ({
+          value,
+          label: config.label,
+          icon: config.icon,
+          color: config.color,
+        }),
+      ),
       validation: { required: "نوع معامله الزامی است" },
       span: 6,
     },
@@ -374,6 +378,7 @@ export const PROMOTE_LISTING_FORM = {
       required: false,
       placeholder: "متر مربع",
       autoFill: { source: "listing", field: "listed_area", readOnly: false },
+      validation: { required: "متراژ الزامی است (آگهی متراژ ندارد)" },
       span: 6,
     },
     {

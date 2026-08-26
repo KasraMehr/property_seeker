@@ -148,6 +148,17 @@ export default function SearchSelectField({
                   <X size={14} />
                 </button>
               )}
+              {field.addAction && !disabled && (
+                <button
+                  type="button"
+                  onClick={field.addAction}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 h-7 px-2.5 flex items-center justify-center gap-1 rounded-lg bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors cursor-pointer"
+                  title={field.addActionLabel || "افزودن جدید"}
+                >
+                  <span className="text-sm leading-none">+</span>
+                  <span>جدید</span>
+                </button>
+              )}
               {open && (
                 <div className="absolute z-50 mt-1.5 w-full rounded-xl border border-border bg-surface/95 shadow-lg max-h-60 overflow-auto backdrop-blur-md">
                   {loading ? (

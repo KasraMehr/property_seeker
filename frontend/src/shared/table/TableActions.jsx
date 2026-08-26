@@ -39,11 +39,25 @@ const TableActions = forwardRef(({
     return () => document.removeEventListener("mousedown", handle);
   }, [isControlled]);
 
-  // Auto-close after 3 seconds
+  // Auto-close after 3 seconds (pauses on hover)
+  const isHovered = useRef(false);
+  const timerRef = useRef(null);
+
+  const startCloseTimer = () => {
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      if (!isHovered.current) setOpen(false);
+    }, 2000);
+  };
+
   useEffect(() => {
-    if (!open) return;
-    const timer = setTimeout(() => setOpen(false), 2000);
-    return () => clearTimeout(timer);
+    if (open) {
+      isHovered.current = false;
+      startCloseTimer();
+    } else {
+      clearTimeout(timerRef.current);
+    }
+    return () => clearTimeout(timerRef.current);
   }, [open]);
 
   // Build from shorthands
@@ -71,6 +85,14 @@ const TableActions = forwardRef(({
 
       {open && (
         <div
+          onMouseEnter={() => {
+            isHovered.current = true;
+            clearTimeout(timerRef.current);
+          }}
+          onMouseLeave={() => {
+            isHovered.current = false;
+            startCloseTimer();
+          }}
           className="
             z-50
             min-w-35 bg-surface/95 backdrop-blur-xl
