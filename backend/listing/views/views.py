@@ -28,16 +28,25 @@ class ListingPagination(PageNumberPagination):
 
 
 class ListingListView(generics.ListAPIView):
-    queryset = (
-        Listing.objects
-        .select_related("source")
-        .all()
-        .order_by("-last_seen_at", "-id")
-    )
     serializer_class = ListingListSerializer
     permission_classes = (HasRolePermission,)
     required_permission = "view_listing"
     pagination_class = ListingPagination
+
+    def get_queryset(self):
+        user = self.request.user
+        qs = (
+            Listing.objects
+            .select_related("source")
+            .order_by("-last_seen_at", "-id")
+        )
+
+        if not user.is_owner:
+            qs = qs.filter(
+                property__address__neighborhood__in=user.service_neighborhoods.all()
+            )
+
+        return qs
 
 
 

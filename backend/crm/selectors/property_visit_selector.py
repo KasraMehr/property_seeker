@@ -8,7 +8,7 @@ class PropertyVisitSelector:
     @staticmethod
     def all(user):
 
-        return (
+        qs = (
             PropertyVisit.objects.select_related(
                 "property",
                 "customer",
@@ -17,6 +17,11 @@ class PropertyVisitSelector:
             .filter(agency=user.agency)
             .order_by("-visit_date")
         )
+
+        if not user.is_owner:
+            qs = qs.filter(agent=user)
+
+        return qs
 
     @staticmethod
     def by_id(pk, user):

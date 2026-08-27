@@ -6,7 +6,7 @@ class ReminderSelector:
     @staticmethod
     def all(user):
 
-        return (
+        qs = (
             Reminder.objects.select_related(
                 "agency",
                 "user",
@@ -16,6 +16,11 @@ class ReminderSelector:
             .filter(agency=user.agency)
             .order_by("due_at")
         )
+
+        if not user.is_owner:
+            qs = qs.filter(user=user)
+
+        return qs
 
     @staticmethod
     def by_id(pk, user):
