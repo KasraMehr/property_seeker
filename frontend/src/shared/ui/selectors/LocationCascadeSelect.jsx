@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Select from "@/shared/ui/selectors/Select";
 import SearchSelect from "@/shared/ui/selectors/SearchSelect";
 import locationService from "@/features/location-management/services/locationService";
-import { LOCATION_LIST_URL } from "@/constants/locationCascade";
+import { LOCATION_LIST_URL , LOCATION_CASCADE_FIELDS } from "@/constants/locationCascade";
 
 /**
  * LocationCascadeSelect
@@ -33,13 +33,6 @@ import { LOCATION_LIST_URL } from "@/constants/locationCascade";
  *   layout?: 'grid' | 'stack'  default 'grid' (2 cols on md+)
  */
 
-const DEFAULT_LABELS = {
-  province: "استان",
-  city: "شهر",
-  district: "منطقه",
-  neighborhood: "محله",
-  address: "آدرس",
-};
 
 const EMPTY = {
   province: null,
@@ -64,11 +57,9 @@ export default function LocationCascadeSelect({
   size = "sm",
   disabled = false,
   className = "",
-  labels: labelsProp,
   clearable = true,
   layout = "grid",
 }) {
-  const labels = { ...DEFAULT_LABELS, ...labelsProp };
   const activeLevels = useMemo(() => {
     const base = levels.filter((l) =>
       ["province", "city", "district", "neighborhood"].includes(l),
@@ -236,11 +227,11 @@ export default function LocationCascadeSelect({
     <div className={`${gridClass} ${className}`}>
       {activeLevels.includes("province") && (
         <Select
-          label={labels.province}
+          label={LOCATION_CASCADE_FIELDS.province.label}
           options={provinceOptions}
           value={current.province ?? ""}
           onChange={handleProvince}
-          placeholder={labels.province}
+          placeholder={LOCATION_CASCADE_FIELDS.province.label}
           clearable={clearable}
           disabled={selectDisabled}
           size={size}
@@ -250,12 +241,12 @@ export default function LocationCascadeSelect({
 
       {activeLevels.includes("city") && (
         <Select
-          label={labels.city}
+          label={LOCATION_CASCADE_FIELDS.city.label}
           options={cityOptions}
           value={current.city ?? ""}
           onChange={handleCity}
           placeholder={
-            current.province ? labels.city : "ابتدا استان را انتخاب کنید"
+            current.province ? LOCATION_CASCADE_FIELDS.city.label : " "
           }
           clearable={clearable}
           disabled={selectDisabled || !current.province}
@@ -266,12 +257,12 @@ export default function LocationCascadeSelect({
 
       {activeLevels.includes("district") && (
         <Select
-          label={labels.district}
+          label={LOCATION_CASCADE_FIELDS.district.label}
           options={districtOptions}
           value={current.district ?? ""}
           onChange={handleDistrict}
           placeholder={
-            current.city ? labels.district : "ابتدا شهر را انتخاب کنید"
+            current.city ? LOCATION_CASCADE_FIELDS.district.label : " "
           }
           clearable={clearable}
           disabled={selectDisabled || !current.city}
@@ -282,14 +273,14 @@ export default function LocationCascadeSelect({
 
       {activeLevels.includes("neighborhood") && (
         <Select
-          label={labels.neighborhood}
+          label={LOCATION_CASCADE_FIELDS.neighborhood.label}
           options={neighborhoodOptions}
           value={current.neighborhood ?? ""}
           onChange={handleNeighborhood}
           placeholder={
             current.district
-              ? labels.neighborhood
-              : "ابتدا منطقه را انتخاب کنید"
+              ? LOCATION_CASCADE_FIELDS.neighborhood.label
+              : " "
           }
           clearable={clearable}
           disabled={selectDisabled || !current.district}
@@ -301,7 +292,7 @@ export default function LocationCascadeSelect({
       {activeLevels.includes("address") && (
         <div className="sm:col-span-2">
           <SearchSelect
-            label={labels.address}
+            label={LOCATION_CASCADE_FIELDS.address.label}
             value={current.address ?? null}
             onChange={handleAddress}
             endpoint={LOCATION_LIST_URL.addresses}

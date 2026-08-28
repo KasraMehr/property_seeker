@@ -114,11 +114,11 @@ export default function SearchSelect({
 
   return (
     <div className={`relative ${className}`} ref={containerRef}>
-      {label && (
+      {/* {label && (
         <label className="block text-sm font-medium text-foreground mb-1.5">
           {label}
         </label>
-      )}
+      )} */}
 
       <button
         type="button"

@@ -47,12 +47,12 @@ export default function Table({
   useEffect(() => {
     if (openMenuRowKey === null) return;
     const handleMouseDown = (e) => {
-      if (!e.target.closest('tr[data-row]')) {
+      if (!e.target.closest("tr[data-row]")) {
         setOpenMenuRowKey(null);
       }
     };
-    document.addEventListener('mousedown', handleMouseDown);
-    return () => document.removeEventListener('mousedown', handleMouseDown);
+    document.addEventListener("mousedown", handleMouseDown);
+    return () => document.removeEventListener("mousedown", handleMouseDown);
   }, [openMenuRowKey]);
 
   // Reset open menu when data changes
@@ -95,11 +95,8 @@ export default function Table({
     px-3 py-3 text-right text-xs font-semibold text-muted-foreground
     uppercase tracking-wide whitespace-nowrap select-none
     ${onSort && col.sortable !== false ? "cursor-pointer hover:text-foreground" : ""}
+    ${col.width || ""}
   `}
-                className={`
-  px-3 py-3 ... 
-  ${col.width || ""}
-`}
                 style={col.minWidth ? { minWidth: col.minWidth } : undefined}
                 onClick={() => {
                   if (onSort && col.sortable !== false) onSort(col.key);
@@ -159,7 +156,8 @@ export default function Table({
                 >
                   {actions(row, {
                     isOpen: openMenuRowKey === row[rowKey],
-                    onOpenChange: (open) => setOpenMenuRowKey(open ? row[rowKey] : null),
+                    onOpenChange: (open) =>
+                      setOpenMenuRowKey(open ? row[rowKey] : null),
                     position: menuPosition,
                   })}
                 </td>
