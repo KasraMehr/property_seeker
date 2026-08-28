@@ -96,9 +96,25 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
   }, []);
 
   const [filters, setFilters] = useState(buildInitialState);
+  const [filterLabels, setFilterLabels] = useState({});
 
-  // 🔴 KEY FIX: bail out if value hasn't changed
-  const setFilter = useCallback((key, value) => {
+  const setFilter = useCallback((key, value, label) => {
+    if (label !== undefined) {
+      setFilterLabels((prev) => {
+        if (!label) {
+          if (!(key in prev)) return prev;
+
+          const next = { ...prev };
+          delete next[key];
+          return next;
+        }
+
+        if (prev[key] === label) return prev;
+
+        return { ...prev, [key]: label };
+      });
+    }
+
     setFilters((prev) => {
       const newValue = value === "" ? null : value;
       const prevValue = prev[key];
@@ -142,6 +158,14 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
   const clearFilter = useCallback((key) => {
     const field = schemaRef.current.find((f) => f.key === key);
     if (!field) return;
+
+    setFilterLabels((prev) => {
+      if (!(key in prev)) return prev;
+
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
 
     setFilters((prev) => {
       let defaultValue;
@@ -207,6 +231,11 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
   }, []);
 
   const clearAll = useCallback(() => {
+    setFilterLabels((prev) => {
+      if (Object.keys(prev).length === 0) return prev;
+      return {};
+    });
+
     setFilters((prev) => {
       const next = buildInitialState();
       // Shallow compare
@@ -236,9 +265,10 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
             const option = options.find(
               (o) => String(o.value) === String(value),
             );
+
             chips.push({
               key: field.key,
-              label: option?.label || value,
+              label: option?.label || filterLabels[field.key] || value,
               type: field.type,
             });
           }
@@ -321,8 +351,8 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
     });
 
     return chips;
-  }, [filters]);
-
+  }, [filters, filterLabels]);
+  
   const queryParams = useMemo(() => {
     const params = {};
     const currentSchema = schemaRef.current;

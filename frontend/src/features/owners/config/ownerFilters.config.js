@@ -38,10 +38,8 @@ export const OWNER_ADVANCED_FILTERS = [
     async: true,
     endpoint: API_ENDPOINTS.ACCOUNTS.USERS.LIST.url,
     search_fields: ["full_name", "phone"],
-    option: {
-      label:"full_name",
-      value:"id",
-    },
+    optionLabel: "full_name",
+    optionValue: "id",
   },
   {
     key: "created_at",

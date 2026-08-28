@@ -100,7 +100,7 @@ export default function FilterBar({
             <div key={field.key} className="min-w-40">
               <SearchSelect
                 value={value ?? null}
-                onChange={(v) => onChange(field.key, v || null)}
+                onChange={(v, label) => onChange(field.key, v || null, label)}
                 endpoint={field.endpoint}
                 placeholder={field.label || field.placeholder || "جستجو..."}
                 optionLabel={field.optionLabel || "full_name"}
