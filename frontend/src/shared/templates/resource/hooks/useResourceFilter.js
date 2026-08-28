@@ -1,7 +1,9 @@
 import { useState, useCallback, useMemo, useRef } from "react";
 import DateObject from "react-date-object";
 import persian from "react-date-object/calendars/persian";
+import persian_fa from "react-date-object/locales/persian_fa";
 import gregorian from "react-date-object/calendars/gregorian";
+import { formatRange, toFa } from "@/utils/formatters";
 
 /**
  * Convert gregorian date string (YYYY-MM-DD) to Persian display string (YYYY/MM/DD)
@@ -13,10 +15,17 @@ function toPersianDateString(dateStr) {
       date: dateStr,
       calendar: gregorian,
       format: "YYYY-MM-DD",
-    }).convert(persian).format("YYYY/MM/DD");
+    }).convert(persian).format("YYYY/MM/DD", persian_fa);
   } catch {
     return dateStr;
   }
+}
+
+// Fallback: manually convert digits to Persian
+function toFaDigits(str) {
+  if (!str) return str;
+  const map = { "0": "۰", "1": "۱", "2": "۲", "3": "۳", "4": "۴", "5": "۵", "6": "۶", "7": "۷", "8": "۸", "9": "۹" };
+  return str.replace(/[0-9]/g, (d) => map[d]);
 }
 
 /**
@@ -49,7 +58,7 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
           state[field.key] = [];
           break;
         case "range":
-          state[field.key] = { min: field.min, max: field.max };
+          state[field.key] = { min: field.min ?? 0, max: field.max ?? 100 };
           break;
         case "date_range":
           state[field.key] = { from: null, to: null };
@@ -71,18 +80,38 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
   const setFilter = useCallback((key, value) => {
     setFilters((prev) => {
       const newValue = value === "" ? null : value;
+      const prevValue = prev[key];
 
-      // If value is the same reference or primitive, return prev to bail out
-      if (prev[key] === newValue) return prev;
+      // Primitive comparison
+      if (prevValue === newValue) return prev;
 
-      // For arrays/objects, do shallow comparison
+      // Array shallow comparison
       if (
-        Array.isArray(prev[key]) &&
+        Array.isArray(prevValue) &&
         Array.isArray(newValue) &&
-        prev[key].length === newValue.length &&
-        prev[key].every((v, i) => v === newValue[i])
+        prevValue.length === newValue.length &&
+        prevValue.every((v, i) => v === newValue[i])
       ) {
         return prev;
+      }
+
+      // Object shallow comparison (for date_range: {from, to})
+      if (
+        prevValue &&
+        newValue &&
+        typeof prevValue === "object" &&
+        typeof newValue === "object" &&
+        !Array.isArray(prevValue) &&
+        !Array.isArray(newValue)
+      ) {
+        const prevKeys = Object.keys(prevValue);
+        const newKeys = Object.keys(newValue);
+        if (
+          prevKeys.length === newKeys.length &&
+          prevKeys.every((k) => prevValue[k] === newValue[k])
+        ) {
+          return prev;
+        }
       }
 
       return { ...prev, [key]: newValue };
@@ -108,7 +137,7 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
           defaultValue = [];
           break;
         case "range":
-          defaultValue = { min: field.min, max: field.max };
+          defaultValue = { min: field.min ?? 0, max: field.max ?? 100 };
           break;
         case "date_range":
           defaultValue = { from: null, to: null };
@@ -120,7 +149,30 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
           defaultValue = null;
       }
 
-      if (prev[key] === defaultValue) return prev;
+      const prevValue = prev[key];
+
+      // Primitive comparison
+      if (prevValue === defaultValue) return prev;
+
+      // Object shallow comparison
+      if (
+        prevValue &&
+        defaultValue &&
+        typeof prevValue === "object" &&
+        typeof defaultValue === "object" &&
+        !Array.isArray(prevValue) &&
+        !Array.isArray(defaultValue)
+      ) {
+        const prevKeys = Object.keys(prevValue);
+        const defKeys = Object.keys(defaultValue);
+        if (
+          prevKeys.length === defKeys.length &&
+          prevKeys.every((k) => prevValue[k] === defaultValue[k])
+        ) {
+          return prev;
+        }
+      }
+
       return { ...prev, [key]: defaultValue };
     });
   }, []);
@@ -178,20 +230,23 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
           }
           break;
 
-        case "range":
-          if (value.min !== field.min || value.max !== field.max) {
+        case "range": {
+          const fieldMin = field.min ?? 0;
+          const fieldMax = field.max ?? 100;
+          if (value.min !== fieldMin || value.max !== fieldMax) {
             chips.push({
               key: field.key,
-              label: `${value.min} - ${value.max}`,
+              label: formatRange(value.min, value.max, field.unit),
               type: "range",
             });
           }
           break;
+        }
 
         case "date_range":
           if (value.from || value.to) {
-            const fromFa = toPersianDateString(value.from);
-            const toFa = toPersianDateString(value.to);
+            const fromFa = toFaDigits(toPersianDateString(value.from));
+            const toFa = toFaDigits(toPersianDateString(value.to));
             const parts = [];
             if (fromFa) parts.push(`از ${fromFa}`);
             if (toFa) parts.push(`تا ${toFa}`);
@@ -238,14 +293,17 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
           }
           break;
 
-        case "range":
-          if (value && (value.min !== field.min || value.max !== field.max)) {
+        case "range": {
+          const fieldMin = field.min ?? 0;
+          const fieldMax = field.max ?? 100;
+          if (value && (value.min !== fieldMin || value.max !== fieldMax)) {
             const minKey = field.min_key || `${field.key}_min`;
             const maxKey = field.max_key || `${field.key}_max`;
-            if (value.min != null) params[minKey] = value.min;
-            if (value.max != null) params[maxKey] = value.max;
+            if (value.min != null && value.min !== fieldMin) params[minKey] = value.min;
+            if (value.max != null && value.max !== fieldMax) params[maxKey] = value.max;
           }
           break;
+        }
 
         case "date_range":
           if (value?.from || value?.to) {

@@ -27,9 +27,6 @@ export const OWNER_QUICK_FILTERS = [
     type: "toggle",
     placement: "drawer",
   },
-];
-
-export const OWNER_ADVANCED_FILTERS = [
   {
     key: "created_by",
     label: "ثبت‌کننده",
@@ -41,6 +38,10 @@ export const OWNER_ADVANCED_FILTERS = [
     optionLabel: "full_name",
     optionValue: "id",
   },
+];
+
+export const OWNER_ADVANCED_FILTERS = [
+  
   
   {
     key: "created_at",

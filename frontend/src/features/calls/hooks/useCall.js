@@ -22,12 +22,17 @@ export default function useCall() {
   }, []);
 
   const prevQueryRef = useRef(null);
+  const fetchTimerRef = useRef(null);
   useEffect(() => {
     const qs = JSON.stringify(query.queryParams);
     if (prevQueryRef.current !== null && prevQueryRef.current !== qs) {
-      fetchList(query.queryParams);
+      clearTimeout(fetchTimerRef.current);
+      fetchTimerRef.current = setTimeout(() => {
+        fetchList(query.queryParams);
+      }, 500);
     }
     prevQueryRef.current = qs;
+    return () => clearTimeout(fetchTimerRef.current);
   }, [query.queryParams, fetchList]);
 
   const refresh = useCallback(() => {
@@ -58,8 +63,7 @@ export default function useCall() {
   return {
     ...resourceState,
     fetchList,
-    remove, 
-    getById,
+    remove,
     markFollowUpDone,
     bulkRemove,
     filters: query.filters,

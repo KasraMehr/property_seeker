@@ -2,6 +2,7 @@ import {
   FOLLOWUP_STATUS_CONFIG,
   FOLLOWUP_TYPE_CONFIG,
 } from "@/features/followups/config";
+
 import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 
 /**
@@ -21,6 +22,7 @@ export const FOLLOWUP_QUICK_FILTERS = [
     fields: ["title", "description"],
     placement: "bar",
   },
+
   {
     key: "type",
     label: "نوع وظیفه",
@@ -31,6 +33,7 @@ export const FOLLOWUP_QUICK_FILTERS = [
       label: cfg.label,
     })),
   },
+
   {
     key: "status",
     label: "وضعیت",
@@ -40,6 +43,13 @@ export const FOLLOWUP_QUICK_FILTERS = [
       value,
       label: cfg.label,
     })),
+  },
+
+  {
+    key: "due_today",
+    label: "موعد امروز",
+    type: "toggle",
+    placement: "drawer",
   },
   {
     key: "user",
@@ -51,14 +61,6 @@ export const FOLLOWUP_QUICK_FILTERS = [
     search_fields: ["full_name", "phone"],
     optionLabel: "full_name",
     optionValue: "id",
-  },
-  {
-    key: "due_at",
-    label: "موعد انجام",
-    type: "date_range",
-    placement: "bar",
-    from_key: "due_from",
-    to_key: "due_to",
   },
 ];
 
@@ -74,6 +76,7 @@ export const FOLLOWUP_ADVANCED_FILTERS = [
     optionLabel: "full_name",
     optionValue: "id",
   },
+
   {
     key: "property",
     label: "ملک",
@@ -85,42 +88,51 @@ export const FOLLOWUP_ADVANCED_FILTERS = [
     optionLabel: "title",
     optionValue: "id",
   },
+
   {
     key: "overdue",
     label: "تنها موعد گذشته",
     type: "toggle",
     placement: "drawer",
   },
-  {
-    key: "due_today",
-    label: "موعد امروز",
-    type: "toggle",
-    placement: "drawer",
-  },
+
   {
     key: "due_this_week",
     label: "موعد این هفته",
     type: "toggle",
     placement: "drawer",
   },
+
   {
     key: "completed_today",
     label: "تکمیل‌شده امروز",
     type: "toggle",
     placement: "drawer",
   },
+
   {
     key: "has_property",
     label: "دارای ملک مرتبط",
     type: "toggle",
     placement: "drawer",
   },
+
   {
     key: "has_customer",
     label: "دارای مشتری مرتبط",
     type: "toggle",
     placement: "drawer",
   },
+
+  {
+    key: "due_at",
+    label: "موعد انجام",
+    type: "date_range",
+    placement: "bar",
+    from_key: "due_from",
+    to_key: "due_to",
+  },
+
   {
     key: "created_at",
     label: "تاریخ ایجاد",
@@ -129,6 +141,7 @@ export const FOLLOWUP_ADVANCED_FILTERS = [
     from_key: "created_from",
     to_key: "created_to",
   },
+
   {
     key: "completed_at",
     label: "تاریخ تکمیل",

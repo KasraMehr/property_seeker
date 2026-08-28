@@ -35,7 +35,7 @@ export default function CallDetailModal({ isOpen, onClose, call }) {
         </div>
         <div className="min-w-0 flex-1">
           <h3 className="text-base font-bold text-foreground">
-            تماس با {call.customer?.full_name || "—"}
+            تماس با {call.customer_name || "—"}
           </h3>
           <div className="flex items-center gap-2 mt-1">
             <StatusBadge

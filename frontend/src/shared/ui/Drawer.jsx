@@ -56,7 +56,7 @@ export default function Drawer({
   };
 
   const sizeClasses = {
-    right: "w-72  h-full",
+    right: "w-74  h-full",
     left: "w-fit max-w-[340px] h-full",
     top: "w-full max-h-[80vh]",
     bottom: "w-full max-h-[80vh]",

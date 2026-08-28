@@ -1,5 +1,24 @@
 const PLACEHOLDER = "-";
 
+const fa = new Intl.NumberFormat("fa-IR");
+export const toFa = (v) => fa.format(v);
+
+/**
+ * Format a range value for display in chips
+ * e.g. formatRange(0, 50000000, "تومان") → "۰ الی ۵۰ میلیون تومان"
+ */
+export function formatRange(min, max, unit = "") {
+  const formatNumber = (v) => {
+    if (unit === "تومان") {
+      if (v >= 1_000_000_000) return `${toFa((v / 1_000_000_000).toFixed(1))} میلیارد`;
+      if (v >= 1_000_000) return `${toFa(Math.round(v / 1_000_000))} میلیون`;
+    }
+    return toFa(v);
+  };
+  const unitStr = unit ? ` ${unit}` : "";
+  return `${formatNumber(min)} الی ${formatNumber(max)}${unitStr}`;
+}
+
 /**
  * Numbers
  */

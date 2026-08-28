@@ -32,7 +32,7 @@ import {
 /* ─── Tabs ─── */
 export const CALL_DETAIL_TABS = [
   { key: "call", label: "مشخصات تماس", icon: Phone },
-  { key: "related", label: "اطلاعات مرتبط", icon: User },
+  // { key: "related", label: "اطلاعات مرتبط", icon: User },
 ];
 
 /* ─── Icon Map ─── */
@@ -121,7 +121,7 @@ export const CALL_DETAIL_FIELDS = [
   },
 ];
 
-/* ─── Tab 2: Related Info ─── */
+/* ─── Tab 2: Related Info ───TODO: */ 
 // export const CALL_RELATED_FIELDS = [
 //   {
 //     section: "people",

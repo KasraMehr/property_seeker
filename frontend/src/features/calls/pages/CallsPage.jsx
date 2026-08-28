@@ -204,7 +204,12 @@ export default function CallsPage() {
 
   const filters = useMemo(
     () => ({
-      schema: CALL_ALL_FILTERS.filter((f) => f.type !== "search"),
+      schema: CALL_ALL_FILTERS.filter((f) => {
+        if (f.type === "search") return false;
+        // handled_by filter only visible for admin/owner
+        if (f.key === "handled_by" && !isAdmin) return false;
+        return true;
+      }),
       options: filterOptions,
       values: filterValues,
       onChange: setFilter,

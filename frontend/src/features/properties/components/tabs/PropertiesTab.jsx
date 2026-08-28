@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback, useEffect } from "react";
 import { Plus, Inbox } from "lucide-react";
 import ResourceTemplate from "@/shared/templates/resource/ResourceTemplate";
 import useProperty from "@/features/properties/hooks/useProperty";
+import useAuth from "@/features/auth/hooks/useAuth";
 import {
   PROPERTY_ALL_FILTERS,
   PROPERTY_TABLE_COLUMNS,
@@ -17,6 +18,9 @@ import RegisterCallForm from "@/shared/forms/RegisterCallForm";
 import { toastService } from "@/lib/toast";
 
 export default function PropertiesTab({ onHeaderStateChange }) {
+  const { user } = useAuth();
+  const isAdmin = Boolean(user?.is_owner);
+
   const {
     data,
     loading,
@@ -161,7 +165,12 @@ export default function PropertiesTab({ onHeaderStateChange }) {
   /* ─── Filters ─── */
   const filters = useMemo(
     () => ({
-      schema: (PROPERTY_ALL_FILTERS || []).filter((f) => f.type !== "search"),
+      schema: (PROPERTY_ALL_FILTERS || []).filter((f) => {
+        if (f.type === "search") return false;
+        // Agent filter only for admin/owner
+        if (f.key === "agent" && !isAdmin) return false;
+        return true;
+      }),
       options: {},
       values: filterValues,
       onChange: setFilter,

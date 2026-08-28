@@ -66,6 +66,8 @@ export default function CallFormModal({
       }
     : {
         customer: extraData?.customer || null,
+        property: extraData?.property || null,
+        listing: extraData?.listing || null,
         call_type: "outgoing",
         result: "answered",
         call_duration: 0,

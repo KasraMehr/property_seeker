@@ -29,10 +29,8 @@ export default function DatePickerInput({
   onChange,
   placeholder = "انتخاب تاریخ",
 }) {
-  // Use state instead of useMemo to ensure controlled mode works
   const [displayDate, setDisplayDate] = useState(() => toPersianDateObject(value));
 
-  // Sync with external value changes
   useEffect(() => {
     setDisplayDate(toPersianDateObject(value));
   }, [value]);
@@ -43,12 +41,13 @@ export default function DatePickerInput({
       onChange?.("");
       return;
     }
-    // Update display immediately
     setDisplayDate(date);
-    // Convert to gregorian string for parent
     try {
-      const gregorianDate = date.convert(gregorian).format("YYYY-MM-DD");
-      onChange?.(gregorianDate);
+      const g = date.convert(gregorian);
+      const y = g.year;
+      const m = String(g.month.number).padStart(2, "0");
+      const d = String(g.day).padStart(2, "0");
+      onChange?.(`${y}-${m}-${d}`);
     } catch {
       onChange?.("");
     }

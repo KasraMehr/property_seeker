@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from crm.filter.filters import CallLogFilter
 from crm.selectors.call_log_selector import CallLogSelector
 from crm.serializers.call_log_create import CallLogCreateSerializer
+from crm.serializers.call_log_detail import CallLogDetailSerializer
 from crm.serializers.call_log_list import CallLogListSerializer
 from crm.serializers.call_log_update import CallLogUpdateSerializer
 from accounts.permissions import *
@@ -89,7 +90,7 @@ class CallLogDetailView(APIView):
 
         call = CallLogSelector.by_id(pk, request.user)
 
-        serializer = CallLogListSerializer(call)
+        serializer = CallLogDetailSerializer(call)
 
         return Response(serializer.data)
 

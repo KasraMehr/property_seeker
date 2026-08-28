@@ -1,4 +1,4 @@
-import { useMemo, useCallback, useState, useEffect } from "react";
+import { useMemo, useCallback, useState } from "react";
 import useResourceFilter from "./useResourceFilter";
 
 /**
@@ -52,7 +52,7 @@ export default function useResourceQuery({
     };
   }, [ordering]);
 
-  // Build final query params for API — stable object shape
+  // Build final query params for API
   const queryParams = useMemo(() => {
     return {
       ...filterParams,

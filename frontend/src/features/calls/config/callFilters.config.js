@@ -1,7 +1,5 @@
-import {
-  CALL_RESULT_CONFIG,
-  CALL_TYPE_CONFIG,
-} from "@/features/calls/config";
+import { CALL_RESULT_CONFIG, CALL_TYPE_CONFIG } from "@/features/calls/config";
+
 import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 
 /**
@@ -9,7 +7,7 @@ import { API_ENDPOINTS } from "@/constants/apiEndpoints";
  * Backend: crm.CallLog
  *
  * Quick: search, call_type, result, handled_by, date
- * Advanced: customer, property/listing, follow_up, duration
+ * Advanced: customer, customer_type, property/listing, follow_up, duration
  */
 
 export const CALL_QUICK_FILTERS = [
@@ -21,6 +19,7 @@ export const CALL_QUICK_FILTERS = [
     fields: ["customer.full_name", "customer.phone", "note"],
     placement: "bar",
   },
+
   {
     key: "call_type",
     label: "نوع تماس",
@@ -31,6 +30,7 @@ export const CALL_QUICK_FILTERS = [
       label: cfg.label,
     })),
   },
+
   {
     key: "result",
     label: "نتیجه",
@@ -41,6 +41,7 @@ export const CALL_QUICK_FILTERS = [
       label: cfg.label,
     })),
   },
+
   {
     key: "handled_by",
     label: "اپراتور",
@@ -52,17 +53,7 @@ export const CALL_QUICK_FILTERS = [
     optionLabel: "full_name",
     optionValue: "id",
   },
-  {
-    key: "called_at",
-    label: "زمان تماس",
-    type: "date_range",
-    placement: "bar",
-    from_key: "called_from",
-    to_key: "called_to",
-  },
-];
 
-export const CALL_ADVANCED_FILTERS = [
   {
     key: "customer",
     label: "مشتری",
@@ -74,6 +65,9 @@ export const CALL_ADVANCED_FILTERS = [
     optionLabel: "full_name",
     optionValue: "id",
   },
+];
+
+export const CALL_ADVANCED_FILTERS = [
   {
     key: "customer_type",
     label: "نوع مشتری",
@@ -87,6 +81,16 @@ export const CALL_ADVANCED_FILTERS = [
       { value: "investor", label: "سرمایه‌گذار" },
     ],
   },
+
+  {
+    key: "called_at",
+    label: "زمان تماس",
+    type: "date_range",
+    placement: "bar",
+    from_key: "called_from",
+    to_key: "called_to",
+  },
+
   // {
   //   key: "property",
   //   label: "ملک",
@@ -98,6 +102,7 @@ export const CALL_ADVANCED_FILTERS = [
   //   optionLabel: "title",
   //   optionValue: "id",
   // },
+
   // {
   //   key: "listing",
   //   label: "آگهی",
@@ -109,6 +114,7 @@ export const CALL_ADVANCED_FILTERS = [
   //   optionLabel: "title",
   //   optionValue: "id",
   // },
+
   {
     key: "has_follow_up",
     label: "نیاز به پیگیری",
@@ -116,12 +122,14 @@ export const CALL_ADVANCED_FILTERS = [
     placement: "drawer",
     filter: (row) => row.next_follow_up_at && !row.follow_up_done,
   },
+
   {
     key: "follow_up_done",
     label: "پیگیری انجام‌شده",
     type: "toggle",
     placement: "drawer",
   },
+
   {
     key: "has_next_follow_up",
     label: "دارای پیگیری بعدی",
@@ -129,16 +137,20 @@ export const CALL_ADVANCED_FILTERS = [
     placement: "drawer",
     filter: (row) => !!row.next_follow_up_at,
   },
+
   {
-    key: "call_duration", 
-    label: "مدت تماس (ثانیه)",
+    key: "call_duration",
+    label: "مدت تماس",
     type: "range",
     placement: "drawer",
+    min: 0,
+    max: 3600,
     min_key: "duration_min",
     max_key: "duration_max",
     step: 10,
     unit: "ثانیه",
   },
+
   {
     key: "has_record",
     label: "دارای فایل صوتی",
@@ -152,6 +164,7 @@ export const CALL_ADVANCED_FILTERS = [
     type: "toggle",
     placement: "drawer",
   },
+
   {
     key: "created_at",
     label: "تاریخ ثبت",
