@@ -4,14 +4,17 @@ import FormRenderer from "@/shared/page/FormRenderer";
 import { QUICK_FOLLOWUP_FROM_CALL_FORM } from "@/features/followups/config";
 import followupService from "@/features/followups/services/followupService";
 import { toastService } from "@/lib/toast";
+import useAuth from "@/features/auth/hooks/useAuth";
 
 export default function QuickFollowupModal({ isOpen, onClose, call = null, onSuccess }) {
   const [loading, setLoading] = useState(false);
+  const { user: currentUser } = useAuth();
 
   const handleSubmit = async (data) => {
     setLoading(true);
     try {
-      await followupService.create(data);
+      const payload = { ...data, user: currentUser?.id };
+      await followupService.create(payload);
       toastService.success("پیگیری با موفقیت ثبت شد.");
       onSuccess?.();
       onClose();

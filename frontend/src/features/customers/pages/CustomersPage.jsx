@@ -16,9 +16,15 @@ import Button from "@/shared/ui/Button";
 import ConfirmModal from "@/shared/ui/modal/ConfirmModal";
 import CustomerFormModal from "../components/CustomerFormModal";
 import CustomerDetailModal from "../components/CustomerDetailModal";
+import CustomerPreferenceFormModal from "../components/CustomerPreferenceFormModal";
+import CallFormModal from "@/features/calls/components/CallFormModal";
+import useAuth from "@/features/auth/hooks/useAuth";
+import { toastService } from "@/lib/toast";
 
 export default function CustomersPage() {
   const { setPageHeader } = useOutletContext();
+  const { user: currentUser } = useAuth();
+  const isOwner = currentUser?.is_owner;
 
   const {
     data,
@@ -44,6 +50,8 @@ export default function CustomersPage() {
   const [editCustomer, setEditCustomer] = useState(null);
   const [detailCustomer, setDetailCustomer] = useState(null);
   const [pendingAction, setPendingAction] = useState(null);
+  const [registerCallCustomer, setRegisterCallCustomer] = useState(null);
+  const [addPreferenceCustomerId, setAddPreferenceCustomerId] = useState(null);
 
   /* ─── Page Header ─── */
   useEffect(() => {
@@ -116,6 +124,16 @@ export default function CustomersPage() {
           break;
         }
 
+        case "register_call": {
+          setRegisterCallCustomer(row);
+          break;
+        }
+
+        case "add_preference": {
+          setAddPreferenceCustomerId(row.id);
+          break;
+        }
+
         default:
           break;
       }
@@ -132,6 +150,7 @@ export default function CustomersPage() {
     if (key === "delete") {
       await remove(row.id);
       setSelected((prev) => prev.filter((id) => id !== row.id));
+      toastService.success("مشتری با موفقیت حذف شد.");
     }
 
     setPendingAction(null);
@@ -144,10 +163,18 @@ export default function CustomersPage() {
         await Promise.all(selected.map((id) => remove(id)));
         setSelected([]);
         refresh();
+        toastService.success(`${selected.length} مشتری با موفقیت حذف شدند.`);
       }
     },
     [selected, remove, refresh],
   );
+
+  /* ─── Table Columns (conditional based on isOwner) ─── */
+  const tableColumns = useMemo(() => {
+    if (isOwner) return CUSTOMER_TABLE_COLUMNS;
+    // Operators don't need assigned_agent column (it's always themselves)
+    return CUSTOMER_TABLE_COLUMNS.filter((col) => col.key !== "assigned_agent_name");
+  }, [isOwner]);
 
   /* ─── Filters ─── */
   const filters = useMemo(
@@ -211,7 +238,7 @@ export default function CustomersPage() {
         filters={filters}
         count={meta?.count || 0}
         countLabel="مشتری"
-        columns={CUSTOMER_TABLE_COLUMNS}
+        columns={tableColumns}
         data={data}
         loading={loading}
         emptyState={emptyState}
@@ -257,6 +284,22 @@ export default function CustomersPage() {
         isOpen={!!editCustomer}
         onClose={() => setEditCustomer(null)}
         customer={editCustomer}
+        onSuccess={refresh}
+      />
+
+      {/* Register Call Modal */}
+      <CallFormModal
+        isOpen={!!registerCallCustomer}
+        onClose={() => setRegisterCallCustomer(null)}
+        extraData={{ customer: registerCallCustomer?.id }}
+        onSuccess={refresh}
+      />
+
+      {/* Add Preference Modal */}
+      <CustomerPreferenceFormModal
+        isOpen={!!addPreferenceCustomerId}
+        onClose={() => setAddPreferenceCustomerId(null)}
+        customerId={addPreferenceCustomerId}
         onSuccess={refresh}
       />
     </>

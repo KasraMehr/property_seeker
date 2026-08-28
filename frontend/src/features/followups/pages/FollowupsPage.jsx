@@ -13,6 +13,7 @@ import ConfirmModal from "@/shared/ui/modal/ConfirmModal";
 import Button from "@/shared/ui/Button";
 import FollowupDetailModal from "@/features/followups/components/FollowupDetailModal";
 import FollowupFormModal from "@/features/followups/components/FollowupFormModal";
+import {toastService} from "@/lib/toast"
 
 /* ─── Row Actions ─── */
 const FOLLOWUP_ROW_ACTIONS = {
@@ -167,6 +168,7 @@ export default function FollowupsPage() {
 
     await complete(pendingComplete.id);
     setPendingComplete(null);
+    toastService.success("تغییر موفق")
   }, [pendingComplete, complete]);
 
   const confirmCancel = useCallback(async () => {
@@ -189,7 +191,11 @@ export default function FollowupsPage() {
 
   const filters = useMemo(
     () => ({
-      schema: FOLLOWUP_ALL_FILTERS.filter((f) => f.type !== "search"),
+      schema: FOLLOWUP_ALL_FILTERS.filter((f) => {
+        if (f.type === "search") return false;
+        if (!isAdmin && f.key === "user") return false;
+        return true;
+      }),
       options: filterOptions,
       values: filterValues,
       onChange: setFilter,
@@ -278,7 +284,7 @@ export default function FollowupsPage() {
         onConfirm={confirmComplete}
         title="تکمیل پیگیری"
         message={`پیگیری «${pendingComplete?.title || ""}» به وضعیت «انجام شده» تغییر خواهد کرد.`}
-        variant="primary"
+        variant="info"
         confirmLabel="تکمیل"
       />
 

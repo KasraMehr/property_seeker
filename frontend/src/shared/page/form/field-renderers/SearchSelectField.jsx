@@ -18,6 +18,7 @@ export default function SearchSelectField({
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
+  const [fetchError, setFetchError] = useState(null);
   const name = field.key;
   const error = errors[name]?.message;
   const spanClass = getSpanClass(field.span);
@@ -49,8 +50,17 @@ export default function SearchSelectField({
         }
         const list = Array.isArray(data) ? data : data?.results || [];
         setOptions(list);
-      } catch {
+        setFetchError(null);
+      } catch (err) {
         setOptions([]);
+        const status = err?.response?.status;
+        if (status === 403) {
+          setFetchError("دسترسی غیرمجاز — با مدیر سیستم تماس بگیرید.");
+        } else if (status) {
+          setFetchError(`خطا در بارگذاری (${status})`);
+        } else {
+          setFetchError("خطا در اتصال به سرور.");
+        }
       } finally {
         setLoading(false);
       }
@@ -164,6 +174,10 @@ export default function SearchSelectField({
                   {loading ? (
                     <div className="p-3 text-center text-sm text-muted">
                       در حال بارگذاری...
+                    </div>
+                  ) : fetchError ? (
+                    <div className="p-3 text-center text-sm text-danger">
+                      {fetchError}
                     </div>
                   ) : options.length === 0 ? (
                     <div className="p-3 text-center text-sm text-muted">

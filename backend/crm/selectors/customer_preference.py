@@ -4,11 +4,15 @@ from crm.models import CustomerPreference
 class CustomerPreferenceSelector:
 
     @staticmethod
-    def all(user):
+    def all(user, customer_id=None):
+
+        qs = CustomerPreference.objects.filter(customer__agency=user.agency)
+
+        if customer_id:
+            qs = qs.filter(customer_id=customer_id)
 
         return (
-            CustomerPreference.objects.filter(customer__agency=user.agency)
-            .select_related("customer")
+            qs.select_related("customer")
             .prefetch_related("neighborhoods")
             .order_by("-created_at")
         )

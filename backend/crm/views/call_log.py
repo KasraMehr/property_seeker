@@ -128,7 +128,7 @@ class CallLogBulkDeleteView(APIView):
             HasRolePermission,
         )
 
-        required_permission = "delete_call_log"
+        required_permission = "delete_calllog"
 
         def delete(self, request):
             call_ids = request.data.get("ids", [])

@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Modal from "@/shared/ui/modal/Modal";
 import FormRenderer from "@/shared/page/FormRenderer";
 import { FOLLOWUP_FORM } from "@/features/followups/config";
 import followupService from "@/features/followups/services/followupService";
+import useAuth from "@/features/auth/hooks/useAuth";
 
 export default function FollowupFormModal({
   isOpen,
@@ -12,7 +13,9 @@ export default function FollowupFormModal({
   extraData = {},
 }) {
   const [loading, setLoading] = useState(false);
+  const { user: currentUser } = useAuth();
   const isEdit = !!followup?.id;
+  const isOperator = !currentUser?.is_owner;
 
   const handleSubmit = async (values) => {
     setLoading(true);
@@ -22,19 +25,20 @@ export default function FollowupFormModal({
         title: values.title,
         type: values.type,
         status: values.status || "pending",
-        user: values.user ? Number(values.user) : null,
-        customer: values.customer ? Number(values.customer) : null,
-        property: values.property ? Number(values.property) : null,
+        user: values.user ? Number(values.user) : undefined,
+        ...(values.customer ? { customer: Number(values.customer) } : {}),
+        ...(values.property ? { property: Number(values.property) } : {}),
         description: values.description || "",
         due_at: values.due_at
           ? new Date(values.due_at).toISOString()
-          : null,
-        completed_at:
-          values.status === "done" && values.completed_at
-            ? new Date(values.completed_at).toISOString()
-            : values.status === "done"
-            ? new Date().toISOString()
-            : null,
+          : undefined,
+        ...(values.status === "done"
+          ? {
+              completed_at: values.completed_at
+                ? new Date(values.completed_at).toISOString()
+                : new Date().toISOString(),
+            }
+          : {}),
       };
 
       if (isEdit) {
@@ -67,7 +71,33 @@ export default function FollowupFormModal({
     : {
         type: "follow_up",
         status: "pending",
+        user: currentUser?.id || null,
       };
+
+  // Operator: replace async user field with static select (API blocked for non-owners)
+  const formConfig = useMemo(() => {
+    if (!isOperator) return FOLLOWUP_FORM;
+
+    const userFieldOverride = {
+      key: "user",
+      label: "مسئول پیگیری",
+      type: "select",
+      required: true,
+      readOnly: true,
+      options: [{ value: currentUser.id, label: currentUser.full_name }],
+      defaultValue: currentUser.id,
+      span: 6,
+    };
+
+    const modifiedTabs = FOLLOWUP_FORM.tabs.map((tab) => ({
+      ...tab,
+      fields: tab.fields.map((f) =>
+        f.key === "user" ? userFieldOverride : f
+      ),
+    }));
+
+    return { ...FOLLOWUP_FORM, tabs: modifiedTabs };
+  }, [isOperator, currentUser]);
 
   return (
     <Modal
@@ -77,7 +107,7 @@ export default function FollowupFormModal({
       title={isEdit ? "ویرایش پیگیری" : "ثبت پیگیری جدید"}
     >
       <FormRenderer
-        config={FOLLOWUP_FORM}
+        config={formConfig}
         defaultValues={defaultValues}
         mode={isEdit ? "edit" : "create"}
         onSubmit={handleSubmit}

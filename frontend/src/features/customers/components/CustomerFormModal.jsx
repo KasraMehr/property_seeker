@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Modal from "@/shared/ui/modal/Modal";
 import FormRenderer from "@/shared/page/FormRenderer";
 import { CUSTOMER_FORM } from "@/features/customers/config";
 import customerService from "@/features/customers/services/customerService";
+import useAuth from "@/features/auth/hooks/useAuth";
+import { toastService } from "@/lib/toast";
 
 export default function CustomerFormModal({
   isOpen,
@@ -12,7 +14,9 @@ export default function CustomerFormModal({
   extraData = {},
 }) {
   const [loading, setLoading] = useState(false);
+  const { user: currentUser } = useAuth();
   const isEdit = !!customer?.id;
+  const isOperator = !currentUser?.is_owner;
 
   const handleSubmit = async (values) => {
     setLoading(true);
@@ -34,15 +38,17 @@ export default function CustomerFormModal({
 
       if (isEdit) {
         await customerService.update(customer.id, payload);
+        toastService.success("مشتری با موفقیت ویرایش شد.");
       } else {
         await customerService.create(payload);
+        toastService.success("مشتری جدید با موفقیت ثبت شد.");
       }
 
       onSuccess?.();
       onClose();
     } catch (error) {
-      console.error("Customer form submit error:", error);
-      // اگر toast داری اینجا نمایش بده
+      const msg = error?.response?.data?.detail || error?.response?.data?.message;
+      toastService.error(typeof msg === "string" ? msg : "خطا در ذخیره مشتری.");
     } finally {
       setLoading(false);
     }
@@ -61,6 +67,28 @@ export default function CustomerFormModal({
         customer_type: "buyer",
       };
 
+  // Operator: replace async assigned_agent field with static read-only select
+  const formConfig = useMemo(() => {
+    if (!isOperator) return CUSTOMER_FORM;
+
+    const agentFieldOverride = {
+      key: "assigned_agent",
+      label: "کارشناس مسئول",
+      type: "select",
+      required: false,
+      readOnly: true,
+      options: [{ value: currentUser.id, label: currentUser.full_name }],
+      defaultValue: currentUser.id,
+      span: 6,
+    };
+
+    const modifiedFields = CUSTOMER_FORM.fields.map((f) =>
+      f.key === "assigned_agent" ? agentFieldOverride : f,
+    );
+
+    return { ...CUSTOMER_FORM, fields: modifiedFields };
+  }, [isOperator, currentUser]);
+
   return (
     <Modal
       isOpen={isOpen}
@@ -69,7 +97,7 @@ export default function CustomerFormModal({
       title={isEdit ? "ویرایش مشتری" : "ثبت مشتری جدید"}
     >
       <FormRenderer
-        config={CUSTOMER_FORM}
+        config={formConfig}
         defaultValues={defaultValues}
         mode={isEdit ? "edit" : "create"}
         onSubmit={handleSubmit}
