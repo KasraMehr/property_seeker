@@ -238,7 +238,8 @@ export default function LocationCascadeSelect({
           searchable
         />
       )}
-
+{/* 
+     TODO: make sure that cascade address is ok between back-front
       {activeLevels.includes("city") && (
         <Select
           label={LOCATION_CASCADE_FIELDS.city.label}
@@ -287,7 +288,7 @@ export default function LocationCascadeSelect({
           size={size}
           searchable
         />
-      )}
+      )} */}
 
       {activeLevels.includes("address") && (
         <div className="sm:col-span-2">
