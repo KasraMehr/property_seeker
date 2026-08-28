@@ -6,6 +6,7 @@ import SelectField from "./SelectField";
 import CheckboxField from "./CheckboxField";
 import FileField from "./FileField";
 import DateField from "./DateField";
+import DateTimeField from "./DateTimeField";
 import TextareaField from "./TextareaField";
 import PriceField from "./PriceField";
 import NumberField from "./NumberField";
@@ -20,7 +21,7 @@ export const FORM_FIELD_RENDERERS = {
   checkbox: CheckboxField,
   file: FileField,
   date: DateField,
-  datetime: DateField,
+  datetime: DateTimeField,
   textarea: TextareaField,
   price: PriceField,
   number: NumberField,
@@ -40,6 +41,7 @@ export {
   CheckboxField,
   FileField,
   DateField,
+  DateTimeField,
   TextareaField,
   PriceField,
   NumberField,

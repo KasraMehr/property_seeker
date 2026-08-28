@@ -27,14 +27,8 @@ export default function CallFormModal({
         call_type: values.call_type,
         result: values.result,
         note: values.note || "",
-        called_at: values.called_at
-          ? new Date(values.called_at).toISOString()
-          : new Date().toISOString(),
+        called_at: values.called_at || new Date().toISOString(),
         call_duration: values.call_duration ? Number(values.call_duration) : 0,
-        next_follow_up_at: values.next_follow_up_at
-          ? new Date(values.next_follow_up_at).toISOString()
-          : null,
-        follow_up_done: values.follow_up_done ?? false,
       };
 
       if (!isEdit && user?.id != null) {
@@ -67,10 +61,8 @@ export default function CallFormModal({
         customer: call.customer?.id ?? call.customer,
         property: call.property?.id ?? call.property,
         listing: call.listing?.id ?? call.listing,
-        called_at: call.called_at ? call.called_at.slice(0, 16) : "",
-        next_follow_up_at: call.next_follow_up_at
-          ? call.next_follow_up_at.slice(0, 16)
-          : "",
+        called_at: call.called_at || "",
+        next_follow_up_at: call.next_follow_up_at || "",
       }
     : {
         customer: extraData?.customer || null,

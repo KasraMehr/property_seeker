@@ -1,5 +1,5 @@
 import { useMemo, useState, useCallback, useEffect } from "react";
-import { Plus, Eye, CheckCircle2, XCircle, Clock } from "lucide-react";
+import { Plus, Eye, CheckCircle2, XCircle, Clock, Trash2 } from "lucide-react";
 import { useOutletContext } from "react-router-dom";
 import useAuth from "@/features/auth/hooks/useAuth";
 import ResourceTemplate from "@/shared/templates/resource/ResourceTemplate";
@@ -38,6 +38,12 @@ const FOLLOWUP_ROW_ACTIONS = {
       visible: (row) => row.status === "pending",
       variant: "danger",
     },
+    {
+      key: "delete",
+      label: "حذف",
+      icon: Trash2,
+      danger: true,
+    },
   ],
   operator: [
     { key: "view", label: "مشاهده", icon: Eye },
@@ -53,6 +59,12 @@ const FOLLOWUP_ROW_ACTIONS = {
       icon: XCircle,
       visible: (row) => row.status === "pending",
       variant: "danger",
+    },
+    {
+      key: "delete",
+      label: "حذف",
+      icon: Trash2,
+      danger: true,
     },
   ],
 };
@@ -80,12 +92,14 @@ export default function FollowupsPage() {
     totalPages,
     complete,
     cancel,
+    remove,
     refresh,
   } = useFollowup();
 
   const [selected, setSelected] = useState([]);
   const [pendingComplete, setPendingComplete] = useState(null);
   const [pendingCancel, setPendingCancel] = useState(null);
+  const [pendingAction, setPendingAction] = useState(null);
   const [detailFollowup, setDetailFollowup] = useState(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [editFollowup, setEditFollowup] = useState(null);
@@ -157,6 +171,10 @@ export default function FollowupsPage() {
         setPendingCancel(row);
         break;
 
+      case "delete":
+        setPendingAction({ key: "delete", row, confirm: { title: "حذف پیگیری", message: `آیا از حذف «${row.title}» اطمینان دارید؟` } });
+        break;
+
       default:
         break;
     }
@@ -176,7 +194,19 @@ export default function FollowupsPage() {
 
     await cancel(pendingCancel.id);
     setPendingCancel(null);
+    toastService.success("پیگیری لغو شد.");
   }, [pendingCancel, cancel]);
+
+  const confirmAction = useCallback(async () => {
+    if (!pendingAction) return;
+
+    if (pendingAction.key === "delete") {
+      await remove(pendingAction.row.id);
+      toastService.success("پیگیری حذف شد.");
+    }
+
+    setPendingAction(null);
+  }, [pendingAction, remove]);
 
   /* ─── Filter options ─── */
   const filterOptions = useMemo(() => {
@@ -297,6 +327,16 @@ export default function FollowupsPage() {
         message={`پیگیری «${pendingCancel?.title || ""}» لغو خواهد شد. آیا مطمئن هستید؟`}
         variant="danger"
         confirmLabel="لغو"
+      />
+
+      {/* Confirm Delete */}
+      <ConfirmModal
+        isOpen={pendingAction !== null}
+        onClose={() => setPendingAction(null)}
+        onConfirm={confirmAction}
+        title={pendingAction?.confirm?.title || "تأیید"}
+        message={pendingAction?.confirm?.message || "آیا مطمئن هستید؟"}
+        variant="danger"
       />
 
       {/* Detail Modal */}

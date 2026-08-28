@@ -63,7 +63,6 @@ export default function DatePickerInput({
       )}
 
       <DatePicker
-        key={value || "empty"}
         value={displayDate}
         onChange={handleChange}
         calendar={persian}

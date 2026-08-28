@@ -118,31 +118,31 @@ export const CALL_FORM = {
         },
       ],
     },
-    {
-      key: "followup",
-      label: "پیگیری بعدی",
-      icon: "CalendarClock",
-      condition: (values) => ["follow_up", "interested", "visit_booked"].includes(values.result),
-      fields: [
-        {
-          key: "next_follow_up_at",
-          label: "تاریخ پیگیری بعدی",
-          type: "datetime",
-          required: false,
-          placeholder: "انتخاب تاریخ",
-          span: 6,
-        },
-        {
-          key: "follow_up_done",
-          label: "پیگیری انجام شد",
-          type: "checkbox",
-          required: false,
-          defaultValue: false,
-          span: 6,
-        },
-        
-      ],
-    },
+    // TODO: Enable follow-up tab when auto-reminder from call is ready
+    // {
+    //   key: "followup",
+    //   label: "پیگیری بعدی",
+    //   icon: "CalendarClock",
+    //   condition: (values) => ["follow_up", "interested", "visit_booked"].includes(values.result),
+    //   fields: [
+    //     {
+    //       key: "next_follow_up_at",
+    //       label: "تاریخ پیگیری بعدی",
+    //       type: "datetime",
+    //       required: false,
+    //       placeholder: "انتخاب تاریخ",
+    //       span: 6,
+    //     },
+    //     {
+    //       key: "follow_up_done",
+    //       label: "پیگیری انجام شد",
+    //       type: "checkbox",
+    //       required: false,
+    //       defaultValue: false,
+    //       span: 6,
+    //     },
+    //   ],
+    // },
   ],
   actions: {
     submit: { label: "ذخیره تماس", variant: "primary" },

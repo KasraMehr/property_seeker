@@ -1,7 +1,7 @@
 import { buildStatusConfig } from "@/constants/status.utils";
 import StatusBadge from "@/shared/ui/badges/StatusBadge";
 import { CALL_RESULT_CONFIG, CALL_TYPE_CONFIG } from "@/features/calls/config";
-import { formatDate } from "@/utils/formatters";
+import { formatDateTime } from "@/utils/formatters";
 
 export const CALL_TABLE_COLUMNS = [
   // {
@@ -54,7 +54,7 @@ export const CALL_TABLE_COLUMNS = [
     key: "called_at",
     header: "زمان تماس",
     width: "w-32",
-    cell: ({ called_at }) => formatDate(called_at, "short"),
+    cell: ({ called_at }) => formatDateTime(called_at),
   },
   // {
   //   key: "actions",

@@ -43,21 +43,51 @@ export const formatPercent = (value) => {
 };
 
 /**
- * Date
+ * Persian number converter
  */
-export const formatDate = (value) => {
+const toPersianDigits = (str) =>
+  str.replace(/[0-9]/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[d]);
+
+/**
+ * Date (optionally with time)
+ * @param {string} mode - "short" for date only, "long" for date + time
+ */
+export const formatDate = (value, mode = "short") => {
   if (!value) return PLACEHOLDER;
 
-  return new Date(value).toLocaleDateString("fa-IR");
+  const d = new Date(value);
+  if (mode === "long") {
+    const datePart = d.toLocaleDateString("fa-IR", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+    const timePart = d.toLocaleTimeString("fa-IR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    return `${datePart}  -  ${timePart}`;
+  }
+  return d.toLocaleDateString("fa-IR");
 };
 
 /**
- * Date + Time
+ * Date + Time (always shows both, separated)
  */
 export const formatDateTime = (value) => {
   if (!value) return PLACEHOLDER;
 
-  return new Date(value).toLocaleString("fa-IR");
+  const d = new Date(value);
+  const datePart = d.toLocaleDateString("fa-IR", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+  const timePart = d.toLocaleTimeString("fa-IR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  return `${datePart}  -  ${timePart}`;
 };
 
 /**
