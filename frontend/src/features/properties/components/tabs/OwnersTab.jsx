@@ -182,7 +182,7 @@ export default function OwnersTab({ onHeaderStateChange }) {
       onChange: setFilter,
       onClear: clearFilter,
       onClearAll: clearAll,
-      chips: activeChips,
+      activeChips,
     }),
     [filterValues, setFilter, clearFilter, clearAll, activeChips, isOwner],
   );

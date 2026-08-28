@@ -9,6 +9,9 @@ export const OWNER_QUICK_FILTERS = [
     fields: ["full_name", "phone", "national_id", "alternate_phone"],
     placement: "bar",
   },
+];
+
+export const OWNER_ADVANCED_FILTERS = [
   {
     key: "has_alternate_phone",
     label: "دارای شماره تماس جایگزین",
@@ -35,14 +38,11 @@ export const OWNER_QUICK_FILTERS = [
     async: true,
     endpoint: API_ENDPOINTS.ACCOUNTS.USERS.LIST.url,
     search_fields: ["full_name", "phone"],
-    optionLabel: "full_name",
-    optionValue: "id",
+    option: {
+      label:"full_name",
+      value:"id",
+    },
   },
-];
-
-export const OWNER_ADVANCED_FILTERS = [
-  
-  
   {
     key: "created_at",
     label: "تاریخ ثبت",
@@ -61,4 +61,7 @@ export const OWNER_ADVANCED_FILTERS = [
   },
 ];
 
-export const OWNER_ALL_FILTERS = [...OWNER_QUICK_FILTERS, ...OWNER_ADVANCED_FILTERS];
+export const OWNER_ALL_FILTERS = [
+  ...OWNER_QUICK_FILTERS,
+  ...OWNER_ADVANCED_FILTERS,
+];

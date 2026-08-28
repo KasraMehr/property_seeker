@@ -152,7 +152,7 @@ export default function PropertiesTab({ onHeaderStateChange }) {
       toastService.success(
         pendingDeleteIds.length > 1
           ? `${pendingDeleteIds.length} ملک حذف شدند.`
-          : "ملک با موفقیت حذف شد."
+          : "ملک با موفقیت حذف شد.",
       );
       setPendingDeleteIds(null);
       setSelected([]);
@@ -176,7 +176,7 @@ export default function PropertiesTab({ onHeaderStateChange }) {
       onChange: setFilter,
       onClear: clearFilter,
       onClearAll: clearAll,
-      chips: activeChips,
+      activeChips,
     }),
     [filterValues, setFilter, clearFilter, clearAll, activeChips],
   );

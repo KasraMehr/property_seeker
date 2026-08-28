@@ -7,7 +7,7 @@ import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 /**
  * Property Filters Config
  * Backend: properties.Property
- * 
+ *
  * Quick: search, deal_type, status, price_range, area, bedrooms
  * Advanced: owner, agent, location, physical, dates, features
  */
@@ -54,32 +54,15 @@ export const PROPERTY_QUICK_FILTERS = [
     unit: "تومان",
   },
   {
-    key: "area",
-    label: "متراژ",
-    type: "range",
-    placement: "bar",
-    min: 0,
-    max: 500,
-    min_key: "area_min",
-    max_key: "area_max",
-    step: 5,
-    unit: "متر",
-  },
-  {
-    key: "bedrooms",
-    label: "اتاق خواب",
-    type: "range",
-    placement: "bar",
-    min: 0,
-    max: 10,
-    min_key: "bedrooms_min",
-    max_key: "bedrooms_max",
-    step: 1,
-    unit: "اتاق",
+    key: "location",
+    label: "موقعیت مکانی",
+    type: "location_cascade",
+    placement: "drawer",
   },
 ];
 
 export const PROPERTY_ADVANCED_FILTERS = [
+  
   // ─── قیمت ───
   {
     key: "price_per_meter",
@@ -129,6 +112,31 @@ export const PROPERTY_ADVANCED_FILTERS = [
     step: 500_000,
     unit: "تومان",
   },
+  {
+    key: "area",
+    label: "متراژ",
+    type: "range",
+    placement: "bar",
+    min: 0,
+    max: 500,
+    min_key: "area_min",
+    max_key: "area_max",
+    step: 5,
+    unit: "متر",
+  },
+  {
+    key: "bedrooms",
+    label: "اتاق خواب",
+    type: "range",
+    placement: "bar",
+    min: 0,
+    max: 10,
+    min_key: "bedrooms_min",
+    max_key: "bedrooms_max",
+    step: 1,
+    unit: "اتاق",
+  },
+  
   // ─── مشخصات ملک ───
   {
     key: "property_type",
@@ -268,50 +276,7 @@ export const PROPERTY_ADVANCED_FILTERS = [
     optionLabel: "full_name",
     optionValue: "id",
   },
-  // ─── موقعیت ───
-  {
-    key: "province",
-    label: "استان",
-    type: "select",
-    placement: "drawer",
-    async: true,
-    endpoint: API_ENDPOINTS.LOCATIONS.PROVINCES.LIST.url,
-    optionLabel: "name",
-    optionValue: "id",
-  },
-  {
-    key: "city",
-    label: "شهر",
-    type: "select",
-    placement: "drawer",
-    async: true,
-    endpoint: API_ENDPOINTS.LOCATIONS.CITIES.LIST.url,
-    depends_on: "province",
-    optionLabel: "name",
-    optionValue: "id",
-  },
-  {
-    key: "district",
-    label: "منطقه",
-    type: "select",
-    placement: "drawer",
-    async: true,
-    endpoint: API_ENDPOINTS.LOCATIONS.DISTRICTS.LIST.url,
-    depends_on: "city",
-    optionLabel: "name",
-    optionValue: "id",
-  },
-  {
-    key: "neighborhood",
-    label: "محله",
-    type: "select",
-    placement: "drawer",
-    async: true,
-    endpoint: API_ENDPOINTS.LOCATIONS.NEIGHBORHOODS.LIST.url,
-    depends_on: "district",
-    optionLabel: "name",
-    optionValue: "id",
-  },
+  
   {
     key: "created_at",
     label: "تاریخ ثبت",
@@ -330,4 +295,7 @@ export const PROPERTY_ADVANCED_FILTERS = [
   },
 ];
 
-export const PROPERTY_ALL_FILTERS = [...PROPERTY_QUICK_FILTERS, ...PROPERTY_ADVANCED_FILTERS];
+export const PROPERTY_ALL_FILTERS = [
+  ...PROPERTY_QUICK_FILTERS,
+  ...PROPERTY_ADVANCED_FILTERS,
+];

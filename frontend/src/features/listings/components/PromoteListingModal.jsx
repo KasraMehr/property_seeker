@@ -29,7 +29,12 @@ function toPromotePayload(data) {
   return payload;
 }
 
-export default function PromoteListingModal({ isOpen, onClose, listing, onSuccess }) {
+export default function PromoteListingModal({
+  isOpen,
+  onClose,
+  listing,
+  onSuccess,
+}) {
   const [loading, setLoading] = useState(false);
   const [showOwnerForm, setShowOwnerForm] = useState(false);
   const [ownerFormKey, setOwnerFormKey] = useState(0);
@@ -37,7 +42,8 @@ export default function PromoteListingModal({ isOpen, onClose, listing, onSucces
   /* ─── Inject addAction into owner field + conditional area required ─── */
   const formConfig = useMemo(() => {
     if (!PROMOTE_LISTING_FORM) return PROMOTE_LISTING_FORM;
-    const hasListedArea = listing?.listed_area != null && listing.listed_area !== 0;
+    const hasListedArea =
+      listing?.listed_area != null && listing.listed_area !== 0;
 
     return {
       ...PROMOTE_LISTING_FORM,
@@ -67,16 +73,25 @@ export default function PromoteListingModal({ isOpen, onClose, listing, onSucces
     setShowOwnerForm(false);
     setOwnerFormKey((k) => k + 1);
   };
-
   const handleSubmit = async (data) => {
     setLoading(true);
     try {
-      const res = await listingService.promote(listing.id, toPromotePayload(data));
+      const normalized = { ...data };
+      if (normalized.location && typeof normalized.location === "object") {
+        normalized.address = normalized.location.address ?? null;
+        delete normalized.location;
+      }
+      const res = await listingService.promote(
+        listing.id,
+        toPromotePayload(normalized),
+      );
       const result = res?.data || res;
       onSuccess?.(result);
       onClose();
     } catch (error) {
-      toastService.error(error?.response?.data?.detail || "خطا در تبدیل آگهی به ملک.");
+      toastService.error(
+        error?.response?.data?.detail || "خطا در تبدیل آگهی به ملک.",
+      );
     } finally {
       setLoading(false);
     }
@@ -86,7 +101,12 @@ export default function PromoteListingModal({ isOpen, onClose, listing, onSucces
 
   return (
     <>
-      <Modal isOpen={isOpen} onClose={onClose} size="xl" title="تبدیل آگهی به ملک">
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        size="xl"
+        title="تبدیل آگهی به ملک"
+      >
         <FormRenderer
           key={ownerFormKey}
           config={formConfig}

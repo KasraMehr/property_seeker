@@ -11,6 +11,7 @@ import TextareaField from "./TextareaField";
 import PriceField from "./PriceField";
 import NumberField from "./NumberField";
 import TextField from "./TextField";
+import LocationCascadeField from "./LocationCascadeField";
 
 export const FORM_FIELD_RENDERERS = {
   nested_display: NestedDisplayField,
@@ -30,6 +31,7 @@ export const FORM_FIELD_RENDERERS = {
   url: TextField,
   phone: TextField,
   password: TextField,
+  location_cascade: LocationCascadeField,
 };
 
 export {

@@ -139,7 +139,7 @@ export default function ListingsPage() {
       onChange: setFilter,
       onClear: clearFilter,
       onClearAll: clearAll,
-      chips: activeChips,
+      activeChips,
     }),
     [filterValues, setFilter, clearFilter, clearAll, activeChips],
   );

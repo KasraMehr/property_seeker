@@ -15,7 +15,9 @@ function toPersianDateString(dateStr) {
       date: dateStr,
       calendar: gregorian,
       format: "YYYY-MM-DD",
-    }).convert(persian).format("YYYY/MM/DD", persian_fa);
+    })
+      .convert(persian)
+      .format("YYYY/MM/DD", persian_fa);
   } catch {
     return dateStr;
   }
@@ -24,7 +26,18 @@ function toPersianDateString(dateStr) {
 // Fallback: manually convert digits to Persian
 function toFaDigits(str) {
   if (!str) return str;
-  const map = { "0": "۰", "1": "۱", "2": "۲", "3": "۳", "4": "۴", "5": "۵", "6": "۶", "7": "۷", "8": "۸", "9": "۹" };
+  const map = {
+    0: "۰",
+    1: "۱",
+    2: "۲",
+    3: "۳",
+    4: "۴",
+    5: "۵",
+    6: "۶",
+    7: "۷",
+    8: "۸",
+    9: "۹",
+  };
   return str.replace(/[0-9]/g, (d) => map[d]);
 }
 
@@ -65,6 +78,14 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
           break;
         case "toggle":
           state[field.key] = false;
+          break;
+        case "location_cascade":
+          state[field.key] = {
+            province: null,
+            city: null,
+            district: null,
+            neighborhood: null,
+          };
           break;
         default:
           state[field.key] = null;
@@ -144,6 +165,14 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
           break;
         case "toggle":
           defaultValue = false;
+          break;
+        case "location_cascade":
+          defaultValue = {
+            province: null,
+            city: null,
+            district: null,
+            neighborhood: null,
+          };
           break;
         default:
           defaultValue = null;
@@ -264,6 +293,28 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
           }
           break;
 
+        case "location_cascade": {
+          if (!value) break;
+          const parts = [];
+          if (value.province) parts.push(`استان`);
+          if (value.city) parts.push(`شهر`);
+          if (value.district) parts.push(`منطقه`);
+          if (value.neighborhood) parts.push(`محله`);
+          if (
+            value.province ||
+            value.city ||
+            value.district ||
+            value.neighborhood
+          ) {
+            chips.push({
+              key: field.key,
+              label: field.label || parts.join(" › ") || "موقعیت",
+              type: "location_cascade",
+            });
+          }
+          break;
+        }
+
         default:
           break;
       }
@@ -299,8 +350,10 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
           if (value && (value.min !== fieldMin || value.max !== fieldMax)) {
             const minKey = field.min_key || `${field.key}_min`;
             const maxKey = field.max_key || `${field.key}_max`;
-            if (value.min != null && value.min !== fieldMin) params[minKey] = value.min;
-            if (value.max != null && value.max !== fieldMax) params[maxKey] = value.max;
+            if (value.min != null && value.min !== fieldMin)
+              params[minKey] = value.min;
+            if (value.max != null && value.max !== fieldMax)
+              params[maxKey] = value.max;
           }
           break;
         }
@@ -319,6 +372,12 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
           if (value) params[field.key] = true;
           break;
 
+        case "location_cascade":
+          if (value?.province) params.province = value.province;
+          if (value?.city) params.city = value.city;
+          if (value?.district) params.district = value.district;
+          if (value?.neighborhood) params.neighborhood = value.neighborhood;
+          break;
         default:
           break;
       }

@@ -23,6 +23,7 @@ import MultiSelect from "../ui/selectors/MultiSelect";
 import RangeSelect from "../ui/selectors/RangeSelect";
 import Button from "../ui/Button";
 import Drawer from "../ui/Drawer";
+import LocationCascadeSelect from "@/shared/ui/selectors/LocationCascadeSelect";
 
 const ICONS = {
   Search,
@@ -186,6 +187,25 @@ export default function FilterBar({
           />
         );
 
+      case "location_cascade":
+        return (
+          <div key={field.key} className="w-full col-span-full">
+            {field.label && (
+              <p className="mb-2 text-xs font-medium text-muted">
+                {field.label}
+              </p>
+            )}
+            <LocationCascadeSelect
+              value={value || {}}
+              onChange={(next) => onChange(field.key, next)}
+              levels={field.levels}
+              includeAddress={field.includeAddress === true}
+              size="sm"
+              layout="grid"
+              clearable
+            />
+          </div>
+        );
       default:
         return null;
     }
@@ -230,14 +250,11 @@ export default function FilterBar({
           <button
             key={`${chip.key}-${chip.value || i}`}
             onClick={() => {
-              if (
-                chip.type === "multiselect" ||
-                chip.type === "multi_select"
-              ) {
+              if (chip.type === "multiselect" || chip.type === "multi_select") {
                 const current = filters[chip.key] || [];
                 onChange(
                   chip.key,
-                  current.filter((v) => String(v) !== String(chip.value))
+                  current.filter((v) => String(v) !== String(chip.value)),
                 );
               } else {
                 onClear(chip.key);
