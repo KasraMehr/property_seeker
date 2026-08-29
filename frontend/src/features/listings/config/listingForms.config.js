@@ -17,10 +17,9 @@ export const CHANGE_REVIEW_STATUS_FORM = {
       placeholder: "انتخاب وضعیت",
       options: [
         { value: "unreviewed", label: "بررسی نشده" },
-        { value: "shortlisted", label: "کوت‌لیست" },
+        { value: "shortlisted", label: "منتخب" },
         { value: "promoted", label: "تبدیل به ملک" },
         { value: "rejected", label: "رد شده" },
-        { value: "archived", label: "آرشیو" },
       ],
       validation: { required: "وضعیت بررسی الزامی است" },
       span: 12,

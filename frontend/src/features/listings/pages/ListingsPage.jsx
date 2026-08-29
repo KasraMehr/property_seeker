@@ -14,6 +14,7 @@ import Button from "@/shared/ui/Button";
 import ListingDetailModal from "@/features/listings/components/ListingDetailModal";
 import PromoteListingModal from "@/features/listings/components/PromoteListingModal";
 import PromoteSuccessModal from "@/features/listings/components/PromoteSuccessModal";
+import ChangeReviewStatusModal from "@/features/listings/components/ChangeReviewStatusModal";
 import RegisterCallForm from "../../../shared/forms/RegisterCallForm";
 
 export default function ListingsPage() {
@@ -42,12 +43,15 @@ export default function ListingsPage() {
     detail,
     promote,
     registerCall,
+    reviewStatus,
     openDetail,
     closeDetail,
     openPromote,
     closePromote,
     openRegisterCall,
     closeRegisterCall,
+    openReviewStatus,
+    closeReviewStatus,
   } = useListingModals();
 
   const [detailLoading, setDetailLoading] = useState(false);
@@ -121,6 +125,9 @@ export default function ListingsPage() {
         case "promote":
           handleOpenPromote(row);
           break;
+        case "change_review_status":
+          openReviewStatus(row);
+          break;
         case "open_source":
           if (row.url) window.open(row.url, "_blank", "noopener,noreferrer");
           break;
@@ -128,7 +135,7 @@ export default function ListingsPage() {
           break;
       }
     },
-    [handleOpenDetail, openRegisterCall, handleOpenPromote],
+    [handleOpenDetail, openRegisterCall, handleOpenPromote, openReviewStatus],
   );
 
   const filters = useMemo(
@@ -236,6 +243,16 @@ export default function ListingsPage() {
         isOpen={!!promoteResult}
         onClose={() => setPromoteResult(null)}
         result={promoteResult}
+      />
+
+      <ChangeReviewStatusModal
+        isOpen={reviewStatus.open}
+        onClose={closeReviewStatus}
+        listings={reviewStatus.listing ? [reviewStatus.listing] : []}
+        onSuccess={() => {
+          closeReviewStatus();
+          refresh?.();
+        }}
       />
 
       <RegisterCallForm

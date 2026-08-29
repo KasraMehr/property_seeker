@@ -6,6 +6,7 @@ import {
   XCircle,
   CheckCircle2,
   ArrowRightLeft,
+  ClipboardCheck,
 } from "lucide-react";
 // import { PERMISSIONS } from "@/constants/permissions";
 
@@ -25,8 +26,8 @@ export const LISTING_ROW_ACTIONS = [
     icon: ArrowRightLeft,
     variant: "default",
     type: "row",
-    permission: null, // بعداً: PERMISSIONS.PROMOTE_LISTING
-    condition: (row) => row.review_status !== "promoted",
+    permission: null,
+    visible: (row) => row.review_status !== "promoted",
     modal: "promote",
   },
   {
@@ -37,6 +38,16 @@ export const LISTING_ROW_ACTIONS = [
     type: "row",
     permission: null,
     modal: "register_call",
+  },
+  {
+    key: "change_review_status",
+    label: "تغییر وضعیت بررسی",
+    icon: ClipboardCheck,
+    variant: "outline",
+    type: "row",
+    permission: null,
+    visible: () => true,
+    modal: "review_status",
   },
   {
     key: "open_source",

@@ -7,6 +7,10 @@ export default function useListingModals() {
     open: false,
     listing: null,
   });
+  const [reviewStatus, setReviewStatus] = useState({
+    open: false,
+    listing: null,
+  });
 
   const openDetail = useCallback(
     (listing) => setDetail({ open: true, listing }),
@@ -39,11 +43,20 @@ export default function useListingModals() {
     detail,
     promote,
     registerCall,
+    reviewStatus,
     openDetail,
     closeDetail,
     openPromote,
     closePromote,
     openRegisterCall,
     closeRegisterCall,
+    openReviewStatus: useCallback(
+      (listing) => setReviewStatus({ open: true, listing }),
+      [],
+    ),
+    closeReviewStatus: useCallback(
+      () => setReviewStatus({ open: false, listing: null }),
+      [],
+    ),
   };
 }
