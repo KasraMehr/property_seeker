@@ -120,6 +120,7 @@ export default function PromoteListingModal({
       <OwnerFormModal
         isOpen={showOwnerForm}
         onClose={() => setShowOwnerForm(false)}
+        defaultPhone={listing?.contact_phone || null}
         onSuccess={handleOwnerCreated}
       />
     </>
