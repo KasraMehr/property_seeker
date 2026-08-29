@@ -9,7 +9,7 @@ class PropertyListSerializer(serializers.ModelSerializer):
 
     agent = serializers.CharField(source="agent.full_name", read_only=True)
 
-    city = serializers.CharField(source="address.city.name", read_only=True)
+    city = serializers.CharField(source="address.neighborhood.district.city.name", read_only=True)
 
     created_by = serializers.CharField(source="create_by.full_name", read_only=True)
     agency = serializers.CharField(

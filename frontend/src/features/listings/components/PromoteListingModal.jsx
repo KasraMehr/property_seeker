@@ -91,7 +91,7 @@ export default function PromoteListingModal({
         toPromotePayload(normalized),
       );
       const result = res?.data || res;
-      const propertyId = result?.property?.id ?? result?.id;
+      const propertyId = result?.property_id ?? result?.id;
 
       // Add features to the new property
       if (propertyId && featureIds.length > 0) {

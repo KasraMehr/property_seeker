@@ -5,6 +5,10 @@ from properties.models import PropertyFeature
 
 class PropertyFeatureListSerializer(serializers.ModelSerializer):
 
+    property = serializers.PrimaryKeyRelatedField(
+        read_only=True,
+    )
+
     property_code = serializers.CharField(
         source="property.property_code",
         read_only=True,
@@ -24,6 +28,7 @@ class PropertyFeatureListSerializer(serializers.ModelSerializer):
         model = PropertyFeature
         fields = (
             "id",
+            "property",
             "property_code",
             "feature",
             "feature_id",

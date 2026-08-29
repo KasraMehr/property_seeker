@@ -15,6 +15,7 @@ import ListingDetailModal from "@/features/listings/components/ListingDetailModa
 import PromoteListingModal from "@/features/listings/components/PromoteListingModal";
 import PromoteSuccessModal from "@/features/listings/components/PromoteSuccessModal";
 import ChangeReviewStatusModal from "@/features/listings/components/ChangeReviewStatusModal";
+import PropertyDetailModal from "@/features/properties/components/PropertyDetailModal";
 import RegisterCallForm from "../../../shared/forms/RegisterCallForm";
 
 export default function ListingsPage() {
@@ -56,6 +57,7 @@ export default function ListingsPage() {
 
   const [detailLoading, setDetailLoading] = useState(false);
   const [promoteResult, setPromoteResult] = useState(null);
+  const [viewProperty, setViewProperty] = useState(null);
 
   const [searchInput, setSearchInput] = useState(filterValues.search || "");
   const debouncedSearch = useDebounce(searchInput, 400);
@@ -243,6 +245,16 @@ export default function ListingsPage() {
         isOpen={!!promoteResult}
         onClose={() => setPromoteResult(null)}
         result={promoteResult}
+        onViewProperty={(property) => {
+          setPromoteResult(null);
+          setViewProperty(property);
+        }}
+      />
+
+      <PropertyDetailModal
+        isOpen={!!viewProperty}
+        onClose={() => setViewProperty(null)}
+        property={viewProperty}
       />
 
       <ChangeReviewStatusModal

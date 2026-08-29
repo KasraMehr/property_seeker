@@ -4,22 +4,22 @@ import { PERMISSIONS } from "@/constants/permissions";
 export const PROPERTY_ROW_ACTIONS = [
   {
     key: "view",
-    label: "مشاهده",
+    label: "مشاهده / ویرایش",
     icon: Eye,
     variant: "ghost",
     type: "row",
     permission: null,
     modal: "detail",
   },
-  {
-    key: "edit",
-    label: "ویرایش",
-    icon: Pencil,
-    variant: "ghost",
-    type: "row",
-    permission: PERMISSIONS.PROPERTY?.CHANGE ?? null,
-    modal: "edit",
-  },
+  // {
+  //   key: "edit",
+  //   label: "ویرایش",
+  //   icon: Pencil,
+  //   variant: "ghost",
+  //   type: "row",
+  //   permission: PERMISSIONS.PROPERTY?.CHANGE ?? null,
+  //   modal: "edit",
+  // },
   {
     key: "register_call",
     label: "ثبت تماس",

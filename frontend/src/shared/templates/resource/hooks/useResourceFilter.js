@@ -325,20 +325,22 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
 
         case "location_cascade": {
           if (!value) break;
-          const parts = [];
-          if (value.province) parts.push(`استان`);
-          if (value.city) parts.push(`شهر`);
-          if (value.district) parts.push(`منطقه`);
-          if (value.neighborhood) parts.push(`محله`);
           if (
             value.province ||
             value.city ||
             value.district ||
             value.neighborhood
           ) {
+            // Use stored label from FilterBar if available, otherwise fallback
+            const storedLabel = filterLabels[field.key];
+            const parts = [];
+            if (value.province) parts.push(`استان`);
+            if (value.city) parts.push(`شهر`);
+            if (value.district) parts.push(`منطقه`);
+            if (value.neighborhood) parts.push(`محله`);
             chips.push({
               key: field.key,
-              label: field.label || parts.join(" › ") || "موقعیت",
+              label: storedLabel || field.label || parts.join(" › ") || "موقعیت",
               type: "location_cascade",
             });
           }

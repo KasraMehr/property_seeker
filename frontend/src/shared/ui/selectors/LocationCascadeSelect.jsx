@@ -52,6 +52,7 @@ function toOptions(list) {
 export default function LocationCascadeSelect({
   value = {},
   onChange,
+  onLabelsChange,
   levels = ["province", "city", "district", "neighborhood"],
   includeAddress = false,
   size = "sm",
@@ -149,7 +150,7 @@ export default function LocationCascadeSelect({
       current.province &&
       filtered.length === 0 &&
       lists.cities.length > 0 &&
-      !lists.cities.some((c) => c.province != null || c.province_id != null)
+      !lists.cities.some((c) => c.province_id != null)
     ) {
       return toOptions(lists.cities);
     }
@@ -173,9 +174,35 @@ export default function LocationCascadeSelect({
     );
   }, [lists.neighborhoods, current.district, activeLevels]);
 
+  const findLabel = useCallback(
+    (list, id) => {
+      if (id == null) return null;
+      const item = list.find((i) => i.id === Number(id));
+      return item?.name || null;
+    },
+    [],
+  );
+
+  const emitWithLabels = useCallback(
+    (patch) => {
+      const next = { ...current, ...patch };
+      onChange?.(next);
+      // Notify parent of selected labels for chip display
+      if (onLabelsChange) {
+        const labels = {};
+        if (next.province) labels.province = findLabel(lists.provinces, next.province);
+        if (next.city) labels.city = findLabel(lists.cities, next.city);
+        if (next.district) labels.district = findLabel(lists.districts, next.district);
+        if (next.neighborhood) labels.neighborhood = findLabel(lists.neighborhoods, next.neighborhood);
+        onLabelsChange(labels);
+      }
+    },
+    [current, onChange, onLabelsChange, lists, findLabel],
+  );
+
   const handleProvince = (v) => {
     const id = v === "" || v == null ? null : Number(v);
-    emit({
+    emitWithLabels({
       province: id,
       city: null,
       district: null,
@@ -186,7 +213,7 @@ export default function LocationCascadeSelect({
 
   const handleCity = (v) => {
     const id = v === "" || v == null ? null : Number(v);
-    emit({
+    emitWithLabels({
       city: id,
       district: null,
       neighborhood: null,
@@ -196,7 +223,7 @@ export default function LocationCascadeSelect({
 
   const handleDistrict = (v) => {
     const id = v === "" || v == null ? null : Number(v);
-    emit({
+    emitWithLabels({
       district: id,
       neighborhood: null,
       address: null,
@@ -205,7 +232,7 @@ export default function LocationCascadeSelect({
 
   const handleNeighborhood = (v) => {
     const id = v === "" || v == null ? null : Number(v);
-    emit({
+    emitWithLabels({
       neighborhood: id,
       address: null,
     });
@@ -213,7 +240,7 @@ export default function LocationCascadeSelect({
 
   const handleAddress = (v) => {
     const id = v === "" || v == null ? null : Number(v);
-    emit({ address: id });
+    emitWithLabels({ address: id });
   };
 
   const gridClass =
@@ -238,8 +265,7 @@ export default function LocationCascadeSelect({
           searchable
         />
       )}
-{/* 
-     TODO: make sure that cascade address is ok between back-front
+
       {activeLevels.includes("city") && (
         <Select
           label={LOCATION_CASCADE_FIELDS.city.label}
@@ -288,7 +314,7 @@ export default function LocationCascadeSelect({
           size={size}
           searchable
         />
-      )} */}
+      )}
 
       {activeLevels.includes("address") && (
         <div className="sm:col-span-2">

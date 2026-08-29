@@ -4,7 +4,10 @@ import FormRenderer from "@/shared/page/FormRenderer";
 import { PROPERTY_FORM } from "@/features/properties/config";
 import propertyService from "@/features/properties/services/propertyService";
 import OwnerFormModal from "@/features/owners/components/OwnerFormModal";
+import locationService from "@/features/location-management/services/locationService";
 import { toastService } from "@/lib/toast";
+
+
 
 export default function PropertyFormModal({
   isOpen,
@@ -12,41 +15,119 @@ export default function PropertyFormModal({
   property = null,
   onSuccess,
 }) {
+  const isEdit = !!property?.id;
   const [loading, setLoading] = useState(false);
   const [showOwnerForm, setShowOwnerForm] = useState(false);
   const [ownerFormKey, setOwnerFormKey] = useState(0);
   const [propertyFeatures, setPropertyFeatures] = useState([]);
-  const isEdit = !!property?.id;
+  const [resolvedLocation, setResolvedLocation] = useState({});
+  const [editReady, setEditReady] = useState(!isEdit);
 
-  // Fetch property features for auto-fill in edit mode
+  // For create mode, always ready. For edit, wait for data.
   useEffect(() => {
-    if (isEdit && property?.id) {
-      propertyService.getPropertyFeatures(property.id)
-        .then((features) => setPropertyFeatures(features))
-        .catch(() => setPropertyFeatures([]));
+    if (!isEdit) {
+      setEditReady(true);
+      setPropertyFeatures([]);
+      setResolvedLocation({});
+      return;
     }
+
+    setEditReady(false);
+    let cancelled = false;
+
+    const loadEditData = async () => {
+      try {
+        const [features, location] = await Promise.all([
+          propertyService.getPropertyFeatures(property.id).catch(() => []),
+          property?.address && typeof property.address === "object"
+            ? locationService.resolveLocationFromAddress(property.address).catch(() => ({}))
+            : Promise.resolve({}),
+        ]);
+        if (cancelled) return;
+        setPropertyFeatures(Array.isArray(features) ? features : []);
+        setResolvedLocation(location || {});
+        setEditReady(true);
+      } catch {
+        if (!cancelled) setEditReady(true);
+      }
+    };
+
+    loadEditData();
+    return () => { cancelled = true; };
   }, [isEdit, property?.id]);
 
   const formConfig = useMemo(() => {
     if (!PROPERTY_FORM) return PROPERTY_FORM;
+    const ownerName = isEdit
+      ? (typeof property?.owner === "object" ? property.owner.full_name : (property?.owner || "—"))
+      : undefined;
+    const agentName = isEdit
+      ? (typeof property?.agent === "object" ? property.agent.full_name : (property?.agent || "—"))
+      : undefined;
     return {
       ...PROPERTY_FORM,
       tabs: (PROPERTY_FORM.tabs || []).map((tab) => ({
         ...tab,
         fields: (tab.fields || []).map((f) => {
           if (f.key === "owner") {
-            return {
-              ...f,
-              readOnly: isEdit,
-              addAction: isEdit ? undefined : () => setShowOwnerForm(true),
-              addActionLabel: "مالک جدید",
-            };
+            if (isEdit) {
+              return { ...f, type: "text", readOnly: true, defaultValue: ownerName, addAction: undefined };
+            }
+            return { ...f, addAction: () => setShowOwnerForm(true), addActionLabel: "مالک جدید" };
+          }
+          if (f.key === "agent" && isEdit) {
+            return { ...f, type: "text", readOnly: true, defaultValue: agentName };
+          }
+          if (f.key === "property_type" && isEdit) {
+            return { ...f, type: "text", readOnly: true, defaultValue: property?.property_type || "—" };
           }
           return f;
         }),
       })),
     };
-  }, [isEdit]);
+  }, [isEdit, property?.owner, property?.agent, property?.deal_type]);
+
+  const defaultValues = useMemo(() => {
+    if (!isEdit) return {};
+    // Flatten agent to string if it's an object
+    const agentName = typeof property?.agent === "object"
+      ? property.agent.full_name
+      : (property?.agent || "");
+    return {
+      // Basic info
+      property_code: property?.property_code || "",
+      title: property?.title || "",
+      deal_type: property?.deal_type || "sale",
+      status: property?.status || "available",
+      property_type: property?.property_type || "",
+      owner: typeof property?.owner === "object" ? property.owner.full_name : (property?.owner || ""),
+      agent: agentName,
+      description: property?.description || "",
+      // Location
+      location: resolvedLocation || {},
+      // Specs
+      area: property?.area || "",
+      age: property?.age ?? "",
+      bedrooms: property?.bedrooms ?? "",
+      bathrooms: property?.bathrooms ?? "",
+      floor: property?.floor ?? "",
+      total_floors: property?.total_floors ?? "",
+      parking_count: property?.parking_count ?? "",
+      storage_count: property?.storage_count ?? "",
+      orientation: property?.orientation || "",
+      condition: property?.condition || "",
+      // Price
+      sale_price: property?.sale_price || "",
+      deposit_amount: property?.deposit_amount || "",
+      mortgage_amount: property?.mortgage_amount || "",
+      monthly_rent: property?.monthly_rent || "",
+      price_per_meter: property?.price_per_meter || "",
+      // Features — ensure all are numbers for multi_select matching
+      features: Array.isArray(propertyFeatures)
+        ? [...new Set(propertyFeatures.map((f) => Number(f.feature_id)).filter(Boolean))]
+        : [],
+    };
+  }, [isEdit, property, propertyFeatures, resolvedLocation]);
 
   const handleOwnerCreated = () => {
     setShowOwnerForm(false);
@@ -57,13 +138,41 @@ export default function PropertyFormModal({
     setLoading(true);
     try {
       const payload = { ...data };
+
+      // Map location cascade to address FK
       if (payload.location && typeof payload.location === "object") {
         payload.address = payload.location.address ?? null;
         delete payload.location;
       }
+
+      // In edit mode, remove read-only fields that are strings (not FK IDs)
+      if (isEdit) {
+        delete payload.owner;
+        delete payload.agent;
+        delete payload.property_code;
+      }
+
       // Extract feature ids before sending to backend
       const featureIds = payload.features || [];
       delete payload.features;
+
+      // Convert numeric fields to integers (form sends strings from price inputs)
+      const intFields = ["sale_price", "deposit_amount", "mortgage_amount", "monthly_rent", "price_per_meter"];
+      for (const key of intFields) {
+        if (payload[key] !== null && payload[key] !== undefined && payload[key] !== "") {
+          payload[key] = parseInt(payload[key], 10) || null;
+        } else {
+          payload[key] = null;
+        }
+      }
+
+      // Convert area and other numeric fields
+      const numFields = ["area", "age", "bedrooms", "bathrooms", "floor", "total_floors", "parking_count", "storage_count"];
+      for (const key of numFields) {
+        if (payload[key] !== null && payload[key] !== undefined && payload[key] !== "") {
+          payload[key] = parseInt(payload[key], 10) || 0;
+        }
+      }
 
       let propertyId;
       if (isEdit) {
@@ -104,7 +213,20 @@ export default function PropertyFormModal({
       onSuccess?.();
       onClose();
     } catch (error) {
-      toastService.error(error?.response?.data?.detail || "خطا در ذخیره ملک.");
+      const errData = error?.response?.data;
+      let msg = "خطا در ذخیره ملک.";
+      if (errData?.detail) {
+        msg = typeof errData.detail === "string" ? errData.detail : JSON.stringify(errData.detail);
+      } else if (errData) {
+        // Extract first validation error from object { field: [messages] }
+        const firstKey = Object.keys(errData)[0];
+        if (firstKey && Array.isArray(errData[firstKey])) {
+          msg = errData[firstKey][0];
+        } else if (firstKey) {
+          msg = String(errData[firstKey]);
+        }
+      }
+      toastService.error(msg);
     } finally {
       setLoading(false);
     }
@@ -118,19 +240,21 @@ export default function PropertyFormModal({
         size="xl"
         title={isEdit ? "ویرایش ملک" : "ثبت ملک جدید"}
       >
-        <FormRenderer
-          key={ownerFormKey}
-          config={formConfig}
-          defaultValues={
-            isEdit
-              ? { ...property, features: Array.isArray(propertyFeatures) ? propertyFeatures.map((f) => Number(f.feature_id)).filter(Boolean) : [] }
-              : {}
-          }
-          mode={isEdit ? "edit" : "create"}
-          onSubmit={handleSubmit}
-          onCancel={onClose}
-          loading={loading}
-        />
+        {editReady ? (
+          <FormRenderer
+            key={`${ownerFormKey}-${property?.id || "new"}`}
+            config={formConfig}
+            defaultValues={defaultValues}
+            mode={isEdit ? "edit" : "create"}
+            onSubmit={handleSubmit}
+            onCancel={onClose}
+            loading={loading}
+          />
+        ) : (
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-(--role-primary)" />
+          </div>
+        )}
       </Modal>
 
       <OwnerFormModal

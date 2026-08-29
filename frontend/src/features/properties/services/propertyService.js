@@ -95,7 +95,8 @@ const getPropertyFeatures = async (propertyId) => {
     const res = await api.get(API_ENDPOINTS.PROPERTY_FEATURES.LIST.url);
     const data = res?.data ?? res;
     const list = Array.isArray(data) ? data : data?.results ?? [];
-    return list.filter((f) => String(f.property) === String(propertyId) || String(f.property_code) === String(propertyId));
+    const pid = String(propertyId);
+    return list.filter((f) => String(f.property) === pid);
   } catch (e) {
     console.error("getPropertyFeatures error:", e);
     return [];
@@ -112,9 +113,8 @@ const addPropertyFeature = async (propertyId, featureId) => {
 
 /** Remove features from a property */
 const removePropertyFeatures = async (ids) => {
-  return api.delete(API_ENDPOINTS.PROPERTY_FEATURES.DELETE().url, {
-    data: { ids },
-  });
+  const url = API_ENDPOINTS.PROPERTY_FEATURES.DELETE(0).url; // bulk-delete URL
+  return api.delete(url, { data: { ids } });
 };
 
 const propertyService = {

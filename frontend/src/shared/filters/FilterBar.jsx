@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 
 import DateRangePicker from "@/shared/ui/selectors/DateRangePicker";
-import { dateRangeChipLabel } from "@/shared/ui/selectors/DateRangePicker";
 import SearchSelect from "@/shared/ui/selectors/SearchSelect";
 import Input from "../ui/Input";
 import Select from "../ui/selectors/Select";
@@ -25,19 +24,6 @@ import Button from "../ui/Button";
 import Drawer from "../ui/Drawer";
 import LocationCascadeSelect from "@/shared/ui/selectors/LocationCascadeSelect";
 
-const ICONS = {
-  Search,
-  Star,
-  Filter,
-  MapPin,
-  Home,
-  DollarSign,
-  Ruler,
-  Shield,
-  Circle,
-  Image,
-  SlidersHorizontal,
-};
 
 /**
  * FilterBar — dynamic, schema-driven filter bar
@@ -146,7 +132,7 @@ export default function FilterBar({
         const rMin = field.min ?? 0;
         const rMax = field.max ?? 100;
         return (
-          <div key={field.key} className="w-64 flex-shrink-0">
+          <div key={field.key} className="w-64 shrink-0">
             <RangeSelect
               label={field.label}
               value={value || { min: rMin, max: rMax }}
@@ -198,6 +184,17 @@ export default function FilterBar({
             <LocationCascadeSelect
               value={value || {}}
               onChange={(next) => onChange(field.key, next)}
+              onLabelsChange={(labels) => {
+                // Store labels under a special key for chip display
+                const parts = [];
+                if (labels.province) parts.push(labels.province);
+                if (labels.city) parts.push(labels.city);
+                if (labels.district) parts.push(labels.district);
+                if (labels.neighborhood) parts.push(labels.neighborhood);
+                if (parts.length > 0) {
+                  onChange(field.key, value, parts.join(" › "));
+                }
+              }}
               levels={field.levels}
               includeAddress={field.includeAddress === true}
               size="sm"

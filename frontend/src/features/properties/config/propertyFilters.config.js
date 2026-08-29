@@ -53,12 +53,13 @@ export const PROPERTY_QUICK_FILTERS = [
     step: 1_000_000,
     unit: "تومان",
   },
-  {
-    key: "location",
-    label: "موقعیت مکانی",
-    type: "location_cascade",
-    placement: "drawer",
-  },
+  // TODO: فیلتر لوکیشن فعلا غیرفعال — فقط در فرم‌ها فعال است
+  // {
+  //   key: "location",
+  //   label: "موقعیت مکانی",
+  //   type: "location_cascade",
+  //   placement: "drawer",
+  // },
 ];
 
 export const PROPERTY_ADVANCED_FILTERS = [
@@ -92,12 +93,12 @@ export const PROPERTY_ADVANCED_FILTERS = [
     type: "multi_select",
     placement: "drawer",
     options: [
-      { value: "APARTMENT", label: "آپارتمان" },
-      { value: "VILLA", label: "ویلا" },
-      { value: "LAND", label: "زمین" },
-      { value: "COMMERCIAL", label: "تجاری" },
-      { value: "OFFICE", label: "دفتر" },
-      { value: "STORE", label: "مغازه" },
+      { value: "آپارتمان", label: "آپارتمان" },
+      { value: "ویلا", label: "ویلا" },
+      { value: "زمین", label: "زمین" },
+      { value: "تجاری", label: "تجاری" },
+      { value: "دفتر", label: "دفتر" },
+      { value: "مغازه", label: "مغازه" },
     ],
   },
   

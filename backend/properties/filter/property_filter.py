@@ -357,7 +357,7 @@ class PropertyFilter(django_filters.FilterSet):
         if value is None:
             return queryset
 
-        return queryset.filter(address__province_id=value)
+        return queryset.filter(address__neighborhood__district__city__province_id=value)
 
     # =====================================================
     # CITY
@@ -373,7 +373,7 @@ class PropertyFilter(django_filters.FilterSet):
         if value is None:
             return queryset
 
-        return queryset.filter(address__city_id=value)
+        return queryset.filter(address__neighborhood__district__city_id=value)
 
     # =====================================================
     # DISTRICT
@@ -389,7 +389,7 @@ class PropertyFilter(django_filters.FilterSet):
         if value is None:
             return queryset
 
-        return queryset.filter(address__district_id=value)
+        return queryset.filter(address__neighborhood__district_id=value)
 
     # =====================================================
     # NEIGHBORHOOD

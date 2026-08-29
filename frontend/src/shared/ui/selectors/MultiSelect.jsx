@@ -24,7 +24,7 @@ const MultiSelect = forwardRef(({
   const containerRef = useRef(null);
   const inputRef = useRef(null);
 
-  const selectedOptions = options.filter((o) => value.includes(o.value));
+  const selectedOptions = options.filter((o) => value.some((v) => String(v) === String(o.value)));
   const isError = !!error;
 
   useEffect(() => {
@@ -46,17 +46,19 @@ const MultiSelect = forwardRef(({
   const toggle = () => !disabled && setIsOpen((p) => !p);
 
   const toggleOption = (v) => {
-    const next = value.includes(v)
-      ? value.filter((x) => x !== v)
+    const sv = String(v);
+    const next = value.some((x) => String(x) === sv)
+      ? value.filter((x) => String(x) !== sv)
       : [...value, v];
     onChange?.(next);
   };
 
-  const selectAll = () => onChange?.(options.map((o) => o.value));
-  const clearAll = () => onChange?.([]);
+  const selectAll = (e) => { e?.stopPropagation(); onChange?.(options.map((o) => o.value)); };
+  const clearAll = (e) => { e?.stopPropagation(); onChange?.([]); };
   const removeChip = (v, e) => {
     e.stopPropagation();
-    onChange?.(value.filter((x) => x !== v));
+    const sv = String(v);
+    onChange?.(value.filter((x) => String(x) !== sv));
   };
 
   const filtered = searchable
@@ -175,6 +177,7 @@ const MultiSelect = forwardRef(({
           {/* Actions bar */}
           <div className="flex items-center justify-between px-4 py-2 border-b border-border/60 bg-background/30">
             <button
+              type="button"
               onClick={selectAll}
               className="text-[11px] font-medium text-(--role-primary) hover:text-(--role-primary-hover) transition-colors"
             >
@@ -182,6 +185,7 @@ const MultiSelect = forwardRef(({
             </button>
             {value.length > 0 && (
               <button
+                type="button"
                 onClick={clearAll}
                 className="text-[11px] font-medium text-muted hover:text-danger transition-colors"
               >

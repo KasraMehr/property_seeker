@@ -24,9 +24,9 @@ import { formatDate } from "@/utils/formatters";
 /* ─── Tabs ─── */
 export const PROPERTY_DETAIL_TABS = [
   { key: "details", label: "مشخصات ملک", icon: Home },
+  { key: "features", label: "امکانات", icon: Star },
   { key: "status_history", label: "تاریخچه وضعیت", icon: Clock },
   // { key: "change_history", label: "تاریخچه تغییرات", icon: History }, // [PEND] API نداره
-  { key: "features", label: "امکانات", icon: Star },
   { key: "media", label: "رسانه", icon: Image },
 ];
 
