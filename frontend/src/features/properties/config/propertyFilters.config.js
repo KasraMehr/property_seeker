@@ -62,6 +62,44 @@ export const PROPERTY_QUICK_FILTERS = [
 ];
 
 export const PROPERTY_ADVANCED_FILTERS = [
+   // ─── اشخاص ───
+  {
+    key: "owner",
+    label: "مالک",
+    type: "search_select",
+    placement: "drawer",
+    async: true,
+    endpoint: API_ENDPOINTS.OWNERS.LIST.url,
+    search_fields: ["full_name", "phone", "national_id"],
+    optionLabel: "full_name",
+    optionValue: "id",
+  },
+  {
+    key: "agent",
+    label: "مشاور",
+    type: "search_select",
+    placement: "drawer",
+    async: true,
+    endpoint: API_ENDPOINTS.ACCOUNTS.USERS.LIST.url,
+    search_fields: ["full_name", "phone"],
+    optionLabel: "full_name",
+    optionValue: "id",
+  },
+  // ─── مشخصات ملک ───
+  {
+    key: "property_type",
+    label: "نوع ملک",
+    type: "multi_select",
+    placement: "drawer",
+    options: [
+      { value: "APARTMENT", label: "آپارتمان" },
+      { value: "VILLA", label: "ویلا" },
+      { value: "LAND", label: "زمین" },
+      { value: "COMMERCIAL", label: "تجاری" },
+      { value: "OFFICE", label: "دفتر" },
+      { value: "STORE", label: "مغازه" },
+    ],
+  },
   
   // ─── قیمت ───
   {
@@ -137,21 +175,7 @@ export const PROPERTY_ADVANCED_FILTERS = [
     unit: "اتاق",
   },
   
-  // ─── مشخصات ملک ───
-  {
-    key: "property_type",
-    label: "نوع ملک",
-    type: "multi_select",
-    placement: "drawer",
-    options: [
-      { value: "APARTMENT", label: "آپارتمان" },
-      { value: "VILLA", label: "ویلا" },
-      { value: "LAND", label: "زمین" },
-      { value: "COMMERCIAL", label: "تجاری" },
-      { value: "OFFICE", label: "دفتر" },
-      { value: "STORE", label: "مغازه" },
-    ],
-  },
+  
   {
     key: "age",
     label: "سن بنا",
@@ -253,30 +277,7 @@ export const PROPERTY_ADVANCED_FILTERS = [
       { value: "old", label: "قدیمی" },
     ],
   },
-  // ─── اشخاص ───
-  {
-    key: "owner",
-    label: "مالک",
-    type: "search_select",
-    placement: "drawer",
-    async: true,
-    endpoint: API_ENDPOINTS.OWNERS.LIST.url,
-    search_fields: ["full_name", "phone", "national_id"],
-    optionLabel: "full_name",
-    optionValue: "id",
-  },
-  {
-    key: "agent",
-    label: "مشاور",
-    type: "search_select",
-    placement: "drawer",
-    async: true,
-    endpoint: API_ENDPOINTS.ACCOUNTS.USERS.LIST.url,
-    search_fields: ["full_name", "phone"],
-    optionLabel: "full_name",
-    optionValue: "id",
-  },
-  
+ 
   {
     key: "created_at",
     label: "تاریخ ثبت",

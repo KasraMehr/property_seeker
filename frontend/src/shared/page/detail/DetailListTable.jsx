@@ -22,7 +22,7 @@ export function DetailListTable({
     <div className="border border-border rounded-lg overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="bg-muted border-b border-border">
+          <thead className="bg-(--role-subtle) border-b border-(--role-border)">
             <tr>
               {columns.map((col) => (
                 <th

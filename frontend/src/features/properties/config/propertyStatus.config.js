@@ -4,13 +4,20 @@ import {
   Home,
   Clock,
   Archive,
+  FileText,
 } from "lucide-react";
 
 /**
  * Property.Status (models.py)
  * choices = [available, reserved, sold, rented, archived]
+ * draft added for status history compatibility
  */
 export const PROPERTY_STATUS_CONFIG = {
+  draft: {
+    label: "پیش‌نویس",
+    icon: FileText,
+    color: "neutral",
+  },
   available: {
     label: "موجود",
     icon: Eye,

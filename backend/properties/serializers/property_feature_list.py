@@ -15,10 +15,16 @@ class PropertyFeatureListSerializer(serializers.ModelSerializer):
         read_only=True,
     )
 
+    feature_id = serializers.PrimaryKeyRelatedField(
+        source="feature",
+        read_only=True,
+    )
+
     class Meta:
         model = PropertyFeature
         fields = (
             "id",
             "property_code",
             "feature",
+            "feature_id",
         )

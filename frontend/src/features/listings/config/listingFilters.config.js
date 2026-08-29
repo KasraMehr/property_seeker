@@ -47,6 +47,8 @@ export const LISTING_QUICK_FILTERS = [
     options: [
       { value: "sale", label: "فروش" },
       { value: "rent", label: "اجاره" },
+      { value: "mortage", label: "رهن" },
+      { value: "exchange", label: "معاوضه" },
     ],
     // client-side: sale → listed_sale_price, rent → listed_rent_amount
   },

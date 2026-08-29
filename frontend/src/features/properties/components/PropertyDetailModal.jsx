@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { Home, Phone } from "lucide-react";
 import Modal from "@/shared/ui/modal/Modal";
 import Button from "@/shared/ui/Button";
@@ -16,6 +16,7 @@ import {
 } from "@/features/properties/config";
 import { buildStatusConfig } from "@/constants/status.utils";
 import { DetailFieldGrid, DetailListTable } from "@/shared/page/DetailContentRenderer";
+import propertyService from "@/features/properties/services/propertyService";
 
 export default function PropertyDetailModal({
   isOpen,
@@ -26,14 +27,46 @@ export default function PropertyDetailModal({
   onEdit,
 }) {
   const [activeTab, setActiveTab] = useState("details");
+  const [statusHistory, setStatusHistory] = useState([]);
+  const [features, setFeatures] = useState([]);
+  const [media, setMedia] = useState([]);
+  const [tabLoading, setTabLoading] = useState(false);
 
   const availableTabs = useMemo(() => {
     return (PROPERTY_DETAIL_TABS || []).filter(() => true);
   }, []);
 
+  const fetchTabData = useCallback(async () => {
+    if (!property?.id) return;
+    setTabLoading(true);
+    try {
+      if (activeTab === "status_history") {
+        const data = await propertyService.getStatusHistory(property.id, property.property_code);
+        setStatusHistory(data);
+      } else if (activeTab === "features") {
+        const data = await propertyService.getFeatures(property.id, property.property_code);
+        setFeatures(data);
+      } else if (activeTab === "media") {
+        const data = await propertyService.getMedia(property.id);
+        setMedia(data);
+      }
+    } catch (e) {
+      console.error("Tab data fetch error:", e);
+    } finally {
+      setTabLoading(false);
+    }
+  }, [property?.id, activeTab]);
+
   useEffect(() => {
-    if (isOpen) setActiveTab("details");
+    if (isOpen) {
+      setActiveTab("details");
+      setStatusHistory([]);
+    }
   }, [isOpen, property?.id]);
+
+  useEffect(() => {
+    if (property?.id) fetchTabData();
+  }, [activeTab, property?.id]);
 
   if (!isOpen || !property) return null;
 
@@ -96,30 +129,27 @@ export default function PropertyDetailModal({
 
           <Tabs.Content value="status_history">
             <DetailListTable
-              data={property.status_history || []}
+              data={statusHistory}
               columns={PROPERTY_STATUS_HISTORY_COLUMNS}
-              emptyText="مشاهده ی تاریخچه وضعیت (به زودی)"
+              loading={tabLoading}
+              emptyText="تاریخچه‌ای ثبت نشده است"
             />
           </Tabs.Content>
-          <Tabs.Content value="history">
-            <DetailListTable
-              data={property.change_history || property.history || []}
-              columns={PROPERTY_CHANGE_HISTORY_COLUMNS}
-              emptyText="مشاهده ی تاریخچه تغییرات (به زودی)"
-            />
-          </Tabs.Content>
+          {/* change_history tab removed — API pending */}
           <Tabs.Content value="features">
             <DetailListTable
-              data={property.features || []}
+              data={features}
               columns={PROPERTY_FEATURE_COLUMNS}
-              emptyText="مشاهده ی ویژگی های خاص ملک (به زودی)"
+              loading={tabLoading}
+              emptyText="امکاناتی ثبت نشده است"
             />
           </Tabs.Content>
           <Tabs.Content value="media">
             <DetailListTable
-              data={property.media || []}
+              data={media}
               columns={PROPERTY_MEDIA_COLUMNS}
-              emptyText="مشاهده ی رسانه های بارگذاری شده (به زودی)"
+              loading={tabLoading}
+              emptyText=" (به زودی) رسانه‌ای بارگذاری نشده است"
             />
           </Tabs.Content>
         </div>

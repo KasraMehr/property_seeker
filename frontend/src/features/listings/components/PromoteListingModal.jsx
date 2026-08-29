@@ -3,6 +3,7 @@ import Modal from "@/shared/ui/modal/Modal";
 import FormRenderer from "@/shared/page/FormRenderer";
 import { PROMOTE_LISTING_FORM } from "@/features/properties/config";
 import listingService from "@/features/listings/services/listingService";
+import propertyService from "@/features/properties/services/propertyService";
 import OwnerFormModal from "@/features/owners/components/OwnerFormModal";
 import { toastService } from "@/lib/toast";
 
@@ -81,11 +82,28 @@ export default function PromoteListingModal({
         normalized.address = normalized.location.address ?? null;
         delete normalized.location;
       }
+      // Extract features before promote
+      const featureIds = normalized.features || [];
+      delete normalized.features;
+
       const res = await listingService.promote(
         listing.id,
         toPromotePayload(normalized),
       );
       const result = res?.data || res;
+      const propertyId = result?.property?.id ?? result?.id;
+
+      // Add features to the new property
+      if (propertyId && featureIds.length > 0) {
+        try {
+          for (const fid of featureIds) {
+            await propertyService.addPropertyFeature(propertyId, fid);
+          }
+        } catch (featErr) {
+          console.error("Feature sync error after promote:", featErr);
+        }
+      }
+
       onSuccess?.(result);
       onClose();
     } catch (error) {
