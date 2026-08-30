@@ -215,6 +215,12 @@ export default function PropertiesTab({ onHeaderStateChange }) {
     [clearAll],
   );
 
+  /* ─── Table Columns (conditional based on isAdmin) ─── */
+  const tableColumns = useMemo(() => {
+    if (isAdmin) return PROPERTY_TABLE_COLUMNS;
+    return PROPERTY_TABLE_COLUMNS.filter((col) => col.key !== "agent");
+  }, [isAdmin]);
+
   return (
     <>
       <div className="flex h-full flex-col min-h-0">
@@ -223,7 +229,7 @@ export default function PropertiesTab({ onHeaderStateChange }) {
           filters={filters}
           count={meta?.count || 0}
           countLabel="ملک"
-          columns={PROPERTY_TABLE_COLUMNS}
+          columns={tableColumns}
           data={data}
           loading={loading}
           emptyState={emptyState}

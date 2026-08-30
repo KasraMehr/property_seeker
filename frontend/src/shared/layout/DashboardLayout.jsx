@@ -58,9 +58,22 @@ export default function DashboardLayout({
           </div>
         </header>
 
-        {/* Page Content */}
-        <main className="flex-1 overflow-y-auto px-4 py-5 lg:px-6">
-          <div className="mx-auto w-full max-w-7xl">
+        {/* main */}
+        <main className="relative flex-1 overflow-y-auto bg-background px-4 py-5 lg:px-6">
+          {/* Background image */}
+          <div
+            className="
+    pointer-events-none absolute inset-0
+    bg-[url('/dilan-logo.webp')]
+    bg-size-[75%_75%]
+    bg-center bg-no-repeat
+    opacity-[0.1]
+  "
+            aria-hidden="true"
+          />
+
+          {/* Page content */}
+          <div className="relative z-10 mx-auto w-full max-w-7xl">
             <Outlet
               context={{
                 setPageHeader,

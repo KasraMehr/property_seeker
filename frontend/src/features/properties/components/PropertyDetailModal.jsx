@@ -4,6 +4,7 @@ import Modal from "@/shared/ui/modal/Modal";
 import Button from "@/shared/ui/Button";
 import Tabs from "@/shared/ui/Tabs";
 import StatusBadge from "@/shared/ui/badges/StatusBadge";
+import useAuth from "@/features/auth/hooks/useAuth";
 import {
   PROPERTY_STATUS_CONFIG,
   PROPERTY_DEAL_TYPE_CONFIG,
@@ -68,6 +69,18 @@ export default function PropertyDetailModal({
     if (property?.id) fetchTabData();
   }, [activeTab, property?.id]);
 
+  const { user } = useAuth();
+  const isAdmin = Boolean(user?.is_owner);
+
+  /* ─── Filter fields for non-owners ─── */
+  const detailFields = useMemo(() => {
+    if (isAdmin) return PROPERTY_DETAIL_FIELDS;
+    return PROPERTY_DETAIL_FIELDS.map((section) => ({
+      ...section,
+      fields: section.fields.filter((f) => f.key !== "agent"),
+    })).filter((section) => section.fields.length > 0);
+  }, [isAdmin]);
+
   if (!isOpen || !property) return null;
 
   const dealCfg = PROPERTY_DEAL_TYPE_CONFIG?.[property.deal_type];
@@ -124,7 +137,7 @@ export default function PropertyDetailModal({
 
         <div className="flex-1 min-h-0 overflow-y-auto pr-1">
           <Tabs.Content value="details">
-            <DetailFieldGrid data={property} sections={PROPERTY_DETAIL_FIELDS} />
+            <DetailFieldGrid data={property} sections={detailFields} />
           </Tabs.Content>
 
           <Tabs.Content value="status_history">

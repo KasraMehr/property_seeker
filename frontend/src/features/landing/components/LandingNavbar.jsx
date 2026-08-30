@@ -129,6 +129,35 @@ export default function LandingNavbar() {
         isOpen={isMenuOpen}
         onClose={closeMenu}
         header={<Logo size="md" labelPosition="left" />}
+        footer={
+          <div className="flex justify-center">
+            {user ? (
+              <Button
+                as={Link}
+                to="/dashboard"
+                variant="primary"
+                size="md"
+                className="gap-2 w-full"
+                onClick={closeMenu}
+              >
+                <LayoutDashboard size={16} />
+                <span>{NAVBAR_STRINGS.ctaDashboard}</span>
+              </Button>
+            ) : (
+              <Button
+                as={Link}
+                to="/login"
+                variant="primary"
+                size="md"
+                className="gap-2 w-full"
+                onClick={closeMenu}
+              >
+                <LogIn size={16} />
+                <span>{NAVBAR_STRINGS.ctaLogin}</span>
+              </Button>
+            )}
+          </div>
+        }
       >
         <div className="flex h-full flex-col items-center px-6 py-8">
             <NavigationMenu

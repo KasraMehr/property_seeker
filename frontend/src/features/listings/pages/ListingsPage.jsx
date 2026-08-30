@@ -175,7 +175,7 @@ export default function ListingsPage() {
   useEffect(() => {
     setPageHeader({
       title: "آگهی‌ها",
-      subtitle: "آگهی‌های استخراج‌شده از اسکراپر",
+      subtitle: "آگهی‌های استخراج‌شده  ",
       breadcrumb: [],
     });
     return () => setPageHeader(null);

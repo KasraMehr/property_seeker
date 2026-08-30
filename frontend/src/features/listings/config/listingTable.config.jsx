@@ -3,6 +3,7 @@ import SourceBadge from "@/shared/ui/badges/SourceBadge";
 import {
   LISTING_STATUS_CONFIG,
   LISTING_ADVERTISER_TYPE_CONFIG,
+  LISTING_REVIEW_STATUS_CONFIG,
   LISTING_ADVERTISER_CLASSIFICATION_STATUS_CONFIG,
 } from "@/features/listings/config";
 import { buildStatusConfig } from "@/constants/status.utils";

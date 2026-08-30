@@ -20,6 +20,13 @@ export const CALL_TABLE_COLUMNS = [
     ),
   },
   {
+    key: "result",
+    header: "نتیجه",
+    width: "w-28",
+    filterKey: "result",
+    cell: ({ result }) => <StatusBadge config={buildStatusConfig(CALL_RESULT_CONFIG, result)} />,
+  },
+  {
     key: "call_type",
     header: "نوع تماس",
     width: "w-24",
@@ -34,13 +41,6 @@ export const CALL_TABLE_COLUMNS = [
         </span>
       );
     },
-  },
-  {
-    key: "result",
-    header: "نتیجه",
-    width: "w-28",
-    filterKey: "result",
-    cell: ({ result }) => <StatusBadge config={buildStatusConfig(CALL_RESULT_CONFIG, result)} />,
   },
   {
     key: "agent_name",

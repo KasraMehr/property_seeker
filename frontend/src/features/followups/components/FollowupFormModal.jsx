@@ -20,7 +20,6 @@ export default function FollowupFormModal({
 
   const handleSubmit = async (values) => {
     setLoading(true);
-
     try {
       const payload = {
         title: values.title,
@@ -45,7 +44,6 @@ export default function FollowupFormModal({
         await followupService.create(payload);
         toastService.success("پیگیری جدید با موفقیت ثبت شد.");
       }
-
       onSuccess?.();
       onClose();
     } catch (error) {
@@ -56,21 +54,19 @@ export default function FollowupFormModal({
     }
   };
 
-  // Normalize for form (especially Edit mode)
-  const defaultValues = followup
-    ? {
+  const defaultValues = useMemo(() => {
+    if (followup) {
+      return {
         ...followup,
         user: followup.user?.id ?? followup.user,
         customer: followup.customer?.id ?? followup.customer,
         property: followup.property?.id ?? followup.property,
         due_at: followup.due_at || "",
         completed_at: followup.completed_at || "",
-      }
-    : {
-        type: "follow_up",
-        status: "pending",
-        user: currentUser?.id || null,
       };
+    }
+    return { type: "follow_up", status: "pending", user: currentUser?.id || null };
+  }, [followup, currentUser]);
 
   // Operator: replace async user field with static select (API blocked for non-owners)
   const formConfig = useMemo(() => {
@@ -98,12 +94,7 @@ export default function FollowupFormModal({
   }, [isOperator, currentUser]);
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      size="xl"
-      title={isEdit ? "ویرایش پیگیری" : "ثبت پیگیری جدید"}
-    >
+    <Modal isOpen={isOpen} onClose={onClose} size="xl" title={isEdit ? "ویرایش پیگیری" : "ثبت پیگیری جدید"}>
       <FormRenderer
         config={formConfig}
         defaultValues={defaultValues}

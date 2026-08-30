@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useCallback, useEffect, useState } from "react";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import DashboardTemplate from "@/shared/templates/dashboard/DashboardTemplate";
 import Button from "@/shared/ui/Button";
@@ -14,6 +14,7 @@ import {
 
 export default function OperatorDashboardPage() {
   const navigate = useNavigate();
+  const { setPageHeader } = useOutletContext();
   const [stats, setStats] = useState(null);
   const [leads, setLeads] = useState([]);
   const [followups, setFollowups] = useState([]);
@@ -43,23 +44,29 @@ export default function OperatorDashboardPage() {
     load();
   }, []);
 
-  const headerActions = (
-    <Button
-      variant="outline"
-      size="sm"
-      icon={ArrowLeft}
-      onClick={() => navigate("/operator/listings")}
-    >
-      مشاهده لیدها
-    </Button>
-  );
+  const goTo = useCallback(() => navigate("/operator/properties"), [navigate]);
+
+  /* ─── Page Header ─── */
+  useEffect(() => {
+    setPageHeader({
+      title: "داشبورد اپراتور",
+      subtitle: "آمار شخصی و وظایف روزانه",
+      actions: (
+        <Button
+          variant="outline"
+          size="sm"
+          icon={ArrowLeft}
+          onClick={goTo}
+        >
+        مشاهده فایل ها
+        </Button>
+      ),
+    });
+    return () => setPageHeader(null);
+  }, [setPageHeader, goTo]);
 
   return (
-    <DashboardTemplate
-      title="داشبورد اپراتور"
-      subtitle="آمار شخصی و وظایف روزانه"
-      headerActions={headerActions}
-    >
+    <DashboardTemplate>
       <OperatorStatsWidget stats={stats} loading={loading} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

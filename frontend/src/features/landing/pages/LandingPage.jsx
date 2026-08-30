@@ -19,9 +19,9 @@ export default function LandingPage() {
 
       <ProblemSolution/>
 
-      <HowItWorks/>
+      {/* <HowItWorks/> */}
 
-      <Services/>
+      {/* <Services/> */}
 
       <Benefits/>
 
