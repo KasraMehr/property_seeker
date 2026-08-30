@@ -53,6 +53,10 @@ services:
 
       CELERY_TIMEZONE: ${CELERY_TIMEZONE:-Asia/Tehran}
       DIVAR_REQUEST_INTERVAL_SECONDS: ${DIVAR_REQUEST_INTERVAL_SECONDS:-2.5}
+      GAPGPT_API_KEY: ${GAPGPT_API_KEY:-}
+      GAPGPT_BASE_URL: ${GAPGPT_BASE_URL:-https://api.gapgpt.app/v1}
+      GAPGPT_MODEL: ${GAPGPT_MODEL:-gpt-5.6-luna}
+      GAPGPT_TIMEOUT_SECONDS: ${GAPGPT_TIMEOUT_SECONDS:-30}
     volumes:
       - ./backend:/app
     command: ["python", "manage.py", "migrate", "--noinput"]

@@ -23,6 +23,8 @@ EXPORT_FIELDS = (
     "pictures_match_property",
     "media_count",
     "description",
+    "advertiser_type",
+    "advertiser_classification_status",
     "published_at",
     "source_updated_at",
     "first_seen_at",

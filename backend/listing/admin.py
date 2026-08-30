@@ -22,12 +22,20 @@ class ListingAdmin(admin.ModelAdmin):
         "source",
         "status",
         "review_status",
+        "advertiser_type",
+        "advertiser_classification_status",
         "contact_phone",
         "listed_area",
         "listed_sale_price",
         "last_checked_at",
     )
-    list_filter = ("source", "status", "review_status")
+    list_filter = (
+        "source",
+        "status",
+        "review_status",
+        "advertiser_type",
+        "advertiser_classification_status",
+    )
     search_fields = (
         "external_id",
         "title",
@@ -43,6 +51,12 @@ class ListingAdmin(admin.ModelAdmin):
         "title",
         "contact_phone",
         "description",
+        "advertiser_type",
+        "advertiser_classification_status",
+        "advertiser_classification_model",
+        "advertiser_classified_at",
+        "advertiser_description_hash",
+        "advertiser_classification_error",
         "listed_sale_price",
         "listed_price_per_meter",
         "listed_mortgage_amount",
