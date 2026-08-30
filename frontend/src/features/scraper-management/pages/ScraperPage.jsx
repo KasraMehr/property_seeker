@@ -74,15 +74,15 @@ export default function ScraperPage() {
   }, [fetchDivarSession]);
 
   const openTriggerPicker = useCallback(async () => {
-    if (!divarSession.authenticated) {
-      toastService.error(
-        divarSession.status === "challenge"
-          ? "چالش امنیتی دیوار باید رفع شود"
-          : "ابتدا وارد حساب دیوار شوید",
-      );
-      setActiveTab("divar-login");
-      return;
-    }
+    // if (!divarSession.authenticated) {
+    //   toastService.error(
+    //     divarSession.status === "challenge"
+    //       ? "چالش امنیتی دیوار باید رفع شود"
+    //       : "ابتدا وارد حساب دیوار شوید",
+    //   );
+    //   setActiveTab("divar-login");
+    //   return;
+    // }
     setPickerOpen(true);
     setPickerLoading(true);
     try {
@@ -120,8 +120,8 @@ export default function ScraperPage() {
             divarSession.status === "challenge"
               ? "border-amber-500/30 bg-amber-500/10 text-amber-600"
               : divarSession.authenticated
-              ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600"
-              : "border-danger/30 bg-danger/10 text-danger"
+                ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600"
+                : "border-danger/30 bg-danger/10 text-danger"
           }`}
           title={divarSession.detail}
         >
@@ -149,7 +149,9 @@ export default function ScraperPage() {
           variant="outline"
           size="sm"
           onClick={openTriggerPicker}
-          disabled={pickerLoading || !divarSession.authenticated}
+          // disabled={pickerLoading || !divarSession.authenticated}
+
+          disabled={pickerLoading}
         >
           <Zap size={14} />
           اجرای فوری
