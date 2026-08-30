@@ -4,6 +4,7 @@ import Modal from "@/shared/ui/modal/Modal";
 import Button from "@/shared/ui/Button";
 import Tabs from "@/shared/ui/Tabs";
 import StatusBadge from "@/shared/ui/badges/StatusBadge";
+import useAuth from "@/features/auth/hooks/useAuth";
 import {
   FOLLOWUP_TYPE_CONFIG,
   FOLLOWUP_STATUS_CONFIG,
@@ -19,6 +20,18 @@ export default function FollowupDetailModal({
   onMarkDone, // اختیاری: اگر از بیرون بخوای mark done کنی
 }) {
   const [activeTab, setActiveTab] = useState("details");
+
+  const { user } = useAuth();
+  const isAdmin = Boolean(user?.is_owner);
+
+  /* ─── Filter fields for non-owners ─── */
+  const detailFields = useMemo(() => {
+    if (isAdmin) return FOLLOWUP_DETAIL_FIELDS;
+    return FOLLOWUP_DETAIL_FIELDS.map((section) => ({
+      ...section,
+      fields: section.fields.filter((f) => f.key !== "user_name"),
+    })).filter((section) => section.fields.length > 0);
+  }, [isAdmin]);
 
   // همیشه قبل از هر early return باید hookها صدا زده بشن
   const availableTabs = useMemo(() => {
@@ -112,7 +125,7 @@ export default function FollowupDetailModal({
           <Tabs.Content value="details">
             <DetailFieldGrid
               data={followup}
-              sections={FOLLOWUP_DETAIL_FIELDS}
+              sections={detailFields}
             />
           </Tabs.Content>
 

@@ -1,4 +1,4 @@
-from django.db.models import Count
+from django.db.models import Count, Q
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework.filters import OrderingFilter, SearchFilter
@@ -58,12 +58,21 @@ class OwnerListView(ListAPIView):
 
         user = self.request.user
 
-        return (
+        qs = (
             Owner.objects
             .filter(agency=user.agency)
             .select_related("agency", "created_by")
             .annotate(properties_count=Count("properties"))
         )
+
+        # Non-owners: only their own owners or owners linked to their properties
+        if not user.is_owner:
+            qs = qs.filter(
+                Q(created_by=user)
+                | Q(properties__address__neighborhood__in=user.service_neighborhoods.all())
+            ).distinct()
+
+        return qs
 
 
 class OwnerCreateView(APIView):

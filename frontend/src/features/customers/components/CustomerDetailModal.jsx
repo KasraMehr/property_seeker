@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { User, Phone, Tag, Calendar, FileText, Heart, Pencil, Trash2 } from "lucide-react";
 import Modal from "@/shared/ui/modal/Modal";
 import Button from "@/shared/ui/Button";
 import Tabs from "@/shared/ui/Tabs";
 import StatusBadge from "@/shared/ui/badges/StatusBadge";
+import useAuth from "@/features/auth/hooks/useAuth";
 import {
   CUSTOMER_TYPE_CONFIG,
   CUSTOMER_STATUS_CONFIG,
@@ -17,6 +18,16 @@ import { toastService } from "@/lib/toast";
 
 export default function CustomerDetailModal({ isOpen, onClose, customer }) {
   const [activeTab, setActiveTab] = useState("info");
+  const { user } = useAuth();
+  const isAdmin = Boolean(user?.is_owner);
+
+  const detailFields = useMemo(() => {
+    if (isAdmin) return CUSTOMER_DETAIL_FIELDS;
+    return CUSTOMER_DETAIL_FIELDS.map((section) => ({
+      ...section,
+      fields: section.fields.filter((f) => f.key !== "assigned_agent_name"),
+    })).filter((section) => section.fields.length > 0);
+  }, [isAdmin]);
   const [preferences, setPreferences] = useState([]);
   const [loadingPreferences, setLoadingPreferences] = useState(false);
   const [editPreference, setEditPreference] = useState(null);
@@ -106,7 +117,7 @@ export default function CustomerDetailModal({ isOpen, onClose, customer }) {
 
         <div className="flex-1 min-h-0 overflow-y-auto pr-1">
           <Tabs.Content value="info">
-            <DetailFieldGrid data={customer} sections={CUSTOMER_DETAIL_FIELDS} />
+            <DetailFieldGrid data={customer} sections={detailFields} />
           </Tabs.Content>
 
           <Tabs.Content value="preferences">

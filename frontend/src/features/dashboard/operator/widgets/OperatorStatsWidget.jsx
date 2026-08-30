@@ -1,19 +1,22 @@
-import { motion } from "framer-motion";
 import { Home, Phone, Clock, TrendingUp } from "lucide-react";
 
+const COLOR_MAP = {
+  primary: "bg-primary/10 text-primary",
+  info: "bg-blue-500/10 text-blue-500",
+  warning: "bg-amber-500/10 text-amber-500",
+  success: "bg-emerald-500/10 text-emerald-500",
+};
+
 const StatCard = ({ icon: Icon, label, value, color = "primary" }) => (
-  <motion.div
-    variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
-    className="bg-surface rounded-2xl border border-border shadow-sm p-5 flex items-center gap-4"
-  >
-    <div className={`w-12 h-12 rounded-xl flex items-center justify-center bg-${color}/10 text-${color}`}>
+  <div className="bg-surface rounded-2xl border border-border shadow-sm p-5 flex items-center gap-4">
+    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${COLOR_MAP[color] ?? COLOR_MAP.primary}`}>
       <Icon className="w-6 h-6" />
     </div>
     <div>
       <p className="text-2xl font-bold text-foreground">{value}</p>
       <p className="text-sm text-muted">{label}</p>
     </div>
-  </motion.div>
+  </div>
 );
 
 export default function OperatorStatsWidget({ stats, loading }) {
@@ -37,14 +40,9 @@ export default function OperatorStatsWidget({ stats, loading }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       {statItems.map((s, i) => (
-        <motion.div
-          key={i}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: i * 0.05 }}
-        >
+        <div key={i}>
           <StatCard {...s} />
-        </motion.div>
+        </div>
       ))}
     </div>
   );

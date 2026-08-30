@@ -221,6 +221,12 @@ export default function OwnersTab({ onHeaderStateChange }) {
     [clearAll],
   );
 
+  /* ─── Table Columns (conditional based on isOwner) ─── */
+  const tableColumns = useMemo(() => {
+    if (isOwner) return OWNER_TABLE_COLUMNS;
+    return OWNER_TABLE_COLUMNS.filter((col) => col.key !== "created_by");
+  }, [isOwner]);
+
   return (
     <>
       <div className="flex h-full flex-col min-h-0">
@@ -229,7 +235,7 @@ export default function OwnersTab({ onHeaderStateChange }) {
           filters={filters}
           count={meta?.count || 0}
           countLabel="مالک"
-          columns={OWNER_TABLE_COLUMNS}
+          columns={tableColumns}
           data={resolvedData}
           loading={loading}
           emptyState={emptyState}

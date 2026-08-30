@@ -57,6 +57,7 @@ export default function CustomersPage() {
   useEffect(() => {
     setPageHeader({
       title: "مدیریت مشتریان",
+      subtitle: "وضعیت و اطلاعات مشتری ها ",
       breadcrumb: [],
       actions: (
         <Button

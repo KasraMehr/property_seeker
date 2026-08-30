@@ -108,6 +108,7 @@ export default function FollowupsPage() {
   useEffect(() => {
     setPageHeader({
       title: "مدیریت پیگیری‌ها",
+      subtitle:"ثبت یادآوری ها برای مشتریان و املاک",
       breadcrumb: [],
       actions: (
         <Button
@@ -285,6 +286,12 @@ export default function FollowupsPage() {
     [clearAll],
   );
 
+  /* ─── Table Columns (conditional based on isAdmin) ─── */
+  const tableColumns = useMemo(() => {
+    if (isAdmin) return FOLLOWUP_TABLE_COLUMNS;
+    return FOLLOWUP_TABLE_COLUMNS.filter((col) => col.key !== "user_name");
+  }, [isAdmin]);
+
   return (
     <>
       <ResourceTemplate
@@ -292,7 +299,7 @@ export default function FollowupsPage() {
         filters={filters}
         count={meta?.count || 0}
         countLabel="پیگیری"
-        columns={FOLLOWUP_TABLE_COLUMNS}
+        columns={tableColumns}
         data={data}
         loading={loading}
         emptyState={emptyState}

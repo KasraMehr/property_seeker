@@ -3,6 +3,7 @@ import { User } from "lucide-react";
 import Modal from "@/shared/ui/modal/Modal";
 import Button from "@/shared/ui/Button";
 import Tabs from "@/shared/ui/Tabs";
+import useAuth from "@/features/auth/hooks/useAuth";
 import {
   OWNER_DETAIL_FIELDS,
   OWNER_PROPERTY_COLUMNS,
@@ -16,6 +17,21 @@ const OWNER_DETAIL_TABS = [
 
 export default function OwnerDetailModal({ isOpen, onClose, owner, loading = false, usersMap, onEdit }) {
   const [activeTab, setActiveTab] = useState("details");
+  const { user } = useAuth();
+  const isOwner = Boolean(user?.is_owner);
+
+  const propertyColumns = useMemo(() => {
+    if (isOwner) return OWNER_PROPERTY_COLUMNS;
+    return OWNER_PROPERTY_COLUMNS.filter((col) => !["agent", "create_by", "agency"].includes(col.key));
+  }, [isOwner]);
+
+  const detailFields = useMemo(() => {
+    if (isOwner) return OWNER_DETAIL_FIELDS;
+    return OWNER_DETAIL_FIELDS.map((section) => ({
+      ...section,
+      fields: section.fields.filter((f) => f.key !== "created_by"),
+    })).filter((section) => section.fields.length > 0);
+  }, [isOwner]);
 
   useEffect(() => {
     if (isOpen) setActiveTab("details");
@@ -74,13 +90,13 @@ export default function OwnerDetailModal({ isOpen, onClose, owner, loading = fal
 
         <div className="flex-1 min-h-0 overflow-y-auto pr-1">
           <Tabs.Content value="details">
-            <DetailFieldGrid data={resolvedOwner} sections={OWNER_DETAIL_FIELDS} />
+            <DetailFieldGrid data={resolvedOwner} sections={detailFields} />
           </Tabs.Content>
 
           <Tabs.Content value="properties">
             <DetailListTable
               data={owner.properties || []}
-              columns={OWNER_PROPERTY_COLUMNS}
+              columns={propertyColumns}
               emptyText="هنوز ملکی ثبت نشده"
             />
           </Tabs.Content>

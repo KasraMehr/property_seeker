@@ -14,7 +14,7 @@ const SIZES = {
 const Logo = forwardRef(function Logo(
   {
     icon: Icon = House,
-    iconSrc,
+    iconSrc = "/dilan-logo.webp",
     showIcon = true,
     showLabel = true,
     size = "md",

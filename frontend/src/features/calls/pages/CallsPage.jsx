@@ -66,6 +66,7 @@ export default function CallsPage() {
   useEffect(() => {
     setPageHeader({
       title: "مدیریت تماس‌ها",
+      subtitle:"برقراری و ثبت ارتباطات",
       breadcrumb: [],
       actions: (
         <Button
@@ -303,6 +304,12 @@ export default function CallsPage() {
     [clearAll]
   );
 
+  /* ─── Table Columns (conditional based on isAdmin) ─── */
+  const tableColumns = useMemo(() => {
+    if (isAdmin) return CALL_TABLE_COLUMNS;
+    return CALL_TABLE_COLUMNS.filter((col) => col.key !== "agent_name");
+  }, [isAdmin]);
+
   return (
     <>
       <div className="mb-4">
@@ -313,7 +320,7 @@ export default function CallsPage() {
         filters={filters}
         count={meta?.count || 0}
         countLabel="تماس"
-        columns={CALL_TABLE_COLUMNS}
+        columns={tableColumns}
         data={displayData}
         loading={loading}
         emptyState={emptyState}

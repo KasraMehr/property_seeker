@@ -16,6 +16,7 @@ export default function FormRenderer({
   loading = false,
   extraData = {},
   onValuesChange,
+  onFormApi,
 }) {
   const {
     tabs,
@@ -72,6 +73,13 @@ export default function FormRenderer({
     defaultValues: formDefaultValues,
     mode: "onChange",
   });
+
+  // Expose form API to parent
+  useEffect(() => {
+    if (onFormApi) {
+      onFormApi({ setValue, watch, getValues });
+    }
+  }, [onFormApi, setValue, watch, getValues]);
 
   const values = watch();
 

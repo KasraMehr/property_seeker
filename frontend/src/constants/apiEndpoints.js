@@ -646,7 +646,7 @@ export const API_ENDPOINTS = {
         status: "[OK]",
       },
       OPERATOR_STATS: {
-        url: `${API_BASE}/statistics/`,
+        url: `${API_BASE}/operator/statistics/`,
         method: "GET",
         status: "[OK]",
       },

@@ -46,13 +46,13 @@ class ListingListView(generics.ListAPIView):
             .order_by("-last_seen_at", "-id")
         )
 
-        # فیلتر دسترسی بر اساس محله (از frontend-debug)
+        # Only promoted listings will be on operator page
         if not user.is_owner:
             qs = qs.filter(
                 property__address__neighborhood__in=user.service_neighborhoods.all()
             )
 
-        # فیلتر advertiser_type (از master)
+        # advertiser_type 
         raw_types = self.request.query_params.get("advertiser_type", "")
         if raw_types:
             advertiser_types = {

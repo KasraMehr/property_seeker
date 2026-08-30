@@ -99,6 +99,7 @@ export default function SearchSelectField({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedQuery]);
 
+
   const displayValue = (opt) => {
     if (!opt) return "";
     if (field.displayField) return opt[field.displayField] || "";
@@ -118,8 +119,9 @@ export default function SearchSelectField({
       rules={toRHFRules(field)}
       render={({ field: { value, onChange } }) => {
         const selected =
-          options.find((o) => o.id === value) ||
+          options.find((o) => String(o.id) === String(value)) ||
           (value && typeof value === "object" && value.id ? value : null);
+
 
         return (
           <div className={`relative ${spanClass}`}>

@@ -2,8 +2,45 @@ import { Link } from "react-router-dom";
 import { CalendarCheck } from "lucide-react";
 import Table from "@/shared/table/Table";
 import StatusBadge from "@/shared/ui/badges/StatusBadge";
+import { buildStatusConfig } from "@/constants/status.utils";
+import { FOLLOWUP_STATUS_CONFIG } from "@/features/followups/config";
+import { formatDateTime } from "@/utils/formatters";
 
-const fmtDate = (v) => (v ? new Date(v).toLocaleDateString("fa-IR") : "—");
+const FOLLOWUP_COLUMNS = [
+  {
+    key: "title",
+    header: "عنوان",
+    cell: ({ title, description }) => (
+      <div>
+        <p className="text-sm font-medium">{title}</p>
+        <p className="text-xs text-muted line-clamp-1">{description || "—"}</p>
+      </div>
+    ),
+  },
+  {
+    key: "due_at",
+    header: "تاریخ",
+    width: "w-32",
+    cell: ({ due_at }) => (
+      <span className="text-sm flex items-center justify-center gap-1">
+        <CalendarCheck className="w-3.5 h-3.5 text-muted" />
+        {formatDateTime(due_at)}
+      </span>
+    ),
+  },
+  {
+    key: "status",
+    header: "وضعیت",
+    width: "w-28",
+    cell: ({ status }) => (
+      <StatusBadge
+        config={buildStatusConfig(FOLLOWUP_STATUS_CONFIG, status)}
+        variant="soft"
+        size="sm"
+      />
+    ),
+  },
+];
 
 export default function PendingFollowupsWidget({ followups, loading }) {
   const pending = followups.filter((f) => f.status === "pending").slice(0, 5);
@@ -18,34 +55,11 @@ export default function PendingFollowupsWidget({ followups, loading }) {
       </div>
 
       <div className="overflow-auto rounded-xl border border-border flex-1 min-h-0">
-        <Table loading={loading}>
-          <Table.Header>
-            <Table.Column align="right">عنوان</Table.Column>
-            <Table.Column align="center" width="120px">تاریخ</Table.Column>
-            <Table.Column align="center" width="100px">وضعیت</Table.Column>
-          </Table.Header>
-          <Table.Body>
-            {pending.map((f) => (
-              <Table.Row key={f.id}>
-                <Table.Cell align="right">
-                  <div>
-                    <p className="text-sm font-medium">{f.title}</p>
-                    <p className="text-xs text-muted line-clamp-1">{f.description || "—"}</p>
-                  </div>
-                </Table.Cell>
-                <Table.Cell align="center">
-                  <span className="text-sm flex items-center justify-center gap-1">
-                    <CalendarCheck className="w-3.5 h-3.5 text-muted" />
-                    {fmtDate(f.due_at)}
-                  </span>
-                </Table.Cell>
-                <Table.Cell align="center">
-                  <StatusBadge status={f.status} type="followup" variant="soft" size="sm" />
-                </Table.Cell>
-              </Table.Row>
-            ))}
-          </Table.Body>
-        </Table>
+        <Table
+          data={pending}
+          columns={FOLLOWUP_COLUMNS}
+          loading={loading}
+        />
       </div>
     </div>
   );
