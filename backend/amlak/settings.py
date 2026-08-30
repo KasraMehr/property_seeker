@@ -2,11 +2,13 @@
 Django settings for amlak project.
 """
 
+import os
 from datetime import timedelta
 from pathlib import Path
 
 from celery.schedules import crontab
 from decouple import config
+
 
 # ============================================================
 # BASE
@@ -500,9 +502,6 @@ CELERY_TASK_EAGER_PROPAGATES = True
 # ============================================================
 
 CELERY_TASK_ROUTES = {
-    "ingestion.tasks.classify_listing_advertiser": {
-        "queue": "default",
-    },
     "ingestion.tasks.discover_run": {
         "queue": "scraping",
     },
@@ -568,27 +567,6 @@ DIVAR_LOGIN_OTP_TIMEOUT_SECONDS = config(
 DIVAR_REQUIRE_AUTHENTICATED_SESSION = env_bool(
     "DIVAR_REQUIRE_AUTHENTICATED_SESSION",
     default=False,
-)
-
-GAPGPT_API_KEY = config(
-    "GAPGPT_API_KEY",
-    default="",
-)
-
-GAPGPT_BASE_URL = config(
-    "GAPGPT_BASE_URL",
-    default="https://api.gapgpt.app/v1",
-).rstrip("/")
-
-GAPGPT_MODEL = config(
-    "GAPGPT_MODEL",
-    default="gpt-5.6-luna",
-)
-
-GAPGPT_TIMEOUT_SECONDS = config(
-    "GAPGPT_TIMEOUT_SECONDS",
-    default=30,
-    cast=float,
 )
 
 

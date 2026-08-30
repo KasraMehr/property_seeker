@@ -12,6 +12,9 @@ import {
   UserPlus,
   CheckCircle2,
   Star,
+  History,
+  Target,
+  GitCommit,
   AlertTriangle,
 } from "lucide-react";
 
@@ -64,10 +67,6 @@ export const LISTING_ICON_MAP = {
   content_hash: Hash,
   latest_payload: FileText,
   description: FileText,
-  advertiser_type: UserPlus,
-  advertiser_classification_status: AlertTriangle,
-  advertiser_classification_model: FileText,
-  advertiser_classified_at: Calendar,
 };
 
 /** مطابق ListingDetailSerializer */
@@ -99,22 +98,6 @@ export const LISTING_DETAIL_FIELDS = [
         label: "وضعیت بررسی",
         type: "status",
         configKey: "listingReviewStatus",
-      },
-      {
-        key: "advertiser_type",
-        label: "نوع آگهی‌دهنده",
-        type: "status",
-        configKey: "listingAdvertiserType",
-      },
-      {
-        key: "advertiser_classification_status",
-        label: "وضعیت تشخیص آگهی‌دهنده",
-        type: "status",
-        configKey: "listingAdvertiserClassificationStatus",
-      },
-      {
-        key: "advertiser_classification_model",
-        label: "مدل تشخیص",
       },
     ],
   },
@@ -188,7 +171,7 @@ export const LISTING_DETAIL_FIELDS = [
       { key: "last_changed_at", label: "آخرین تغییر", type: "dateTime" },
       // { key: "consecutive_failures", label: "تعداد خطای متوالی" },
       { key: "removal_detected_at", label: "زمان حذف از منبع", type: "dateTime" },
-      { key: "advertiser_classified_at", label: "زمان تشخیص آگهی‌دهنده", type: "dateTime" },
+      // { key: "content_hash", label: "هش محتوا", type: "mono" },
     ],
   },
   // {
@@ -296,7 +279,7 @@ export const LISTING_PROPERTY_FIELDS = [
     section: "link",
     sectionLabel: "",
     fields: [
-      { key: "id", type: "action", action: "navigate_to_property", label: "مشاهده صفحه کامل ملک →" },
+      { key: "id", label: "", type: "action", action: "navigate_to_property", label: "مشاهده صفحه کامل ملک →" },
     ],
   },
 ];

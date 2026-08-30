@@ -6,7 +6,6 @@ backend/.idea
 # Virtual environment
 backend/venv/
 .venv/
-.env
 ../.env
 .idea
 .env.prod

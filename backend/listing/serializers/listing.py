@@ -1,8 +1,9 @@
 from rest_framework import serializers
 
+from ingestion.services.promotion import promote_listing
 from listing.models import Listing, ListingStatusHistory, Source
-from locations.models import Address
 from properties.models import Owner, Property
+from locations.models import Address
 
 
 class SourceSerializer(serializers.ModelSerializer):
@@ -23,8 +24,6 @@ class ListingListSerializer(serializers.ModelSerializer):
             "url",
             "status",
             "review_status",
-            "advertiser_type",
-            "advertiser_classification_status",
             "title",
             "contact_phone",
             "listed_sale_price",
@@ -47,10 +46,6 @@ class ListingDetailSerializer(serializers.ModelSerializer):
             "url",
             "status",
             "review_status",
-            "advertiser_type",
-            "advertiser_classification_status",
-            "advertiser_classification_model",
-            "advertiser_classified_at",
             "title",
             "contact_phone",
             "description",

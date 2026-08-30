@@ -49,7 +49,6 @@ python manage.py ingest_divar --target 1 --mode discovery
 python manage.py ingest_divar --target 1 --mode reconciliation
 python manage.py resume_ingestion_run RUN_UUID
 python manage.py export_ingestion_run RUN_UUID
-python manage.py classify_divar_advertisers --limit 500
 ```
 
 Use `--sync` for local validation without a Celery broker. A bounded semantic
@@ -64,19 +63,6 @@ least six hours apart set a listing to expired.
 Every export defaults to a timestamped file under `Data_log/`. PostgreSQL remains
 the source of truth; snapshots are created only when the normalized payload hash
 changes.
-
-## Advertiser classification
-
-New Divar listings with a description are classified asynchronously as either
-`owner` or `agency`. Classification runs on the default Celery worker so GapGPT
-latency or outages cannot fail a browser ingestion item. Set `GAPGPT_API_KEY` in
-the local `.env` (or `.env.production` for deployment); the base URL, model, and
-timeout default to `https://api.gapgpt.app/v1`, `gpt-5.6-luna`, and 30 seconds.
-
-Existing listings are not classified automatically during deployment. Run
-`classify_divar_advertisers` after configuring the key. The command is
-resumable, supports `--limit`, uses `--force` to replace current results, and
-supports `--sync` when Celery/Redis is unavailable.
 
 ## Actively normalized source fields
 

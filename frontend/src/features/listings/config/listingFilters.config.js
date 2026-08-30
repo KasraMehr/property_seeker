@@ -1,7 +1,6 @@
 import {
   LISTING_STATUS_CONFIG,
   LISTING_REVIEW_STATUS_CONFIG,
-  LISTING_ADVERTISER_TYPE_CONFIG,
 } from "@/features/listings/config";
 
 /**
@@ -34,18 +33,6 @@ export const LISTING_QUICK_FILTERS = [
     type: "multi_select",
     placement: "bar",
     options: Object.entries(LISTING_REVIEW_STATUS_CONFIG).map(
-      ([value, cfg]) => ({
-        value,
-        label: cfg.label,
-      }),
-    ),
-  },
-  {
-    key: "advertiser_type",
-    label: "نوع آگهی‌دهنده",
-    type: "multi_select",
-    placement: "bar",
-    options: Object.entries(LISTING_ADVERTISER_TYPE_CONFIG).map(
       ([value, cfg]) => ({
         value,
         label: cfg.label,

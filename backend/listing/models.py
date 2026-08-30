@@ -36,15 +36,6 @@ class Listing(models.Model):
         REJECTED = "rejected", "رد شده"
         PROMOTED = "promoted", "تبدیل به ملک"
 
-    class AdvertiserType(models.TextChoices):
-        OWNER = "owner", "مالک"
-        AGENCY = "agency", "آژانس املاک"
-
-    class AdvertiserClassificationStatus(models.TextChoices):
-        PENDING = "pending", "در انتظار"
-        SUCCEEDED = "succeeded", "موفق"
-        FAILED = "failed", "ناموفق"
-
     property = models.ForeignKey(
         "properties.Property",
         on_delete=models.SET_NULL,
@@ -89,29 +80,6 @@ class Listing(models.Model):
     )
 
     description = models.TextField(blank=True)
-
-    advertiser_type = models.CharField(
-        max_length=10,
-        choices=AdvertiserType.choices,
-        null=True,
-        blank=True,
-        db_index=True,
-    )
-
-    advertiser_classification_status = models.CharField(
-        max_length=10,
-        choices=AdvertiserClassificationStatus.choices,
-        default=AdvertiserClassificationStatus.PENDING,
-        db_index=True,
-    )
-
-    advertiser_classification_model = models.CharField(max_length=100, blank=True)
-
-    advertiser_classified_at = models.DateTimeField(null=True, blank=True)
-
-    advertiser_description_hash = models.CharField(max_length=64, blank=True)
-
-    advertiser_classification_error = models.TextField(blank=True)
 
     listed_sale_price = models.BigIntegerField(null=True, blank=True)
 
@@ -227,19 +195,6 @@ class Listing(models.Model):
                 fields=["source", "external_id"],
                 condition=~Q(external_id=""),
                 name="unique_listing_source_external_id",
-            ),
-            models.CheckConstraint(
-                condition=(
-                    Q(
-                        advertiser_classification_status="succeeded",
-                        advertiser_type__in=["owner", "agency"],
-                    )
-                    | Q(
-                        advertiser_classification_status__in=["pending", "failed"],
-                        advertiser_type__isnull=True,
-                    )
-                ),
-                name="valid_listing_advertiser_classification",
             ),
         ]
         indexes = [

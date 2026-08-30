@@ -15,13 +15,6 @@ from ingestion.providers.divar import (
 )
 from ingestion.providers.divar.login import DivarLoginError, DivarLoginFlow
 from ingestion.providers.divar.provider import ProviderError
-from ingestion.services.advertiser_classification import (
-    ListingClassificationPermanentError,
-    ListingClassificationTransientError,
-    attempt_listing_classification,
-    classify_listing_synchronously,
-    mark_listing_classification_failed,
-)
 from ingestion.services.divar_login import (
     DivarLoginAttemptError,
     finish_attempt,
@@ -49,55 +42,6 @@ from listing.models import Listing
 logger = logging.getLogger(__name__)
 BATCH_SIZE = 50
 MAX_ITEM_ATTEMPTS = 3
-
-
-@shared_task(bind=True, queue="default", acks_late=True, max_retries=3)
-def classify_listing_advertiser(self, listing_id, force=False):
-    try:
-        outcome = attempt_listing_classification(listing_id, force=force)
-    except Listing.DoesNotExist:
-        return "missing"
-    except ListingClassificationTransientError as error:
-        if self.request.retries >= self.max_retries:
-            return mark_listing_classification_failed(
-                listing_id,
-                error.description_hash,
-                error,
-            )
-        raise self.retry(
-            exc=error,
-            countdown=min(60, 2 ** (self.request.retries + 1)),
-        )
-    except ListingClassificationPermanentError as error:
-        outcome = mark_listing_classification_failed(
-            listing_id,
-            error.description_hash,
-            error,
-        )
-
-    if outcome == "stale":
-        classify_listing_advertiser.apply_async(
-            args=[listing_id],
-            countdown=1,
-        )
-    return outcome
-
-
-def _schedule_advertiser_classification(listing, *, synchronously=False):
-    if not listing.description.strip():
-        return
-    try:
-        if synchronously:
-            classify_listing_synchronously(listing.pk)
-        else:
-            classify_listing_advertiser.delay(listing.pk)
-    except Exception:
-        # Classification must never turn an otherwise successful crawl into a
-        # failed ingestion item. The listing remains pending for backfill.
-        logger.exception(
-            "Could not schedule advertiser classification for listing %s",
-            listing.pk,
-        )
 
 
 @shared_task(queue="scraping", acks_late=True)
@@ -149,7 +93,7 @@ def authenticate_divar_session(attempt_id, phone):
         logger.warning("Divar login attempt %s failed: %s", attempt_id, error)
         finish_attempt(attempt_id, status="failed", detail=str(error))
         set_session_state("unauthenticated", str(error))
-    except Exception:
+    except Exception as error:
         logger.exception("Unexpected Divar login failure for attempt %s", attempt_id)
         finish_attempt(
             attempt_id,
@@ -338,11 +282,6 @@ def process_run_batch(run_id, batch_size=BATCH_SIZE, enqueue_next=True):
                 item.created_listing = result.created
                 item.changed = result.changed
                 item.status = IngestionRunItem.Status.SUCCEEDED
-                if result.created or "description" in result.changed_fields:
-                    _schedule_advertiser_classification(
-                        result.listing,
-                        synchronously=not enqueue_next,
-                    )
             except ListingRemoved as error:
                 if item.listing_id:
                     record_listing_removed(listing=item.listing)
