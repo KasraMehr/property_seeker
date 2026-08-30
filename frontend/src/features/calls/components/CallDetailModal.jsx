@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { Phone, User, Mic } from "lucide-react";
+import { Phone, User, Mic, Home } from "lucide-react";
 import Modal from "@/shared/ui/modal/Modal";
 import Button from "@/shared/ui/Button";
 import Tabs from "@/shared/ui/Tabs";
@@ -13,6 +13,7 @@ import { DetailFieldGrid } from "@/shared/page/DetailContentRenderer";
 
 export default function CallDetailModal({ isOpen, onClose, call }) {
   const [activeTab, setActiveTab] = useState("call");
+  const isOwnerCall = call?.customer_source === "owner";
 
   useEffect(() => {
     if (isOpen) setActiveTab("call");
@@ -50,6 +51,12 @@ export default function CallDetailModal({ isOpen, onClose, call }) {
               size="sm"
               variant="soft"
             />
+            {isOwnerCall && (
+              <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-500">
+                <Home className="w-3 h-3" />
+                مالک
+              </span>
+            )}
           </div>
         </div>
       </div>

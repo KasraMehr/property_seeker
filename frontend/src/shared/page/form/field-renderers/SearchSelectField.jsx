@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Controller } from "react-hook-form";
 import { Search, X } from "lucide-react";
 import api from "@/lib/api";
@@ -70,7 +70,18 @@ export default function SearchSelectField({
 
   const depValue = field.dependsOn ? getValues(field.dependsOn) : null;
 
-  // first withount query
+  // Refetch when asyncSource changes (e.g., mode toggle between customer/owner)
+  const prevAsyncSource = useRef(field.asyncSource);
+  useEffect(() => {
+    if (prevAsyncSource.current !== field.asyncSource) {
+      prevAsyncSource.current = field.asyncSource;
+      setOptions([]);
+      setQuery("");
+      // Don't clear the value here - let parent handle it
+    }
+  }, [field.asyncSource]);
+
+  // first without query
   useEffect(() => {
     if (field.dependsOn && !depValue) {
       setOptions([]);
@@ -79,7 +90,7 @@ export default function SearchSelectField({
     }
     fetchOptions("");
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [depValue, field.dependsOn, name]);
+  }, [depValue, field.dependsOn, name, field.asyncSource]);
 
   // search with debounce
   useEffect(() => {
@@ -146,6 +157,7 @@ export default function SearchSelectField({
                 size={16}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none"
               />
+              {/* X button: show only when selected */}
               {selected && !disabled && (
                 <button
                   type="button"
@@ -158,11 +170,12 @@ export default function SearchSelectField({
                   <X size={14} />
                 </button>
               )}
-              {field.addAction && !disabled && (
+              {/* + button: show only when NOT selected */}
+              {field.addAction && !disabled && !selected && (
                 <button
                   type="button"
                   onClick={field.addAction}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 h-7 px-2.5 flex items-center justify-center gap-1 rounded-lg bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors cursor-pointer"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 h-7 px-3 flex items-center justify-center gap-1 rounded-lg bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors cursor-pointer"
                   title={field.addActionLabel || "افزودن جدید"}
                 >
                   <span className="text-sm leading-none">+</span>

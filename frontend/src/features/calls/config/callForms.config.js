@@ -1,7 +1,7 @@
 import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 
 export const CALL_FORM = {
-  title: "تماس",
+  // title: "تماس",
   tabs: [
     {
       key: "basic",
@@ -25,10 +25,9 @@ export const CALL_FORM = {
           label: "نوع تماس",
           type: "select",
           required: true,
-          placeholder: "انتخاب نوع",
           options: [
-            { value: "incoming", label: "ورودی" },   // ← incoming
-            { value: "outgoing", label: "خروجی" },   // ← outgoing
+            { value: "incoming", label: "ورودی" },
+            { value: "outgoing", label: "خروجی" },
           ],
           defaultValue: "outgoing",
           validation: { required: "نوع تماس الزامی است" },
@@ -44,29 +43,7 @@ export const CALL_FORM = {
           span: 6,
         },
         {
-          key: "listing",          
-          label: "آگهی مرتبط",
-          type: "search_select",
-          required: false,
-          placeholder: "جستجوی آگهی...",
-          asyncSource: API_ENDPOINTS.LISTINGS.LIST.url,
-          searchFields: ["title", "external_id"],
-          displayField: "title",
-          span: 6,
-        },
-        {
-          key: "property",          
-          label: "ملک مرتبط",
-          type: "search_select",
-          required: false,
-          placeholder: "جستجوی ملک...",
-          asyncSource: API_ENDPOINTS.PROPERTIES.LIST.url,
-          searchFields: ["title", "property_code"],
-          displayField: "title",
-          span: 6,
-        },
-        {
-          key: "call_duration",     
+          key: "call_duration",
           label: "مدت تماس (ثانیه)",
           type: "number",
           required: false,
@@ -74,21 +51,6 @@ export const CALL_FORM = {
           min: 0,
           span: 6,
         },
-        {
-          key: "record_file",
-          label: "فایل صوتی",
-          type: "file",
-          required: false,
-          accept: "audio/*",
-          span: 6,
-        },
-      ],
-    },
-    {
-      key: "result",
-      label: "نتیجه",
-      icon: "CheckCircle",
-      fields: [
         {
           key: "result",
           label: "نتیجه تماس",
@@ -105,7 +67,7 @@ export const CALL_FORM = {
             { value: "visit_booked", label: "قرار بازدید" },
           ],
           validation: { required: "نتیجه تماس الزامی است" },
-          span: 12,
+          span: 6,
         },
         {
           key: "note",
@@ -113,36 +75,26 @@ export const CALL_FORM = {
           type: "textarea",
           required: false,
           placeholder: "جزئیات تماس...",
-          rows: 4,
+          rows: 2,
           span: 12,
         },
       ],
     },
-    // TODO: Enable follow-up tab when auto-reminder from call is ready
-    // {
-    //   key: "followup",
-    //   label: "پیگیری بعدی",
-    //   icon: "CalendarClock",
-    //   condition: (values) => ["follow_up", "interested", "visit_booked"].includes(values.result),
-    //   fields: [
-    //     {
-    //       key: "next_follow_up_at",
-    //       label: "تاریخ پیگیری بعدی",
-    //       type: "datetime",
-    //       required: false,
-    //       placeholder: "انتخاب تاریخ",
-    //       span: 6,
-    //     },
-    //     {
-    //       key: "follow_up_done",
-    //       label: "پیگیری انجام شد",
-    //       type: "checkbox",
-    //       required: false,
-    //       defaultValue: false,
-    //       span: 6,
-    //     },
-    //   ],
-    // },
+    {
+      key: "recording",
+      label: "فایل صوتی",
+      icon: "Mic",
+      fields: [
+        {
+          key: "record_file",
+          label: "فایل صوتی",
+          type: "file",
+          required: false,
+          accept: "audio/*",
+          span: 12,
+        },
+      ],
+    },
   ],
   actions: {
     submit: { label: "ذخیره تماس", variant: "primary" },
@@ -152,7 +104,6 @@ export const CALL_FORM = {
 
 /**
  * Quick Call Form — lightweight version for QuickCallModal.
- * Listing/Property are injected by the modal as props, not selected in the form.
  */
 export const QUICK_CALL_FORM = {
   title: "ثبت تماس سریع",

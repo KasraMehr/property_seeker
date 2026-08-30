@@ -12,7 +12,7 @@ export const CALL_TABLE_COLUMNS = [
   // },
   {
     key: "customer_name",
-    header: "مشتری",
+    header: "مشتری / مالک",
     width: "w-44",
     searchable: true,
     cell: ({ customer_name }) => (

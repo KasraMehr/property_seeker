@@ -14,7 +14,7 @@ import ConfirmModal from "@/shared/ui/modal/ConfirmModal";
 import Button from "@/shared/ui/Button";
 import PropertyDetailModal from "@/features/properties/components/PropertyDetailModal";
 import PropertyFormModal from "@/features/properties/components/PropertyFormModal";
-import RegisterCallForm from "@/shared/forms/RegisterCallForm";
+import CallFormModal from "@/features/calls/components/CallFormModal";
 import { toastService } from "@/lib/toast";
 
 export default function PropertiesTab({ onHeaderStateChange }) {
@@ -265,10 +265,10 @@ export default function PropertiesTab({ onHeaderStateChange }) {
         />
       )}
 
-      <RegisterCallForm
+      <CallFormModal
         isOpen={!!callProperty}
         onClose={() => setCallProperty(null)}
-        property={callProperty}
+        extraData={{ property: callProperty }}
         onSuccess={() => setCallProperty(null)}
       />
 

@@ -47,6 +47,42 @@ class ListingListView(generics.ListAPIView):
             )
 
         return qs
+    
+    #Replace above block with this code for resolving conflicts
+    # def get_queryset(self):
+    # user = self.request.user
+    # qs = (
+    #     Listing.objects
+    #     .select_related("source")
+    #     .order_by("-last_seen_at", "-id")
+    # )
+
+    # # فیلتر دسترسی بر اساس محله (از frontend-debug)
+    # if not user.is_owner:
+    #     qs = qs.filter(
+    #         property__address__neighborhood__in=user.service_neighborhoods.all()
+    #     )
+
+    # # فیلتر advertiser_type (از master)
+    # raw_types = self.request.query_params.get("advertiser_type", "")
+    # if raw_types:
+    #     advertiser_types = {
+    #         value.strip()
+    #         for value in raw_types.split(",")
+    #         if value.strip()
+    #     }
+    #     invalid = advertiser_types - set(Listing.AdvertiserType.values)
+    #     if invalid:
+    #         raise DRFValidationError(
+    #             {
+    #                 "advertiser_type": (
+    #                     "Allowed values are owner and agency."
+    #                 )
+    #             }
+    #         )
+    #     qs = qs.filter(advertiser_type__in=advertiser_types)
+
+    # return qs
 
 
 

@@ -36,17 +36,17 @@ export const CALL_ROW_ACTIONS = [
   //   condition: (row) => row.next_follow_up_at && !row.follow_up_done,
   //   handler: "mark_follow_up_done",
   // },
-  {
-    key: "add_followup",
-    label: "ثبت پیگیری جدید",
-    icon: Clock,
-    variant: "outline",
-    type: "row",
-    permission: null,
-    condition: (row) =>
-      row.result === "follow_up" || row.result === "interested",
-    modal: "add_followup",
-  },
+  // { TODO: is it ok?
+  //   key: "add_followup",
+  //   label: "ثبت پیگیری جدید",
+  //   icon: Clock,
+  //   variant: "outline",
+  //   type: "row",
+  //   permission: null,
+  //   condition: (row) =>
+  //     row.result === "follow_up" || row.result === "interested",
+  //   modal: "add_followup",
+  // },
   {
     key: "delete",
     label: "حذف",

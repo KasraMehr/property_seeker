@@ -61,11 +61,41 @@ export const CUSTOMER_TABLE_COLUMNS = [
     ),
   },
   {
-    key: "source",
-    header: "منبع",
-    width: "w-28",
-    cell: ({ source }) => <SourceBadge source={source} size="sm" />,
+    key: "tags",
+    header: "برچسب ها",
+    width: "w-32",
+    cell: ({ tags }) => {
+      if (!tags || tags.length === 0)
+        return (
+          <span className="text-muted-foreground text-xs">—</span>
+        );
+      const shown = tags.slice(0, 2);
+      const remaining = tags.length - shown.length;
+      return (
+        <div className="flex items-center gap-1 flex-wrap">
+          {shown.map((t) => (
+            <span
+              key={t.id ?? t.name}
+              className="text-[11px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-medium"
+            >
+              {t.name}
+            </span>
+          ))}
+          {remaining > 0 && (
+            <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-muted/30 text-muted font-medium">
+              +{remaining}
+            </span>
+          )}
+        </div>
+      );
+    },
   },
+  // {
+  //   key: "source",
+  //   header: "منبع",
+  //   width: "w-28",
+  //   cell: ({ source }) => <SourceBadge source={source} size="sm" />,
+  // },
   {
     key: "created_at",
     header: "تاریخ ثبت",

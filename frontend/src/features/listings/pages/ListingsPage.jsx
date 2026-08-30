@@ -16,7 +16,7 @@ import PromoteListingModal from "@/features/listings/components/PromoteListingMo
 import PromoteSuccessModal from "@/features/listings/components/PromoteSuccessModal";
 import ChangeReviewStatusModal from "@/features/listings/components/ChangeReviewStatusModal";
 import PropertyDetailModal from "@/features/properties/components/PropertyDetailModal";
-import RegisterCallForm from "../../../shared/forms/RegisterCallForm";
+import CallFormModal from "@/features/calls/components/CallFormModal";
 
 export default function ListingsPage() {
   const { setPageHeader } = useOutletContext();
@@ -267,10 +267,10 @@ export default function ListingsPage() {
         }}
       />
 
-      <RegisterCallForm
+      <CallFormModal
         isOpen={registerCall.open}
         onClose={closeRegisterCall}
-        listing={registerCall.listing}
+        extraData={{ listing: registerCall.listing }}
         onSuccess={() => closeRegisterCall()}
       />
     </>

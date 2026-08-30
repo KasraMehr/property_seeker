@@ -15,6 +15,7 @@ export default function FormRenderer({
   onCancel,
   loading = false,
   extraData = {},
+  onValuesChange,
 }) {
   const {
     tabs,
@@ -74,16 +75,17 @@ export default function FormRenderer({
 
   const values = watch();
 
+  // Notify parent of value changes
+  useEffect(() => {
+    onValuesChange?.(values);
+  }, [values, onValuesChange]);
+
   const lastResetKey = useRef(null);
   useEffect(() => {
     if (lastResetKey.current === defaultValuesKey) return;
     lastResetKey.current = defaultValuesKey;
     reset(formDefaultValues);
   }, [defaultValuesKey, formDefaultValues, reset]);
-
-  useEffect(() => {
-    reset(formDefaultValues);
-  }, [reset, formDefaultValues]);
 
   useEffect(() => {
     allFields.forEach((field) => {
