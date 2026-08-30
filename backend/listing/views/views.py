@@ -47,10 +47,10 @@ class ListingListView(generics.ListAPIView):
         )
 
         # Only promoted listings will be on operator page
-        if not user.is_owner:
-            qs = qs.filter(
-                property__address__neighborhood__in=user.service_neighborhoods.all()
-            )
+        # if not user.is_owner:
+        #     qs = qs.filter(
+        #         property__address__neighborhood__in=user.service_neighborhoods.all()
+        #     )
 
         # advertiser_type 
         raw_types = self.request.query_params.get("advertiser_type", "")
