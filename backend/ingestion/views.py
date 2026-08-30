@@ -7,8 +7,14 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from accounts.permissions import HasRolePermission
-from listing.models import Listing
-from .models import IngestionRun, IngestionRunItem, ListingSnapshot, ScrapeTarget, TargetListing
+
+from .models import (
+    IngestionRun,
+    IngestionRunItem,
+    ListingSnapshot,
+    ScrapeTarget,
+    TargetListing,
+)
 from .serializers.serializers import (
     DivarLoginOtpSerializer,
     DivarLoginStartSerializer,
@@ -292,6 +298,7 @@ class IngestionRunExportView(APIView):
             "listed_mortgage_amount", "listed_deposit_amount",
             "listed_rent_amount", "floor_number", "total_floors",
             "pictures_match_property", "media_count", "description",
+            "advertiser_type", "advertiser_classification_status",
             "published_at", "source_updated_at", "first_seen_at",
             "last_seen_at", "last_checked_at", "status", "review_status",
         )

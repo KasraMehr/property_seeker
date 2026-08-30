@@ -109,6 +109,15 @@ def upsert_scraped_listing(
         if payload_field == "phone" and not value and listing.contact_phone:
             continue
         setattr(listing, model_field, value)
+    if created or "description" in changed_fields:
+        listing.advertiser_type = None
+        listing.advertiser_classification_status = (
+            Listing.AdvertiserClassificationStatus.PENDING
+        )
+        listing.advertiser_classification_model = ""
+        listing.advertiser_classified_at = None
+        listing.advertiser_description_hash = ""
+        listing.advertiser_classification_error = ""
     listing.status = Listing.Status.ACTIVE
     listing.last_seen_at = now
     listing.last_checked_at = now
