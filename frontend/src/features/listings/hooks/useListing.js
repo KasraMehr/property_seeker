@@ -69,8 +69,9 @@ export default function useListing() {
     () => ({
       page: query.page,
       page_size: query.pageSize,
+      advertiser_type: query.filters.advertiser_type,
     }),
-    [query.page, query.pageSize],
+    [query.page, query.pageSize, query.filters.advertiser_type],
   );
 
   const didFetch = useRef(false);

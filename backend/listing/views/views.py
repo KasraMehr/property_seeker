@@ -1,8 +1,9 @@
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.shortcuts import get_object_or_404
-
 from rest_framework import generics, status
+from rest_framework.exceptions import ValidationError as DRFValidationError
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -16,9 +17,6 @@ from listing.serializers.listing import (
     ListingPromotionSerializer,
     ListingReviewSerializer,
 )
-
-from rest_framework import generics
-from rest_framework.pagination import PageNumberPagination
 
 
 class ListingPagination(PageNumberPagination):
@@ -38,6 +36,27 @@ class ListingListView(generics.ListAPIView):
     permission_classes = (HasRolePermission,)
     required_permission = "view_listing"
     pagination_class = ListingPagination
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        raw_types = self.request.query_params.get("advertiser_type", "")
+        if not raw_types:
+            return queryset
+        advertiser_types = {
+            value.strip()
+            for value in raw_types.split(",")
+            if value.strip()
+        }
+        invalid = advertiser_types - set(Listing.AdvertiserType.values)
+        if invalid:
+            raise DRFValidationError(
+                {
+                    "advertiser_type": (
+                        "Allowed values are owner and agency."
+                    )
+                }
+            )
+        return queryset.filter(advertiser_type__in=advertiser_types)
 
 
 

@@ -2,7 +2,8 @@ import StatusBadge from "@/shared/ui/badges/StatusBadge";
 import SourceBadge from "@/shared/ui/badges/SourceBadge";
 import {
   LISTING_STATUS_CONFIG,
-  LISTING_REVIEW_STATUS_CONFIG,
+  LISTING_ADVERTISER_TYPE_CONFIG,
+  LISTING_ADVERTISER_CLASSIFICATION_STATUS_CONFIG,
 } from "@/features/listings/config";
 import { buildStatusConfig } from "@/constants/status.utils";
 import { formatPrice, formatDate } from "@/utils/formatters";
@@ -48,6 +49,24 @@ export const LISTING_TABLE_COLUMNS = [
     header: "شماره تماس",
     width: "w-28",
     cell: ({ contact_phone }) => contact_phone || "—",
+  },
+  {
+    key: "advertiser_type",
+    header: "آگهی‌دهنده",
+    width: "w-32",
+    cell: ({ advertiser_type, advertiser_classification_status }) => {
+      const config =
+        advertiser_classification_status === "succeeded" && advertiser_type
+          ? buildStatusConfig(
+              LISTING_ADVERTISER_TYPE_CONFIG,
+              advertiser_type,
+            )
+          : buildStatusConfig(
+              LISTING_ADVERTISER_CLASSIFICATION_STATUS_CONFIG,
+              advertiser_classification_status || "pending",
+            );
+      return <StatusBadge config={config} size="sm" />;
+    },
   },
   {
     key: "price",
