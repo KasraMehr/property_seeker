@@ -34,9 +34,15 @@ export const OPERATOR_NAV_ITEMS = [
   },
   {
     id: "listings",
-    label: "لیدهای من",
+    label: "آگهی های من",
     path: "/operator/listings",
     icon: Building2,
+  },
+  {
+    id: "properties",
+    label: "فایل‌های من",
+    path: "/operator/properties",
+    icon: FolderCheck,
   },
   {
     id: "customers",
@@ -55,12 +61,6 @@ export const OPERATOR_NAV_ITEMS = [
     label: "پیگیری‌ها",
     path: "/operator/followups",
     icon: CalendarClock,
-  },
-  {
-    id: "properties",
-    label: "فایل‌های من",
-    path: "/operator/properties",
-    icon: FolderCheck,
   },
 ];
 

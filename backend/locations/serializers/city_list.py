@@ -10,10 +10,16 @@ class CityListSerializer(serializers.ModelSerializer):
         read_only=True,
     )
 
+    province_id = serializers.PrimaryKeyRelatedField(
+        source="province",
+        read_only=True,
+    )
+
     class Meta:
         model = City
         fields = (
             "id",
             "name",
             "province",
+            "province_id",
         )

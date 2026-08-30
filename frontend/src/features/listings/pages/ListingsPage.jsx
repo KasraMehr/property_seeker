@@ -14,7 +14,9 @@ import Button from "@/shared/ui/Button";
 import ListingDetailModal from "@/features/listings/components/ListingDetailModal";
 import PromoteListingModal from "@/features/listings/components/PromoteListingModal";
 import PromoteSuccessModal from "@/features/listings/components/PromoteSuccessModal";
-import RegisterCallForm from "../../../shared/forms/RegisterCallForm";
+import ChangeReviewStatusModal from "@/features/listings/components/ChangeReviewStatusModal";
+import PropertyDetailModal from "@/features/properties/components/PropertyDetailModal";
+import CallFormModal from "@/features/calls/components/CallFormModal";
 
 export default function ListingsPage() {
   const { setPageHeader } = useOutletContext();
@@ -42,16 +44,20 @@ export default function ListingsPage() {
     detail,
     promote,
     registerCall,
+    reviewStatus,
     openDetail,
     closeDetail,
     openPromote,
     closePromote,
     openRegisterCall,
     closeRegisterCall,
+    openReviewStatus,
+    closeReviewStatus,
   } = useListingModals();
 
   const [detailLoading, setDetailLoading] = useState(false);
   const [promoteResult, setPromoteResult] = useState(null);
+  const [viewProperty, setViewProperty] = useState(null);
 
   const [searchInput, setSearchInput] = useState(filterValues.search || "");
   const debouncedSearch = useDebounce(searchInput, 400);
@@ -121,6 +127,9 @@ export default function ListingsPage() {
         case "promote":
           handleOpenPromote(row);
           break;
+        case "change_review_status":
+          openReviewStatus(row);
+          break;
         case "open_source":
           if (row.url) window.open(row.url, "_blank", "noopener,noreferrer");
           break;
@@ -128,7 +137,7 @@ export default function ListingsPage() {
           break;
       }
     },
-    [handleOpenDetail, openRegisterCall, handleOpenPromote],
+    [handleOpenDetail, openRegisterCall, handleOpenPromote, openReviewStatus],
   );
 
   const filters = useMemo(
@@ -139,7 +148,7 @@ export default function ListingsPage() {
       onChange: setFilter,
       onClear: clearFilter,
       onClearAll: clearAll,
-      chips: activeChips,
+      activeChips,
     }),
     [filterValues, setFilter, clearFilter, clearAll, activeChips],
   );
@@ -236,12 +245,32 @@ export default function ListingsPage() {
         isOpen={!!promoteResult}
         onClose={() => setPromoteResult(null)}
         result={promoteResult}
+        onViewProperty={(property) => {
+          setPromoteResult(null);
+          setViewProperty(property);
+        }}
       />
 
-      <RegisterCallForm
+      <PropertyDetailModal
+        isOpen={!!viewProperty}
+        onClose={() => setViewProperty(null)}
+        property={viewProperty}
+      />
+
+      <ChangeReviewStatusModal
+        isOpen={reviewStatus.open}
+        onClose={closeReviewStatus}
+        listings={reviewStatus.listing ? [reviewStatus.listing] : []}
+        onSuccess={() => {
+          closeReviewStatus();
+          refresh?.();
+        }}
+      />
+
+      <CallFormModal
         isOpen={registerCall.open}
         onClose={closeRegisterCall}
-        listing={registerCall.listing}
+        extraData={{ listing: registerCall.listing }}
         onSuccess={() => closeRegisterCall()}
       />
     </>

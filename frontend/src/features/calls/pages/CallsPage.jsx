@@ -4,6 +4,7 @@ import { useOutletContext } from "react-router-dom";
 
 import useAuth from "@/features/auth/hooks/useAuth";
 import ResourceTemplate from "@/shared/templates/resource/ResourceTemplate";
+import PageTabs from "@/shared/page/PageTabs";
 import useCall from "@/features/calls/hooks/useCall";
 import {
   CALL_ALL_FILTERS,
@@ -19,6 +20,12 @@ import Button from "@/shared/ui/Button";
 import CallDetailModal from "@/features/calls/components/CallDetailModal";
 import CallFormModal from "@/features/calls/components/CallFormModal";
 import { toastService } from "@/lib/toast";
+
+const CALL_TABS = [
+  { id: "all", label: "همه" },
+  { id: "customers", label: "مشتریان" },
+  { id: "owners", label: "مالکان" },
+];
 
 export default function CallsPage() {
   const { user } = useAuth();
@@ -48,6 +55,7 @@ export default function CallsPage() {
   } = useCall();
 
   const [selected, setSelected] = useState([]);
+  const [activeTab, setActiveTab] = useState("all");
   const [detailCall, setDetailCall] = useState(null);
   const [editCall, setEditCall] = useState(null);
   const [followUpCall, setFollowUpCall] = useState(null);
@@ -186,6 +194,32 @@ export default function CallsPage() {
     [selected, bulkRemove]
   );
 
+  /* ─── Tab Filtering (client-side) ─── */
+  const displayData = useMemo(() => {
+    if (!data) return [];
+    if (activeTab === "all") return data;
+
+    return data.filter((row) => {
+      const source = row.customer_source || "";
+      if (activeTab === "owners") return source === "owner";
+      if (activeTab === "customers") return source !== "owner";
+      return true;
+    });
+  }, [data, activeTab]);
+
+  /* ─── Tab Badge Counts ─── */
+  const tabItems = useMemo(() => {
+    if (!data) return CALL_TABS.map((t) => ({ ...t, badge: 0 }));
+
+    const counts = {
+      all: data.length,
+      owners: data.filter((r) => (r.customer_source || "") === "owner").length,
+      customers: data.filter((r) => (r.customer_source || "") !== "owner").length,
+    };
+
+    return CALL_TABS.map((t) => ({ ...t, badge: counts[t.id] }));
+  }, [data]);
+
   /* ─── Filter options ─── */
   const filterOptions = useMemo(() => {
     const typeFilter = CALL_ALL_FILTERS.find(
@@ -204,7 +238,12 @@ export default function CallsPage() {
 
   const filters = useMemo(
     () => ({
-      schema: CALL_ALL_FILTERS.filter((f) => f.type !== "search"),
+      schema: CALL_ALL_FILTERS.filter((f) => {
+        if (f.type === "search") return false;
+        // handled_by filter only visible for admin/owner
+        if (f.key === "handled_by" && !isAdmin) return false;
+        return true;
+      }),
       options: filterOptions,
       values: filterValues,
       onChange: setFilter,
@@ -266,13 +305,16 @@ export default function CallsPage() {
 
   return (
     <>
+      <div className="mb-4">
+        <PageTabs items={tabItems} value={activeTab} onChange={setActiveTab} />
+      </div>
       <ResourceTemplate
         search={searchConfig}
         filters={filters}
         count={meta?.count || 0}
         countLabel="تماس"
         columns={CALL_TABLE_COLUMNS}
-        data={data}
+        data={displayData}
         loading={loading}
         emptyState={emptyState}
         sort={sort}

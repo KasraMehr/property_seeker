@@ -299,6 +299,11 @@ const Select = forwardRef(
                   return (
                     <li
                       key={opt.value}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleSelect(opt.value);
+                      }}
                       onClick={() => handleSelect(opt.value)}
                       className={`
                         flex

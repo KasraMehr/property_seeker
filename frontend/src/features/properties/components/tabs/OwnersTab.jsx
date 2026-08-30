@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback, useEffect } from "react";
 import { Plus, Inbox } from "lucide-react";
 import ResourceTemplate from "@/shared/templates/resource/ResourceTemplate";
 import useOwner from "@/features/owners/hooks/useOwner";
+import useAuth from "@/features/auth/hooks/useAuth";
 import useUsersMap from "@/features/users-management/hooks/useUsersMap";
 import {
   OWNER_TABLE_COLUMNS,
@@ -37,6 +38,8 @@ export default function OwnersTab({ onHeaderStateChange }) {
   } = useOwner();
 
   const usersMap = useUsersMap();
+  const { user } = useAuth();
+  const isOwner = Boolean(user?.is_owner);
 
   const [selected, setSelected] = useState([]);
   const [detailOwner, setDetailOwner] = useState(null);
@@ -168,15 +171,20 @@ export default function OwnersTab({ onHeaderStateChange }) {
   /* ─── Filters ─── */
   const filters = useMemo(
     () => ({
-      schema: (OWNER_ALL_FILTERS || []).filter((f) => f.type !== "search"),
+      schema: (OWNER_ALL_FILTERS || []).filter((f) => {
+        if (f.type === "search") return false;
+        // ثبت‌کننده only for admin/owner
+        if (f.key === "created_by" && !isOwner) return false;
+        return true;
+      }),
       options: {},
       values: filterValues,
       onChange: setFilter,
       onClear: clearFilter,
       onClearAll: clearAll,
-      chips: activeChips,
+      activeChips,
     }),
-    [filterValues, setFilter, clearFilter, clearAll, activeChips],
+    [filterValues, setFilter, clearFilter, clearAll, activeChips, isOwner],
   );
 
   /* ─── Search Config ─── */

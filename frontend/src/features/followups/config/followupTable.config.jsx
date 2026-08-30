@@ -4,7 +4,7 @@ import {
   FOLLOWUP_TYPE_CONFIG,
 } from "@/features/followups/config";
 import { buildStatusConfig } from "@/constants/status.utils";
-import { formatDate } from "@/utils/formatters";
+import { formatDateTime } from "@/utils/formatters";
 /**
  * Reminder (Follow-up) Table Columns
  * Backend: crm.Reminder
@@ -97,7 +97,7 @@ export const FOLLOWUP_TABLE_COLUMNS = [
         <span
           className={`text-sm ${isOverdue ? "text-danger font-semibold" : ""}`}
         >
-          {formatDate(due_at, "short")}
+          {formatDateTime(due_at)}
           {isOverdue && (
             <span className="text-xs text-danger mr-1">(گذشته)</span>
           )}

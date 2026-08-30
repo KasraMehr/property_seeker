@@ -11,7 +11,7 @@ export const LISTING_REVIEW_STATUS_CONFIG = {
     color: "neutral",
   },
   shortlisted: {
-    label: "کوت‌لیست",
+    label: "منتخب",
     icon: Star,
     color: "warning",
   },

@@ -1,7 +1,9 @@
 import { useState, useCallback, useMemo, useRef } from "react";
 import DateObject from "react-date-object";
 import persian from "react-date-object/calendars/persian";
+import persian_fa from "react-date-object/locales/persian_fa";
 import gregorian from "react-date-object/calendars/gregorian";
+import { formatRange, toFa } from "@/utils/formatters";
 
 /**
  * Convert gregorian date string (YYYY-MM-DD) to Persian display string (YYYY/MM/DD)
@@ -13,10 +15,30 @@ function toPersianDateString(dateStr) {
       date: dateStr,
       calendar: gregorian,
       format: "YYYY-MM-DD",
-    }).convert(persian).format("YYYY/MM/DD");
+    })
+      .convert(persian)
+      .format("YYYY/MM/DD", persian_fa);
   } catch {
     return dateStr;
   }
+}
+
+// Fallback: manually convert digits to Persian
+function toFaDigits(str) {
+  if (!str) return str;
+  const map = {
+    0: "۰",
+    1: "۱",
+    2: "۲",
+    3: "۳",
+    4: "۴",
+    5: "۵",
+    6: "۶",
+    7: "۷",
+    8: "۸",
+    9: "۹",
+  };
+  return str.replace(/[0-9]/g, (d) => map[d]);
 }
 
 /**
@@ -49,13 +71,21 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
           state[field.key] = [];
           break;
         case "range":
-          state[field.key] = { min: field.min, max: field.max };
+          state[field.key] = { min: field.min ?? 0, max: field.max ?? 100 };
           break;
         case "date_range":
           state[field.key] = { from: null, to: null };
           break;
         case "toggle":
           state[field.key] = false;
+          break;
+        case "location_cascade":
+          state[field.key] = {
+            province: null,
+            city: null,
+            district: null,
+            neighborhood: null,
+          };
           break;
         default:
           state[field.key] = null;
@@ -66,23 +96,59 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
   }, []);
 
   const [filters, setFilters] = useState(buildInitialState);
+  const [filterLabels, setFilterLabels] = useState({});
 
-  // 🔴 KEY FIX: bail out if value hasn't changed
-  const setFilter = useCallback((key, value) => {
+  const setFilter = useCallback((key, value, label) => {
+    if (label !== undefined) {
+      setFilterLabels((prev) => {
+        if (!label) {
+          if (!(key in prev)) return prev;
+
+          const next = { ...prev };
+          delete next[key];
+          return next;
+        }
+
+        if (prev[key] === label) return prev;
+
+        return { ...prev, [key]: label };
+      });
+    }
+
     setFilters((prev) => {
       const newValue = value === "" ? null : value;
+      const prevValue = prev[key];
 
-      // If value is the same reference or primitive, return prev to bail out
-      if (prev[key] === newValue) return prev;
+      // Primitive comparison
+      if (prevValue === newValue) return prev;
 
-      // For arrays/objects, do shallow comparison
+      // Array shallow comparison
       if (
-        Array.isArray(prev[key]) &&
+        Array.isArray(prevValue) &&
         Array.isArray(newValue) &&
-        prev[key].length === newValue.length &&
-        prev[key].every((v, i) => v === newValue[i])
+        prevValue.length === newValue.length &&
+        prevValue.every((v, i) => v === newValue[i])
       ) {
         return prev;
+      }
+
+      // Object shallow comparison (for date_range: {from, to})
+      if (
+        prevValue &&
+        newValue &&
+        typeof prevValue === "object" &&
+        typeof newValue === "object" &&
+        !Array.isArray(prevValue) &&
+        !Array.isArray(newValue)
+      ) {
+        const prevKeys = Object.keys(prevValue);
+        const newKeys = Object.keys(newValue);
+        if (
+          prevKeys.length === newKeys.length &&
+          prevKeys.every((k) => prevValue[k] === newValue[k])
+        ) {
+          return prev;
+        }
       }
 
       return { ...prev, [key]: newValue };
@@ -92,6 +158,14 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
   const clearFilter = useCallback((key) => {
     const field = schemaRef.current.find((f) => f.key === key);
     if (!field) return;
+
+    setFilterLabels((prev) => {
+      if (!(key in prev)) return prev;
+
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
 
     setFilters((prev) => {
       let defaultValue;
@@ -108,7 +182,7 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
           defaultValue = [];
           break;
         case "range":
-          defaultValue = { min: field.min, max: field.max };
+          defaultValue = { min: field.min ?? 0, max: field.max ?? 100 };
           break;
         case "date_range":
           defaultValue = { from: null, to: null };
@@ -116,16 +190,52 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
         case "toggle":
           defaultValue = false;
           break;
+        case "location_cascade":
+          defaultValue = {
+            province: null,
+            city: null,
+            district: null,
+            neighborhood: null,
+          };
+          break;
         default:
           defaultValue = null;
       }
 
-      if (prev[key] === defaultValue) return prev;
+      const prevValue = prev[key];
+
+      // Primitive comparison
+      if (prevValue === defaultValue) return prev;
+
+      // Object shallow comparison
+      if (
+        prevValue &&
+        defaultValue &&
+        typeof prevValue === "object" &&
+        typeof defaultValue === "object" &&
+        !Array.isArray(prevValue) &&
+        !Array.isArray(defaultValue)
+      ) {
+        const prevKeys = Object.keys(prevValue);
+        const defKeys = Object.keys(defaultValue);
+        if (
+          prevKeys.length === defKeys.length &&
+          prevKeys.every((k) => prevValue[k] === defaultValue[k])
+        ) {
+          return prev;
+        }
+      }
+
       return { ...prev, [key]: defaultValue };
     });
   }, []);
 
   const clearAll = useCallback(() => {
+    setFilterLabels((prev) => {
+      if (Object.keys(prev).length === 0) return prev;
+      return {};
+    });
+
     setFilters((prev) => {
       const next = buildInitialState();
       // Shallow compare
@@ -155,9 +265,10 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
             const option = options.find(
               (o) => String(o.value) === String(value),
             );
+
             chips.push({
               key: field.key,
-              label: option?.label || value,
+              label: option?.label || filterLabels[field.key] || value,
               type: field.type,
             });
           }
@@ -178,20 +289,23 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
           }
           break;
 
-        case "range":
-          if (value.min !== field.min || value.max !== field.max) {
+        case "range": {
+          const fieldMin = field.min ?? 0;
+          const fieldMax = field.max ?? 100;
+          if (value.min !== fieldMin || value.max !== fieldMax) {
             chips.push({
               key: field.key,
-              label: `${value.min} - ${value.max}`,
+              label: formatRange(value.min, value.max, field.unit),
               type: "range",
             });
           }
           break;
+        }
 
         case "date_range":
           if (value.from || value.to) {
-            const fromFa = toPersianDateString(value.from);
-            const toFa = toPersianDateString(value.to);
+            const fromFa = toFaDigits(toPersianDateString(value.from));
+            const toFa = toFaDigits(toPersianDateString(value.to));
             const parts = [];
             if (fromFa) parts.push(`از ${fromFa}`);
             if (toFa) parts.push(`تا ${toFa}`);
@@ -209,14 +323,38 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
           }
           break;
 
+        case "location_cascade": {
+          if (!value) break;
+          if (
+            value.province ||
+            value.city ||
+            value.district ||
+            value.neighborhood
+          ) {
+            // Use stored label from FilterBar if available, otherwise fallback
+            const storedLabel = filterLabels[field.key];
+            const parts = [];
+            if (value.province) parts.push(`استان`);
+            if (value.city) parts.push(`شهر`);
+            if (value.district) parts.push(`منطقه`);
+            if (value.neighborhood) parts.push(`محله`);
+            chips.push({
+              key: field.key,
+              label: storedLabel || field.label || parts.join(" › ") || "موقعیت",
+              type: "location_cascade",
+            });
+          }
+          break;
+        }
+
         default:
           break;
       }
     });
 
     return chips;
-  }, [filters]);
-
+  }, [filters, filterLabels]);
+  
   const queryParams = useMemo(() => {
     const params = {};
     const currentSchema = schemaRef.current;
@@ -238,14 +376,19 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
           }
           break;
 
-        case "range":
-          if (value && (value.min !== field.min || value.max !== field.max)) {
+        case "range": {
+          const fieldMin = field.min ?? 0;
+          const fieldMax = field.max ?? 100;
+          if (value && (value.min !== fieldMin || value.max !== fieldMax)) {
             const minKey = field.min_key || `${field.key}_min`;
             const maxKey = field.max_key || `${field.key}_max`;
-            if (value.min != null) params[minKey] = value.min;
-            if (value.max != null) params[maxKey] = value.max;
+            if (value.min != null && value.min !== fieldMin)
+              params[minKey] = value.min;
+            if (value.max != null && value.max !== fieldMax)
+              params[maxKey] = value.max;
           }
           break;
+        }
 
         case "date_range":
           if (value?.from || value?.to) {
@@ -261,6 +404,12 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
           if (value) params[field.key] = true;
           break;
 
+        case "location_cascade":
+          if (value?.province) params.province = value.province;
+          if (value?.city) params.city = value.city;
+          if (value?.district) params.district = value.district;
+          if (value?.neighborhood) params.neighborhood = value.neighborhood;
+          break;
         default:
           break;
       }

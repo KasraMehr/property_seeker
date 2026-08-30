@@ -15,7 +15,7 @@ class CustomerListCreateView(APIView):
 
     permission_classes = [IsAuthenticated, HasRolePermission]
 
-    required_permission = "create_customer"
+    required_permission = "add_customer"
 
     def get(self, request):
 

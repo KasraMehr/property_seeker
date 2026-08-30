@@ -21,10 +21,11 @@ class CustomerPreferenceListCreateView(APIView):
 
     permission_classes = [IsAuthenticated, HasRolePermission]
 
-    required_permission = "create_customer_preference"
+    required_permission = "add_customerpreference"
 
     def get(self, request):
-        preferences = CustomerPreferenceSelector.all(request.user)
+        customer_id = request.query_params.get("customer_id")
+        preferences = CustomerPreferenceSelector.all(request.user, customer_id=customer_id)
 
         serializer = CustomerPreferenceListSerializer(preferences, many=True)
 
@@ -53,7 +54,7 @@ class CustomerPreferenceDetailView(APIView):
 
     permission_classes = [IsAuthenticated, HasRolePermission]
 
-    required_permission = "view_customer_preference"
+    required_permission = "view_customerpreference"
 
     def get(self, request, pk):
 
@@ -84,7 +85,7 @@ class CustomerPreferenceBulkDeleteView(APIView):
             HasRolePermission,
         )
 
-        required_permission = "delete_customer_preference"
+        required_permission = "delete_customerpreference"
 
         def delete(self, request):
             preference_ids = request.data.get("ids", [])

@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback, useEffect } from "react";
 import { Plus, Inbox } from "lucide-react";
 import ResourceTemplate from "@/shared/templates/resource/ResourceTemplate";
 import useProperty from "@/features/properties/hooks/useProperty";
+import useAuth from "@/features/auth/hooks/useAuth";
 import {
   PROPERTY_ALL_FILTERS,
   PROPERTY_TABLE_COLUMNS,
@@ -13,10 +14,13 @@ import ConfirmModal from "@/shared/ui/modal/ConfirmModal";
 import Button from "@/shared/ui/Button";
 import PropertyDetailModal from "@/features/properties/components/PropertyDetailModal";
 import PropertyFormModal from "@/features/properties/components/PropertyFormModal";
-import RegisterCallForm from "@/shared/forms/RegisterCallForm";
+import CallFormModal from "@/features/calls/components/CallFormModal";
 import { toastService } from "@/lib/toast";
 
 export default function PropertiesTab({ onHeaderStateChange }) {
+  const { user } = useAuth();
+  const isAdmin = Boolean(user?.is_owner);
+
   const {
     data,
     loading,
@@ -148,7 +152,7 @@ export default function PropertiesTab({ onHeaderStateChange }) {
       toastService.success(
         pendingDeleteIds.length > 1
           ? `${pendingDeleteIds.length} ملک حذف شدند.`
-          : "ملک با موفقیت حذف شد."
+          : "ملک با موفقیت حذف شد.",
       );
       setPendingDeleteIds(null);
       setSelected([]);
@@ -161,13 +165,18 @@ export default function PropertiesTab({ onHeaderStateChange }) {
   /* ─── Filters ─── */
   const filters = useMemo(
     () => ({
-      schema: (PROPERTY_ALL_FILTERS || []).filter((f) => f.type !== "search"),
+      schema: (PROPERTY_ALL_FILTERS || []).filter((f) => {
+        if (f.type === "search") return false;
+        // Agent filter only for admin/owner
+        if (f.key === "agent" && !isAdmin) return false;
+        return true;
+      }),
       options: {},
       values: filterValues,
       onChange: setFilter,
       onClear: clearFilter,
       onClearAll: clearAll,
-      chips: activeChips,
+      activeChips,
     }),
     [filterValues, setFilter, clearFilter, clearAll, activeChips],
   );
@@ -256,10 +265,10 @@ export default function PropertiesTab({ onHeaderStateChange }) {
         />
       )}
 
-      <RegisterCallForm
+      <CallFormModal
         isOpen={!!callProperty}
         onClose={() => setCallProperty(null)}
-        property={callProperty}
+        extraData={{ property: callProperty }}
         onSuccess={() => setCallProperty(null)}
       />
 

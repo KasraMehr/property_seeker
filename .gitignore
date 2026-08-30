@@ -21,6 +21,7 @@ static/
 
 backend/db.sqlite3
 backend/Data_log/
+backend/seed_fake_data.py
 
 .env.*.local
 

@@ -114,7 +114,7 @@ const filterCitiesByProvince = (cities, provinceId) => {
   if (provinceId == null || provinceId === "") return cities;
   const pid = Number(provinceId);
   return cities.filter(
-    (c) => Number(c.province) === pid || Number(c.province_id) === pid,
+    (c) => Number(c.province_id) === pid,
   );
 };
 
@@ -140,6 +140,69 @@ const filterAddressesByNeighborhood = (addresses, neighborhoodId) => {
   return addresses.filter(
     (a) => Number(a.neighborhood) === nid || Number(a.neighborhood_id) === nid,
   );
+};
+
+/**
+ * Resolve a location cascade object { province, city, district, neighborhood }
+ * from an address object returned by the API.
+ *
+ * The API returns address with nested IDs:
+ *   neighborhood (FK), district (FK), city (FK), province (FK)
+ *
+ * If the address only has neighborhood ID, resolve the rest from cached lists.
+ */
+const resolveLocationFromAddress = async (addressObj) => {
+  if (!addressObj) return {};
+
+  // If address has direct IDs (from updated AddressSerializer)
+  if (addressObj.province && addressObj.city && addressObj.district && addressObj.neighborhood) {
+    return {
+      province: Number(addressObj.province),
+      city: Number(addressObj.city),
+      district: Number(addressObj.district),
+      neighborhood: Number(addressObj.neighborhood),
+      address: Number(addressObj.id),
+    };
+  }
+
+  // Fallback: resolve from lists
+  if (addressObj.neighborhood) {
+    const nid = Number(addressObj.neighborhood);
+    try {
+      const [districts, neighborhoods] = await Promise.all([
+        getDistricts(),
+        getNeighborhoods(),
+      ]);
+      const dList = unwrapList(districts);
+      const nList = unwrapList(neighborhoods);
+
+      const neighborhood = nList.find((n) => n.id === nid);
+      if (!neighborhood) return { neighborhood: nid, address: Number(addressObj.id) };
+
+      const did = Number(neighborhood.district);
+      const district = dList.find((d) => d.id === did);
+      if (!district) return { neighborhood: nid, district: did, address: Number(addressObj.id) };
+
+      const cid = Number(district.city);
+
+      // Get province from cities
+      const cities = unwrapList(await getCities());
+      const city = cities.find((c) => c.id === cid);
+      const pid = city ? Number(city.province_id) : null;
+
+      return {
+        province: pid,
+        city: cid,
+        district: did,
+        neighborhood: nid,
+        address: Number(addressObj.id),
+      };
+    } catch {
+      return { neighborhood: nid, address: Number(addressObj.id) };
+    }
+  }
+
+  return {};
 };
 
 const locationService = {
@@ -184,6 +247,7 @@ const locationService = {
   filterDistrictsByCity,
   filterNeighborhoodsByDistrict,
   filterAddressesByNeighborhood,
+  resolveLocationFromAddress,
 };
 
 export default locationService;

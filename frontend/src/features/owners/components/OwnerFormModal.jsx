@@ -5,9 +5,20 @@ import { OWNER_FORM } from "@/features/owners/config";
 import ownerService from "@/features/owners/services/ownerService";
 import { toastService } from "@/lib/toast";
 
-export default function OwnerFormModal({ isOpen, onClose, owner = null, onSuccess }) {
+export default function OwnerFormModal({
+  isOpen,
+  onClose,
+  owner = null,
+  defaultPhone = null,
+  onSuccess,
+}) {
   const [loading, setLoading] = useState(false);
   const isEdit = !!owner?.id;
+
+  const defaultValues = {
+    ...(owner || {}),
+    ...(defaultPhone && !isEdit ? { phone: defaultPhone } : {}),
+  };
 
   const handleSubmit = async (data) => {
     setLoading(true);
@@ -32,7 +43,7 @@ export default function OwnerFormModal({ isOpen, onClose, owner = null, onSucces
     <Modal isOpen={isOpen} onClose={onClose} size="lg" title={isEdit ? "ویرایش مالک" : "مالک جدید"}>
       <FormRenderer
         config={OWNER_FORM}
-        defaultValues={owner || {}}
+        defaultValues={defaultValues}
         mode={isEdit ? "edit" : "create"}
         onSubmit={handleSubmit}
         onCancel={onClose}

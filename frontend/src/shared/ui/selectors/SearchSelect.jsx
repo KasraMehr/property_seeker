@@ -6,7 +6,7 @@ import useDebounce from "@/shared/useDebounce";
 /**
  * Async SearchSelect — shared UI (no RHF)
  * value: id | null | ""
- * onChange(nextValue)  // id | ""
+ * onChange(nextValue, nextLabel)  // id | "", display label
  */
 export default function SearchSelect({
   label,
@@ -114,11 +114,11 @@ export default function SearchSelect({
 
   return (
     <div className={`relative ${className}`} ref={containerRef}>
-      {label && (
+      {/* {label && (
         <label className="block text-sm font-medium text-foreground mb-1.5">
           {label}
         </label>
-      )}
+      )} */}
 
       <button
         type="button"
@@ -143,7 +143,7 @@ export default function SearchSelect({
             role="button"
             onClick={(e) => {
               e.stopPropagation();
-              onChange?.("");
+              onChange?.("", "");
               setSelectedLabel("");
               setQuery("");
             }}
@@ -185,8 +185,9 @@ export default function SearchSelect({
                     key={v}
                     type="button"
                     onClick={() => {
-                      onChange?.(v);
-                      setSelectedLabel(getLabel(opt));
+                      const label = getLabel(opt);
+                      onChange?.(v, label);
+                      setSelectedLabel(label);
                       setOpen(false);
                       setQuery("");
                     }}

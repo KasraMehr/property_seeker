@@ -31,6 +31,13 @@ export const CUSTOMER_DETAIL_FIELDS = [
     sectionLabel: "اطلاعات تکمیلی",
     fields: [
       { key: "assigned_agent_name", label: "کارشناس مسئول" },
+      {
+        key: "tags",
+        label: "برچسب‌ها",
+        type: "tag_list",
+      },
+      { key: "calls_count", label: "تعداد تماس‌ها", type: "number" },
+      { key: "visits_count", label: "تعداد بازدیدها", type: "number" },
       { key: "notes", label: "یادداشت‌ها", fullWidth: true },
       { key: "created_at", label: "تاریخ ثبت", type: "dateTime" },
       { key: "updated_at", label: "آخرین بروزرسانی", type: "dateTime" },

@@ -1,5 +1,3 @@
-// FILE: useOwner.js
-
 import { useCallback, useEffect, useRef } from "react";
 import useResource from "@/shared/templates/resource/hooks/useResource";
 import useResourceQuery from "@/shared/templates/resource/hooks/useResourceQuery";

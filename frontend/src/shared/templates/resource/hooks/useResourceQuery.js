@@ -1,4 +1,4 @@
-import { useMemo, useCallback, useState, useEffect } from "react";
+import { useMemo, useCallback, useState } from "react";
 import useResourceFilter from "./useResourceFilter";
 
 /**
@@ -27,10 +27,13 @@ export default function useResourceQuery({
   const [page, setPage] = useState(initialPage);
 
   // Reset page when filters or ordering change
-  const setFilterAndReset = useCallback((key, value) => {
-    setFilter(key, value);
-    setPage(1);
-  }, [setFilter]);
+  const setFilterAndReset = useCallback(
+    (key, value, label) => {
+      setFilter(key, value, label);
+      setPage(1);
+    },
+    [setFilter],
+  );
 
   const setOrderingAndReset = useCallback((value) => {
     setOrdering(value);
@@ -52,7 +55,7 @@ export default function useResourceQuery({
     };
   }, [ordering]);
 
-  // Build final query params for API — stable object shape
+  // Build final query params for API
   const queryParams = useMemo(() => {
     return {
       ...filterParams,
@@ -63,9 +66,12 @@ export default function useResourceQuery({
   }, [filterParams, ordering, page, pageSize]);
 
   // Total pages helper
-  const totalPages = useCallback((totalCount) => {
-    return Math.ceil((totalCount || 0) / pageSize) || 1;
-  }, [pageSize]);
+  const totalPages = useCallback(
+    (totalCount) => {
+      return Math.ceil((totalCount || 0) / pageSize) || 1;
+    },
+    [pageSize],
+  );
 
   return {
     // Filters

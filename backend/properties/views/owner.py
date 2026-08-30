@@ -1,3 +1,4 @@
+from django.db.models import Count
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework.filters import OrderingFilter, SearchFilter
@@ -57,9 +58,11 @@ class OwnerListView(ListAPIView):
 
         user = self.request.user
 
-        return Owner.objects.filter(agency=user.agency).select_related(
-            "agency",
-            "created_by",
+        return (
+            Owner.objects
+            .filter(agency=user.agency)
+            .select_related("agency", "created_by")
+            .annotate(properties_count=Count("properties"))
         )
 
 

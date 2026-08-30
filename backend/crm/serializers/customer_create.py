@@ -59,6 +59,10 @@ class CustomerCreateSerializer(serializers.ModelSerializer):
 
         tags = validated_data.pop("tags", [])
 
+        # Auto-assign agent to current user if not provided
+        if not validated_data.get("assigned_agent"):
+            validated_data["assigned_agent"] = user
+
         customer = Customer.objects.create(agency=user.agency, **validated_data)
 
         customer.tags.set(tags)

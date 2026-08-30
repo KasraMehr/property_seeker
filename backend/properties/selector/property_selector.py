@@ -6,7 +6,7 @@ class PropertySelector:
     @staticmethod
     def all(user):
 
-        return (
+        qs = (
             Property.objects.select_related(
                 "agency",
                 "owner",
@@ -17,6 +17,13 @@ class PropertySelector:
             .filter(agency=user.agency)
             .order_by("-created_at")
         )
+
+        if not user.is_owner:
+            qs = qs.filter(
+                address__neighborhood__in=user.service_neighborhoods.all()
+            )
+
+        return qs
 
     @staticmethod
     def by_id(pk, user):

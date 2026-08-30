@@ -1,17 +1,28 @@
-import { Home, Copy, Check } from "lucide-react";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Home, Copy, Check, User, Hash } from "lucide-react";
+import { useState, useEffect } from "react";
 import Modal from "@/shared/ui/modal/Modal";
 import Button from "@/shared/ui/Button";
 import { toastService } from "@/lib/toast";
+import propertyService from "@/features/properties/services/propertyService";
 
 /**
  * PromoteSuccessModal — shown after a listing is successfully promoted to property
- * Displays the new property code and provides a link to view the property.
+ * Shows property info + owner info and allows viewing the property detail.
  */
-export default function PromoteSuccessModal({ isOpen, onClose, result }) {
+export default function PromoteSuccessModal({ isOpen, onClose, result, onViewProperty }) {
   const [copied, setCopied] = useState(false);
-  const navigate = useNavigate();
+  const [propertyInfo, setPropertyInfo] = useState(null);
+
+  useEffect(() => {
+    if (isOpen && result?.property_id) {
+      propertyService
+        .getById(result.property_id)
+        .then((res) => setPropertyInfo(res?.data ?? res))
+        .catch(() => setPropertyInfo(null));
+    } else {
+      setPropertyInfo(null);
+    }
+  }, [isOpen, result?.property_id]);
 
   if (!isOpen || !result) return null;
 
@@ -29,11 +40,18 @@ export default function PromoteSuccessModal({ isOpen, onClose, result }) {
     }
   };
 
+  const handleViewProperty = () => {
+    if (onViewProperty && propertyInfo) {
+      onViewProperty(propertyInfo);
+    }
+    onClose();
+  };
+
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      size="sm"
+      size="md"
       title="تبدیل آگهی به ملک"
     >
       <div className="flex flex-col items-center gap-4 py-4">
@@ -50,26 +68,71 @@ export default function PromoteSuccessModal({ isOpen, onClose, result }) {
           </p>
         </div>
 
-        {property_code && (
-          <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-surface border border-border">
-            <span className="text-xs text-muted">کد ملک:</span>
-            <span className="text-base font-mono font-bold text-primary">
-              {property_code}
-            </span>
-            <button
-              type="button"
-              onClick={handleCopy}
-              className="p-1 rounded-lg hover:bg-muted/50 transition-colors"
-              title="کپی کد ملک"
-            >
-              {copied ? (
-                <Check size={14} className="text-success" />
-              ) : (
-                <Copy size={14} className="text-muted-foreground" />
-              )}
-            </button>
+        {/* Property Info Card */}
+        <div className="w-full rounded-xl bg-surface border border-border p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Hash size={14} className="text-muted" />
+              <span className="text-xs text-muted">کد ملک:</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-mono font-bold text-primary">
+                {property_code || "—"}
+              </span>
+              <button
+                type="button"
+                onClick={handleCopy}
+                className="p-1 rounded-lg hover:bg-muted/50 transition-colors"
+                title="کپی کد ملک"
+              >
+                {copied ? (
+                  <Check size={12} className="text-success" />
+                ) : (
+                  <Copy size={12} className="text-muted-foreground" />
+                )}
+              </button>
+            </div>
           </div>
-        )}
+
+          {propertyInfo?.owner && (
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <User size={14} className="text-muted" />
+                <span className="text-xs text-muted">مالک:</span>
+              </div>
+              <span className="text-sm font-medium text-foreground">
+                {propertyInfo.owner}
+              </span>
+            </div>
+          )}
+
+          {propertyInfo?.title && (
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-muted">عنوان:</span>
+              <span className="text-sm text-foreground">
+                {propertyInfo.title}
+              </span>
+            </div>
+          )}
+
+          {propertyInfo?.area && (
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-muted">متراژ:</span>
+              <span className="text-sm text-foreground">
+                {propertyInfo.area.toLocaleString("fa-IR")} متر مربع
+              </span>
+            </div>
+          )}
+
+          {propertyInfo?.deal_type && (
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-muted">نوع معامله:</span>
+              <span className="text-sm text-foreground">
+                {propertyInfo.deal_type === "sale" ? "فروش" : propertyInfo.deal_type === "rent" ? "اجاره" : propertyInfo.deal_type === "mortgage" ? "رهن" : propertyInfo.deal_type === "exchange" ? "معاوضه" : propertyInfo.deal_type}
+              </span>
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="flex justify-end gap-2 pt-4 border-t border-border">
@@ -79,13 +142,8 @@ export default function PromoteSuccessModal({ isOpen, onClose, result }) {
         <Button
           variant="primary"
           size="sm"
-          onClick={() => {
-            onClose();
-            // Detect role from current path and navigate accordingly
-            const path = window.location.pathname;
-            const basePath = path.startsWith("/operator") ? "/operator" : "/owner";
-            navigate(`${basePath}/properties`);
-          }}
+          onClick={handleViewProperty}
+          disabled={!propertyInfo}
         >
           مشاهده ملک
         </Button>

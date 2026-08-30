@@ -35,6 +35,7 @@ export const PROPERTY_FORM = {
           type: "select",
           required: true,
           placeholder: "انتخاب نوع",
+          defaultValue: "sale",
           options: [
             { value: "sale", label: "فروش" },
             { value: "rent", label: "اجاره" },
@@ -86,6 +87,7 @@ export const PROPERTY_FORM = {
           asyncSource: API_ENDPOINTS.OWNERS.LIST.url,
           searchFields: ["full_name", "phone"],
           displayField: "full_name",
+          // addAction will be injected by PropertyFormModal
           span: 6,
         },
         {
@@ -115,15 +117,12 @@ export const PROPERTY_FORM = {
       label: "موقعیت مکانی",
       icon: "MapPin",
       fields: [
-        // TODO: check in UI
         {
-          key: "address",
-          label: "آدرس ثبت شده",
-          type: "search_select",
+          key: "location",
+          label: "موقعیت",
+          type: "location_cascade",
+          includeAddress: true,
           required: false,
-          placeholder: "انتخاب آدرس...",
-          asyncSource: API_ENDPOINTS.LOCATIONS.ADDRESSES.LIST.url,
-          displayField: "full_text",
           span: 12,
         },
       ],
@@ -242,17 +241,39 @@ export const PROPERTY_FORM = {
       ],
     },
     {
+      key: "features_tab",
+      label: "امکانات و ویژگی‌ها",
+      icon: "Star",
+      fields: [
+        {
+          key: "features",
+          label: "امکانات و ویژگی‌ها",
+          type: "multi_select",
+          required: false,
+          asyncSource: API_ENDPOINTS.FEATURES.LIST.url,
+          searchFields: ["title"],
+          displayField: "title",
+          valueField: "id",
+          span: 12,
+        },
+      ],
+    },
+    {
       key: "sale_price",
       label: "قیمت و مالی",
       icon: "Banknote",
       fields: [
         {
           key: "sale_price",
-          label: "قیمت کل (تومان)",
+          label: (values) =>
+            values?.deal_type === "exchange"
+              ? "تفاوت قیمت معاوضه (تومان)"
+              : "قیمت کل (تومان)",
           type: "price",
           required: false,
           placeholder: "مثلاً ۵,۰۰۰,۰۰۰,۰۰۰",
-          condition: (values) => values.deal_type === "sale",
+          condition: (values) =>
+            values.deal_type === "sale" || values.deal_type === "exchange",
           span: 12,
         },
         {
@@ -288,12 +309,12 @@ export const PROPERTY_FORM = {
           label: "قیمت هر متر (تومان)",
           type: "price",
           required: false,
-          placeholder: "محاسبه خودکار",
+          placeholder: "محاسبه خودکار یا دستی",
           computed: (values) =>
-            values.sale_price && values.area
+            values.deal_type === "sale" && values.sale_price && values.area
               ? Math.round(values.sale_price / values.area)
               : null,
-          readOnly: true,
+          condition: (values) => values.deal_type === "sale",
           span: 6,
         },
       ],
@@ -382,15 +403,11 @@ export const PROMOTE_LISTING_FORM = {
       span: 6,
     },
     {
-      key: "address",
-      label: "آدرس",
-      type: "search_select",
-      required: false,
-      placeholder: "انتخاب آدرس...",
-      asyncSource: API_ENDPOINTS.LOCATIONS.ADDRESSES.LIST.url,
-      searchFields: ["name", "full_address"],
-      displayField: "name",
-      span: 6,
+      key: "location",
+      label: "موقعیت / آدرس",
+      type: "location_cascade",
+      includeAddress: true,
+      span: 12,
     },
     {
       key: "property_type",
@@ -415,6 +432,18 @@ export const PROMOTE_LISTING_FORM = {
       required: false,
       autoFill: { source: "listing", field: "total_floors", readOnly: false },
       span: 6,
+    },
+    {
+      key: "features",
+      label: "امکانات و ویژگی‌ها",
+      type: "multi_select",
+      required: false,
+      // placeholder: "انتخاب امکانات...",
+      asyncSource: API_ENDPOINTS.FEATURES.LIST.url,
+      searchFields: ["title"],
+      displayField: "title",
+      valueField: "id",
+      span: 12,
     },
   ],
   actions: {

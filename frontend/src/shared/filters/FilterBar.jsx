@@ -14,7 +14,7 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 
-import DatePickerInput from "@/shared/ui/selectors/DatePicker";
+import DateRangePicker from "@/shared/ui/selectors/DateRangePicker";
 import SearchSelect from "@/shared/ui/selectors/SearchSelect";
 import Input from "../ui/Input";
 import Select from "../ui/selectors/Select";
@@ -22,24 +22,11 @@ import MultiSelect from "../ui/selectors/MultiSelect";
 import RangeSelect from "../ui/selectors/RangeSelect";
 import Button from "../ui/Button";
 import Drawer from "../ui/Drawer";
+import LocationCascadeSelect from "@/shared/ui/selectors/LocationCascadeSelect";
 
-const ICONS = {
-  Search,
-  Star,
-  Filter,
-  MapPin,
-  Home,
-  DollarSign,
-  Ruler,
-  Shield,
-  Circle,
-  Image,
-  SlidersHorizontal,
-};
 
 /**
  * FilterBar — dynamic, schema-driven filter bar
- * Compatible with existing Select, MultiSelect, Input, Drawer APIs
  */
 export default function FilterBar({
   schema = [],
@@ -59,7 +46,6 @@ export default function FilterBar({
   const renderField = (field) => {
     const value = filters[field.key];
     const fieldOptions = options[field.optionsKey] || [];
-    const Icon = ICONS[field.icon] || Filter;
 
     switch (field.type) {
       case "search":
@@ -100,7 +86,7 @@ export default function FilterBar({
             <div key={field.key} className="min-w-40">
               <SearchSelect
                 value={value ?? null}
-                onChange={(v) => onChange(field.key, v || null)}
+                onChange={(v, label) => onChange(field.key, v || null, label)}
                 endpoint={field.endpoint}
                 placeholder={field.label || field.placeholder || "جستجو..."}
                 optionLabel={field.optionLabel || "full_name"}
@@ -142,21 +128,24 @@ export default function FilterBar({
           </div>
         );
 
-      case "range":
+      case "range": {
+        const rMin = field.min ?? 0;
+        const rMax = field.max ?? 100;
         return (
-          <div key={field.key} className="min-w-44">
+          <div key={field.key} className="w-64 shrink-0">
             <RangeSelect
               label={field.label}
-              value={value || { min: field.min, max: field.max }}
+              value={value || { min: rMin, max: rMax }}
               onChange={(v) => onChange(field.key, v)}
-              min={field.min}
-              max={field.max}
+              min={rMin}
+              max={rMax}
               step={field.step}
               unit={field.unit}
               size="sm"
             />
           </div>
         );
+      }
 
       case "toggle":
         return (
@@ -173,34 +162,47 @@ export default function FilterBar({
             <span className="text-sm text-foreground">{field.label}</span>
           </label>
         );
-      case "date_range": {
-        const range = value || { from: null, to: null };
+
+      case "date_range":
         return (
-          <div key={field.key} className="flex items-end gap-1.5 min-w-56">
-            <div className="flex-1 min-w-0">
-              <DatePickerInput
-                label={field.label ? `${field.label} از` : "از"}
-                value={range.from || ""}
-                onChange={(v) =>
-                  onChange(field.key, { ...range, from: v || null })
+          <DateRangePicker
+            key={field.key}
+            value={value}
+            onChange={(v) => onChange(field.key, v)}
+            label={field.label}
+          />
+        );
+
+      case "location_cascade":
+        return (
+          <div key={field.key} className="w-full col-span-full">
+            {field.label && (
+              <p className="mb-2 text-xs font-medium text-muted">
+                {field.label}
+              </p>
+            )}
+            <LocationCascadeSelect
+              value={value || {}}
+              onChange={(next) => onChange(field.key, next)}
+              onLabelsChange={(labels) => {
+                // Store labels under a special key for chip display
+                const parts = [];
+                if (labels.province) parts.push(labels.province);
+                if (labels.city) parts.push(labels.city);
+                if (labels.district) parts.push(labels.district);
+                if (labels.neighborhood) parts.push(labels.neighborhood);
+                if (parts.length > 0) {
+                  onChange(field.key, value, parts.join(" › "));
                 }
-                placeholder="از تاریخ"
-              />
-            </div>
-            <div className="flex-1 min-w-0">
-              <DatePickerInput
-                label="تا"
-                value={range.to || ""}
-                onChange={(v) =>
-                  onChange(field.key, { ...range, to: v || null })
-                }
-                placeholder="تا تاریخ"
-              />
-            </div>
+              }}
+              levels={field.levels}
+              includeAddress={field.includeAddress === true}
+              size="sm"
+              layout="grid"
+              clearable
+            />
           </div>
         );
-      }
-
       default:
         return null;
     }
@@ -239,35 +241,31 @@ export default function FilterBar({
         )}
       </div>
 
-      {/* Active chips — always reserve space to prevent layout shift */}
+      {/* Active chips */}
       <div className="min-h-8 flex flex-wrap items-center gap-1.5">
-        {activeChips.length > 0 &&
-          activeChips.map((chip, i) => (
-            <button
-              key={`${chip.key}-${chip.value || i}`}
-              onClick={() => {
-                if (
-                  chip.type === "multiselect" ||
-                  chip.type === "multi_select"
-                ) {
-                  const current = filters[chip.key] || [];
-                  onChange(
-                    chip.key,
-                    current.filter((v) => String(v) !== String(chip.value)),
-                  );
-                } else {
-                  onClear(chip.key);
-                }
-              }}
-              className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-(--role-primary)/10 text-(--role-primary) text-xs font-medium hover:bg-(--role-primary)/20 transition-colors"
-            >
-              {chip.label}
-              <X size={12} />
-            </button>
-          ))}
+        {activeChips.map((chip, i) => (
+          <button
+            key={`${chip.key}-${chip.value || i}`}
+            onClick={() => {
+              if (chip.type === "multiselect" || chip.type === "multi_select") {
+                const current = filters[chip.key] || [];
+                onChange(
+                  chip.key,
+                  current.filter((v) => String(v) !== String(chip.value)),
+                );
+              } else {
+                onClear(chip.key);
+              }
+            }}
+            className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-(--role-primary)/10 text-(--role-primary) text-xs font-medium hover:bg-(--role-primary)/20 transition-colors"
+          >
+            {chip.label}
+            <X size={12} />
+          </button>
+        ))}
       </div>
 
-      {/* Drawer for advanced filters — uses position instead of size */}
+      {/* Drawer for advanced filters */}
       <Drawer
         isOpen={drawerOpen}
         onClose={() => setDrawerOpen(false)}
@@ -279,6 +277,17 @@ export default function FilterBar({
         position="right"
         footer={
           <div className="flex gap-2">
+            {activeChips.length > 0 && (
+              <Button
+                variant="danger"
+                size="sm"
+                onClick={onClearAll}
+                className="gap-1"
+              >
+                <X size={14} />
+                حذف فیلترها
+              </Button>
+            )}
             <Button
               variant="outline"
               size="sm"

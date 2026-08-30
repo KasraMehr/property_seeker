@@ -37,26 +37,41 @@ class ListingListView(generics.ListAPIView):
     required_permission = "view_listing"
     pagination_class = ListingPagination
 
+    #Resolving conflicts here
     def get_queryset(self):
-        queryset = super().get_queryset()
-        raw_types = self.request.query_params.get("advertiser_type", "")
-        if not raw_types:
-            return queryset
-        advertiser_types = {
-            value.strip()
-            for value in raw_types.split(",")
-            if value.strip()
-        }
-        invalid = advertiser_types - set(Listing.AdvertiserType.values)
-        if invalid:
-            raise DRFValidationError(
-                {
-                    "advertiser_type": (
-                        "Allowed values are owner and agency."
-                    )
-                }
+        user = self.request.user
+        qs = (
+            Listing.objects
+            .select_related("source")
+            .order_by("-last_seen_at", "-id")
+        )
+
+        # فیلتر دسترسی بر اساس محله (از frontend-debug)
+        if not user.is_owner:
+            qs = qs.filter(
+                property__address__neighborhood__in=user.service_neighborhoods.all()
             )
-        return queryset.filter(advertiser_type__in=advertiser_types)
+
+        # فیلتر advertiser_type (از master)
+        raw_types = self.request.query_params.get("advertiser_type", "")
+        if raw_types:
+            advertiser_types = {
+                value.strip()
+                for value in raw_types.split(",")
+                if value.strip()
+            }
+            invalid = advertiser_types - set(Listing.AdvertiserType.values)
+            if invalid:
+                raise DRFValidationError(
+                    {
+                        "advertiser_type": (
+                            "Allowed values are owner and agency."
+                        )
+                    }
+                )
+            qs = qs.filter(advertiser_type__in=advertiser_types)
+
+        return qs
 
 
 

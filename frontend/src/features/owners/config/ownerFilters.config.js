@@ -9,6 +9,9 @@ export const OWNER_QUICK_FILTERS = [
     fields: ["full_name", "phone", "national_id", "alternate_phone"],
     placement: "bar",
   },
+];
+
+export const OWNER_ADVANCED_FILTERS = [
   {
     key: "has_alternate_phone",
     label: "دارای شماره تماس جایگزین",
@@ -27,9 +30,6 @@ export const OWNER_QUICK_FILTERS = [
     type: "toggle",
     placement: "drawer",
   },
-];
-
-export const OWNER_ADVANCED_FILTERS = [
   {
     key: "created_by",
     label: "ثبت‌کننده",
@@ -41,7 +41,6 @@ export const OWNER_ADVANCED_FILTERS = [
     optionLabel: "full_name",
     optionValue: "id",
   },
-  
   {
     key: "created_at",
     label: "تاریخ ثبت",
@@ -60,4 +59,7 @@ export const OWNER_ADVANCED_FILTERS = [
   },
 ];
 
-export const OWNER_ALL_FILTERS = [...OWNER_QUICK_FILTERS, ...OWNER_ADVANCED_FILTERS];
+export const OWNER_ALL_FILTERS = [
+  ...OWNER_QUICK_FILTERS,
+  ...OWNER_ADVANCED_FILTERS,
+];

@@ -21,8 +21,8 @@ const bulkDelete = (ids) =>
     data: { ids },
   });
 
-const complete = (id, data) => update(id, { ...data, status: "done" });
-const cancel = (id, data) => update(id, { ...data, status: "canceled" });
+const complete = (id) => update(id, { status: "done" });
+const cancel = (id) => update(id, { status: "canceled" });
 
 const followupService = {
   getAll,

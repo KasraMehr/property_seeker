@@ -44,12 +44,12 @@ export const LISTING_TABLE_COLUMNS = [
     width: "w-28",
     cell: ({ source }) => <SourceBadge source={source?.name || "—"} />,
   },
-  {
-    key: "contact_phone",
-    header: "شماره تماس",
-    width: "w-28",
-    cell: ({ contact_phone }) => contact_phone || "—",
-  },
+  // {
+  //   key: "contact_phone",
+  //   header: "شماره تماس",
+  //   width: "w-28",
+  //   cell: ({ contact_phone }) => contact_phone || "—",
+  // },
   {
     key: "advertiser_type",
     header: "آگهی‌دهنده",
@@ -98,16 +98,16 @@ export const LISTING_TABLE_COLUMNS = [
       <StatusBadge config={buildStatusConfig(LISTING_STATUS_CONFIG, status)} />
     ),
   },
-  // {
-  //   key: "review_status",
-  //   header: "وضعیت بررسی",
-  //   width: "w-28",
-  //   cell: ({ review_status }) => (
-  //     <StatusBadge
-  //       config={buildStatusConfig(LISTING_REVIEW_STATUS_CONFIG, review_status)}
-  //     />
-  //   ),
-  // },
+  {
+    key: "review_status",
+    header: "وضعیت بررسی",
+    width: "w-28",
+    cell: ({ review_status }) => (
+      <StatusBadge
+        config={buildStatusConfig(LISTING_REVIEW_STATUS_CONFIG, review_status)}
+      />
+    ),
+  },
   {
     key: "published_at",
     header: "انتشار آگهی",

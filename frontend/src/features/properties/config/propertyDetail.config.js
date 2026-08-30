@@ -19,18 +19,14 @@ import {
   Star,
   Tag,
 } from "lucide-react";
+import { formatDate } from "@/utils/formatters";
 
 /* ─── Tabs ─── */
 export const PROPERTY_DETAIL_TABS = [
   { key: "details", label: "مشخصات ملک", icon: Home },
-  { key: "status_history", label: "تاریخچه وضعیت", icon: Clock },
-  {
-    key: "change_history",
-    label: "تاریخچه تغییرات",
-    icon: History,
-    permission: "view_property_status_history",
-  },
   { key: "features", label: "امکانات", icon: Star },
+  { key: "status_history", label: "تاریخچه وضعیت", icon: Clock },
+  // { key: "change_history", label: "تاریخچه تغییرات", icon: History }, // [PEND] API نداره
   { key: "media", label: "رسانه", icon: Image },
 ];
 
@@ -165,8 +161,8 @@ export const PROPERTY_DETAIL_FIELDS = [
     section: "dates",
     sectionLabel: "تاریخ‌ها",
     fields: [
-      { key: "created_at", label: "تاریخ ثبت", type: "date" },
-      { key: "updated_at", label: "آخرین بروزرسانی", type: "date" },
+      { key: "created_at", label: "تاریخ ثبت", type: "dateTime" },
+      { key: "updated_at", label: "آخرین بروزرسانی", type: "dateTime" },
     ],
   },
   {
@@ -178,6 +174,7 @@ export const PROPERTY_DETAIL_FIELDS = [
 
 /* ─── Tab 2: Status History ─── */
 export const PROPERTY_STATUS_HISTORY_COLUMNS = [
+  // { key: "property_code", header: "کد ملک", type: "mono" },
   {
     key: "old_status",
     header: "وضعیت قبلی",
@@ -190,8 +187,12 @@ export const PROPERTY_STATUS_HISTORY_COLUMNS = [
     type: "status",
     configKey: "propertyStatus",
   },
-  { key: "changed_by", header: "تغییردهنده", type: "user" },
-  { key: "created_at", header: "زمان", type: "date" },
+  { key: "changed_by", header: "تغییردهنده" },
+  {
+    key: "created_at",
+    header: "زمان",
+    format: (v) => formatDate(v, "long"),
+  },
 ];
 
 /* ─── Tab 3: Change History ─── */
@@ -211,7 +212,7 @@ export const PROPERTY_CHANGE_HISTORY_COLUMNS = [
 
 /* ─── Tab 4: Features ─── */
 export const PROPERTY_FEATURE_COLUMNS = [
-  { key: "feature_id", header: "امکان", type: "nested", nestedKey: "title" },
+  { key: "feature", header: "امکانات ملک" },
 ];
 
 /* ─── Tab 5: Media ─── */
