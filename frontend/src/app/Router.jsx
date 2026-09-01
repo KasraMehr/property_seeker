@@ -17,6 +17,9 @@ import { operatorRoutes } from "@/routes/operatorRoutes";
 import AdminLayout from "@/features/dashboard/layouts/AdminLayout";
 import OperatorLayout from "@/features/dashboard/layouts/OperatorLayout";
 import NotFound from "../features/errors/pages/NotFound";
+import ContactPage from "../features/landing/pages/ContactPage";
+import TermsPage from "../features/landing/pages/TermsPage";
+import PrivacyPage from "../features/landing/pages/PrivacyPage";
 
 // import SelectShowcase from "@/showcases/SelectShowcase";
 // import ModalShowcase from "@/showcases/ModalShowcase";
@@ -39,6 +42,20 @@ export const Router = createBrowserRouter([
         element: <LoginPage />,
       },
     ],
+  },
+
+  // Public pages
+  {
+    path: "/contact",
+    element: <ContactPage />,
+  },
+  {
+    path: "/terms",
+    element: <TermsPage />,
+  },
+  {
+    path: "/privacy",
+    element: <PrivacyPage />,
   },
 
   // ------------ Protected pages

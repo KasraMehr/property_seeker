@@ -2,6 +2,7 @@ import { useMemo, useEffect, useState, useCallback } from "react";
 import { Inbox } from "lucide-react";
 import { useOutletContext } from "react-router-dom";
 import ResourceTemplate from "@/shared/templates/resource/ResourceTemplate";
+import PageTabs from "@/shared/page/PageTabs";
 import useListing from "@/features/listings/hooks/useListing";
 import useListingModals from "@/features/listings/hooks/useListingModals";
 import {
@@ -23,6 +24,7 @@ export default function ListingsPage() {
 
   const {
     data,
+    rawData,
     loading,
     meta,
     filters: filterValues,
@@ -58,6 +60,7 @@ export default function ListingsPage() {
   const [detailLoading, setDetailLoading] = useState(false);
   const [promoteResult, setPromoteResult] = useState(null);
   const [viewProperty, setViewProperty] = useState(null);
+  const [activeTab, setActiveTab] = useState("all");
 
   const [searchInput, setSearchInput] = useState(filterValues.search || "");
   const debouncedSearch = useDebounce(searchInput, 400);
@@ -73,6 +76,29 @@ export default function ListingsPage() {
       setFilter("search", debouncedSearch);
     }
   }, [debouncedSearch, filterValues.search, setFilter]);
+
+  // ─── Tab Filtering (client-side, same pattern as UsersPage) ───
+  const LISTING_TABS = [
+    { id: "all", label: "همه آگهی‌ها" },
+    { id: "agency", label: "آژانس املاک" },
+    { id: "owner", label: "آگهی‌های شخصی" },
+    { id: "pending", label: "در انتظار تشخیص" },
+  ];
+
+  const displayData = useMemo(() => {
+    if (!rawData) return [];
+    if (activeTab === "all") return rawData;
+
+    return rawData.filter((l) => {
+      if (activeTab === "agency") return l.advertiser_type === "agency";
+      if (activeTab === "owner") return l.advertiser_type === "owner";
+      if (activeTab === "pending") return l.advertiser_classification_status === "pending";
+      return true;
+    });
+  }, [rawData, activeTab]);
+
+  // TODO: badge counts from server endpoint
+  const tabItems = LISTING_TABS;
 
   const handleSort = useCallback(
     (key) => {
@@ -203,13 +229,16 @@ export default function ListingsPage() {
 
   return (
     <>
+      <div className="mb-4">
+        <PageTabs items={tabItems} value={activeTab} onChange={setActiveTab} />
+      </div>
       <ResourceTemplate
         search={searchConfig}
         filters={filters}
         count={meta?.count || 0}
         countLabel="آگهی"
         columns={LISTING_TABLE_COLUMNS}
-        data={data}
+        data={displayData}
         loading={loading}
         emptyState={emptyState}
         sort={sort}

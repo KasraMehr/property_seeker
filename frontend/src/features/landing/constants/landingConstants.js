@@ -264,9 +264,9 @@ export const BENEFITS_STRINGS = {
 export const FOOTER_STRINGS = {
   copyright: "تمامی حقوق محفوظ است.",
   links: [
-    { label: "تماس با ما", href: "#contact" },
-    { label: "حریم خصوصی", href: "#" },
-    { label: "قوانین", href: "#" },
+    { label: "تماس با ما", href: "/contact" },
+    { label: "حریم خصوصی", href: "/privacy" },
+    { label: "قوانین", href: "/terms" },
   ],
   disclaimer:
     "دیلان ملک مسئولیت مدیریت اطلاعات فایل، بازاریابی و هماهنگی اولیه را بر عهده دارد. مالکیت، اصالت اسناد و اختیار فروش ملک بر عهده مالک یا مشاور/دارنده مجاز فایل است.",

@@ -26,13 +26,13 @@ export default function Footer() {
           {/* Links */}
           <div className="flex flex-wrap gap-6">
             {FOOTER_STRINGS.links.map((link, index) => (
-              <a
+              <Link
                 key={index}
-                href={link.href}
+                to={link.href}
                 className="text-sm text-muted hover:text-primary transition-colors"
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
           </div>
         </div>
