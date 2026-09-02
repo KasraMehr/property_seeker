@@ -1,14 +1,15 @@
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics, status
-from rest_framework.exceptions import ValidationError as DRFValidationError
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from accounts.permissions import HasRolePermission
 from ingestion.services.promotion import promote_listing
+from listing.filters import ListingFilter
 from listing.models import Listing
 from listing.serializers.listing import (
     BulkListingReviewSerializer,
@@ -24,16 +25,6 @@ class ListingPagination(PageNumberPagination):
     page_size_query_param = "page_size"
     max_page_size = 100
 
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import generics
-from rest_framework.exceptions import ValidationError as DRFValidationError
-
-from listing.filters import ListingFilter
-from listing.models import Listing
-from listing.serializers.listing import ListingListSerializer
-from .pagination import ListingPagination
-from .permissions import HasRolePermission
-
 
 class ListingListView(generics.ListAPIView):
     queryset = (
@@ -42,9 +33,12 @@ class ListingListView(generics.ListAPIView):
         .all()
         .order_by("-last_seen_at", "-id")
     )
+
     serializer_class = ListingListSerializer
+
     permission_classes = (HasRolePermission,)
     required_permission = "view_listing"
+
     pagination_class = ListingPagination
 
     filter_backends = (
@@ -53,8 +47,6 @@ class ListingListView(generics.ListAPIView):
     filterset_class = ListingFilter
 
     def get_queryset(self):
-        user = self.request.user
-
         qs = (
             Listing.objects
             .select_related("source")
@@ -62,14 +54,16 @@ class ListingListView(generics.ListAPIView):
         )
 
         # Only promoted listings will be on operator page
-        # if not user.is_owner:
+        # if not self.request.user.is_owner:
         #     qs = qs.filter(
-        #         property__address__neighborhood__in=user.service_neighborhoods.all()
+        #         property__address__neighborhood__in=(
+        #             self.request.user.service_neighborhoods.all()
+        #         )
         #     )
 
         return qs
 
-
+    
 class ListingDetailView(generics.RetrieveAPIView):
     queryset = Listing.objects.select_related("source").all()
     serializer_class = ListingDetailSerializer
