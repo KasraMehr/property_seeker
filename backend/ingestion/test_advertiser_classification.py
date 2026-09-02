@@ -328,13 +328,13 @@ class AdvertiserClassificationIntegrationTests(TestCase):
         view.request = Request(
             APIRequestFactory().get("/api/listing/", {"advertiser_type": "owner"})
         )
-        self.assertEqual(list(view.get_queryset()), [owner])
+        self.assertEqual(list(view.filter_queryset(view.get_queryset())), [owner])
 
         view.request = Request(
             APIRequestFactory().get("/api/listing/", {"advertiser_type": "invalid"})
         )
         with self.assertRaises(DRFValidationError):
-            view.get_queryset()
+            view.filter_queryset(view.get_queryset())
 
     @patch(
         "ingestion.management.commands.classify_divar_advertisers."
