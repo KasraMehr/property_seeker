@@ -24,6 +24,16 @@ class ListingPagination(PageNumberPagination):
     page_size_query_param = "page_size"
     max_page_size = 100
 
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import generics
+from rest_framework.exceptions import ValidationError as DRFValidationError
+
+from listing.filters import ListingFilter
+from listing.models import Listing
+from listing.serializers.listing import ListingListSerializer
+from .pagination import ListingPagination
+from .permissions import HasRolePermission
+
 
 class ListingListView(generics.ListAPIView):
     queryset = (
@@ -37,9 +47,14 @@ class ListingListView(generics.ListAPIView):
     required_permission = "view_listing"
     pagination_class = ListingPagination
 
-    #Resolving conflicts here
+    filter_backends = (
+        DjangoFilterBackend,
+    )
+    filterset_class = ListingFilter
+
     def get_queryset(self):
         user = self.request.user
+
         qs = (
             Listing.objects
             .select_related("source")
@@ -52,27 +67,7 @@ class ListingListView(generics.ListAPIView):
         #         property__address__neighborhood__in=user.service_neighborhoods.all()
         #     )
 
-        # advertiser_type 
-        raw_types = self.request.query_params.get("advertiser_type", "")
-        if raw_types:
-            advertiser_types = {
-                value.strip()
-                for value in raw_types.split(",")
-                if value.strip()
-            }
-            invalid = advertiser_types - set(Listing.AdvertiserType.values)
-            if invalid:
-                raise DRFValidationError(
-                    {
-                        "advertiser_type": (
-                            "Allowed values are owner and agency."
-                        )
-                    }
-                )
-            qs = qs.filter(advertiser_type__in=advertiser_types)
-
         return qs
-
 
 
 class ListingDetailView(generics.RetrieveAPIView):
