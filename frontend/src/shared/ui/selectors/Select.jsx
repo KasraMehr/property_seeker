@@ -135,7 +135,7 @@ const Select = forwardRef(
                 ? "text-foreground"
                 : isOpen
                   ? "text-muted"
-                  : "text-transparent"
+                  : label ? "text-transparent" : "text-muted"
               }
             `}
           >

@@ -2,6 +2,7 @@ from django.urls import path
 
 from listing.views.views import (
     ListingBulkReviewView,
+    ListingCountsView,
     ListingDetailView,
     ListingListView,
     ListingPromoteView,
@@ -10,6 +11,12 @@ from listing.views.views import (
 
 
 urlpatterns = [
+    path(
+        "counts/",
+        ListingCountsView.as_view(),
+        name="listing-counts",
+    ),
+
     path(
         "list/",
         ListingListView.as_view(),

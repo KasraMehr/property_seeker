@@ -1,66 +1,15 @@
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import useResource from "@/shared/templates/resource/hooks/useResource";
 import useResourceQuery from "@/shared/templates/resource/hooks/useResourceQuery";
 import listingService from "../services/listingService";
 import { LISTING_ALL_FILTERS } from "../config";
 
-function normalizeMulti(value) {
-  if (value == null || value === "") return [];
-  if (Array.isArray(value)) return value.filter(Boolean);
-  return String(value)
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
-}
-
-function applyClientFilters(rows, filters = {}) {
-  if (!Array.isArray(rows) || rows.length === 0) return rows;
-
-  let result = rows;
-
-  const search = (filters.search || "").toString().trim().toLowerCase();
-  if (search) {
-    result = result.filter((row) => {
-      const title = (row.title || "").toLowerCase();
-      const externalId = (row.external_id || "").toLowerCase();
-      return title.includes(search) || externalId.includes(search);
-    });
-  }
-
-  const statuses = normalizeMulti(filters.status);
-  if (statuses.length > 0) {
-    result = result.filter((row) => statuses.includes(row.status));
-  }
-
-  const reviewStatuses = normalizeMulti(filters.review_status);
-  if (reviewStatuses.length > 0) {
-    result = result.filter((row) =>
-      reviewStatuses.includes(row.review_status),
-    );
-  }
-
-  const dealTypes = normalizeMulti(filters.deal_type);
-  if (dealTypes.length > 0) {
-    result = result.filter((row) => {
-      const isSale = row.listed_sale_price != null;
-      const isRent = row.listed_rent_amount != null;
-      return (
-        (dealTypes.includes("sale") && isSale) ||
-        (dealTypes.includes("rent") && isRent)
-      );
-    });
-  }
-
-  const classificationStatuses = normalizeMulti(filters.advertiser_classification_status);
-  if (classificationStatuses.length > 0) {
-    result = result.filter((row) =>
-      classificationStatuses.includes(row.advertiser_classification_status),
-    );
-  }
-
-  return result;
-}
-
+/**
+ * useListing — server-side filtering for all filters.
+ *
+ * advertiser_type is managed separately (via tabs) and injected into
+ * query params but excluded from filter chips / the filter bar.
+ */
 export default function useListing() {
   const { fetchList, getById, remove, ...resourceState } =
     useResource(listingService);
@@ -71,15 +20,23 @@ export default function useListing() {
     initialOrdering: "-last_seen_at",
   });
 
-  // just pagination
-  const serverParams = useMemo(
-    () => ({
-      page: query.page,
-      page_size: query.pageSize,
-    }),
-    [query.page, query.pageSize],
-  );
+  // ─── Tab-driven advertiser_type (server-side, not in filter chips) ───
+  const [advertiserType, setAdvertiserType] = useState(null); // null | "agency" | "owner"
 
+  const resetTab = useCallback(() => {
+    setAdvertiserType(null);
+  }, []);
+
+  // Merge filter params with advertiserType into one params object
+  const serverParams = useMemo(() => {
+    const params = { ...query.queryParams };
+    if (advertiserType) {
+      params.advertiser_type = advertiserType;
+    }
+    return params;
+  }, [query.queryParams, advertiserType]);
+
+  // ─── Fetch on mount ───
   const didFetch = useRef(false);
   useEffect(() => {
     if (!didFetch.current) {
@@ -88,72 +45,42 @@ export default function useListing() {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const prevServerRef = useRef(null);
+  // ─── Refetch when any param changes ───
+  const prevParamsRef = useRef(null);
   useEffect(() => {
     const key = JSON.stringify(serverParams);
-    if (prevServerRef.current !== null && prevServerRef.current !== key) {
+    if (prevParamsRef.current !== null && prevParamsRef.current !== key) {
       fetchList(serverParams);
     }
-    prevServerRef.current = key;
+    prevParamsRef.current = key;
   }, [serverParams, fetchList]);
 
   const refresh = useCallback(() => {
     return fetchList(serverParams);
   }, [fetchList, serverParams]);
 
-  const filteredData = useMemo(
-    () => applyClientFilters(resourceState.data, query.filters),
-    [resourceState.data, query.filters],
-  );
-
-  const review = useCallback(
-    async (listingId, review_status) => {
-      const result = await listingService.review(listingId, review_status);
-      await refresh();
-      return result?.data ?? result;
-    },
-    [refresh],
-  );
-
-  const bulkReview = useCallback(
-    async (listingIds, review_status) => {
-      const result = await listingService.bulkReview(
-        listingIds,
-        review_status,
-      );
-      await refresh();
-      return result?.data ?? result;
-    },
-    [refresh],
-  );
-
-  const promote = useCallback(
-    async (listingId, data) => {
-      const result = await listingService.promote(listingId, data);
-      await refresh();
-      return result?.data ?? result;
-    },
-    [refresh],
-  );
-
   return {
     ...resourceState,
-    data: filteredData,
-    rawData: resourceState.data,
+    data: resourceState.data,
 
     fetchList,
     getById,
     remove,
     refresh,
 
+    // Filters (server-side via useResourceQuery)
     filters: query.filters,
     setFilter: query.setFilter,
     clearFilter: query.clearFilter,
     clearAll: query.clearAll,
     activeChips: query.activeChips,
     activeCount: query.activeCount,
+
+    // Ordering
     ordering: query.ordering,
     setOrdering: query.setOrdering,
+
+    // Pagination
     page: query.page,
     setPage: query.setPage,
     pageSize: query.pageSize,
@@ -161,8 +88,9 @@ export default function useListing() {
     queryParams: query.queryParams,
     totalPages: (count) => query.totalPages(count),
 
-    review,
-    bulkReview,
-    promote,
+    // Tab / advertiser type
+    advertiserType,
+    setAdvertiserType,
+    resetTab,
   };
 }

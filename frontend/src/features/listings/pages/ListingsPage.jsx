@@ -18,13 +18,21 @@ import PromoteSuccessModal from "@/features/listings/components/PromoteSuccessMo
 import ChangeReviewStatusModal from "@/features/listings/components/ChangeReviewStatusModal";
 import PropertyDetailModal from "@/features/properties/components/PropertyDetailModal";
 import CallFormModal from "@/features/calls/components/CallFormModal";
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
+import api from "@/lib/api";
+
+/** Tabs map to server-side advertiser_type filter */
+const LISTING_TABS = [
+  { id: "all", label: "همه آگهی‌ها" },
+  { id: "agency", label: "آژانس املاک" },
+  { id: "owner", label: "آگهی‌های شخصی" },
+];
 
 export default function ListingsPage() {
   const { setPageHeader } = useOutletContext();
 
   const {
     data,
-    rawData,
     loading,
     meta,
     filters: filterValues,
@@ -40,6 +48,8 @@ export default function ListingsPage() {
     totalPages,
     getById,
     refresh,
+    advertiserType,
+    setAdvertiserType,
   } = useListing();
 
   const {
@@ -60,8 +70,52 @@ export default function ListingsPage() {
   const [detailLoading, setDetailLoading] = useState(false);
   const [promoteResult, setPromoteResult] = useState(null);
   const [viewProperty, setViewProperty] = useState(null);
-  const [activeTab, setActiveTab] = useState("all");
 
+  // ─── Tab → advertiser_type (server-side) ───
+  const handleTabChange = useCallback(
+    (tabId) => {
+      setAdvertiserType(tabId === "all" ? null : tabId);
+    },
+    [setAdvertiserType],
+  );
+
+  // ─── Tab badge counts from server ───
+  const [tabCounts, setTabCounts] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadCounts() {
+      try {
+        const res = await api.get(API_ENDPOINTS.LISTINGS.COUNTS.url);
+        if (!cancelled) setTabCounts(res.data);
+      } catch {
+        // silent — badges stay empty
+      }
+    }
+    loadCounts();
+    return () => { cancelled = true; };
+  }, []);
+
+  // Refresh counts after data mutations (refresh changes table count)
+  useEffect(() => {
+    if (meta?.count != null) {
+      let cancelled = false;
+      api.get(API_ENDPOINTS.LISTINGS.COUNTS.url)
+        .then((res) => { if (!cancelled) setTabCounts(res.data); })
+        .catch(() => {});
+      return () => { cancelled = true; };
+    }
+  }, [meta?.count]);
+
+  const tabItems = useMemo(
+    () => LISTING_TABS.map((t) => ({
+      ...t,
+      badge: tabCounts ? (tabCounts[t.id] ?? 0) : undefined,
+    })),
+    [tabCounts],
+  );
+
+  // ─── Search ───
   const [searchInput, setSearchInput] = useState(filterValues.search || "");
   const debouncedSearch = useDebounce(searchInput, 400);
 
@@ -77,29 +131,15 @@ export default function ListingsPage() {
     }
   }, [debouncedSearch, filterValues.search, setFilter]);
 
-  // ─── Tab Filtering (client-side, same pattern as UsersPage) ───
-  const LISTING_TABS = [
-    { id: "all", label: "همه آگهی‌ها" },
-    { id: "agency", label: "آژانس املاک" },
-    { id: "owner", label: "آگهی‌های شخصی" },
-    { id: "pending", label: "در انتظار تشخیص" },
-  ];
+  // ─── Async filter options ───
+  const [filterOptions, setFilterOptions] = useState({});
 
-  const displayData = useMemo(() => {
-    if (!rawData) return [];
-    if (activeTab === "all") return rawData;
+  useEffect(() => {
+    // No async filter endpoints needed yet (source list endpoint doesn't exist)
+    // Placeholder for future async filters
+  }, []);
 
-    return rawData.filter((l) => {
-      if (activeTab === "agency") return l.advertiser_type === "agency";
-      if (activeTab === "owner") return l.advertiser_type === "owner";
-      if (activeTab === "pending") return l.advertiser_classification_status === "pending";
-      return true;
-    });
-  }, [rawData, activeTab]);
-
-  // TODO: badge counts from server endpoint
-  const tabItems = LISTING_TABS;
-
+  // ─── Sort ───
   const handleSort = useCallback(
     (key) => {
       const dir = sort?.key === key && sort?.dir === "asc" ? "desc" : "asc";
@@ -108,6 +148,7 @@ export default function ListingsPage() {
     [sort, setOrdering],
   );
 
+  // ─── Row actions ───
   const handleOpenDetail = useCallback(
     async (row) => {
       setDetailLoading(true);
@@ -128,13 +169,11 @@ export default function ListingsPage() {
 
   const handleOpenPromote = useCallback(
     async (row) => {
-      // Fetch full listing detail so auto-fill fields are available
       try {
         const full = await getById(row.id);
         openPromote(full?.data ?? full);
       } catch (err) {
         console.error(err);
-        // Fallback: open with whatever data we have
         openPromote(row);
       }
     },
@@ -166,17 +205,18 @@ export default function ListingsPage() {
     [handleOpenDetail, openRegisterCall, handleOpenPromote, openReviewStatus],
   );
 
+  // ─── Filters ───
   const filters = useMemo(
     () => ({
       schema: (LISTING_ALL_FILTERS || []).filter((f) => f.type !== "search"),
-      options: {},
+      options: filterOptions,
       values: filterValues,
       onChange: setFilter,
       onClear: clearFilter,
       onClearAll: clearAll,
       activeChips,
     }),
-    [filterValues, setFilter, clearFilter, clearAll, activeChips],
+    [filterValues, setFilter, clearFilter, clearAll, activeChips, filterOptions],
   );
 
   const searchConfig = useMemo(
@@ -201,7 +241,7 @@ export default function ListingsPage() {
   useEffect(() => {
     setPageHeader({
       title: "آگهی‌ها",
-      subtitle: "آگهی‌های استخراج‌شده  ",
+      subtitle: "آگهی‌های استخراج‌شده",
       breadcrumb: [],
     });
     return () => setPageHeader(null);
@@ -230,7 +270,11 @@ export default function ListingsPage() {
   return (
     <>
       <div className="mb-4">
-        <PageTabs items={tabItems} value={activeTab} onChange={setActiveTab} />
+        <PageTabs
+          items={tabItems}
+          value={advertiserType ?? "all"}
+          onChange={handleTabChange}
+        />
       </div>
       <ResourceTemplate
         search={searchConfig}
@@ -238,7 +282,7 @@ export default function ListingsPage() {
         count={meta?.count || 0}
         countLabel="آگهی"
         columns={LISTING_TABLE_COLUMNS}
-        data={displayData}
+        data={data}
         loading={loading}
         emptyState={emptyState}
         sort={sort}

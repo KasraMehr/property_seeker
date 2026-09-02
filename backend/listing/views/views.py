@@ -1,5 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics, status
@@ -168,6 +169,29 @@ class ListingBulkReviewView(APIView):
             },
             status=status.HTTP_200_OK,
         )
+
+
+class ListingCountsView(APIView):
+    """Return counts per advertiser_type for tab badges."""
+    permission_classes = (HasRolePermission,)
+    required_permission = "view_listing"
+
+    def get(self, request):
+        qs = Listing.objects.all()
+
+        counts = (
+            qs.values("advertiser_type")
+            .annotate(count=Count("id"))
+        )
+
+        result = {row["advertiser_type"]: row["count"] for row in counts}
+
+        return Response({
+            "all": qs.count(),
+            "agency": result.get("agency", 0),
+            "owner": result.get("owner", 0),
+            "pending": result.get(None, 0),
+        })
 
 
 class ListingPromoteView(APIView):

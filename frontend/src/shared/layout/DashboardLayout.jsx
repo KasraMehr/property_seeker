@@ -73,7 +73,7 @@ export default function DashboardLayout({
           />
 
           {/* Page content */}
-          <div className="relative z-10 mx-auto w-full max-w-7xl">
+          <div className="relative mx-auto w-full max-w-7xl">
             <Outlet
               context={{
                 setPageHeader,

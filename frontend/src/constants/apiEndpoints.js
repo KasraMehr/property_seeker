@@ -378,6 +378,11 @@ export const API_ENDPOINTS = {
       method: "POST",
       status: "[OK]",
     }),
+    COUNTS: {
+      url: `${API_BASE}/listing/counts/`,
+      method: "GET",
+      status: "[OK]",
+    },
   },
 
   // 7. CRM

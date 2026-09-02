@@ -178,7 +178,7 @@ export default function LocationLevelPanel({ levelKey, onRegisterCreate }) {
     () => (
       <div className="py-12 text-center space-y-3">
         <Inbox size={48} className="mx-auto text-muted/40" />
-        <p className="text-sm font-medium">{level.label}ی یافت نشد</p>
+        <p className="text-sm font-medium">{level.label}ی یافت نشد </p>
         <Button variant="outline" size="sm" onClick={() => setFormRecord({})}>
           <Plus size={14} className="ml-1" />
           ثبت {level.label} جدید
