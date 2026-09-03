@@ -1,5 +1,5 @@
 import { useMemo, useState, useCallback, useEffect } from "react";
-import { Plus, Eye, CheckCircle2, XCircle, Clock, Trash2 } from "lucide-react";
+import { Plus, Eye, Pencil, CheckCircle2, XCircle, Clock, Trash2 } from "lucide-react";
 import { useOutletContext } from "react-router-dom";
 import useAuth from "@/features/auth/hooks/useAuth";
 import ResourceTemplate from "@/shared/templates/resource/ResourceTemplate";
@@ -22,7 +22,7 @@ const FOLLOWUP_ROW_ACTIONS = {
     {
       key: "edit",
       label: "ویرایش",
-      icon: Eye,
+      icon: Pencil,
       visible: (row) => row.status === "pending",
     },
     {
@@ -47,6 +47,12 @@ const FOLLOWUP_ROW_ACTIONS = {
   ],
   operator: [
     { key: "view", label: "مشاهده", icon: Eye },
+    {
+      key: "edit",
+      label: "ویرایش",
+      icon: Pencil,
+      visible: (row) => row.status === "pending",
+    },
     {
       key: "complete",
       label: "انجام شد",
@@ -262,6 +268,30 @@ export default function FollowupsPage() {
     [searchInput],
   );
 
+  /* ─── Sorted data: today first → upcoming → past/canceled last ─── */
+  const sortedData = useMemo(() => {
+    if (!data?.length) return data;
+    const now = new Date();
+    const todayStr = now.toDateString();
+
+    const getSortWeight = (item) => {
+      if (item.status !== "pending") return 3; // done/canceled → last
+      const due = new Date(item.due_at);
+      const dueStr = due.toDateString();
+      if (dueStr === todayStr) return 0; // today → first
+      if (due > now) return 1; // upcoming → second
+      return 2; // overdue → third
+    };
+
+    return [...data].sort((a, b) => {
+      const wa = getSortWeight(a);
+      const wb = getSortWeight(b);
+      if (wa !== wb) return wa - wb;
+      // within same group, sort by due_at ascending
+      return new Date(a.due_at) - new Date(b.due_at);
+    });
+  }, [data]);
+
   /* ─── Empty ─── */
   const emptyState = useMemo(
     () => (
@@ -300,7 +330,7 @@ export default function FollowupsPage() {
         count={meta?.count || 0}
         countLabel="پیگیری"
         columns={tableColumns}
-        data={data}
+        data={sortedData}
         loading={loading}
         emptyState={emptyState}
         sort={sort}
@@ -352,6 +382,10 @@ export default function FollowupsPage() {
           isOpen={!!detailFollowup}
           onClose={() => setDetailFollowup(null)}
           followup={detailFollowup}
+          onEdit={(item) => {
+            setDetailFollowup(null);
+            setEditFollowup(item);
+          }}
           onMarkDone={(item) => {
             setPendingComplete(item);
             setDetailFollowup(null);
