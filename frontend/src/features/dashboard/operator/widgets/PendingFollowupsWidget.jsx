@@ -6,14 +6,30 @@ import { buildStatusConfig } from "@/constants/status.utils";
 import { FOLLOWUP_STATUS_CONFIG } from "@/features/followups/config";
 import { formatDateTime } from "@/utils/formatters";
 
+const isToday = (dateStr) => {
+  if (!dateStr) return false;
+  return new Date(dateStr).toDateString() === new Date().toDateString();
+};
+
+const isOverdue = (dateStr, status) => {
+  if (!dateStr || status !== "pending") return false;
+  const d = new Date(dateStr);
+  return d < new Date() && !isToday(dateStr);
+};
+
 const FOLLOWUP_COLUMNS = [
   {
     key: "title",
     header: "عنوان",
-    cell: ({ title, description }) => (
-      <div>
-        <p className="text-sm font-medium">{title}</p>
-        <p className="text-xs text-muted line-clamp-1">{description || "—"}</p>
+    cell: ({ title, description, due_at, status }) => (
+      <div className="flex items-center gap-1.5">
+        {isToday(due_at) && status === "pending" && (
+          <span className="shrink-0 w-2 h-2 rounded-full bg-amber-500" title="موعد امروز" />
+        )}
+        <div>
+          <p className="text-sm font-medium">{title}</p>
+          <p className="text-xs text-muted line-clamp-1">{description || "—"}</p>
+        </div>
       </div>
     ),
   },
@@ -21,10 +37,24 @@ const FOLLOWUP_COLUMNS = [
     key: "due_at",
     header: "تاریخ",
     width: "w-32",
-    cell: ({ due_at }) => (
-      <span className="text-sm flex items-center justify-center gap-1">
-        <CalendarCheck className="w-3.5 h-3.5 text-muted" />
+    cell: ({ due_at, status }) => (
+      <span
+        className={`text-sm flex items-center justify-center gap-1 ${
+          isOverdue(due_at, status)
+            ? "text-danger font-semibold"
+            : isToday(due_at) && status === "pending"
+              ? "text-amber-600 font-semibold"
+              : ""
+        }`}
+      >
+        <CalendarCheck className="w-3.5 h-3.5" />
         {formatDateTime(due_at)}
+        {isOverdue(due_at, status) && (
+          <span className="text-xs text-danger">(گذشته)</span>
+        )}
+        {isToday(due_at) && status === "pending" && (
+          <span className="text-xs text-amber-600">(امروز)</span>
+        )}
       </span>
     ),
   },
@@ -43,7 +73,15 @@ const FOLLOWUP_COLUMNS = [
 ];
 
 export default function PendingFollowupsWidget({ followups, loading }) {
-  const pending = followups.filter((f) => f.status === "pending").slice(0, 5);
+  const pending = followups
+    .filter((f) => f.status === "pending")
+    .sort((a, b) => {
+      const aToday = isToday(a.due_at) ? 0 : 1;
+      const bToday = isToday(b.due_at) ? 0 : 1;
+      if (aToday !== bToday) return aToday - bToday;
+      return new Date(a.due_at) - new Date(b.due_at);
+    })
+    .slice(0, 5);
 
   return (
     <div className="bg-surface rounded-2xl border border-border shadow-sm p-5 space-y-4 flex flex-col h-105">

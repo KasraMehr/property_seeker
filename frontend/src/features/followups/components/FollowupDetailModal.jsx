@@ -18,6 +18,7 @@ export default function FollowupDetailModal({
   onClose,
   followup,
   onMarkDone, // اختیاری: اگر از بیرون بخوای mark done کنی
+  onEdit,
 }) {
   const [activeTab, setActiveTab] = useState("details");
 
@@ -137,6 +138,16 @@ export default function FollowupDetailModal({
         <Button variant="outline" size="sm" onClick={onClose}>
           بستن
         </Button>
+
+        {onEdit && (
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => onEdit(followup)}
+          >
+            ویرایش
+          </Button>
+        )}
 
         {followup.status === "pending" && onMarkDone && (
           <Button

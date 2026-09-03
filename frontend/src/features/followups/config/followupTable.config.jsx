@@ -23,18 +23,26 @@ export const FOLLOWUP_TABLE_COLUMNS = [
     header: "عنوان وظیفه",
     width: "w-48",
     searchable: true,
-    cell: ({ title, description }) => (
-      <div className="flex flex-col">
-        <span className="font-medium text-sm truncate max-w-45" title={title}>
-          {title}
-        </span>
-        {description && (
-          <span className="text-xs text-muted-foreground truncate max-w-45">
-            {description}
-          </span>
-        )}
-      </div>
-    ),
+    cell: ({ title, description, due_at, status }) => {
+      const isToday = status === "pending" && due_at && new Date(due_at).toDateString() === new Date().toDateString();
+      return (
+        <div className="flex flex-col">
+          <div className="flex items-center gap-1.5">
+            {isToday && (
+              <span className="shrink-0 w-2 h-2 rounded-full bg-amber-500" title="موعد امروز" />
+            )}
+            <span className="font-medium text-sm truncate max-w-45" title={title}>
+              {title}
+            </span>
+          </div>
+          {description && (
+            <span className="text-xs text-muted-foreground truncate max-w-45">
+              {description}
+            </span>
+          )}
+        </div>
+      );
+    },
   },
   {
     key: "type",
@@ -92,14 +100,26 @@ export const FOLLOWUP_TABLE_COLUMNS = [
     header: "موعد انجام",
     width: "w-32",
     cell: ({ due_at, status }) => {
-      const isOverdue = status === "pending" && new Date(due_at) < new Date();
+      const dueDate = new Date(due_at);
+      const now = new Date();
+      const isOverdue = status === "pending" && dueDate < now && dueDate.toDateString() !== now.toDateString();
+      const isToday = status === "pending" && dueDate.toDateString() === now.toDateString();
       return (
         <span
-          className={`text-sm ${isOverdue ? "text-danger font-semibold" : ""}`}
+          className={`text-sm ${
+            isOverdue
+              ? "text-danger font-semibold"
+              : isToday
+                ? "text-amber-600 font-semibold"
+                : ""
+          }`}
         >
           {formatDateTime(due_at)}
           {isOverdue && (
             <span className="text-xs text-danger mr-1">(گذشته)</span>
+          )}
+          {isToday && (
+            <span className="text-xs text-amber-600 mr-1">(امروز)</span>
           )}
         </span>
       );

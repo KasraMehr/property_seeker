@@ -9,7 +9,7 @@ export default function useFollowup() {
   const query = useResourceQuery({
     filterSchema: FOLLOWUP_ALL_FILTERS,
     pageSize: 25,
-    initialOrdering: "-due_at",
+    initialOrdering: "due_at",
   });
 
   const didFetch = useRef(false);

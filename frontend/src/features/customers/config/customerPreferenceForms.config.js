@@ -39,7 +39,7 @@ export const CUSTOMER_PREFERENCE_FORM = {
           label: "نوع ملک",
           type: "text",
           required: false,
-          placeholder: "آپارتن، ویلایی، اداری...",
+          placeholder: "آپارتمان، ویلایی، اداری...",
           span: 6,
         },
       ],
