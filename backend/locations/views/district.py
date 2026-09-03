@@ -21,6 +21,8 @@ class DistrictListCreateView(APIView):
         "POST": "locations.add_district",
     }
 
+    serializer_class = DistrictCreateSerializer
+
     def get(self, request):
 
         districts = DistrictSelector.all()
