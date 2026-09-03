@@ -162,14 +162,25 @@ class Property(models.Model):
             cls.objects
             .select_for_update()
             .filter(agency=agency)
-            .order_by("-property_code")
+            .order_by("-id")
             .first()
         )
 
-        if last_property:
-            last_number = int(last_property.property_code)
+        if not last_property:
+            return "000001"
+
+        code = last_property.property_code
+
+        if code.startswith("PR-"):
+            try:
+                last_number = int(code.split("-")[-1])
+            except (ValueError, AttributeError):
+                last_number = 0
         else:
-            last_number = 0
+            try:
+                last_number = int(code)
+            except (ValueError, TypeError):
+                last_number = 0
 
         return f"{last_number + 1:06d}"
 
