@@ -158,22 +158,20 @@ class Property(models.Model):
 
     @classmethod
     def generate_property_code(cls, agency):
-
-        year = timezone.now().year
-
         last_property = (
-            cls.objects.select_for_update()
-            .filter(agency=agency, property_code__startswith=f"PR-{year}-")
+            cls.objects
+            .select_for_update()
+            .filter(agency=agency)
             .order_by("-property_code")
             .first()
         )
 
         if last_property:
-            last_number = int(last_property.property_code.split("-")[-1])
+            last_number = int(last_property.property_code)
         else:
             last_number = 0
 
-        return f"PR-{year}-{last_number + 1:06d}"
+        return f"{last_number + 1:06d}"
 
     def save(self, *args, **kwargs):
 
