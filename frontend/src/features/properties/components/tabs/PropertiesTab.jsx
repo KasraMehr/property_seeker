@@ -14,6 +14,7 @@ import ConfirmModal from "@/shared/ui/modal/ConfirmModal";
 import Button from "@/shared/ui/Button";
 import PropertyDetailModal from "@/features/properties/components/PropertyDetailModal";
 import PropertyFormModal from "@/features/properties/components/PropertyFormModal";
+import ChangePropertyStatusModal from "@/features/properties/components/ChangePropertyStatusModal";
 import CallFormModal from "@/features/calls/components/CallFormModal";
 import { toastService } from "@/lib/toast";
 
@@ -45,6 +46,7 @@ export default function PropertiesTab({ onHeaderStateChange }) {
   const [detailLoading, setDetailLoading] = useState(false);
   const [formProperty, setFormProperty] = useState(null);
   const [callProperty, setCallProperty] = useState(null);
+  const [statusProperty, setStatusProperty] = useState(null);
   const [pendingDeleteIds, setPendingDeleteIds] = useState(null);
 
   /* ─── Header Actions ─── */
@@ -123,6 +125,9 @@ export default function PropertiesTab({ onHeaderStateChange }) {
           break;
         case "register_call":
           setCallProperty(row);
+          break;
+        case "change_status":
+          setStatusProperty(row);
           break;
         case "delete":
           setPendingDeleteIds([row.id]);
@@ -276,6 +281,16 @@ export default function PropertiesTab({ onHeaderStateChange }) {
         onClose={() => setCallProperty(null)}
         extraData={{ property: callProperty }}
         onSuccess={() => setCallProperty(null)}
+      />
+
+      <ChangePropertyStatusModal
+        isOpen={!!statusProperty}
+        onClose={() => setStatusProperty(null)}
+        properties={statusProperty ? [statusProperty] : []}
+        onSuccess={() => {
+          setStatusProperty(null);
+          refresh?.();
+        }}
       />
 
       <ConfirmModal

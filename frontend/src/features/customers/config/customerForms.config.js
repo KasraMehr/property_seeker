@@ -110,3 +110,37 @@ export const CUSTOMER_FORM = {
     cancel: { label: "انصراف", variant: "ghost" },
   },
 };
+
+/**
+ * Change Customer Status Form
+ * Used in: Row action for customers
+ * Backend: PATCH /api/customers/<id>/ with { status } (partial update)
+ */
+export const CHANGE_CUSTOMER_STATUS_FORM = {
+  title: "تغییر وضعیت",
+  description: "وضعیت مشتری(های) انتخاب‌شده را تغییر دهید",
+  tabs: null,
+  fields: [
+    {
+      key: "status",
+      label: "وضعیت",
+      type: "select",
+      required: true,
+      placeholder: "انتخاب وضعیت",
+      options: [
+        { value: "new", label: "جدید" },
+        { value: "contacted", label: "تماس گرفته شده" },
+        { value: "interested", label: "علاقه‌مند" },
+        { value: "negotiation", label: "مذاکره" },
+        { value: "closed", label: "بسته شده" },
+        { value: "lost", label: "از دست رفته" },
+      ],
+      validation: { required: "وضعیت الزامی است" },
+      span: 12,
+    },
+  ],
+  actions: {
+    submit: { label: "ذخیره تغییرات", variant: "primary" },
+    cancel: { label: "انصراف", variant: "ghost" },
+  },
+};

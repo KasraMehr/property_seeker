@@ -1,4 +1,4 @@
-import { Eye, Pencil, Trash2, Phone } from "lucide-react";
+import { Eye, Pencil, Trash2, Phone, ClipboardCheck } from "lucide-react";
 import { PERMISSIONS } from "@/constants/permissions";
 
 export const PROPERTY_ROW_ACTIONS = [
@@ -28,6 +28,15 @@ export const PROPERTY_ROW_ACTIONS = [
     type: "row",
     permission: null,
     modal: "register_call",
+  },
+  {
+    key: "change_status",
+    label: " تغییر وضعیت ملک",
+    icon: ClipboardCheck,
+    variant: "outline",
+    type: "row",
+    permission: PERMISSIONS.PROPERTY?.CHANGE ?? null,
+    modal: "change_status",
   },
   {
     key: "delete",

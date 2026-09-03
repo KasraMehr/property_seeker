@@ -1,5 +1,5 @@
 
-import { Eye, Pencil, Trash2, Phone, Heart } from "lucide-react";
+import { Eye, Pencil, Trash2, Phone, Heart, ClipboardCheck } from "lucide-react";
 import { PERMISSIONS } from "@/constants/permissions";
 
 export const CUSTOMER_ROW_ACTIONS = [
@@ -38,6 +38,15 @@ export const CUSTOMER_ROW_ACTIONS = [
     type: "row",
     permission: null,
     modal: "add_preference",
+  },
+  {
+    key: "change_status",
+    label: "تغییر وضعیت مشتری",
+    icon: ClipboardCheck,
+    variant: "outline",
+    type: "row",
+    permission: PERMISSIONS?.CUSTOMER?.CHANGE || null,
+    modal: "change_status",
   },
   {
     key: "delete",

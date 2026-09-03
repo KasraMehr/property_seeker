@@ -328,10 +328,38 @@ export const PROPERTY_FORM = {
 
 /**
  * Change Property Status Form
- * DISABLED: No backend endpoint for bulk status change exists.
- * Re-enable when backend implements: PUT /api/property/bulk-change-status/
+ * Used in: Row action for properties
+ * Backend: PATCH /api/property/update/<id>/ with { status }
+ * PropertyUpdateSerializer records PropertyStatusHistory automatically.
+ * Single row action only — bulk requires a dedicated bulk endpoint.
  */
-// export const CHANGE_PROPERTY_STATUS_FORM = { ... };
+export const CHANGE_PROPERTY_STATUS_FORM = {
+  title: "تغییر وضعیت",
+  description: "وضعیت ملک(های) انتخاب‌شده را تغییر دهید",
+  tabs: null,
+  fields: [
+    {
+      key: "status",
+      label: "وضعیت",
+      type: "select",
+      required: true,
+      placeholder: "انتخاب وضعیت",
+      options: [
+        { value: "available", label: "موجود" },
+        { value: "reserved", label: "رزرو شده" },
+        { value: "sold", label: "فروخته شده" },
+        { value: "rented", label: "اجاره داده شده" },
+        { value: "archived", label: "آرشیو" },
+      ],
+      validation: { required: "وضعیت الزامی است" },
+      span: 12,
+    },
+  ],
+  actions: {
+    submit: { label: "ذخیره تغییرات", variant: "primary" },
+    cancel: { label: "انصراف", variant: "ghost" },
+  },
+};
 
 /**
  * Assign Agent Form

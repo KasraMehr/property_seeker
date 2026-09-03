@@ -17,6 +17,7 @@ import ConfirmModal from "@/shared/ui/modal/ConfirmModal";
 import CustomerFormModal from "../components/CustomerFormModal";
 import CustomerDetailModal from "../components/CustomerDetailModal";
 import CustomerPreferenceFormModal from "../components/CustomerPreferenceFormModal";
+import ChangeCustomerStatusModal from "../components/ChangeCustomerStatusModal";
 import CallFormModal from "@/features/calls/components/CallFormModal";
 import useAuth from "@/features/auth/hooks/useAuth";
 import { toastService } from "@/lib/toast";
@@ -52,6 +53,7 @@ export default function CustomersPage() {
   const [pendingAction, setPendingAction] = useState(null);
   const [registerCallCustomer, setRegisterCallCustomer] = useState(null);
   const [addPreferenceCustomerId, setAddPreferenceCustomerId] = useState(null);
+  const [statusCustomer, setStatusCustomer] = useState(null);
 
   /* ─── Page Header ─── */
   useEffect(() => {
@@ -132,6 +134,11 @@ export default function CustomersPage() {
 
         case "add_preference": {
           setAddPreferenceCustomerId(row.id);
+          break;
+        }
+
+        case "change_status": {
+          setStatusCustomer(row);
           break;
         }
 
@@ -302,6 +309,17 @@ export default function CustomersPage() {
         onClose={() => setAddPreferenceCustomerId(null)}
         customerId={addPreferenceCustomerId}
         onSuccess={refresh}
+      />
+
+      {/* Change Status Modal */}
+      <ChangeCustomerStatusModal
+        isOpen={!!statusCustomer}
+        onClose={() => setStatusCustomer(null)}
+        customers={statusCustomer ? [statusCustomer] : []}
+        onSuccess={() => {
+          setStatusCustomer(null);
+          refresh();
+        }}
       />
     </>
   );
