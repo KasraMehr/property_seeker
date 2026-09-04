@@ -112,10 +112,10 @@ export const LISTING_DETAIL_FIELDS = [
         type: "status",
         configKey: "listingAdvertiserClassificationStatus",
       },
-      {
-        key: "advertiser_classification_model",
-        label: "مدل تشخیص",
-      },
+      // {
+      //   key: "advertiser_classification_model",
+      //   label: "مدل تشخیص",
+      // },
     ],
   },
   {
