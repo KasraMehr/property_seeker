@@ -28,12 +28,14 @@ class ScrapeTargetAdmin(admin.ModelAdmin):
     list_display = (
         "name",
         "source",
+        "listing_category",
+        "zone",
         "enabled",
         "discovery_interval_minutes",
         "last_discovery_at",
         "last_full_discovery_at",
     )
-    list_filter = ("source", "enabled")
+    list_filter = ("source", "listing_category", "zone", "enabled")
     search_fields = ("name", "search_url")
     actions = ("enqueue_full_ingestion", "enqueue_incremental_discovery")
 

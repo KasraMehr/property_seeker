@@ -22,6 +22,7 @@ class PropertyDetailSerializer(serializers.ModelSerializer):
         source="agency.name",
         read_only=True,
     )
+    divar_neighborhood = serializers.SerializerMethodField()
 
     class Meta:
         model = Property
@@ -32,6 +33,7 @@ class PropertyDetailSerializer(serializers.ModelSerializer):
             "phone",
             "agent",
             "address",
+            "divar_neighborhood",
             "agency",
             "create_by",
             "title",
@@ -57,3 +59,16 @@ class PropertyDetailSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         )
+
+    def get_divar_neighborhood(self, obj):
+        item = obj.divar_neighborhood
+        if not item:
+            return None
+        return {
+            "id": item.id,
+            "name": item.name,
+            "zone": item.zone_id,
+            "zone_name": item.zone.name if item.zone_id else None,
+            "city": item.city_id,
+            "city_name": item.city.name,
+        }

@@ -13,12 +13,15 @@ class SourceSerializer(serializers.ModelSerializer):
 
 class ListingListSerializer(serializers.ModelSerializer):
     source = SourceSerializer(read_only=True)
+    divar_neighborhood = serializers.SerializerMethodField()
 
     class Meta:
         model = Listing
         fields = (
             "id",
             "source",
+            "category",
+            "divar_neighborhood",
             "external_id",
             "url",
             "status",
@@ -34,15 +37,29 @@ class ListingListSerializer(serializers.ModelSerializer):
             "last_seen_at",
         )
 
+    def get_divar_neighborhood(self, obj):
+        item = obj.divar_neighborhood
+        if not item:
+            return None
+        return {
+            "id": item.id,
+            "name": item.name,
+            "zone": item.zone_id,
+            "zone_name": item.zone.name if item.zone_id else None,
+        }
+
 
 class ListingDetailSerializer(serializers.ModelSerializer):
     source = SourceSerializer(read_only=True)
+    divar_neighborhood = serializers.SerializerMethodField()
 
     class Meta:
         model = Listing
         fields = (
             "id",
             "source",
+            "category",
+            "divar_neighborhood",
             "external_id",
             "url",
             "status",
@@ -82,6 +99,19 @@ class ListingDetailSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         )
+
+    def get_divar_neighborhood(self, obj):
+        item = obj.divar_neighborhood
+        if not item:
+            return None
+        return {
+            "id": item.id,
+            "name": item.name,
+            "zone": item.zone_id,
+            "zone_name": item.zone.name if item.zone_id else None,
+            "city": item.city_id,
+            "city_name": item.city.name,
+        }
 
 
 class ListingStatusHistorySerializer(serializers.ModelSerializer):

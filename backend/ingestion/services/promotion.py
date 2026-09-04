@@ -45,6 +45,7 @@ def promote_listing(
         agent=actor,
         create_by=actor,
         address=address,
+        divar_neighborhood=listing.divar_neighborhood,
         title=title or listing.title,
         property_type=property_type,
         deal_type=deal_type,

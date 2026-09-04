@@ -8,6 +8,8 @@ from django.utils import timezone
 from ingestion.models import IngestionRun, ListingSnapshot, ScrapeTarget, TargetListing
 from ingestion.providers.base import ScrapedListing
 from listing.models import Listing
+from locations.models import DivarNeighborhood
+from locations.normalization import normalize_persian
 
 
 @dataclass(frozen=True)
@@ -109,6 +111,34 @@ def upsert_scraped_listing(
         if payload_field == "phone" and not value and listing.contact_phone:
             continue
         setattr(listing, model_field, value)
+    if target.listing_category:
+        listing.category = target.listing_category
+    neighborhood_name = normalize_persian(payload.divar_neighborhood_name)
+    if neighborhood_name and target.zone_id:
+        divar_neighborhood, neighborhood_created = (
+            DivarNeighborhood.objects.get_or_create(
+                city=target.zone.city,
+                normalized_name=neighborhood_name,
+                defaults={
+                    "name": payload.divar_neighborhood_name.strip(),
+                    "zone": None,
+                    "active": True,
+                    "last_seen_at": now,
+                },
+            )
+        )
+        update_fields = []
+        if not neighborhood_created and divar_neighborhood.name != payload.divar_neighborhood_name.strip():
+            divar_neighborhood.name = payload.divar_neighborhood_name.strip()
+            update_fields.append("name")
+        if not divar_neighborhood.active:
+            divar_neighborhood.active = True
+            update_fields.append("active")
+        divar_neighborhood.last_seen_at = now
+        update_fields.extend(["last_seen_at", "updated_at"])
+        if not neighborhood_created:
+            divar_neighborhood.save(update_fields=update_fields)
+        listing.divar_neighborhood = divar_neighborhood
     if created or "description" in changed_fields:
         listing.advertiser_type = None
         listing.advertiser_classification_status = (

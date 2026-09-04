@@ -30,7 +30,7 @@ class ListingPagination(PageNumberPagination):
 class ListingListView(generics.ListAPIView):
     queryset = (
         Listing.objects
-        .select_related("source")
+        .select_related("source", "divar_neighborhood__zone", "divar_neighborhood__city")
         .all()
         .order_by("-last_seen_at", "-id")
     )
@@ -50,7 +50,7 @@ class ListingListView(generics.ListAPIView):
     def get_queryset(self):
         qs = (
             Listing.objects
-            .select_related("source")
+            .select_related("source", "divar_neighborhood__zone", "divar_neighborhood__city")
             .order_by("-last_seen_at", "-id")
         )
 
@@ -66,7 +66,9 @@ class ListingListView(generics.ListAPIView):
 
     
 class ListingDetailView(generics.RetrieveAPIView):
-    queryset = Listing.objects.select_related("source").all()
+    queryset = Listing.objects.select_related(
+        "source", "divar_neighborhood__zone", "divar_neighborhood__city"
+    ).all()
     serializer_class = ListingDetailSerializer
     permission_classes = (HasRolePermission,)
     required_permission = "view_listing"

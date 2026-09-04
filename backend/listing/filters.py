@@ -21,6 +21,16 @@ class ListingFilter(django_filters.FilterSet):
         field_name="review_status",
         choices=Listing.ReviewStatus.choices,
     )
+    category = django_filters.MultipleChoiceFilter(
+        field_name="category",
+        choices=Listing.Category.choices,
+    )
+    zone = django_filters.CharFilter(
+        field_name="divar_neighborhood__zone_id",
+    )
+    divar_neighborhood = django_filters.NumberFilter(
+        field_name="divar_neighborhood_id",
+    )
 
     source = django_filters.NumberFilter(
         field_name="source_id",
@@ -290,6 +300,9 @@ class ListingFilter(django_filters.FilterSet):
         fields = [
             "status",
             "review_status",
+            "category",
+            "zone",
+            "divar_neighborhood",
             "source",
             "property",
             "search",

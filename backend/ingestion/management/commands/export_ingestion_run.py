@@ -10,6 +10,9 @@ EXPORT_FIELDS = (
     "external_id",
     "url",
     "title",
+    "category",
+    "zone",
+    "divar_neighborhood",
     "listed_area",
     "build_year",
     "room_count",
@@ -54,16 +57,27 @@ class Command(BaseCommand):
         destination.parent.mkdir(parents=True, exist_ok=True)
         listings = (
             run.items.filter(listing__isnull=False)
-            .select_related("listing")
+            .select_related("listing", "listing__divar_neighborhood__zone")
             .order_by("discovery_order")
         )
         with destination.open("w", encoding="utf-8-sig", newline="") as handle:
             writer = csv.DictWriter(handle, fieldnames=EXPORT_FIELDS)
             writer.writeheader()
             for item in listings:
-                writer.writerow(
-                    {field: getattr(item.listing, field) for field in EXPORT_FIELDS}
+                listing = item.listing
+                row = {field: getattr(listing, field, "") for field in EXPORT_FIELDS}
+                row["divar_neighborhood"] = (
+                    listing.divar_neighborhood.name
+                    if listing.divar_neighborhood_id
+                    else ""
                 )
+                row["zone"] = (
+                    listing.divar_neighborhood.zone.name
+                    if listing.divar_neighborhood_id
+                    and listing.divar_neighborhood.zone_id
+                    else ""
+                )
+                writer.writerow(row)
         run.artifact_path = str(destination)
         run.save(update_fields=["artifact_path"])
         self.stdout.write(self.style.SUCCESS(str(destination)))

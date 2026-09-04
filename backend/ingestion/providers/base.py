@@ -19,6 +19,7 @@ class ScrapedListing:
     title: str
     phone: str = ""
     description: str = ""
+    divar_neighborhood_name: str = ""
     area_m2: int | None = None
     build_year: int | None = None
     room_count: int | None = None

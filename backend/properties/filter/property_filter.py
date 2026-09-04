@@ -102,6 +102,14 @@ class PropertyFilter(django_filters.FilterSet):
 
     neighborhood = django_filters.NumberFilter(method="filter_neighborhood")
 
+    zone = django_filters.CharFilter(
+        field_name="divar_neighborhood__zone_id",
+    )
+
+    divar_neighborhood = django_filters.NumberFilter(
+        field_name="divar_neighborhood_id",
+    )
+
     # =====================================================
     # Physical
     # =====================================================
@@ -466,6 +474,8 @@ class PropertyFilter(django_filters.FilterSet):
             "city",
             "district",
             "neighborhood",
+            "zone",
+            "divar_neighborhood",
             "age_min",
             "age_max",
             "floor_min",

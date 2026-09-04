@@ -22,6 +22,7 @@ from .serializers.serializers import (
     IngestionRunSerializer,
     ListingSnapshotSerializer,
     ScrapeTargetSerializer,
+    ScrapeTargetBundleCreateSerializer,
     TargetListingSerializer,
 )
 from .services.divar_login import (
@@ -39,6 +40,7 @@ from .services.divar_session import (
     set_session_state,
 )
 from .services.runs import RunAlreadyActive, create_run, resume_run
+from .services.targets import create_category_targets
 from .tasks import (
     authenticate_divar_session,
     check_divar_session,
@@ -130,7 +132,7 @@ class DivarLoginConfirmView(APIView):
 
 
 class ScrapeTargetListCreateView(generics.ListCreateAPIView):
-    queryset = ScrapeTarget.objects.select_related("source").all()
+    queryset = ScrapeTarget.objects.select_related("source", "zone__city").all()
     serializer_class = ScrapeTargetSerializer
     permission_classes = (HasRolePermission,)
     @property
@@ -144,9 +146,36 @@ class ScrapeTargetListCreateView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         serializer.save()
 
+    def post(self, request, *args, **kwargs):
+        # The UI submits one location-aware base URL. Keep the legacy single
+        # target payload working for CLI/API clients that still send search_url.
+        if request.data.get("base_url") and not request.data.get("search_url"):
+            serializer = ScrapeTargetBundleCreateSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            data = dict(serializer.validated_data)
+            source = data.pop("source")
+            name = data.pop("name")
+            base_url = data.pop("base_url")
+            zone = data.pop("zone")
+            targets = create_category_targets(
+                source=source,
+                name=name,
+                base_url=base_url,
+                zone=zone,
+                **data,
+            )
+            return Response(
+                {
+                    "created_count": len(targets),
+                    "targets": ScrapeTargetSerializer(targets, many=True).data,
+                },
+                status=status.HTTP_201_CREATED,
+            )
+        return super().post(request, *args, **kwargs)
+
 
 class ScrapeTargetDetailView(generics.RetrieveUpdateAPIView):
-    queryset = ScrapeTarget.objects.select_related("source").all()
+    queryset = ScrapeTarget.objects.select_related("source", "zone__city").all()
     serializer_class = ScrapeTargetSerializer
     permission_classes = (HasRolePermission,)
     @property
@@ -287,12 +316,13 @@ class IngestionRunExportView(APIView):
         run = get_object_or_404(IngestionRun, pk=uuid)
         listings = (
             run.items.filter(listing__isnull=False)
-            .select_related("listing")
+            .select_related("listing", "listing__divar_neighborhood__zone")
             .order_by("discovery_order")
         )
 
         fields = (
-            "external_id", "url", "title", "listed_area", "build_year",
+            "external_id", "url", "title", "category", "zone",
+            "divar_neighborhood", "listed_area", "build_year",
             "contact_phone",
             "room_count", "listed_sale_price", "listed_price_per_meter",
             "listed_mortgage_amount", "listed_deposit_amount",
@@ -312,7 +342,25 @@ class IngestionRunExportView(APIView):
             yield writer.writerow(fields)
             for item in listings.iterator():
                 listing = item.listing
-                yield writer.writerow([getattr(listing, field) for field in fields])
+                values = []
+                for field in fields:
+                    if field == "zone":
+                        value = (
+                            listing.divar_neighborhood.zone.name
+                            if listing.divar_neighborhood_id
+                            and listing.divar_neighborhood.zone_id
+                            else ""
+                        )
+                    elif field == "divar_neighborhood":
+                        value = (
+                            listing.divar_neighborhood.name
+                            if listing.divar_neighborhood_id
+                            else ""
+                        )
+                    else:
+                        value = getattr(listing, field)
+                    values.append(value)
+                yield writer.writerow(values)
 
         response = StreamingHttpResponse(rows(), content_type="text/csv; charset=utf-8")
         response["Content-Disposition"] = (

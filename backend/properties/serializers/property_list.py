@@ -16,6 +16,12 @@ class PropertyListSerializer(serializers.ModelSerializer):
         source="agency.name",
         read_only=True,
     )
+    zone = serializers.CharField(
+        source="divar_neighborhood.zone.name", read_only=True, allow_null=True
+    )
+    divar_neighborhood_name = serializers.CharField(
+        source="divar_neighborhood.name", read_only=True, allow_null=True
+    )
 
     class Meta:
         model = Property
@@ -28,6 +34,8 @@ class PropertyListSerializer(serializers.ModelSerializer):
             "agent",
             "created_by",
             "city",
+            "zone",
+            "divar_neighborhood_name",
             "property_type",
             "deal_type",
             "area",

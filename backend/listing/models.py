@@ -21,6 +21,12 @@ class Source(models.Model):
 
 class Listing(models.Model):
 
+    class Category(models.TextChoices):
+        RENT_RESIDENTIAL = "rent-residential", "اجارهٔ مسکونی"
+        BUY_RESIDENTIAL = "buy-residential", "فروش مسکونی"
+        BUY_COMMERCIAL = "buy-commercial-property", "فروش اداری و تجاری"
+        RENT_COMMERCIAL = "rent-commercial-property", "اجارهٔ اداری و تجاری"
+
     class Status(models.TextChoices):
         DRAFT = "draft", "پیش نویس"
         ACTIVE = "active", "فعال"
@@ -55,6 +61,18 @@ class Listing(models.Model):
 
     source = models.ForeignKey(
         Source, on_delete=models.PROTECT, related_name="listings"
+    )
+
+    category = models.CharField(
+        max_length=40, choices=Category.choices, blank=True, db_index=True
+    )
+
+    divar_neighborhood = models.ForeignKey(
+        "locations.DivarNeighborhood",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="listings",
     )
 
     external_id = models.CharField(

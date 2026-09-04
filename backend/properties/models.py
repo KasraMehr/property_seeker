@@ -79,6 +79,14 @@ class Property(models.Model):
         "locations.Address", on_delete=models.PROTECT, null=True, blank=True
     )
 
+    divar_neighborhood = models.ForeignKey(
+        "locations.DivarNeighborhood",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="properties",
+    )
+
     title = models.CharField(max_length=255)
 
     property_type = models.CharField(max_length=30, null=True, blank=True)

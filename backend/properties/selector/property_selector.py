@@ -12,6 +12,8 @@ class PropertySelector:
                 "agent",
                 "create_by",
                 "address",
+                "divar_neighborhood__zone",
+                "divar_neighborhood__city",
             )
             .filter(agency=user.agency)
             .order_by("-created_at")
@@ -30,6 +32,8 @@ class PropertySelector:
             "agent",
             "create_by",
             "address",
+            "divar_neighborhood__zone",
+            "divar_neighborhood__city",
         ).filter(
             pk=pk,
             agency=user.agency,

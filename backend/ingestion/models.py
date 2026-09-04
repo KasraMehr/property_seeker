@@ -6,13 +6,30 @@ from django.utils import timezone
 
 
 class ScrapeTarget(models.Model):
+    class ListingCategory(models.TextChoices):
+        RENT_RESIDENTIAL = "rent-residential", "اجارهٔ مسکونی"
+        BUY_RESIDENTIAL = "buy-residential", "فروش مسکونی"
+        BUY_COMMERCIAL = "buy-commercial-property", "فروش اداری و تجاری"
+        RENT_COMMERCIAL = "rent-commercial-property", "اجارهٔ اداری و تجاری"
+
     source = models.ForeignKey(
         "listing.Source",
         on_delete=models.PROTECT,
         related_name="scrape_targets",
     )
     name = models.CharField(max_length=150)
+    base_url = models.URLField(max_length=1000, blank=True)
     search_url = models.URLField(max_length=1000, unique=True)
+    listing_category = models.CharField(
+        max_length=40, choices=ListingCategory.choices, blank=True, db_index=True
+    )
+    zone = models.ForeignKey(
+        "locations.Zone",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="scrape_targets",
+    )
     enabled = models.BooleanField(default=True, db_index=True)
     discovery_interval_minutes = models.PositiveSmallIntegerField(default=15)
     incremental_known_streak = models.PositiveSmallIntegerField(default=100)

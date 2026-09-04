@@ -164,6 +164,26 @@ def parse_preloaded_state(page_source):
     return None
 
 
+def find_first_string(node, keys):
+    """Find a string value in Divar's versioned/nested response shapes."""
+
+    if isinstance(node, dict):
+        for key in keys:
+            value = node.get(key)
+            if isinstance(value, str) and value.strip():
+                return value.strip()
+        for value in node.values():
+            found = find_first_string(value, keys)
+            if found:
+                return found
+    elif isinstance(node, list):
+        for value in node:
+            found = find_first_string(value, keys)
+            if found:
+                return found
+    return ""
+
+
 def iter_widget_data(sections, section_name):
     widgets = sections.get(section_name, []) if isinstance(sections, dict) else []
     if not isinstance(widgets, list):
@@ -295,6 +315,7 @@ def parse_listing_page(page_source, url):
         "title": "",
         "phone": "",
         "description": "",
+        "divar_neighborhood_name": "",
         "area_m2": None,
         "build_year": None,
         "room_count": None,
@@ -320,6 +341,10 @@ def parse_listing_page(page_source, url):
         payload["title"] = (
             post.get("title") or web_info.get("title") or seo.get("title") or ""
         )
+        payload["divar_neighborhood_name"] = find_first_string(
+            post,
+            ("district_persian", "districtPersian", "neighborhood_persian"),
+        )
         sections = post.get("sections", {})
         for _, data in iter_widget_data(sections, "TITLE"):
             payload["title"] = payload["title"] or data.get("title") or ""
@@ -342,6 +367,18 @@ def parse_listing_page(page_source, url):
                 break
 
     soup = BeautifulSoup(page_source or "", "html.parser")
+    if not payload["divar_neighborhood_name"]:
+        for script in soup.select('script[type="application/ld+json"]'):
+            try:
+                schema_data = json.loads(script.get_text() or "null")
+            except json.JSONDecodeError:
+                continue
+            payload["divar_neighborhood_name"] = find_first_string(
+                schema_data,
+                ("district_persian", "districtPersian", "neighborhood_persian"),
+            )
+            if payload["divar_neighborhood_name"]:
+                break
     title = soup.select_one("h1.kt-page-title__title")
     payload["title"] = payload["title"] or (title.get_text(strip=True) if title else "")
     for table in soup.select("table.kt-group-row"):

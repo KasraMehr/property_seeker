@@ -20,6 +20,8 @@ class ListingAdmin(admin.ModelAdmin):
         "external_id",
         "title",
         "source",
+        "category",
+        "divar_neighborhood",
         "status",
         "review_status",
         "advertiser_type",
@@ -31,6 +33,8 @@ class ListingAdmin(admin.ModelAdmin):
     )
     list_filter = (
         "source",
+        "category",
+        "divar_neighborhood__zone",
         "status",
         "review_status",
         "advertiser_type",
@@ -47,6 +51,8 @@ class ListingAdmin(admin.ModelAdmin):
         "property",
         "external_id",
         "source",
+        "category",
+        "divar_neighborhood",
         "url",
         "title",
         "contact_phone",
