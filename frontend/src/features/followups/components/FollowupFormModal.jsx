@@ -26,8 +26,10 @@ export default function FollowupFormModal({
         type: values.type,
         status: values.status || "pending",
         user: values.user ? Number(values.user) : undefined,
-        ...(values.customer ? { customer: Number(values.customer) } : {}),
-        ...(values.property ? { property: Number(values.property) } : {}),
+        // Always send customer/property so clearing them in the form
+        // actually detaches the link on save.
+        customer: values.customer ? Number(values.customer) : null,
+        property: values.property ? Number(values.property) : null,
         description: values.description || "",
         due_at: values.due_at || undefined,
         ...(values.status === "done"

@@ -21,7 +21,7 @@ class PropertyStatusHistoryListView(APIView):
         HasRolePermission,
     )
 
-    required_permission = "view_property_status_history"
+    required_permission = "view_propertystatushistory"
 
     def get(self, request):
 
@@ -44,7 +44,7 @@ class PropertyStatusHistoryDetailView(APIView):
         HasRolePermission,
     )
 
-    required_permission = "view_property_status_history"
+    required_permission = "view_propertystatushistory"
 
     def get(self, request, pk):
 

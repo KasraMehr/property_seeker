@@ -29,6 +29,7 @@ export const USER_FORM = {
           placeholder: "۰۹۱۲۳۴۵۶۷۸۹",
           pattern: "^09\\d{9}$",
           validation: { required: "شماره موبایل الزامی است", pattern: "فرمت شماره موبایل صحیح نیست" },
+          autoComplete: "tel",
           span: 6,
         },
         {
@@ -39,6 +40,9 @@ export const USER_FORM = {
           placeholder: "۱۰ رقم",
           pattern: "^\\d{10}$",
           validation: { pattern: "کد ملی باید ۱۰ رقم باشد" },
+          // پر شدن خودکار توسط کروم/گوگل برای کد ملی مجاز نیست؛
+          // در حالت ویرایش مقدار از روی رکورد کاربر توسط فرم پر می‌شود.
+          autoComplete: "off",
           span: 6,
         },
         {
@@ -49,6 +53,8 @@ export const USER_FORM = {
           placeholder: "حداقل ۸ کاراکتر",
           condition: (values, mode) => mode === "create",
           validation: { required: "رمز عبور الزامی است", minLength: "حداقل ۸ کاراکتر" },
+          // new-password تا مرورگر رمز/اطلاعات گوگل را داخل فرم ثبت کاربر پر نکند
+          autoComplete: "new-password",
           span: 6,
         },
         {
@@ -59,6 +65,7 @@ export const USER_FORM = {
           placeholder: "تکرار رمز عبور",
           condition: (values, mode) => mode === "create",
           validation: { required: "تکرار رمز عبور الزامی است", match: "password" },
+          autoComplete: "new-password",
           span: 6,
         },
         // is_active: only editable on update (backend ignores it on create)

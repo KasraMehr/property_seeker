@@ -43,6 +43,7 @@ export default function TextField({
             placeholder={field.placeholder}
             error={error}
             disabled={isDisabled}
+            autoComplete={field.autoComplete}
           />
         </div>
       )}

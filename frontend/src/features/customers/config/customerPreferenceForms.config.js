@@ -103,7 +103,7 @@ export const CUSTOMER_PREFERENCE_FORM = {
           label: "محله‌ها",
           type: "multi_select",
           required: false,
-          placeholder: "انتخاب محله‌ها...",
+          placeholder: "",
           asyncSource: API_ENDPOINTS.LOCATIONS.NEIGHBORHOODS.LIST.url,
           searchFields: ["name"],
           displayField: "name",

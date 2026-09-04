@@ -27,7 +27,10 @@ export default function Button({
 
     ghost:
       "text-foreground hover:bg-surface",
-    
+
+    demo:
+      "bg-gradient-to-l from-status-special to-status-accent text-white shadow-md shadow-status-accent/25 hover:shadow-lg hover:shadow-status-accent/40 hover:brightness-110 disabled:opacity-60",
+
     danger:
       "text-danger hover:bg-danger/10 disabled:opacity-60",
 

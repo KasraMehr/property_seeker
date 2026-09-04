@@ -11,6 +11,8 @@ from ..models import Agency, Role
 
 class NeighborhoodSimpleSerializer(serializers.ModelSerializer):
 
+    district = serializers.PrimaryKeyRelatedField(read_only=True)
+
     district_name = serializers.CharField(source="district.name", read_only=True)
 
     class Meta:
@@ -18,6 +20,7 @@ class NeighborhoodSimpleSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "name",
+            "district",
             "district_name",
         )
 

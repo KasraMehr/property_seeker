@@ -1,9 +1,6 @@
 import { Link } from "react-router-dom";
 import { CalendarCheck } from "lucide-react";
 import Table from "@/shared/table/Table";
-import StatusBadge from "@/shared/ui/badges/StatusBadge";
-import { buildStatusConfig } from "@/constants/status.utils";
-import { FOLLOWUP_STATUS_CONFIG } from "@/features/followups/config";
 import { formatDateTime } from "@/utils/formatters";
 
 const isToday = (dateStr) => {
@@ -56,18 +53,6 @@ const FOLLOWUP_COLUMNS = [
           <span className="text-xs text-amber-600">(امروز)</span>
         )}
       </span>
-    ),
-  },
-  {
-    key: "status",
-    header: "وضعیت",
-    width: "w-28",
-    cell: ({ status }) => (
-      <StatusBadge
-        config={buildStatusConfig(FOLLOWUP_STATUS_CONFIG, status)}
-        variant="soft"
-        size="sm"
-      />
     ),
   },
 ];
