@@ -1,27 +1,35 @@
 from django.contrib.auth.models import Permission
 from rest_framework import serializers
 
-from accounts.models import User
-from locations.models import *
-from locations.models import District, Neighborhood
-
-from ..models import *
-from ..models import Agency, Role
+from accounts.models import Agency, Role, User
+from locations.models import District, DivarNeighborhood
 
 
-class NeighborhoodSimpleSerializer(serializers.ModelSerializer):
-
-    district = serializers.PrimaryKeyRelatedField(read_only=True)
-
-    district_name = serializers.CharField(source="district.name", read_only=True)
+class DivarNeighborhoodSimpleSerializer(serializers.ModelSerializer):
+    zone = serializers.PrimaryKeyRelatedField(
+        read_only=True,
+    )
+    zone_name = serializers.CharField(
+        source="zone.name",
+        read_only=True,
+    )
+    city = serializers.PrimaryKeyRelatedField(
+        read_only=True,
+    )
+    city_name = serializers.CharField(
+        source="city.name",
+        read_only=True,
+    )
 
     class Meta:
-        model = Neighborhood
+        model = DivarNeighborhood
         fields = (
             "id",
             "name",
-            "district",
-            "district_name",
+            "zone",
+            "zone_name",
+            "city",
+            "city_name",
         )
 
 
@@ -48,9 +56,10 @@ class AgencyCreateSerializer(serializers.ModelSerializer):
         )
 
     def validate_name(self, value):
-
         if Agency.objects.filter(name=value).exists():
-            raise serializers.ValidationError("این آژانس قبلاً ثبت شده است.")
+            raise serializers.ValidationError(
+                "این آژانس قبلاً ثبت شده است."
+            )
 
         return value
 
@@ -70,16 +79,21 @@ class AgencyUpdateSerializer(serializers.ModelSerializer):
         )
 
     def validate_name(self, value):
-
         agency = self.instance
 
-        if Agency.objects.exclude(id=agency.id).filter(name=value).exists():
-            raise serializers.ValidationError("این نام قبلاً ثبت شده است.")
+        if (
+            Agency.objects
+            .exclude(id=agency.id)
+            .filter(name=value)
+            .exists()
+        ):
+            raise serializers.ValidationError(
+                "این نام قبلاً ثبت شده است."
+            )
 
         return value
 
     def update(self, instance, validated_data):
-
         for key, value in validated_data.items():
             setattr(instance, key, value)
 
@@ -104,20 +118,22 @@ class RoleCreateSerializer(serializers.ModelSerializer):
         )
 
     def validate_name(self, value):
-
         agency = self.context["request"].user.agency
 
-        if Role.objects.filter(agency=agency, name=value).exists():
-            raise serializers.ValidationError("این نقش قبلاً ثبت شده است.")
+        if Role.objects.filter(
+            agency=agency,
+            name=value,
+        ).exists():
+            raise serializers.ValidationError(
+                "این نقش قبلاً ثبت شده است."
+            )
 
         return value
 
     def create(self, validated_data):
-
         permissions = validated_data.pop("permissions", [])
 
         role = Role.objects.create(**validated_data)
-
         role.permissions.set(permissions)
 
         return role
@@ -143,21 +159,24 @@ class RoleUpdateSerializer(serializers.ModelSerializer):
         )
 
     def validate_name(self, value):
-
         agency = self.context["request"].user.agency
 
         if (
-            Role.objects.exclude(id=self.instance.id)
-            .filter(agency=agency, name=value)
+            Role.objects
+            .exclude(id=self.instance.id)
+            .filter(
+                agency=agency,
+                name=value,
+            )
             .exists()
         ):
-
-            raise serializers.ValidationError("این نقش قبلاً ثبت شده است.")
+            raise serializers.ValidationError(
+                "این نقش قبلاً ثبت شده است."
+            )
 
         return value
 
     def update(self, instance, validated_data):
-
         permissions = validated_data.pop(
             "permissions",
             None,
@@ -205,8 +224,16 @@ class DistrictSimpleSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
 
     agency = AgencySerializer(read_only=True)
-    role = RoleSerializer(read_only=True, many=True)
-    service_neighborhoods = NeighborhoodSimpleSerializer(many=True, read_only=True)
+
+    role = RoleSerializer(
+        read_only=True,
+        many=True,
+    )
+
+    service_neighborhoods = DivarNeighborhoodSimpleSerializer(
+        many=True,
+        read_only=True,
+    )
 
     class Meta:
         model = User
@@ -223,6 +250,7 @@ class UserSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         )
+
         read_only_fields = (
             "id",
             "agency",
@@ -243,7 +271,9 @@ class UserCreateSerializer(serializers.ModelSerializer):
     )
 
     service_neighborhoods = serializers.PrimaryKeyRelatedField(
-        queryset=Neighborhood.objects.all(),
+        queryset=DivarNeighborhood.objects.filter(
+            active=True,
+        ),
         many=True,
         required=False,
     )
@@ -263,25 +293,54 @@ class UserCreateSerializer(serializers.ModelSerializer):
         super().__init__(*args, **kwargs)
 
         request = self.context.get("request")
+
         if request:
             self.fields["role"].queryset = Role.objects.filter(
-                agency=request.user.agency
+                agency=request.user.agency,
             )
 
     def validate_role(self, value):
         if value.agency != self.context["request"].user.agency:
-            raise serializers.ValidationError("این نقش متعلق به آژانس شما نیست.")
+            raise serializers.ValidationError(
+                "این نقش متعلق به آژانس شما نیست."
+            )
+
+        return value
+
+    def validate_service_neighborhoods(self, value):
+        """
+        محله‌های انتخاب‌شده باید فعال باشند.
+        """
+        inactive = [
+            neighborhood.name
+            for neighborhood in value
+            if not neighborhood.active
+        ]
+
+        if inactive:
+            raise serializers.ValidationError(
+                "محله‌های غیرفعال قابل انتخاب نیستند."
+            )
+
         return value
 
     def create(self, validated_data):
         password = validated_data.pop("password")
-        neighborhoods = validated_data.pop("service_neighborhoods", [])
+        neighborhoods = validated_data.pop(
+            "service_neighborhoods",
+            [],
+        )
+
         owner = self.context["request"].user
+
         user = User.objects.create_user(
-            agency=owner.agency, password=password, **validated_data
+            agency=owner.agency,
+            password=password,
+            **validated_data,
         )
 
         user.service_neighborhoods.set(neighborhoods)
+
         return user
 
 
@@ -298,10 +357,13 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     )
 
     service_neighborhoods = serializers.PrimaryKeyRelatedField(
-        queryset=Neighborhood.objects.all(),
+        queryset=DivarNeighborhood.objects.filter(
+            active=True,
+        ),
         many=True,
         required=False,
     )
+
     full_name = serializers.CharField(required=False)
     national_id = serializers.CharField(required=False)
     is_owner = serializers.BooleanField(required=False)
@@ -323,21 +385,50 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         super().__init__(*args, **kwargs)
 
         request = self.context.get("request")
+
         if request:
             self.fields["role"].queryset = Role.objects.filter(
-                agency=request.user.agency
+                agency=request.user.agency,
             )
 
     def validate_role(self, value):
         if value.agency != self.context["request"].user.agency:
-            raise serializers.ValidationError("این نقش متعلق به آژانس شما نیست.")
+            raise serializers.ValidationError(
+                "این نقش متعلق به آژانس شما نیست."
+            )
+
+        return value
+
+    def validate_service_neighborhoods(self, value):
+        inactive = [
+            neighborhood.name
+            for neighborhood in value
+            if not neighborhood.active
+        ]
+
+        if inactive:
+            raise serializers.ValidationError(
+                "محله‌های غیرفعال قابل انتخاب نیستند."
+            )
+
         return value
 
     def update(self, instance, validated_data):
 
-        password = validated_data.pop("password", None)
-        role = validated_data.pop("role", None)
-        neighborhoods = validated_data.pop("service_neighborhoods", None)
+        password = validated_data.pop(
+            "password",
+            None,
+        )
+
+        role = validated_data.pop(
+            "role",
+            None,
+        )
+
+        neighborhoods = validated_data.pop(
+            "service_neighborhoods",
+            None,
+        )
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
@@ -350,13 +441,11 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         # M2M fields must be set after save()
         if role is not None:
             instance.role.set([role])
+
         if neighborhoods is not None:
             instance.service_neighborhoods.set(neighborhoods)
 
         return instance
-
-
-from django.contrib.auth.models import Permission
 
 
 class PermissionSerializer(serializers.ModelSerializer):

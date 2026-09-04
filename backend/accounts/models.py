@@ -144,7 +144,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     )
 
     service_neighborhoods = models.ManyToManyField(
-        "locations.Neighborhood",
+        "locations.DivarNeighborhood",
         related_name="agents",
         blank=True,
     )

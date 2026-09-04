@@ -19,9 +19,6 @@ class ListingSelector:
         if user.is_owner:
             return qs
 
-        # Regular users:
-        # only listings matching their deal type
-        # and assigned service neighborhoods
         return qs.filter(
             category=user.deal_type_scope,
             divar_neighborhood__in=user.service_neighborhoods.all(),
