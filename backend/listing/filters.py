@@ -5,31 +5,34 @@ from .models import Listing
 
 
 class ListingFilter(django_filters.FilterSet):
-    # -------------------------
+
+    # =========================================================
     # Basic filters
-    # -------------------------
+    # =========================================================
 
     status = django_filters.MultipleChoiceFilter(
         field_name="status",
         choices=Listing.Status.choices,
     )
+
     advertiser_type = django_filters.MultipleChoiceFilter(
         field_name="advertiser_type",
         choices=Listing.AdvertiserType.choices,
     )
+
+    advertiser_classification_status = django_filters.MultipleChoiceFilter(
+        field_name="advertiser_classification_status",
+        choices=Listing.AdvertiserClassificationStatus.choices,
+    )
+
     review_status = django_filters.MultipleChoiceFilter(
         field_name="review_status",
         choices=Listing.ReviewStatus.choices,
     )
+
     category = django_filters.MultipleChoiceFilter(
         field_name="category",
         choices=Listing.Category.choices,
-    )
-    zone = django_filters.CharFilter(
-        field_name="divar_neighborhood__zone_id",
-    )
-    divar_neighborhood = django_filters.NumberFilter(
-        field_name="divar_neighborhood_id",
     )
 
     source = django_filters.NumberFilter(
@@ -40,17 +43,29 @@ class ListingFilter(django_filters.FilterSet):
         field_name="property_id",
     )
 
-    # -------------------------
+    # =========================================================
+    # Location
+    # =========================================================
+
+    zone = django_filters.CharFilter(
+        field_name="divar_neighborhood__zone_id",
+    )
+
+    divar_neighborhood = django_filters.NumberFilter(
+        field_name="divar_neighborhood_id",
+    )
+
+    # =========================================================
     # Text search
-    # -------------------------
+    # =========================================================
 
     search = django_filters.CharFilter(
         method="filter_search",
     )
 
-    # -------------------------
+    # =========================================================
     # Sale price
-    # -------------------------
+    # =========================================================
 
     listed_sale_price_min = django_filters.NumberFilter(
         field_name="listed_sale_price",
@@ -62,9 +77,9 @@ class ListingFilter(django_filters.FilterSet):
         lookup_expr="lte",
     )
 
-    # -------------------------
+    # =========================================================
     # Price per meter
-    # -------------------------
+    # =========================================================
 
     listed_price_per_meter_min = django_filters.NumberFilter(
         field_name="listed_price_per_meter",
@@ -76,9 +91,9 @@ class ListingFilter(django_filters.FilterSet):
         lookup_expr="lte",
     )
 
-    # -------------------------
+    # =========================================================
     # Mortgage
-    # -------------------------
+    # =========================================================
 
     listed_mortgage_amount_min = django_filters.NumberFilter(
         field_name="listed_mortgage_amount",
@@ -90,9 +105,9 @@ class ListingFilter(django_filters.FilterSet):
         lookup_expr="lte",
     )
 
-    # -------------------------
+    # =========================================================
     # Deposit
-    # -------------------------
+    # =========================================================
 
     listed_deposit_amount_min = django_filters.NumberFilter(
         field_name="listed_deposit_amount",
@@ -104,9 +119,9 @@ class ListingFilter(django_filters.FilterSet):
         lookup_expr="lte",
     )
 
-    # -------------------------
+    # =========================================================
     # Rent
-    # -------------------------
+    # =========================================================
 
     listed_rent_amount_min = django_filters.NumberFilter(
         field_name="listed_rent_amount",
@@ -118,9 +133,9 @@ class ListingFilter(django_filters.FilterSet):
         lookup_expr="lte",
     )
 
-    # -------------------------
+    # =========================================================
     # Property specifications
-    # -------------------------
+    # =========================================================
 
     listed_area_min = django_filters.NumberFilter(
         field_name="listed_area",
@@ -164,9 +179,9 @@ class ListingFilter(django_filters.FilterSet):
         field_name="total_floors",
     )
 
-    # -------------------------
+    # =========================================================
     # Media / engagement
-    # -------------------------
+    # =========================================================
 
     media_count_min = django_filters.NumberFilter(
         field_name="media_count",
@@ -198,9 +213,9 @@ class ListingFilter(django_filters.FilterSet):
         lookup_expr="lte",
     )
 
-    # -------------------------
+    # =========================================================
     # Boolean filters
-    # -------------------------
+    # =========================================================
 
     pictures_match_property = django_filters.BooleanFilter(
         field_name="pictures_match_property",
@@ -210,9 +225,9 @@ class ListingFilter(django_filters.FilterSet):
         method="filter_removal_detected",
     )
 
-    # -------------------------
+    # =========================================================
     # Scraper health
-    # -------------------------
+    # =========================================================
 
     consecutive_failures_min = django_filters.NumberFilter(
         field_name="consecutive_failures",
@@ -224,9 +239,9 @@ class ListingFilter(django_filters.FilterSet):
         lookup_expr="lte",
     )
 
-    # -------------------------
+    # =========================================================
     # Dates
-    # -------------------------
+    # =========================================================
 
     first_seen_from = django_filters.IsoDateTimeFilter(
         field_name="first_seen_at",
@@ -268,9 +283,9 @@ class ListingFilter(django_filters.FilterSet):
         lookup_expr="lte",
     )
 
-    # -------------------------
-    # Custom methods
-    # -------------------------
+    # =========================================================
+    # Custom filters
+    # =========================================================
 
     def filter_search(self, queryset, name, value):
         if not value:
@@ -280,6 +295,7 @@ class ListingFilter(django_filters.FilterSet):
             Q(title__icontains=value)
             | Q(description__icontains=value)
             | Q(external_id__icontains=value)
+            | Q(contact_phone__icontains=value)
         )
 
     def filter_removal_detected(self, queryset, name, value):
@@ -297,16 +313,25 @@ class ListingFilter(django_filters.FilterSet):
 
     class Meta:
         model = Listing
+
         fields = [
+            # Basic
             "status",
+            "advertiser_type",
+            "advertiser_classification_status",
             "review_status",
             "category",
-            "zone",
-            "divar_neighborhood",
             "source",
             "property",
+
+            # Location
+            "zone",
+            "divar_neighborhood",
+
+            # Search
             "search",
-            "advertiser_type",
+
+            # Prices
             "listed_sale_price_min",
             "listed_sale_price_max",
             "listed_price_per_meter_min",
@@ -317,6 +342,8 @@ class ListingFilter(django_filters.FilterSet):
             "listed_deposit_amount_max",
             "listed_rent_amount_min",
             "listed_rent_amount_max",
+
+            # Property
             "listed_area_min",
             "listed_area_max",
             "build_year_min",
@@ -326,16 +353,24 @@ class ListingFilter(django_filters.FilterSet):
             "floor_number_min",
             "floor_number_max",
             "total_floors",
+
+            # Engagement
             "media_count_min",
             "media_count_max",
             "views_count_min",
             "views_count_max",
             "leads_count_min",
             "leads_count_max",
+
+            # Boolean
             "pictures_match_property",
             "removal_detected",
+
+            # Scraper
             "consecutive_failures_min",
             "consecutive_failures_max",
+
+            # Dates
             "first_seen_from",
             "first_seen_to",
             "last_seen_from",

@@ -172,13 +172,16 @@ class ListingCountsView(APIView):
     required_permission = "view_listing"
 
     def get(self, request):
-        qs = ListingSelector.for_user(
-            request.user
-        )
+        qs = ListingSelector.for_user(request.user)
 
         counts = (
             qs.values("advertiser_type")
-            .annotate(count=Count("id"))
+            .annotate(
+                count=Count(
+                    "id",
+                    distinct=True,
+                )
+            )
         )
 
         result = {
@@ -187,12 +190,17 @@ class ListingCountsView(APIView):
         }
 
         return Response({
-            "all": qs.count(),
-            "agency": result.get("agency", 0),
-            "owner": result.get("owner", 0),
+            "all": qs.values("id").distinct().count(),
+            "agency": result.get(
+                Listing.AdvertiserType.AGENCY,
+                0,
+            ),
+            "owner": result.get(
+                Listing.AdvertiserType.OWNER,
+                0,
+            ),
             "pending": result.get(None, 0),
         })
-
 
 class ListingPromoteView(APIView):
     permission_classes = (HasRolePermission,)
