@@ -126,9 +126,14 @@ class UserManager(BaseUserManager):
         )
 
 
-# =========================
-# User
-# =========================
+
+class DealTypeScope(models.TextChoices):
+    RENT_RESIDENTIAL = "rent-residential", "اجارهٔ مسکونی"
+    BUY_RESIDENTIAL = "buy-residential", "فروش مسکونی"
+    BUY_COMMERCIAL = "buy-commercial-property", "فروش اداری و تجاری"
+    RENT_COMMERCIAL = "rent-commercial-property", "اجارهٔ اداری و تجاری"
+
+
 class User(AbstractBaseUser, PermissionsMixin):
     agency = models.ForeignKey(
         "accounts.Agency",
@@ -169,25 +174,19 @@ class User(AbstractBaseUser, PermissionsMixin):
         unique=True,
     )
 
-    is_owner = models.BooleanField(
-        default=False,
+    is_owner = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+
+    deal_type_scope = models.CharField(
+        max_length=40,
+        choices=DealTypeScope.choices,
+        default=DealTypeScope.RENT_RESIDENTIAL,
+        verbose_name="نوع معامله",
     )
 
-    is_active = models.BooleanField(
-        default=True,
-    )
-
-    is_staff = models.BooleanField(
-        default=False,
-    )
-
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-    )
-
-    updated_at = models.DateTimeField(
-        auto_now=True,
-    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     objects = UserManager()
 
@@ -203,3 +202,6 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.full_name
+
+    def can_access_deal_type(self, deal_type: str) -> bool:
+        return self.is_owner or self.deal_type_scope == deal_type

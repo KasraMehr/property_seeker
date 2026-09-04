@@ -12,6 +12,7 @@ from accounts.permissions import HasRolePermission
 from ingestion.services.promotion import promote_listing
 from listing.filters import ListingFilter
 from listing.models import Listing
+from listing.selectors import ListingSelector
 from listing.serializers.listing import (
     BulkListingReviewSerializer,
     ListingDetailSerializer,
@@ -28,13 +29,6 @@ class ListingPagination(PageNumberPagination):
 
 
 class ListingListView(generics.ListAPIView):
-    queryset = (
-        Listing.objects
-        .select_related("source", "divar_neighborhood__zone", "divar_neighborhood__city")
-        .all()
-        .order_by("-last_seen_at", "-id")
-    )
-
     serializer_class = ListingListSerializer
 
     permission_classes = (HasRolePermission,)
@@ -48,37 +42,33 @@ class ListingListView(generics.ListAPIView):
     filterset_class = ListingFilter
 
     def get_queryset(self):
-        qs = (
-            Listing.objects
-            .select_related("source", "divar_neighborhood__zone", "divar_neighborhood__city")
-            .order_by("-last_seen_at", "-id")
+        return ListingSelector.for_user(
+            self.request.user
         )
 
-        # Only promoted listings will be on operator page
-        # if not self.request.user.is_owner:
-        #     qs = qs.filter(
-        #         property__address__neighborhood__in=(
-        #             self.request.user.service_neighborhoods.all()
-        #         )
-        #     )
 
-        return qs
-
-    
 class ListingDetailView(generics.RetrieveAPIView):
-    queryset = Listing.objects.select_related(
-        "source", "divar_neighborhood__zone", "divar_neighborhood__city"
-    ).all()
     serializer_class = ListingDetailSerializer
+
     permission_classes = (HasRolePermission,)
     required_permission = "view_listing"
 
+    def get_queryset(self):
+        return ListingSelector.for_user(
+            self.request.user
+        )
+
 
 class ListingReviewView(generics.UpdateAPIView):
-    queryset = Listing.objects.select_related("source").all()
     serializer_class = ListingReviewSerializer
+
     permission_classes = (HasRolePermission,)
     required_permission = "review_listing"
+
+    def get_queryset(self):
+        return ListingSelector.for_user(
+            self.request.user
+        )
 
     def update(self, request, *args, **kwargs):
         listing = self.get_object()
@@ -124,7 +114,9 @@ class ListingBulkReviewView(APIView):
         review_status = serializer.validated_data["review_status"]
 
         listings = list(
-            Listing.objects.filter(
+            ListingSelector.for_user(
+                request.user
+            ).filter(
                 id__in=listing_ids
             )
         )
@@ -141,7 +133,7 @@ class ListingBulkReviewView(APIView):
         if missing_ids:
             return Response(
                 {
-                    "detail": "Some listings do not exist.",
+                    "detail": "Some listings do not exist or you do not have access to them.",
                     "missing_ids": missing_ids,
                 },
                 status=status.HTTP_400_BAD_REQUEST,
@@ -175,18 +167,24 @@ class ListingBulkReviewView(APIView):
 
 class ListingCountsView(APIView):
     """Return counts per advertiser_type for tab badges."""
+
     permission_classes = (HasRolePermission,)
     required_permission = "view_listing"
 
     def get(self, request):
-        qs = Listing.objects.all()
+        qs = ListingSelector.for_user(
+            request.user
+        )
 
         counts = (
             qs.values("advertiser_type")
             .annotate(count=Count("id"))
         )
 
-        result = {row["advertiser_type"]: row["count"] for row in counts}
+        result = {
+            row["advertiser_type"]: row["count"]
+            for row in counts
+        }
 
         return Response({
             "all": qs.count(),
@@ -202,7 +200,9 @@ class ListingPromoteView(APIView):
 
     def post(self, request, pk):
         listing = get_object_or_404(
-            Listing.objects.select_related("source"),
+            ListingSelector.for_user(
+                request.user
+            ),
             pk=pk,
         )
 
