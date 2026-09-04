@@ -63,6 +63,27 @@ export const PROPERTY_QUICK_FILTERS = [
 ];
 
 export const PROPERTY_ADVANCED_FILTERS = [
+  {
+    key: "zone",
+    label: "زون",
+    type: "search_select",
+    placement: "drawer",
+    async: true,
+    endpoint: `${API_ENDPOINTS.LOCATIONS.ZONES.LIST.url}?active=true`,
+    optionLabel: "name",
+    optionValue: "id",
+  },
+  {
+    key: "divar_neighborhood",
+    label: "محلهٔ دیوار",
+    type: "search_select",
+    placement: "drawer",
+    async: true,
+    depends_on: "zone",
+    endpoint: `${API_ENDPOINTS.LOCATIONS.DIVAR_NEIGHBORHOODS.LIST.url}?zone={zone}&active=true`,
+    optionLabel: "name",
+    optionValue: "id",
+  },
    // ─── اشخاص ───
   {
     key: "owner",

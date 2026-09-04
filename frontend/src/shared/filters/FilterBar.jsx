@@ -82,16 +82,34 @@ export default function FilterBar({
 
       case "search_select":
         if (field.async || field.endpoint) {
+          const dependencyValue = field.depends_on
+            ? filters[field.depends_on]
+            : null;
+          let endpoint = field.endpoint;
+          if (field.depends_on && endpoint) {
+            endpoint = endpoint.replace(
+              `{${field.depends_on}}`,
+              encodeURIComponent(dependencyValue ?? ""),
+            );
+          }
           return (
             <div key={field.key} className="min-w-40">
               <SearchSelect
                 value={value ?? null}
-                onChange={(v, label) => onChange(field.key, v || null, label)}
-                endpoint={field.endpoint}
+                onChange={(v, label) => {
+                  onChange(field.key, v || null, label);
+                  schema
+                    .filter((candidate) => candidate.depends_on === field.key)
+                    .forEach((candidate) =>
+                      onChange(candidate.key, null, null),
+                    );
+                }}
+                endpoint={endpoint}
                 placeholder={field.label || field.placeholder || "جستجو..."}
                 optionLabel={field.optionLabel || "full_name"}
                 optionValue={field.optionValue || "id"}
                 clearable
+                disabled={!!field.depends_on && !dependencyValue}
               />
             </div>
           );

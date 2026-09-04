@@ -4,7 +4,13 @@ import { formatDate } from "@/utils/formatters";
 import { buildStatusConfig } from "@/constants/status.utils";
 
 import { Clock, Link2 } from "lucide-react";
-import SourceBadge from "../../../shared/ui/badges/SourceBadge";
+
+const CATEGORY_LABELS = {
+  "rent-residential": "اجارهٔ مسکونی",
+  "buy-residential": "فروش مسکونی",
+  "buy-commercial-property": "فروش اداری و تجاری",
+  "rent-commercial-property": "اجارهٔ اداری و تجاری",
+};
 
 /**
  * ScrapeTarget Table Columns
@@ -43,13 +49,25 @@ export const SCRAPER_TARGET_TABLE_COLUMNS = [
     key: "source",
     header: "منبع",
     width: "w-28",
-    cell: ({ source }) => (
+    cell: () => (
       // TODO: use badge to render the currect source object name
       // <SourceBadge
       // source={source}
       // />
       "دیوار"
     ),
+  },
+  {
+    key: "category",
+    header: "دسته‌بندی",
+    width: "w-36",
+    cell: ({ listing_category }) => CATEGORY_LABELS[listing_category] || "—",
+  },
+  {
+    key: "zone",
+    header: "زون",
+    width: "w-32",
+    cell: ({ zone_detail }) => zone_detail?.name || "—",
   },
   {
     key: "enabled",

@@ -2,6 +2,14 @@ import {
   LISTING_STATUS_CONFIG,
   LISTING_REVIEW_STATUS_CONFIG,
 } from "@/features/listings/config";
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
+
+const LISTING_CATEGORY_OPTIONS = [
+  { value: "rent-residential", label: "اجارهٔ مسکونی" },
+  { value: "buy-residential", label: "فروش مسکونی" },
+  { value: "buy-commercial-property", label: "فروش اداری و تجاری" },
+  { value: "rent-commercial-property", label: "اجارهٔ اداری و تجاری" },
+];
 
 /**
  * Listing Filters — All backed by server-side ListingFilter (django_filters)
@@ -46,6 +54,34 @@ export const LISTING_QUICK_FILTERS = [
 ];
 
 export const LISTING_ADVANCED_FILTERS = [
+  {
+    key: "category",
+    label: "دسته‌بندی ملک",
+    type: "multi_select",
+    placement: "drawer",
+    options: LISTING_CATEGORY_OPTIONS,
+  },
+  {
+    key: "zone",
+    label: "زون",
+    type: "search_select",
+    placement: "drawer",
+    async: true,
+    endpoint: `${API_ENDPOINTS.LOCATIONS.ZONES.LIST.url}?active=true`,
+    optionLabel: "name",
+    optionValue: "id",
+  },
+  {
+    key: "divar_neighborhood",
+    label: "محلهٔ دیوار",
+    type: "search_select",
+    placement: "drawer",
+    async: true,
+    depends_on: "zone",
+    endpoint: `${API_ENDPOINTS.LOCATIONS.DIVAR_NEIGHBORHOODS.LIST.url}?zone={zone}&active=true`,
+    optionLabel: "name",
+    optionValue: "id",
+  },
   // ── Price / Rent ──
   {
     key: "listed_sale_price",

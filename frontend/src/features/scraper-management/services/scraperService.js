@@ -47,6 +47,22 @@ const getDivarSession = () =>
 const checkDivarSession = () =>
   api.post(API_ENDPOINTS.INGESTION.DIVAR_SESSION.CHECK.url);
 
+const getZones = (params = {}) =>
+  api.get(API_ENDPOINTS.LOCATIONS.ZONES.LIST.url, { params });
+
+const getDivarNeighborhoods = (params = {}) =>
+  api.get(API_ENDPOINTS.LOCATIONS.DIVAR_NEIGHBORHOODS.LIST.url, { params });
+
+const mapDivarNeighborhood = (id, zone) =>
+  api.patch(API_ENDPOINTS.LOCATIONS.DIVAR_NEIGHBORHOODS.UPDATE(id).url, {
+    zone,
+  });
+
+const syncDivarNeighborhoods = (citySlug = "fardis") =>
+  api.post(API_ENDPOINTS.LOCATIONS.DIVAR_NEIGHBORHOODS.SYNC.url, {
+    city_slug: citySlug,
+  });
+
 const triggerRun = (targetId, mode, configuration = {}) => {
   const config =
     configuration &&
@@ -155,6 +171,10 @@ const scraperService = {
   confirmDivarLogin,
   getDivarSession,
   checkDivarSession,
+  getZones,
+  getDivarNeighborhoods,
+  mapDivarNeighborhood,
+  syncDivarNeighborhoods,
   triggerRun,
   resumeRun,
   getScraperTodayStatus,

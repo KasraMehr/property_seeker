@@ -26,6 +26,8 @@ export const LISTING_ICON_MAP = {
   external_id: Hash,
   title: FileText,
   source: ExternalLink,
+  category: Home,
+  divar_neighborhood: Home,
   url: Link2,
 
   status: FileText,
@@ -81,6 +83,13 @@ export const LISTING_DETAIL_FIELDS = [
       { key: "title", label: "عنوان آگهی", fullWidth: true },
       // { key: "contact_phone", label: "شماره تماس آگهی" },
       { key: "source", label: "منبع", type: "nested", nestedKey: "name" },
+      { key: "category", label: "دسته‌بندی دیوار" },
+      {
+        key: "divar_neighborhood",
+        label: "محلهٔ دیوار",
+        type: "nested",
+        nestedKey: "name",
+      },
       { key: "url", label: "لینک منبع", type: "link", fullWidth: true },
     ],
   },

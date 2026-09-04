@@ -11,11 +11,13 @@ import TargetsTab from "../components/tabs/TargetsTab";
 import RunsTab from "../components/tabs/RunsTab";
 import ListingsTab from "../components/tabs/ListingsTab";
 import DivarLoginTab from "../components/tabs/DivarLoginTab";
+import UnmappedNeighborhoodsTab from "../components/tabs/UnmappedNeighborhoodsTab";
 import scraperService from "../services/scraperService";
 import { toastService } from "@/lib/toast";
 
 const TABS = [
   { id: "targets", label: "تارگت‌ها" },
+  { id: "unmapped-neighborhoods", label: "محله‌های دیوار بدون زون" },
   { id: "runs", label: "اجراها" },
   { id: "listings", label: "آگهی‌های استخراج شده" },
   { id: "divar-login", label: "ورود دیوار" },
@@ -203,6 +205,11 @@ export default function ScraperPage() {
           )}
           {activeTab === "runs" && (
             <RunsTab onHeaderStateChange={onHeaderStateChange} />
+          )}
+          {activeTab === "unmapped-neighborhoods" && (
+            <UnmappedNeighborhoodsTab
+              onHeaderStateChange={onHeaderStateChange}
+            />
           )}
           {activeTab === "listings" && (
             <ListingsTab onHeaderStateChange={onHeaderStateChange} />

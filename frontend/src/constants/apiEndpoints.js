@@ -255,6 +255,30 @@ export const API_ENDPOINTS = {
         status: "[OK]",
       },
     },
+    ZONES: {
+      LIST: {
+        url: `${API_BASE}/zones/`,
+        method: "GET",
+        status: "[OK]",
+      },
+    },
+    DIVAR_NEIGHBORHOODS: {
+      LIST: {
+        url: `${API_BASE}/divar-neighborhoods/`,
+        method: "GET",
+        status: "[OK]",
+      },
+      UPDATE: (id) => ({
+        url: `${API_BASE}/divar-neighborhoods/${id}/`,
+        method: "PATCH",
+        status: "[OK]",
+      }),
+      SYNC: {
+        url: `${API_BASE}/divar-neighborhoods/sync/`,
+        method: "POST",
+        status: "[OK]",
+      },
+    },
     ADDRESSES: {
       // List + Create share same URL
       LIST: {

@@ -1,5 +1,7 @@
 // src/features/scraper-management/config/scraperTargetForms.config.js
 // ============================================
+
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 // Form Configs for Scraper Management Feature
 // ============================================
 
@@ -25,13 +27,47 @@ export const SCRAPER_TARGET_FORM = {
           span: 12,
         },
         {
-          key: "search_url",
-          label: "آدرس URL",
+          key: "base_url",
+          label: "آدرس پایهٔ دیوار",
           type: "url",
           required: true,
-          placeholder: "https://divar.ir/s/...",
-          validation: { required: "URL الزامی است" },
+          placeholder: "https://divar.ir/s/fardis?...",
+          validation: { required: "آدرس پایه الزامی است" },
+          condition: (_values, mode) => mode === "create",
           span: 12,
+        },
+        {
+          key: "search_url",
+          label: "آدرس دسته‌بندی‌شده",
+          type: "url",
+          readOnly: true,
+          condition: (_values, mode) => mode === "edit",
+          span: 12,
+        },
+        {
+          key: "zone",
+          label: "زون مرتبط با این URL",
+          type: "search_select",
+          required: true,
+          asyncSource: `${API_ENDPOINTS.LOCATIONS.ZONES.LIST.url}?active=true`,
+          displayField: "name",
+          placeholder: "انتخاب زون",
+          validation: { required: "انتخاب زون الزامی است" },
+          span: 6,
+        },
+        {
+          key: "listing_category",
+          label: "دسته‌بندی دیوار",
+          type: "select",
+          readOnly: true,
+          condition: (_values, mode) => mode === "edit",
+          options: [
+            { value: "rent-residential", label: "اجارهٔ مسکونی" },
+            { value: "buy-residential", label: "فروش مسکونی" },
+            { value: "buy-commercial-property", label: "فروش اداری و تجاری" },
+            { value: "rent-commercial-property", label: "اجارهٔ اداری و تجاری" },
+          ],
+          span: 6,
         },
         {
           key: "source",

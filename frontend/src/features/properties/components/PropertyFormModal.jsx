@@ -105,6 +105,10 @@ export default function PropertyFormModal({
       description: property?.description || "",
       // Location
       location: resolvedLocation || {},
+      city:
+        property?.divar_neighborhood?.city || resolvedLocation?.city || null,
+      zone: property?.divar_neighborhood?.zone || null,
+      divar_neighborhood: property?.divar_neighborhood?.id || null,
       // Specs
       area: property?.area || "",
       age: property?.age ?? "",
@@ -144,6 +148,8 @@ export default function PropertyFormModal({
         payload.address = payload.location.address ?? null;
         delete payload.location;
       }
+      delete payload.city;
+      delete payload.zone;
 
       // In edit mode, remove read-only fields that are strings (not FK IDs)
       if (isEdit) {

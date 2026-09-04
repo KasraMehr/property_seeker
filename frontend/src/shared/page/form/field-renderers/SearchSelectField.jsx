@@ -69,6 +69,7 @@ export default function SearchSelectField({
   );
 
   const depValue = field.dependsOn ? getValues(field.dependsOn) : null;
+  const previousDepValue = useRef(depValue);
 
   // Refetch when asyncSource changes (e.g., mode toggle between customer/owner)
   const prevAsyncSource = useRef(field.asyncSource);
@@ -88,6 +89,15 @@ export default function SearchSelectField({
       setValue(name, null);
       return;
     }
+    if (
+      field.dependsOn &&
+      previousDepValue.current != null &&
+      String(previousDepValue.current) !== String(depValue)
+    ) {
+      setValue(name, null);
+      setQuery("");
+    }
+    previousDepValue.current = depValue;
     fetchOptions("");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [depValue, field.dependsOn, name, field.asyncSource]);

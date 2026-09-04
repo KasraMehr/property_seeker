@@ -9,6 +9,13 @@ import {
 import { buildStatusConfig } from "@/constants/status.utils";
 import { formatPrice, formatDate } from "@/utils/formatters";
 
+const CATEGORY_LABELS = {
+  "rent-residential": "اجارهٔ مسکونی",
+  "buy-residential": "فروش مسکونی",
+  "buy-commercial-property": "فروش اداری و تجاری",
+  "rent-commercial-property": "اجارهٔ اداری و تجاری",
+};
+
 /**
  * فقط فیلدهای ListingListSerializer:
  * id, source, external_id, url, status, review_status,
@@ -44,6 +51,25 @@ export const LISTING_TABLE_COLUMNS = [
     header: "منبع",
     width: "w-28",
     cell: ({ source }) => <SourceBadge source={source?.name || "—"} />,
+  },
+  {
+    key: "category",
+    header: "دسته‌بندی",
+    width: "w-36",
+    cell: ({ category }) => CATEGORY_LABELS[category] || "—",
+  },
+  {
+    key: "divar_neighborhood",
+    header: "زون / محله",
+    width: "w-40",
+    cell: ({ divar_neighborhood }) => (
+      <div className="flex flex-col text-xs">
+        <span>{divar_neighborhood?.zone_name || "زون تعیین نشده"}</span>
+        <span className="text-muted-foreground">
+          {divar_neighborhood?.name || "محله نامشخص"}
+        </span>
+      </div>
+    ),
   },
   // {
   //   key: "contact_phone",
