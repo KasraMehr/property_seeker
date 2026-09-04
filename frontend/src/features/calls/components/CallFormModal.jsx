@@ -111,47 +111,23 @@ export default function CallFormModal({
     }
   }, [isOpen]);
 
-  /* ─── Resolve owner → customer (only on submit) ─── */
-  const resolveOwnerToCustomer = useCallback(async (ownerId) => {
-    const owner = (await api.get(API_ENDPOINTS.OWNERS.DETAIL(ownerId).url))
-      .data;
-
-    const res = await api.get(API_ENDPOINTS.CUSTOMERS.LIST.url, {
-      params: { search: owner.phone },
-    });
-    const customers = Array.isArray(res.data)
-      ? res.data
-      : res.data?.results || [];
-    const existing = customers.find((c) => c.phone === owner.phone);
-    if (existing) return existing.id;
-
-    const created = await api.post(API_ENDPOINTS.CUSTOMERS.CREATE.url, {
-      full_name: owner.full_name,
-      phone: owner.phone,
-      customer_type: "landlord",
-      status: "new",
-      source: "owner",
-      notes: `ساخته شده از مالک (شناسه: ${owner.id})`,
-    });
-    return created.data.id;
-  }, []);
-
   /* ─── Submit ─── */
   const handleSubmit = async (values) => {
     setLoading(true);
     try {
-      let customerId = Number(values.customer);
-      if (personMode === "owner" && customerId) {
-        customerId = await resolveOwnerToCustomer(customerId);
-      }
-      if (!customerId) {
+      const personId = Number(values.customer);
+      if (!personId) {
         toastService.error("لطفاً یک شخص انتخاب کنید.");
         setLoading(false);
         return;
       }
 
+      // In owner mode the backend resolves the owner to a landlord customer
+      // by phone (reusing an existing one if present), so send the owner id.
       const payload = {
-        customer: customerId,
+        ...(personMode === "owner"
+          ? { owner: personId }
+          : { customer: personId }),
         call_type: values.call_type,
         result: values.result,
         note: values.note || "",
@@ -179,6 +155,13 @@ export default function CallFormModal({
       setLoading(false);
     }
   };
+
+  /* ─── Existing recording name (edit mode) ─── */
+  const currentRecordingName = useMemo(() => {
+    const url = call?.record_file;
+    if (!url || typeof url !== "string") return null;
+    return url.split(/[?#]/)[0].split("/").pop() || url;
+  }, [call]);
 
   /* ─── Default values ─── */
   const defaultValues = useMemo(() => {
@@ -271,6 +254,16 @@ export default function CallFormModal({
             </div>
           )}
         </div>
+
+        {currentRecordingName && (
+          <p className="mb-3 text-xs text-muted">
+            فایل صوتی فعلی:{" "}
+            <span dir="ltr" className="font-medium text-foreground">
+              {currentRecordingName}
+            </span>
+            {" "}— اگر فایل جدیدی انتخاب نکنید، فایل قبلی حفظ می‌شود.
+          </p>
+        )}
 
         <FormRenderer
           key={formKey}

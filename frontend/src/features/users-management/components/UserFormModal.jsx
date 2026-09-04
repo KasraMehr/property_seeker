@@ -28,6 +28,17 @@ function toFormDefaults(user) {
     service_neighborhoods: Array.isArray(user.service_neighborhoods)
       ? user.service_neighborhoods.map((n) => n.id)
       : (user.service_neighborhoods ?? []),
+    // Backend stores only neighborhoods — derive their districts so the
+    // "مناطق خدمت" field isn't empty when editing an existing user.
+    service_districts: Array.isArray(user.service_neighborhoods)
+      ? [
+          ...new Set(
+            user.service_neighborhoods
+              .map((n) => n.district)
+              .filter((v) => v !== null && v !== undefined),
+          ),
+        ]
+      : (user.service_districts ?? []),
   };
 }
 

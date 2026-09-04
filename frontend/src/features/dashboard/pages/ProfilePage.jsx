@@ -10,9 +10,11 @@ import {
   UserCog,
 } from "lucide-react";
 
+import { useEffect } from "react";
+import { useOutletContext } from "react-router-dom";
+
 import useAuth from "@/features/auth/hooks/useAuth";
 
-import PageHeader from "@/shared/page/PageHeader";
 import Card from "@/shared/ui/Card";
 import IconBox from "@/shared/ui/IconBox";
 import RoleBadge from "@/shared/ui/badges/RoleBadge";
@@ -23,11 +25,21 @@ import { getRoleConfig } from "@/constants/roleConfig";
 export default function ProfilePage() {
   const { user, loading } = useAuth();
 
+  const { setPageHeader } = useOutletContext();
+
+  useEffect(() => {
+    setPageHeader({
+      title: "پروفایل من",
+      subtitle: "مشاهده اطلاعات حساب کاربری",
+      breadcrumb: [],
+    });
+
+    return () => setPageHeader(null);
+  }, [setPageHeader]);
+
   if (loading) {
     return (
       <div className="space-y-6">
-        <PageHeader title="پروفایل من" subtitle="اطلاعات حساب کاربری" />
-
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <Card className="lg:col-span-1">
             <div className="animate-pulse space-y-5">
@@ -58,11 +70,6 @@ export default function ProfilePage() {
   if (!user) {
     return (
       <div className="space-y-6">
-        <PageHeader
-          title="پروفایل من"
-          subtitle="اطلاعات حساب کاربری"
-        />
-
         <Card>
           <div className="flex min-h-48 flex-col items-center justify-center text-center">
             <IconBox
@@ -174,11 +181,6 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="پروفایل من"
-        subtitle="مشاهده اطلاعات حساب کاربری"
-      />
-
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
         {/* Profile Summary */}
         <Card className="xl:col-span-1">

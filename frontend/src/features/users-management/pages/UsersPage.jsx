@@ -323,7 +323,7 @@ export default function UsersPage() {
       onClearAll: clearAll,
       activeChips,
     }),
-    [filterValues, setFilter, clearFilter, clearAll, activeChips],
+    [filterValues, setFilter, clearFilter, clearAll, activeChips, filterOptions],
   );
 
   const pagination = useMemo(

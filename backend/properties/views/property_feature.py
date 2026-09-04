@@ -25,7 +25,7 @@ class PropertyFeatureCreateView(APIView):
         HasRolePermission,
     )
 
-    required_permission = "add_property_feature"
+    required_permission = "add_propertyfeature"
 
     def post(self, request):
 
@@ -62,7 +62,7 @@ class PropertyFeatureListView(APIView):
         HasRolePermission,
     )
 
-    required_permission = "view_property_feature"
+    required_permission = "view_propertyfeature"
 
     def get(self, request):
 
@@ -87,7 +87,7 @@ class PropertyFeatureDetailView(APIView):
         HasRolePermission,
     )
 
-    required_permission = "view_property_feature"
+    required_permission = "view_propertyfeature"
 
     def get(self, request, pk):
 
@@ -109,7 +109,7 @@ class PropertyFeatureUpdateView(APIView):
         HasRolePermission,
     )
 
-    required_permission = "change_property_feature"
+    required_permission = "change_propertyfeature"
 
     def put(self, request, pk):
 
@@ -152,7 +152,7 @@ class PropertyFeatureBulkDeleteView(APIView):
         HasRolePermission,
     )
 
-    required_permission = "delete_property_feature"
+    required_permission = "delete_propertyfeature"
 
     def delete(self, request):
         property_feature_ids = request.data.get("ids", [])

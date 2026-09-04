@@ -1,5 +1,5 @@
 import { useMemo, useState, useCallback, useEffect } from "react";
-import { Plus, Eye, Pencil, CheckCircle2, XCircle, Clock, Trash2 } from "lucide-react";
+import { Plus, Eye, Pencil, CheckCircle2, XCircle, Clock, Trash2, Play } from "lucide-react";
 import { useOutletContext } from "react-router-dom";
 import useAuth from "@/features/auth/hooks/useAuth";
 import ResourceTemplate from "@/shared/templates/resource/ResourceTemplate";
@@ -14,6 +14,46 @@ import Button from "@/shared/ui/Button";
 import FollowupDetailModal from "@/features/followups/components/FollowupDetailModal";
 import FollowupFormModal from "@/features/followups/components/FollowupFormModal";
 import {toastService} from "@/lib/toast"
+
+/* ─── Supademo Demo Popup ─── */
+const SUPADEMO_DEMO_ID = "cmtmk64e90jdcqmh5vc7vae5e";
+const SUPADEMO_SCRIPT_SRC = "https://script.supademo.com/supademo.js";
+
+let supademoScriptPromise = null;
+
+/** Load the Supademo script once, then resolve. */
+function loadSupademoScript() {
+  if (window.Supademo) return Promise.resolve();
+
+  if (!supademoScriptPromise) {
+    supademoScriptPromise = new Promise((resolve, reject) => {
+      const onLoad = () => resolve();
+      const onError = () => reject(new Error("Supademo script failed to load."));
+
+      const existing = document.getElementById("supademo-script");
+      if (existing) {
+        existing.addEventListener("load", onLoad, { once: true });
+        existing.addEventListener("error", onError, { once: true });
+        return;
+      }
+
+      const script = document.createElement("script");
+      script.id = "supademo-script";
+      script.src = SUPADEMO_SCRIPT_SRC;
+      script.async = true;
+      script.addEventListener("load", onLoad, { once: true });
+      script.addEventListener("error", onError, { once: true });
+      document.body.appendChild(script);
+    });
+
+    // Allow a later retry if loading ever fails.
+    supademoScriptPromise.catch(() => {
+      supademoScriptPromise = null;
+    });
+  }
+
+  return supademoScriptPromise;
+}
 
 /* ─── Row Actions ─── */
 const FOLLOWUP_ROW_ACTIONS = {
@@ -215,6 +255,16 @@ export default function FollowupsPage() {
     setPendingAction(null);
   }, [pendingAction, remove]);
 
+  /* ─── Demo tour popup (Supademo) ─── */
+  const openDemoTour = useCallback(async () => {
+    try {
+      await loadSupademoScript();
+      window.Supademo?.open(SUPADEMO_DEMO_ID);
+    } catch {
+      toastService.error("خطا در بارگذاری دمو.");
+    }
+  }, []);
+
   /* ─── Filter options ─── */
   const filterOptions = useMemo(() => {
     const statusFilter = FOLLOWUP_ALL_FILTERS.find((f) => f.key === "status");
@@ -407,6 +457,16 @@ export default function FollowupsPage() {
         followup={editFollowup}
         onSuccess={refresh}
       />
+
+      {/* Demo tour popup (Supademo) — fixed bottom-left */}
+      <Button
+        variant="demo"
+        icon={Play}
+        className="fixed bottom-5 left-5 z-40 gap-2"
+        onClick={openDemoTour}
+      >
+        راهنما
+      </Button>
     </>
   );
 }

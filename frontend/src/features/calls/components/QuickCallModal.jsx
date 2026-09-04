@@ -1,11 +1,10 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useMemo } from "react";
 import Modal from "@/shared/ui/modal/Modal";
 import FormRenderer from "@/shared/page/FormRenderer";
 import { QUICK_CALL_FORM } from "@/features/calls/config";
 import callService from "@/features/calls/services/callService";
 import useAuthStore from "@/store/useAuthStore";
 import { toastService } from "@/lib/toast";
-import api from "@/lib/api";
 import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 
 export default function QuickCallModal({
@@ -48,59 +47,24 @@ export default function QuickCallModal({
     return config;
   }, [personMode]);
 
-  /* ─── Resolve owner → customer (only on submit) ─── */
-  const resolveOwnerToCustomer = useCallback(async (ownerId) => {
-    const ownerRes = await api.get(API_ENDPOINTS.OWNERS.DETAIL(ownerId).url);
-    const owner = ownerRes.data;
-
-    const searchRes = await api.get(API_ENDPOINTS.CUSTOMERS.LIST.url, {
-      params: { search: owner.phone },
-    });
-    const customers = Array.isArray(searchRes.data)
-      ? searchRes.data
-      : searchRes.data?.results || [];
-    const existingCustomer = customers.find((c) => c.phone === owner.phone);
-
-    if (existingCustomer) {
-      return existingCustomer.id;
-    }
-
-    const newCustomerPayload = {
-      full_name: owner.full_name,
-      phone: owner.phone,
-      customer_type: "landlord",
-      status: "new",
-      source: "owner",
-      notes: `ساخته شده از مالک (شناسه: ${owner.id})`,
-    };
-
-    const createRes = await api.post(
-      API_ENDPOINTS.CUSTOMERS.CREATE.url,
-      newCustomerPayload,
-    );
-    return createRes.data.id;
-  }, []);
-
   /* ─── Submit ─── */
   const handleSubmit = async (data) => {
     setLoading(true);
 
     try {
-      let customerId = Number(data.customer);
-
-      // If owner mode, resolve owner → customer first
-      if (personMode === "owner" && customerId) {
-        customerId = await resolveOwnerToCustomer(customerId);
-      }
-
-      if (!customerId) {
+      const personId = Number(data.customer);
+      if (!personId) {
         toastService.error("لطفاً یک شخص انتخاب کنید.");
         setLoading(false);
         return;
       }
 
+      // In owner mode the backend resolves the owner to a landlord customer
+      // by phone (reusing an existing one if present), so send the owner id.
       const payload = {
-        customer: customerId,
+        ...(personMode === "owner"
+          ? { owner: personId }
+          : { customer: personId }),
         call_type: data.call_type,
         result: data.result,
         note: data.note || "",
