@@ -7,6 +7,7 @@ import {
   Phone,
   Download,
 } from "lucide-react";
+import {PERMISSIONS} from "@/constants/permissions"
 
 /**
  * Call Log Actions Config
@@ -25,6 +26,15 @@ export const CALL_ROW_ACTIONS = [
     type: "row",
     permission: null,
     modal: "detail",
+  },
+  {
+    key: "edit",
+    label: "ویرایش",
+    icon: Pencil,
+    variant: "ghost",
+    type: "row",
+    permission: null,
+    modal: "edit",
   },
   // {
   //   key: "mark_follow_up_done",

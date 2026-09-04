@@ -174,6 +174,11 @@ export default function PropertyFormModal({
         }
       }
 
+      // Nullable numeric fields: keep NULL when left blank, never send ""
+      for (const key of ["floor", "total_floors"]) {
+        if (payload[key] === "") payload[key] = null;
+      }
+
       let propertyId;
       if (isEdit) {
         await propertyService.update(property.id, payload);

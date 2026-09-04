@@ -120,6 +120,22 @@ export default function OwnersTab({ onHeaderStateChange }) {
     [getById],
   );
 
+  /* ─── Open Edit (full record so notes/fields auto-fill) ─── */
+  const openEdit = useCallback(
+    async (row) => {
+      setFormOwner(row);
+      try {
+        if (getById) {
+          const full = await getById(row.id);
+          setFormOwner(full?.data ?? full);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    },
+    [getById],
+  );
+
   /* ─── Row Actions ─── */
   const handleRowAction = useCallback(
     (actionKey, row) => {
@@ -128,7 +144,7 @@ export default function OwnersTab({ onHeaderStateChange }) {
           openDetail(row);
           break;
         case "edit":
-          setFormOwner(row);
+          openEdit(row);
           break;
         case "delete":
           setPendingDeleteIds([row.id]);
@@ -137,7 +153,7 @@ export default function OwnersTab({ onHeaderStateChange }) {
           break;
       }
     },
-    [openDetail],
+    [openDetail, openEdit],
   );
 
   /* ─── Bulk Action ─── */

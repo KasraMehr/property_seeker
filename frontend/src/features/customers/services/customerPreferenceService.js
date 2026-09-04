@@ -11,7 +11,7 @@ const create = (data) =>
   api.post(API_ENDPOINTS.CUSTOMER_PREFERENCES.CREATE.url, data);
 
 const update = (id, data) =>
-  api.put(API_ENDPOINTS.CUSTOMER_PREFERENCES.UPDATE(id).url, data);
+  api.patch(API_ENDPOINTS.CUSTOMER_PREFERENCES.UPDATE(id).url, data);
 
 const remove = (id) =>
   api.delete(API_ENDPOINTS.CUSTOMER_PREFERENCES.BULK_DELETE.url, {

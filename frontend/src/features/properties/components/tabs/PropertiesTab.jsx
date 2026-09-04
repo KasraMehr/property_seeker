@@ -113,6 +113,22 @@ export default function PropertiesTab({ onHeaderStateChange }) {
     [getById],
   );
 
+  /* ─── Open Edit (full record so description/location auto-fill) ─── */
+  const openEdit = useCallback(
+    async (row) => {
+      setFormProperty(row);
+      try {
+        if (getById) {
+          const full = await getById(row.id);
+          setFormProperty(full?.data ?? full);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    },
+    [getById],
+  );
+
   /* ─── Row Actions ─── */
   const handleRowAction = useCallback(
     (actionKey, row) => {
@@ -121,7 +137,7 @@ export default function PropertiesTab({ onHeaderStateChange }) {
           openDetail(row);
           break;
         case "edit":
-          setFormProperty(row);
+          openEdit(row);
           break;
         case "register_call":
           setCallProperty(row);
@@ -136,7 +152,7 @@ export default function PropertiesTab({ onHeaderStateChange }) {
           break;
       }
     },
-    [openDetail],
+    [openDetail, openEdit],
   );
 
   /* ─── Bulk Action ─── */
