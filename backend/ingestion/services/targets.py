@@ -7,10 +7,16 @@ from ingestion.models import ScrapeTarget
 
 
 DIVAR_CATEGORY_SLUGS = tuple(value for value, _ in ScrapeTarget.ListingCategory.choices)
+DIVAR_REAL_ESTATE_SLUG = "real-estate"
 
 
 def normalize_divar_base_url(value: str) -> tuple[str, str]:
-    """Return a category-free Divar search URL and its city slug."""
+    """Return a canonical Divar search URL and its city slug.
+
+    Neighborhood-scoped URLs keep their path under Divar's umbrella
+    ``real-estate`` category so the scope can be applied to every supported
+    listing category later.
+    """
 
     parsed = urlsplit(str(value or "").strip())
     if parsed.scheme not in {"http", "https"} or parsed.hostname not in {
@@ -23,10 +29,17 @@ def normalize_divar_base_url(value: str) -> tuple[str, str]:
     if len(parts) < 2 or parts[0] != "s":
         raise ValidationError("The URL must be a Divar city search URL (/s/<city>[/...]).")
     city_slug = parts[1]
-    if len(parts) > 2 and parts[2] not in DIVAR_CATEGORY_SLUGS:
+    supported_path_categories = (*DIVAR_CATEGORY_SLUGS, DIVAR_REAL_ESTATE_SLUG)
+    if len(parts) > 2 and parts[2] not in supported_path_categories:
         raise ValidationError("The URL must target a city or one of the supported categories.")
 
-    base_url = urlunsplit(("https", "divar.ir", f"/s/{city_slug}", parsed.query, ""))
+    scope_parts = parts[3:]
+    base_parts = ["s", city_slug]
+    if scope_parts:
+        base_parts.extend((DIVAR_REAL_ESTATE_SLUG, *scope_parts))
+
+    base_path = "/" + "/".join(base_parts)
+    base_url = urlunsplit(("https", "divar.ir", base_path, parsed.query, ""))
     return base_url, city_slug
 
 
@@ -35,8 +48,11 @@ def build_divar_category_url(base_url: str, category: str) -> str:
         raise ValidationError("Unsupported Divar listing category.")
     normalized, city_slug = normalize_divar_base_url(base_url)
     parsed = urlsplit(normalized)
+    parts = [part for part in parsed.path.split("/") if part]
+    scope_parts = parts[3:] if len(parts) > 2 else []
+    category_path = "/".join(("s", city_slug, category, *scope_parts))
     return urlunsplit(
-        (parsed.scheme, parsed.netloc, f"/s/{city_slug}/{category}", parsed.query, "")
+        (parsed.scheme, parsed.netloc, f"/{category_path}", parsed.query, "")
     )
 
 

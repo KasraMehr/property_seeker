@@ -36,3 +36,31 @@ class ScrapeTargetCategoryTests(TestCase):
             targets[0].base_url,
             "https://divar.ir/s/target-test-city?districts=123",
         )
+
+    def test_neighborhood_real_estate_url_preserves_scope_for_all_categories(self):
+        city = City.objects.get(slug="fardis")
+        zone = Zone.objects.get(id="fardis-vahdat", city=city)
+        source = Source.objects.create(name="Divar neighborhood")
+
+        targets = create_category_targets(
+            source=source,
+            name="Shahrak Vahdat",
+            base_url="https://divar.ir/s/fardis/real-estate/shahrak-vahdat",
+            zone=zone,
+        )
+
+        self.assertEqual(len(targets), 4)
+        self.assertEqual(
+            {target.search_url for target in targets},
+            {
+                f"https://divar.ir/s/fardis/{category}/shahrak-vahdat"
+                for category, _label in ScrapeTarget.ListingCategory.choices
+            },
+        )
+        self.assertTrue(
+            all(
+                target.base_url
+                == "https://divar.ir/s/fardis/real-estate/shahrak-vahdat"
+                for target in targets
+            )
+        )
