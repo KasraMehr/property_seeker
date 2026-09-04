@@ -1,4 +1,7 @@
 from django.db import models
+from django.db.models import Q
+
+from .normalization import normalize_persian
 
 
 # Create your models here.
@@ -20,9 +23,17 @@ class City(models.Model):
     )
 
     name = models.CharField(max_length=100)
+    slug = models.SlugField(max_length=100, blank=True, default="", db_index=True)
 
     class Meta:
         db_table = "cities"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["slug"],
+                condition=~Q(slug=""),
+                name="unique_nonempty_city_slug",
+            ),
+        ]
 
     def __str__(self):
         return self.name
@@ -49,6 +60,73 @@ class Neighborhood(models.Model):
 
     class Meta:
         db_table = "neighborhoods"
+
+    def __str__(self):
+        return self.name
+
+
+class Zone(models.Model):
+    """A stable, CRM-owned grouping of Divar neighborhoods."""
+
+    id = models.SlugField(primary_key=True, max_length=100)
+    city = models.ForeignKey(City, on_delete=models.CASCADE, related_name="zones")
+    name = models.CharField(max_length=100)
+    active = models.BooleanField(default=True, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "zones"
+        ordering = ["name"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["city", "name"], name="unique_zone_name_per_city"
+            ),
+        ]
+
+    def __str__(self):
+        return self.name
+
+
+class DivarNeighborhood(models.Model):
+    """Canonical external neighborhood returned by Divar.
+
+    ``zone`` is deliberately nullable: synchronization never guesses a CRM
+    mapping for a newly introduced Divar neighborhood.
+    """
+
+    city = models.ForeignKey(
+        City, on_delete=models.CASCADE, related_name="divar_neighborhoods"
+    )
+    zone = models.ForeignKey(
+        Zone,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="divar_neighborhoods",
+    )
+    name = models.CharField(max_length=150)
+    normalized_name = models.CharField(max_length=150)
+    source = models.CharField(max_length=30, default="divar", editable=False)
+    active = models.BooleanField(default=True, db_index=True)
+    last_seen_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "divar_neighborhoods"
+        ordering = ["name"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["city", "normalized_name"],
+                name="unique_divar_neighborhood_city_normalized_name",
+            ),
+        ]
+        indexes = [models.Index(fields=["city", "zone", "active"])]
+
+    def save(self, *args, **kwargs):
+        self.normalized_name = normalize_persian(self.name)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name

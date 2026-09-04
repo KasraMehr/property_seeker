@@ -6,4 +6,5 @@ urlpatterns = [
     path("", include("locations.location_urls.neighborhood")),
     path("", include("locations.location_urls.province")),
     path("", include("locations.location_urls.district")),
+    path("", include("locations.location_urls.divar")),
 ]

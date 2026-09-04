@@ -20,6 +20,7 @@ class CityListSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "name",
+            "slug",
             "province",
             "province_id",
         )
