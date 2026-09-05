@@ -96,4 +96,12 @@ jobs:
             }
 
             git merge --ff-only "$DEPLOY_SHA"
+
+            # Clean up Docker build cache only to free space before building images.
+            # IMPORTANT: Do NOT remove Docker volumes (PostgreSQL or others). The
+            # allowed command is `docker builder prune -af` only; `docker system prune`
+            # or manual removal of /var/lib/docker or /var/lib/containerd is forbidden.
+            echo "Pruning Docker builder cache (docker builder prune -af) — will not remove volumes"
+            docker builder prune -af || true
+
             DEPLOY_SHA="$DEPLOY_SHA" ./scripts/deploy-production.sh
