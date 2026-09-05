@@ -42,6 +42,7 @@ export const USER_ICON_MAP = {
   is_owner: Crown,
   created_at: Calendar,
   updated_at: Calendar,
+  deal_type_scope: Fingerprint,
 };
 
 /* ─── Tab 1: Profile ─── */
@@ -87,6 +88,27 @@ export const USER_PROFILE_FIELDS = [
         type: "boolean",
         trueLabel: "بله",
         falseLabel: "خیر",
+      },
+    ],
+  },
+  {
+    section: "deal_type",
+    sectionLabel: "نوع معامله",
+    fields: [
+      {
+        key: "deal_type_scope",
+        label: "نوع معامله",
+        fullWidth: true,
+        format: (v) => {
+          if (!v) return "—";
+          const map = {
+            "rent-residential": "اجارهٔ مسکونی",
+            "buy-residential": "فروش مسکونی",
+            "buy-commercial-property": "فروش اداری و تجاری",
+            "rent-commercial-property": "اجارهٔ اداری و تجاری",
+          };
+          return map[v] ?? v;
+        },
       },
     ],
   },
