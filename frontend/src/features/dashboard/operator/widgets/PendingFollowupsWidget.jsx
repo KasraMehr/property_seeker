@@ -18,6 +18,7 @@ const FOLLOWUP_COLUMNS = [
   {
     key: "title",
     header: "عنوان",
+    width: "w-1/2",
     cell: ({ title, description, due_at, status }) => (
       <div className="flex items-center gap-1.5">
         {isToday(due_at) && status === "pending" && (
@@ -25,7 +26,7 @@ const FOLLOWUP_COLUMNS = [
         )}
         <div>
           <p className="text-sm font-medium">{title}</p>
-          <p className="text-xs text-muted line-clamp-1">{description || "—"}</p>
+          {/* <p className="text-xs text-muted line-clamp-1">{description || "—"}</p> */}
         </div>
       </div>
     ),

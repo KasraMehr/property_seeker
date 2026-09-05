@@ -1,13 +1,13 @@
 import {
   User,
   Phone,
-  Mail,
   CreditCard,
-  ShieldCheck,
   CalendarDays,
   Building2,
   UserCheck,
   UserCog,
+  MapPin,
+  ShieldCheck ,
 } from "lucide-react";
 
 import { useEffect } from "react";
@@ -18,9 +18,7 @@ import useAuth from "@/features/auth/hooks/useAuth";
 import Card from "@/shared/ui/Card";
 import IconBox from "@/shared/ui/IconBox";
 import RoleBadge from "@/shared/ui/badges/RoleBadge";
-import StatusBadge from "@/shared/ui/badges/StatusBadge";
 
-import { getRoleConfig } from "@/constants/roleConfig";
 
 export default function ProfilePage() {
   const { user, loading } = useAuth();
@@ -98,13 +96,7 @@ export default function ProfilePage() {
       ? user.role[0]?.name
       : "operator";
 
-  const roleConfig = getRoleConfig(roleName);
 
-  const roleLabel = user?.is_owner
-    ? "مالک آژانس"
-    : Array.isArray(user?.role) && user.role.length > 0
-      ? user.role.map((role) => role.name).join("، ")
-      : "مشاور";
 
   const isActive = user?.is_active ?? true;
 
@@ -145,6 +137,17 @@ export default function ProfilePage() {
     dot: isActive ? "bg-success" : "bg-danger",
   };
 
+  const dealTypeLabels = {
+    "rent-residential": "اجارهٔ مسکونی",
+    "buy-residential": "فروش مسکونی",
+    "buy-commercial-property": "فروش اداری و تجاری",
+    "rent-commercial-property": "اجارهٔ اداری و تجاری",
+  };
+
+  const dealTypeLabel = user?.deal_type_scope
+    ? dealTypeLabels[user.deal_type_scope] ?? user.deal_type_scope
+    : "ثبت نشده";
+
   const information = [
     {
       label: "نام و نام خانوادگی",
@@ -169,6 +172,11 @@ export default function ProfilePage() {
         user.agency?.name || user.agency_name,
       ),
       icon: Building2,
+    },
+    {
+      label: "نوع معامله",
+      value: dealTypeLabel,
+      icon: ShieldCheck,
     },
     {
       label: "تاریخ عضویت",
@@ -211,29 +219,18 @@ export default function ProfilePage() {
               className="mt-4"
             />
 
-            <div className="mt-3">
-              <StatusBadge
-                config={statusConfig}
-                variant="soft"
-                size="sm"
-                showIcon
-              />
+            {/* Status pill */}
+            <div
+              className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-success/10 px-3 py-1 text-xs font-medium text-success"
+            >
+              <span className="flex h-1.5 w-1.5 rounded-full bg-success" />
+              وضعیت حساب: فعال
             </div>
           </div>
 
           <div className="my-6 h-px bg-border" />
 
           <div className="space-y-3">
-            <div className="flex items-center justify-between gap-4">
-              <span className="text-sm text-muted">
-                وضعیت حساب
-              </span>
-
-              <span className="text-sm font-medium text-foreground">
-                {isActive ? "فعال" : "غیرفعال"}
-              </span>
-            </div>
-
             {user?.is_staff && (
               <div className="flex items-center justify-between gap-4">
                 <span className="text-sm text-muted">
@@ -322,34 +319,71 @@ export default function ProfilePage() {
         </Card>
       </div>
 
-      {/* Account Status */}
+      {/* Service Neighborhoods */}
       <Card>
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <IconBox
-              icon={ShieldCheck}
+              icon={MapPin}
               boxSize="md"
               variant="filled"
             />
 
             <div>
               <h2 className="text-base font-bold text-foreground">
-                وضعیت حساب
+                محله‌های سرویس
               </h2>
 
               <p className="mt-0.5 text-xs text-muted">
-                وضعیت فعلی حساب کاربری شما
+                {user.service_neighborhoods?.length ?? 0} محله
+                تحت پوشش شما
               </p>
             </div>
           </div>
 
-          <StatusBadge
-            config={statusConfig}
-            variant="soft"
-            size="md"
-            showIcon
-          />
+          {Array.isArray(user?.service_neighborhoods) &&
+          user.service_neighborhoods.length > 0 && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
+              <span className="flex h-1.5 w-1.5 rounded-full bg-primary" />
+              {user.service_neighborhoods.length} منطقه
+            </span>
+          )}
         </div>
+
+        {Array.isArray(user?.service_neighborhoods) &&
+        user.service_neighborhoods.length > 0 ? (
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {user.service_neighborhoods.map((n) => (
+              <div
+                key={n.id ?? n._id}
+                className="flex items-center gap-3 rounded-xl border border-border/70 bg-surface/50 px-4 py-3 transition-colors duration-200 hover:border-primary/30 hover:bg-primary/5"
+              >
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                  <MapPin className="h-4 w-4 text-primary" />
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium text-foreground">
+                    {n.name}
+                  </p>
+
+
+                  {(n.city_name || n.zone_name) && (
+                    <p className="truncate text-xs text-muted mt-0.5">
+                      {n.city_name || n.zone_name}
+                    </p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="flex items-center gap-3 rounded-xl border border-border/50 bg-muted/30 px-4 py-6 text-center">
+            <IconBox icon={MapPin} boxSize="md" variant="ghost" className="text-muted" />
+
+            <p className="text-sm text-muted">هنوز محله‌ای برای سرویس ثبت نشده است.</p>
+          </div>
+        )}
       </Card>
     </div>
   );

@@ -31,13 +31,17 @@ class OperatorStatsView(APIView):
             ).count()
         else:
             neighborhoods = user.service_neighborhoods.all()
-            my_leads = Listing.objects.filter(
-                property__address__neighborhood__in=neighborhoods
-            ).distinct().count()
-            my_conversions = Listing.objects.filter(
-                property__address__neighborhood__in=neighborhoods,
-                review_status=Listing.ReviewStatus.PROMOTED,
-            ).distinct().count()
+            if neighborhoods.exists():
+                my_leads = Listing.objects.filter(
+                    property__divar_neighborhood__in=neighborhoods
+                ).distinct().count()
+                my_conversions = Listing.objects.filter(
+                    property__divar_neighborhood__in=neighborhoods,
+                    review_status=Listing.ReviewStatus.PROMOTED,
+                ).distinct().count()
+            else:
+                my_leads = 0
+                my_conversions = 0
 
         # ─── تماس‌های امروز ───
         my_calls_today = CallLog.objects.filter(

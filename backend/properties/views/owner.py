@@ -69,7 +69,7 @@ class OwnerListView(ListAPIView):
         if not user.is_owner:
             qs = qs.filter(
                 Q(created_by=user)
-                | Q(properties__address__neighborhood__in=user.service_neighborhoods.all())
+                | Q(properties__divar_neighborhood__in=user.service_neighborhoods.all())
             ).distinct()
 
         return qs

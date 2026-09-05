@@ -31,12 +31,12 @@ export const FOLLOWUP_TABLE_COLUMNS = [
             {isToday && (
               <span className="shrink-0 w-2 h-2 rounded-full bg-amber-500" title="موعد امروز" />
             )}
-            <span className="font-medium text-sm truncate max-w-45" title={title}>
+            <span className="font-medium text-sm truncate" title={title}>
               {title}
             </span>
           </div>
           {description && (
-            <span className="text-xs text-muted-foreground truncate max-w-45">
+            <span className="text-xs text-muted-foreground truncate">
               {description}
             </span>
           )}

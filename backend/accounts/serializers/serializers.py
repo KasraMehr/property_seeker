@@ -247,6 +247,7 @@ class UserSerializer(serializers.ModelSerializer):
             "service_neighborhoods",
             "is_owner",
             "is_active",
+            "deal_type_scope",
             "created_at",
             "updated_at",
         )

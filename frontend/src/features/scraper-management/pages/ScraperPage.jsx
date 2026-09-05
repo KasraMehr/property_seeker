@@ -17,9 +17,9 @@ import { toastService } from "@/lib/toast";
 
 const TABS = [
   { id: "targets", label: "تارگت‌ها" },
-  { id: "unmapped-neighborhoods", label: "محله‌های دیوار بدون زون" },
   { id: "runs", label: "اجراها" },
   { id: "listings", label: "آگهی‌های استخراج شده" },
+  { id: "unmapped-neighborhoods", label: "محله‌های دیوار بدون زون" },
   { id: "divar-login", label: "ورود دیوار" },
 ];
 
