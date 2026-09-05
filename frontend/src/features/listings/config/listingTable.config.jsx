@@ -46,12 +46,12 @@ export const LISTING_TABLE_COLUMNS = [
       </div>
     ),
   },
-  {
-    key: "source",
-    header: "منبع",
-    width: "w-28",
-    cell: ({ source }) => <SourceBadge source={source?.name || "—"} />,
-  },
+  // {
+  //   key: "source",
+  //   header: "منبع",
+  //   width: "w-28",
+  //   cell: ({ source }) => <SourceBadge source={source?.name || "—"} />,
+  // },
   {
     key: "category",
     header: "دسته‌بندی",
@@ -147,12 +147,12 @@ export const LISTING_TABLE_COLUMNS = [
   //   width: "w-32",
   //   cell: ({ first_seen_at }) => formatDate(first_seen_at, "short"),
   // },
-  {
-    key: "last_seen",
-    header: "آخرین مشاهده",
-    width: "w-32",
-    cell: ({ last_seen_at }) => formatDate(last_seen_at, "short"),
-  },
+  // {
+  //   key: "last_seen",
+  //   header: "آخرین مشاهده",
+  //   width: "w-32",
+  //   cell: ({ last_seen_at }) => formatDate(last_seen_at, "short"),
+  // },
   // {
   //   key: "actions",
   //   header: "",

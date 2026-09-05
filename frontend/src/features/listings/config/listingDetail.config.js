@@ -115,12 +115,12 @@ export const LISTING_DETAIL_FIELDS = [
         type: "status",
         configKey: "listingAdvertiserType",
       },
-      {
-        key: "advertiser_classification_status",
-        label: "وضعیت تشخیص آگهی‌دهنده",
-        type: "status",
-        configKey: "listingAdvertiserClassificationStatus",
-      },
+      // {
+      //   key: "advertiser_classification_status",
+      //   label: "وضعیت تشخیص آگهی‌دهنده",
+      //   type: "status",
+      //   configKey: "listingAdvertiserClassificationStatus",
+      // },
       // {
       //   key: "advertiser_classification_model",
       //   label: "مدل تشخیص",
@@ -187,20 +187,28 @@ export const LISTING_DETAIL_FIELDS = [
       { key: "leads_count", label: "تعداد سرنخ" },
     ],
   },
-  {
-    section: "scraping",
-    sectionLabel: "وضعیت اسکرپینگ",
-    fields: [
-      { key: "first_seen_at", label: "اولین مشاهده", type: "dateTime" },
-      { key: "last_seen_at", label: "آخرین مشاهده", type: "dateTime" },
-      { key: "last_checked_at", label: "آخرین بررسی", type: "dateTime" },
-      { key: "last_changed_at", label: "آخرین تغییر", type: "dateTime" },
-      { key: "advertiser_classified_at", label: "زمان تشخیص آگهی‌دهنده", type: "dateTime" },
-      { key: "consecutive_failures", label: "تعداد خطای متوالی" },
-      { key: "removal_detected_at", label: "زمان حذف از منبع", type: "dateTime" },
-      // { key: "content_hash", label: "هش محتوا", type: "mono" },
-    ],
-  },
+  // {
+  //   section: "scraping",
+  //   sectionLabel: "وضعیت اسکرپینگ",
+  //   fields: [
+  //     { key: "first_seen_at", label: "اولین مشاهده", type: "dateTime" },
+  //     { key: "last_seen_at", label: "آخرین مشاهده", type: "dateTime" },
+  //     { key: "last_checked_at", label: "آخرین بررسی", type: "dateTime" },
+  //     { key: "last_changed_at", label: "آخرین تغییر", type: "dateTime" },
+  //     {
+  //       key: "advertiser_classified_at",
+  //       label: "زمان تشخیص آگهی‌دهنده",
+  //       type: "dateTime",
+  //     },
+  //     { key: "consecutive_failures", label: "تعداد خطای متوالی" },
+  //     {
+  //       key: "removal_detected_at",
+  //       label: "زمان حذف از منبع",
+  //       type: "dateTime",
+  //     },
+  //     // { key: "content_hash", label: "هش محتوا", type: "mono" },
+  //   ],
+  // },
   // {
   //   section: "payload",
   //   sectionLabel: "داده خام (Payload)",
@@ -263,8 +271,18 @@ export const LISTING_TARGET_COLUMNS = [
 
 /* ─── Tab 4: Status History (listing.ListingStatusHistory) ─── */
 export const LISTING_STATUS_HISTORY_COLUMNS = [
-  { key: "old_status", header: "وضعیت قبلی", type: "status", configKey: "listingStatus" },
-  { key: "new_status", header: "وضعیت جدید", type: "status", configKey: "listingStatus" },
+  {
+    key: "old_status",
+    header: "وضعیت قبلی",
+    type: "status",
+    configKey: "listingStatus",
+  },
+  {
+    key: "new_status",
+    header: "وضعیت جدید",
+    type: "status",
+    configKey: "listingStatus",
+  },
   { key: "reason", header: "دلیل", type: "text" },
   { key: "changed_by", header: "تغییردهنده", type: "user" },
   { key: "created_at", header: "زمان", type: "date" },
@@ -279,8 +297,18 @@ export const LISTING_PROPERTY_FIELDS = [
     fields: [
       { key: "property_code", label: "کد ملک" },
       { key: "title", label: "عنوان", fullWidth: true },
-      { key: "deal_type", label: "نوع معامله", type: "status", configKey: "propertyDealType" },
-      { key: "status", label: "وضعیت", type: "status", configKey: "propertyStatus" },
+      {
+        key: "deal_type",
+        label: "نوع معامله",
+        type: "status",
+        configKey: "propertyDealType",
+      },
+      {
+        key: "status",
+        label: "وضعیت",
+        type: "status",
+        configKey: "propertyStatus",
+      },
     ],
   },
   {
@@ -306,7 +334,12 @@ export const LISTING_PROPERTY_FIELDS = [
     section: "link",
     sectionLabel: "",
     fields: [
-      { key: "id", type: "action", action: "navigate_to_property", label: "مشاهده صفحه کامل ملک →" },
+      {
+        key: "id",
+        type: "action",
+        action: "navigate_to_property",
+        label: "مشاهده صفحه کامل ملک →",
+      },
     ],
   },
 ];

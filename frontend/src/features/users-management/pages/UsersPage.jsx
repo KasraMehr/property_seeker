@@ -141,11 +141,12 @@ export default function UsersPage() {
     const counts = {
       all: rawData.length,
       management: rawData.filter((u) => {
-        const key = getRoleConfig(u.role?.[0])?.key;
+        const key = getRoleConfig(u.role?.[0]?.name)?.key;
         return ["admin", "supervisor", "owner"].includes(key) || u.is_owner;
       }).length,
+
       staff: rawData.filter((u) => {
-        const key = getRoleConfig(u.role?.[0])?.key;
+        const key = getRoleConfig(u.role?.[0]?.name)?.key;
         return ["operator", "agent", "viewer"].includes(key);
       }).length,
     };
@@ -261,16 +262,24 @@ export default function UsersPage() {
     try {
       if (action.key === "delete") {
         await Promise.all(ids.map((id) => remove(id)));
-        toastService.success(ids.length > 1 ? `${ids.length} کاربر حذف شدند` : "کاربر حذف شد");
+        toastService.success(
+          ids.length > 1 ? `${ids.length} کاربر حذف شدند` : "کاربر حذف شد",
+        );
         refresh();
       } else if (action.key === "toggle_active") {
         if (ids.length === 1) {
           await userService.patch(ids[0], { is_active: false });
         } else {
           // Bulk: loop through each user (no bulk endpoint on backend yet)
-          await Promise.all(ids.map((id) => userService.patch(id, { is_active: false })));
+          await Promise.all(
+            ids.map((id) => userService.patch(id, { is_active: false })),
+          );
         }
-        toastService.success(ids.length > 1 ? `${ids.length} کاربر غیرفعال شدند` : "کاربر غیرفعال شد");
+        toastService.success(
+          ids.length > 1
+            ? `${ids.length} کاربر غیرفعال شدند`
+            : "کاربر غیرفعال شد",
+        );
         refresh();
       } else if (action.key === "reset_password") {
         // No backend endpoint exists for this at all yet (not even [PEND] in
@@ -291,25 +300,36 @@ export default function UsersPage() {
 
   useEffect(() => {
     let cancelled = false;
+
     async function load() {
       try {
-        const [rolesRes, districtsRes, neighborhoodsRes] = await Promise.all([
+        const [rolesRes, neighborhoodsRes] = await Promise.all([
           api.get("/api/accounts/roles/"),
-          api.get("/api/district/"),
-          api.get("/api/neighborhoods/"),
+          api.get("/api/divar-neighborhoods/?active=true"),
         ]);
+
         if (cancelled) return;
+
         setFilterOptions({
-          roles: (rolesRes.data || []).map((r) => ({ value: r.id, label: r.name })),
-          districts: (districtsRes.data || []).map((d) => ({ value: d.id, label: d.name })),
-          neighborhoods: (neighborhoodsRes.data || []).map((n) => ({ value: n.id, label: n.name })),
+          roles: (rolesRes.data || []).map((r) => ({
+            value: r.id,
+            label: r.name,
+          })),
+          neighborhoods: (neighborhoodsRes.data || []).map((n) => ({
+            value: n.id,
+            label: n.name,
+          })),
         });
       } catch {
         // silent — dropdowns stay empty
       }
     }
+
     load();
-    return () => { cancelled = true; };
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   /* ─── Filters ─── */
@@ -323,7 +343,14 @@ export default function UsersPage() {
       onClearAll: clearAll,
       activeChips,
     }),
-    [filterValues, setFilter, clearFilter, clearAll, activeChips, filterOptions],
+    [
+      filterValues,
+      setFilter,
+      clearFilter,
+      clearAll,
+      activeChips,
+      filterOptions,
+    ],
   );
 
   const pagination = useMemo(

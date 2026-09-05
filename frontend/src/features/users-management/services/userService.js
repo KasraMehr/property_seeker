@@ -19,12 +19,6 @@ const patch = (id, data) =>
 const remove = (id) =>
   api.delete(API_ENDPOINTS.ACCOUNTS.USERS.DELETE(id).url);
 
-const bulkChangeRole = (ids, roleId) =>
-  api.put(API_ENDPOINTS.ACCOUNTS.USERS.BULK_CHANGE_ROLE.url, { ids, role: roleId });
-
-const bulkToggleActive = (ids, isActive, note) =>
-  api.put(API_ENDPOINTS.ACCOUNTS.USERS.BULK_TOGGLE_ACTIVE.url, { ids, is_active: isActive, note });
-
 const userService = {
   getAll,
   getById,
@@ -32,8 +26,6 @@ const userService = {
   update,
   patch,
   remove,
-  bulkChangeRole ,
-  bulkToggleActive,
 };
 
 export default userService;

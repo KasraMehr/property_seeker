@@ -1,11 +1,16 @@
 import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 
 /**
- * User / Agent / Owner Filters Config
- * Backend: accounts.User + properties.Owner
+ * User Filters Config
+ * Backend: accounts.User
  *
- * Quick: search, role, is_active, is_owner
- * Advanced: agency, service_neighborhoods, dates, permissions
+ * Backend UserFilter supports:
+ *   role, is_active, is_owner, agency, service_neighborhood,
+ *   has_permission, created_from/created_to, login_from/login_to
+ *
+ * Frontend quick bar: search, role, is_active
+ * Frontend advanced drawer: service_neighborhood, dates
+ * Note: is_owner and has_permission are backend-ready but not yet wired.
  */
 
 export const USER_QUICK_FILTERS = [
@@ -49,23 +54,11 @@ export const USER_ADVANCED_FILTERS = [
     type: "search_select",
     placement: "drawer",
     async: true,
-    endpoint: API_ENDPOINTS.LOCATIONS.NEIGHBORHOODS.LIST.url,
+    endpoint: API_ENDPOINTS.LOCATIONS.DIVAR_NEIGHBORHOODS.LIST.url + "?active=true",
     search_fields: ["name"],
     optionLabel: "name",
     optionValue: "id",
     optionsKey: "neighborhoods",
-  },
-  {
-    key: "service_district",
-    label: "منطقه سرویس",
-    type: "search_select",
-    placement: "drawer",
-    async: true,
-    endpoint: API_ENDPOINTS.LOCATIONS.DISTRICTS.LIST.url,
-    search_fields: ["name"],
-    optionLabel: "name",
-    optionValue: "id",
-    optionsKey: "districts",
   },
   {
     key: "created_at",

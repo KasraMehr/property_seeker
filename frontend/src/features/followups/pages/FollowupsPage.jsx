@@ -16,10 +16,10 @@ import FollowupFormModal from "@/features/followups/components/FollowupFormModal
 import {toastService} from "@/lib/toast"
 
 /* ─── Supademo Demo Popup ─── */
-const SUPADEMO_DEMO_ID = "cmtmk64e90jdcqmh5vc7vae5e";
-const SUPADEMO_SCRIPT_SRC = "https://script.supademo.com/supademo.js";
+// const SUPADEMO_DEMO_ID = "cmtmk64e90jdcqmh5vc7vae5e";
+// const SUPADEMO_SCRIPT_SRC = "https://script.supademo.com/supademo.js";
 
-let supademoScriptPromise = null;
+// let supademoScriptPromise = null;
 
 /** Load the Supademo script once, then resolve. */
 function loadSupademoScript() {
@@ -459,14 +459,14 @@ export default function FollowupsPage() {
       />
 
       {/* Demo tour popup (Supademo) — fixed bottom-left */}
-      <Button
+      {/* <Button
         variant="demo"
         icon={Play}
         className="fixed bottom-5 left-5 z-40 gap-2"
         onClick={openDemoTour}
       >
         راهنما
-      </Button>
+      </Button> */}
     </>
   );
 }
