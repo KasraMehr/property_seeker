@@ -9,7 +9,7 @@ export default function useProperty() {
 
   const query = useResourceQuery({
     filterSchema: PROPERTY_ALL_FILTERS,
-    // pageSize: 25,
+    pageSize: 10,
     initialOrdering: "-created_at",
   });
 

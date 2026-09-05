@@ -54,6 +54,8 @@ export default function useLocationLevel(levelKey) {
 
   const clearParentFilters = useCallback(() => setParentFilters({}), []);
 
+  const PAGE_SIZE = 10;
+
   const filteredData = useMemo(() => {
     let rows = Array.isArray(data) ? data : [];
 
@@ -102,10 +104,22 @@ export default function useLocationLevel(levelKey) {
     return rows;
   }, [data, search, parentFilters, levelKey]);
 
+  const [page, setPage] = useState(1);
+  const totalPages = useMemo(
+    () => Math.max(1, Math.ceil(filteredData.length / PAGE_SIZE)),
+    [filteredData.length],
+  );
+
+  const paginatedData = useMemo(() => {
+    const start = (page - 1) * PAGE_SIZE;
+    const end = start + PAGE_SIZE;
+    return filteredData.slice(start, end);
+  }, [filteredData, page]);
+
   const refresh = useCallback(() => fetchList({}), [fetchList]);
 
   return {
-    data: filteredData,
+    data: paginatedData,
     rawData: data,
     loading,
     error,
@@ -115,6 +129,10 @@ export default function useLocationLevel(levelKey) {
     parentFilters,
     setParentFilter,
     clearParentFilters,
+    page,
+    setPage,
+    pageSize: PAGE_SIZE,
+    totalPages,
     create,
     update,
     remove,

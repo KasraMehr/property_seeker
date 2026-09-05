@@ -84,7 +84,7 @@ export default function Table({
   }
 
   return (
-    <div className=" h-full min-x-max">
+    <div>
       <table className="w-full border-collapse text-sm">
         <thead className="sticky top-0 z-10 bg-surface">
           <tr className="border-b border-border bg-surface">

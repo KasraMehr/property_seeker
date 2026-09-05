@@ -78,11 +78,11 @@ export const LISTING_DETAIL_FIELDS = [
     section: "basic",
     sectionLabel: "اطلاعات پایه",
     fields: [
-      { key: "id", label: "شناسه داخلی", format: (v) => `#${v}` },
-      { key: "external_id", label: "شناسه خارجی (منبع)" },
+      // { key: "id", label: "شناسه داخلی", format: (v) => `#${v}` },
+      // { key: "external_id", label: "شناسه خارجی (منبع)" },
       { key: "title", label: "عنوان آگهی", fullWidth: true },
       // { key: "contact_phone", label: "شماره تماس آگهی" },
-      { key: "source", label: "منبع", type: "nested", nestedKey: "name" },
+      // { key: "source", label: "منبع", type: "nested", nestedKey: "name" },
       { key: "category", label: "دسته‌بندی دیوار" },
       {
         key: "divar_neighborhood",
@@ -222,6 +222,11 @@ export const LISTING_DETAIL_FIELDS = [
   //   ],
   // },
   {
+    section: "description",
+    sectionLabel: "توضیحات",
+    fields: [{ key: "description", label: "توضیحات آگهی", fullWidth: true }],
+  },
+  {
     section: "dates",
     sectionLabel: "تاریخ‌ها",
     fields: [
@@ -236,11 +241,7 @@ export const LISTING_DETAIL_FIELDS = [
       { key: "updated_at", label: "آخرین بروزرسانی", type: "dateTime" },
     ],
   },
-  {
-    section: "description",
-    sectionLabel: "توضیحات",
-    fields: [{ key: "description", label: "توضیحات آگهی", fullWidth: true }],
-  },
+  
 ];
 
 export const LISTING_SNAPSHOT_COLUMNS = [

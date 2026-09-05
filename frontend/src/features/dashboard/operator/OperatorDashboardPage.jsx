@@ -26,7 +26,7 @@ export default function OperatorDashboardPage() {
       const [statsRes, leadsRes, followupsRes] = await Promise.allSettled([
         dashboardService.getOperatorStats(),
         listingService.getAll({ page_size: 5, ordering: "-created_at" }),
-        followupService.getAll({ status: 'pending', page_size: 25, ordering: 'due_at' }),
+        followupService.getAll({ status: 'pending', page_size: 10, ordering: 'due_at' }),
       ]);
 
       if (statsRes.status === "fulfilled") setStats(statsRes.value.data);

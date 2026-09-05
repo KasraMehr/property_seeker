@@ -61,7 +61,7 @@ export default function TriggerScraperRunModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      size="md"
+      size="lg"
       title={`اجرای دستی — ${target?.name || ""}`}
     >
       <div className="space-y-4">

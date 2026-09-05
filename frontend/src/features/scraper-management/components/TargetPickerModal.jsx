@@ -23,7 +23,7 @@ export default function TargetPickerModal({
   const canContinue = !loading && targets.length > 0 && !!targetId;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="sm" title="اجرای فوری">
+    <Modal isOpen={isOpen} onClose={onClose} size="lg" title="اجرای فوری">
       <div className="space-y-4">
         <p className="text-sm text-muted">
           یک تارگت فعال انتخاب کنید؛ بعد حالت اجرا را مشخص می‌کنید.

@@ -10,7 +10,7 @@ export default function useActivityLog() {
 
   const query = useResourceQuery({
     filterSchema: [],
-    pageSize: 25,
+    pageSize: 10,
     initialOrdering: "-created_at",
   });
 

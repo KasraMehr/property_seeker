@@ -37,7 +37,7 @@ export default function LocationPage() {
   }, [setPageHeader, activeTab]);
 
   return (
-    <MotionDiv className="space-y-4" delay={0.05}>
+    <div className="flex h-full flex-col min-h-0">
       <PageTabs
         items={LOCATION_TAB_ITEMS}
         value={activeTab}
@@ -50,6 +50,6 @@ export default function LocationPage() {
         levelKey={activeTab}
         onRegisterCreate={registerCreate}
       />
-    </MotionDiv>
+    </div>
   );
 }

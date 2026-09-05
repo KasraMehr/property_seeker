@@ -231,7 +231,7 @@ export default function ListingsPage() {
   const pagination = useMemo(
     () => ({
       page,
-      pageSize: pageSize || 20,
+      pageSize: pageSize || 10,
       total: meta?.count || 0,
       totalPages: totalPages?.(meta?.count || 0) || 1,
     }),

@@ -10,7 +10,7 @@ export default function useResourceQuery({
   filterSchema = [],
   filterOptions = {},
   initialPage = 1,
-  pageSize = 25,
+  pageSize = 10,
   initialOrdering = "-created_at",
 } = {}) {
   const {

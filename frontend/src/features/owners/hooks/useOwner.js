@@ -9,7 +9,7 @@ export default function useOwner() {
 
   const query = useResourceQuery({
     filterSchema: OWNER_ALL_FILTERS,
-    pageSize: 25,
+    pageSize: 10,
     initialOrdering: "-created_at",
   });
 

@@ -16,7 +16,7 @@ export default function useListing() {
 
   const query = useResourceQuery({
     filterSchema: LISTING_ALL_FILTERS,
-    pageSize: 20,
+    pageSize: 10,
     initialOrdering: "-last_seen_at",
   });
 

@@ -65,7 +65,7 @@ export default function RunsTab({ onHeaderStateChange }) {
   const pagination = useMemo(
     () => ({
       page,
-      totalPages: Math.max(1, Math.ceil((meta?.count || 0) / 20)),
+      totalPages: Math.max(1, Math.ceil((meta?.count || 0) / 10)),
     }),
     [page, meta],
   );

@@ -8,7 +8,7 @@ export default function useUser() {
   const { fetchList, remove, ...resourceState } = useResource(userService);
   const query = useResourceQuery({
     filterSchema: USER_ALL_FILTERS,
-    pageSize: 25,
+    pageSize: 10,
     initialOrdering: "-created_at",
   });
 

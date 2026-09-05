@@ -13,7 +13,7 @@ export default function DashboardSidebar({
   footerItems = [],
 }) {
   const navigation = (
-    <nav className="flex-1 overflow-y-auto overscroll-contain px-3 py-4">
+    <nav className="flex-1 overflow-y-auto overscroll-contain px-3 py-3">
       <NavigationMenu items={menuItems} onItemClick={onClose} />
 
       {footerItems.length > 0 && (

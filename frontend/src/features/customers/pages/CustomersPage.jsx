@@ -80,20 +80,20 @@ export default function CustomersPage() {
   }, [setPageHeader]);
 
   /* ─── Search ─── */
-  const [searchInput, setSearchInput] = useState(filterValues.search || "");
+  const [searchInput, setSearchInput] = useState(filterValues?.search || "");
   const debouncedSearch = useDebounce(searchInput, 400);
 
   useEffect(() => {
-    if (filterValues.search !== searchInput) {
-      setSearchInput(filterValues.search || "");
+    if (filterValues?.search !== searchInput) {
+      setSearchInput(filterValues?.search || "");
     }
-  }, [filterValues.search]);
+  }, [filterValues?.search]);
 
   useEffect(() => {
-    if (debouncedSearch !== filterValues.search) {
-      setFilter("search", debouncedSearch);
+    if (debouncedSearch !== filterValues?.search) {
+      setFilter("search", debouncedSearch || "");
     }
-  }, [debouncedSearch, filterValues.search, setFilter]);
+  }, [debouncedSearch, filterValues?.search, setFilter]);
 
   /* ─── Sort ─── */
   const handleSort = useCallback(
@@ -159,6 +159,7 @@ export default function CustomersPage() {
       await remove(row.id);
       setSelected((prev) => prev.filter((id) => id !== row.id));
       toastService.success("مشتری با موفقیت حذف شد.");
+      refresh();
     }
 
     setPendingAction(null);
@@ -188,11 +189,11 @@ export default function CustomersPage() {
   const filters = useMemo(
     () => ({
       schema: CUSTOMER_ALL_FILTERS.filter((f) => f.type !== "search"),
-      values: filterValues,
+      values: filterValues || {},
       onChange: setFilter,
       onClear: clearFilter,
       onClearAll: clearAll,
-      activeChips,
+      activeChips: activeChips || [],
     }),
     [filterValues, setFilter, clearFilter, clearAll, activeChips],
   );
@@ -200,7 +201,7 @@ export default function CustomersPage() {
   const pagination = useMemo(
     () => ({
       page,
-      totalPages: totalPages(meta?.count),
+      totalPages: typeof totalPages === "function" ? totalPages(meta?.count) : totalPages,
     }),
     [page, meta?.count, totalPages],
   );

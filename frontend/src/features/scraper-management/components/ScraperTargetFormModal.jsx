@@ -24,7 +24,7 @@ export default function ScraperTargetFormModal({ isOpen, onClose, target = null,
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="lg" title={isEdit ? "ویرایش تارگت" : "ثبت تارگت جدید"}>
+    <Modal isOpen={isOpen} onClose={onClose} size="xl" title={isEdit ? "ویرایش تارگت" : "ثبت تارگت جدید"}>
       <FormRenderer
         config={SCRAPER_TARGET_FORM}
         defaultValues={target || {}}

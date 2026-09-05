@@ -5,8 +5,7 @@
 @import "./theme/theme.css";
 
 * {
-  direction: rtl;
-}
+  direction: rtl;}
 
 html,
 body,

@@ -31,7 +31,7 @@ export default function ResourceTemplate({
   onPageChange,
 }) {
   return (
-    <div className="flex h-full flex-col space-y-5" dir="rtl">
+    <div className="flex h-full flex-col space-y-2" dir="rtl">
       <ResourceToolbar
         search={search}
         filters={filters}
@@ -43,23 +43,21 @@ export default function ResourceTemplate({
       />
 
       <MotionDiv className="flex flex-col flex-1 min-h-0" delay={0.1}>
-        <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden">
-          <ResourceTable
-            columns={columns}
-            data={data}
-            loading={loading}
-            page={pagination?.page ?? 1}
-            pageSize={pagination?.pageSize ?? 20}
-            emptyState={emptyState}
-            sort={sort}
-            onSort={onSort}
-            selectable={selectable}
-            selected={selected}
-            onSelectionChange={onSelectionChange}
-            rowActions={rowActions}
-            onRowAction={onRowAction}
-          />
-        </div>
+        <ResourceTable
+          columns={columns}
+          data={data}
+          loading={loading}
+          page={pagination?.page ?? 1}
+          pageSize={pagination?.pageSize ?? 10}
+          emptyState={emptyState}
+          sort={sort}
+          onSort={onSort}
+          selectable={selectable}
+          selected={selected}
+          onSelectionChange={onSelectionChange}
+          rowActions={rowActions}
+          onRowAction={onRowAction}
+        />
       </MotionDiv>
 
       {pagination && pagination.totalPages > 1 && (

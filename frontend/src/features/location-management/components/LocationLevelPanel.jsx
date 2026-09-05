@@ -22,6 +22,9 @@ export default function LocationLevelPanel({ levelKey, onRegisterCreate }) {
     parentFilters,
     setParentFilter,
     clearParentFilters,
+    page,
+    setPage,
+    totalPages,
     remove,
     refresh,
   } = useLocationLevel(levelKey);
@@ -206,6 +209,8 @@ export default function LocationLevelPanel({ levelKey, onRegisterCreate }) {
         bulkActions={level.actions.bulk}
         onRowAction={handleRowAction}
         onBulkAction={handleBulkAction}
+        pagination={{ page, totalPages: totalPages || 1 }}
+        onPageChange={setPage}
       />
 
       <LocationFormModal

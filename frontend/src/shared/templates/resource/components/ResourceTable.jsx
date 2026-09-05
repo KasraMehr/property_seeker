@@ -21,7 +21,7 @@ export default function ResourceTable({
   onRowAction,
   rowKey = "id",
   page = 1,
-  pageSize = 20,
+  pageSize = 10,
   className = "",
 }) {
   const hasActions = rowActions.length > 0;
@@ -60,7 +60,7 @@ export default function ResourceTable({
 
   return (
     <div
-      className={`h-[calc(100vh-260px)] min-h-100 overflow-x-auto overflow-y-auto rounded-xl border border-border bg-surface ${className}`}
+      className={`h-full overflow-y-auto overflow-x-auto rounded-xl border border-border bg-surface ${className}`}
     >
       <Table
         data={numberedData}

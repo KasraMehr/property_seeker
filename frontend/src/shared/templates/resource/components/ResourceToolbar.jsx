@@ -14,10 +14,10 @@ export default function ResourceToolbar({
 }) {
   return (
     <div
-      className={`flex flex-col gap-3 md:flex-row md:items-start md:justify-between ${className}`}
+      className={`flex flex-col gap-2 md:flex-row md:items-start md:justify-between ${className}`}
     >
       {/* Search + Filters */}
-      <div className="flex flex-col gap-3 w-full md:w-auto md:flex-row">
+      <div className="flex flex-col gap-2 w-full md:w-auto md:flex-row">
         {search && (
           <div className="shrink-0">
             <SearchBox

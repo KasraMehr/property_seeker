@@ -8,7 +8,7 @@ export default function useFollowup() {
   const { fetchList, ...resourceState } = useResource(followupService);
   const query = useResourceQuery({
     filterSchema: FOLLOWUP_ALL_FILTERS,
-    pageSize: 25,
+    pageSize: 10,
     initialOrdering: "due_at",
   });
 

@@ -91,53 +91,7 @@ export const CALL_ADVANCED_FILTERS = [
     to_key: "called_to",
   },
 
-  // {
-  //   key: "property",
-  //   label: "ملک",
-  //   type: "search_select",
-  //   placement: "drawer",
-  //   async: true,
-  //   endpoint: "/api/property/list",
-  //   search_fields: ["title", "property_code"],
-  //   optionLabel: "title",
-  //   optionValue: "id",
-  // },
 
-  // {
-  //   key: "listing",
-  //   label: "آگهی",
-  //   type: "search_select",
-  //   placement: "drawer",
-  //   async: true,
-  //   endpoint: "/api/listing/list/",
-  //   search_fields: ["title", "external_id"],
-  //   optionLabel: "title",
-  //   optionValue: "id",
-  // },
-
-  // {
-  //   key: "property",
-  //   label: "ملک",
-  //   type: "search_select",
-  //   placement: "drawer",
-  //   async: true,
-  //   endpoint: "/api/property/list",
-  //   search_fields: ["title", "property_code"],
-  //   optionLabel: "title",
-  //   optionValue: "id",
-  // },
-
-  // {
-  //   key: "listing",
-  //   label: "آگهی",
-  //   type: "search_select",
-  //   placement: "drawer",
-  //   async: true,
-  //   endpoint: "/api/listing/list/",
-  //   search_fields: ["title", "external_id"],
-  //   optionLabel: "title",
-  //   optionValue: "id",
-  // },
 
   {
     key: "property",

@@ -9,7 +9,7 @@ export default function useCall() {
 
   const query = useResourceQuery({
     filterSchema: CALL_ALL_FILTERS,
-    pageSize: 25,
+    pageSize: 10,
     initialOrdering: "-called_at",
   });
 

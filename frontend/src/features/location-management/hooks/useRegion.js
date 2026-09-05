@@ -8,7 +8,7 @@ export default function useRegion() {
   const { fetchList, ...resourceState } = useResource(regionService);
   const query = useResourceQuery({
     filterSchema: REGION_ALL_FILTERS,
-    // pageSize: 25,
+    pageSize: 10,
     // initialOrdering: "name",
   });
 
