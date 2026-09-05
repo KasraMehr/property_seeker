@@ -18,12 +18,12 @@ export const OWNER_ADVANCED_FILTERS = [
     type: "toggle",
     placement: "drawer",
   },
-  // {
-  //   key: "has_national_id",
-  //   label: "دارای کد ملی",
-  //   type: "toggle",
-  //   placement: "drawer",
-  // },
+  {
+    key: "has_national_id",
+    label: "دارای کد ملی",
+    type: "toggle",
+    placement: "drawer",
+  },
   {
     key: "has_notes",
     label: "دارای یادداشت",

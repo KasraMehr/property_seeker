@@ -53,13 +53,49 @@ export const PROPERTY_QUICK_FILTERS = [
     step: 1_000_000,
     unit: "تومان",
   },
-  // TODO: فیلتر لوکیشن فعلا غیرفعال — فقط در فرم‌ها فعال است
-  // {
-  //   key: "location",
-  //   label: "موقعیت مکانی",
-  //   type: "location_cascade",
-  //   placement: "drawer",
-  // },
+  {
+    key: "province",
+    label: "استان",
+    type: "search_select",
+    placement: "drawer",
+    async: true,
+    endpoint: API_ENDPOINTS.LOCATIONS.PROVINCES.LIST.url,
+    optionLabel: "name",
+    optionValue: "id",
+  },
+  {
+    key: "city",
+    label: "شهر",
+    type: "search_select",
+    placement: "drawer",
+    async: true,
+    depends_on: "province",
+    endpoint: API_ENDPOINTS.LOCATIONS.CITIES.LIST.url,
+    optionLabel: "name",
+    optionValue: "id",
+  },
+  {
+    key: "district",
+    label: "منطقه",
+    type: "search_select",
+    placement: "drawer",
+    async: true,
+    depends_on: "city",
+    endpoint: API_ENDPOINTS.LOCATIONS.DISTRICTS.LIST.url,
+    optionLabel: "name",
+    optionValue: "id",
+  },
+  {
+    key: "neighborhood",
+    label: "محله",
+    type: "search_select",
+    placement: "drawer",
+    async: true,
+    depends_on: "district",
+    endpoint: API_ENDPOINTS.LOCATIONS.NEIGHBORHOODS.LIST.url,
+    optionLabel: "name",
+    optionValue: "id",
+  },
 ];
 
 export const PROPERTY_ADVANCED_FILTERS = [
@@ -299,7 +335,21 @@ export const PROPERTY_ADVANCED_FILTERS = [
       { value: "old", label: "قدیمی" },
     ],
   },
- 
+
+  // ─── Booleans ───
+  {
+    key: "has_owner",
+    label: "دارای مالک",
+    type: "toggle",
+    placement: "drawer",
+  },
+  {
+    key: "has_agent",
+    label: "دارای مشاور",
+    type: "toggle",
+    placement: "drawer",
+  },
+
   {
     key: "created_at",
     label: "تاریخ ثبت",

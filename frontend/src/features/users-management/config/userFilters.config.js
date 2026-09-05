@@ -76,28 +76,23 @@ export const USER_ADVANCED_FILTERS = [
     from_key: "login_from",
     to_key: "login_to",
   },
-];
-
-export const USER_ALL_FILTERS = [
-  ...USER_QUICK_FILTERS,
-  ...USER_ADVANCED_FILTERS,
-];
-
-/* ─── Owner-specific filters (properties.Owner) ─── */
-export const OWNER_QUICK_FILTERS = [
   {
-    key: "search",
-    label: "جستجو",
-    type: "search",
-    placeholder: "نام مالک، تلفن، کد ملی...",
-    fields: ["full_name", "phone", "national_id", "alternate_phone"],
-    placement: "bar",
+    key: "is_owner",
+    label: "مالک",
+    type: "toggle",
+    placement: "drawer",
+  },
+  {
+    key: "is_staff",
+    label: "کاربر سیستمی",
+    type: "toggle",
+    placement: "drawer",
   },
   {
     key: "agency",
     label: "آژانس",
     type: "search_select",
-    placement: "bar",
+    placement: "drawer",
     async: true,
     endpoint: API_ENDPOINTS.ACCOUNTS.AGENCIES.LIST.url,
     search_fields: ["name"],
@@ -106,58 +101,8 @@ export const OWNER_QUICK_FILTERS = [
   },
 ];
 
-export const OWNER_ADVANCED_FILTERS = [
-  {
-    key: "has_alternate_phone",
-    label: "دارای تلفن جایگزین",
-    type: "toggle",
-    placement: "drawer",
-    filter: (row) => !!row.alternate_phone,
-  },
-  {
-    key: "has_national_id",
-    label: "دارای کد ملی",
-    type: "toggle",
-    placement: "drawer",
-    filter: (row) => !!row.national_id,
-  },
-  {
-    key: "has_notes",
-    label: "دارای یادداشت",
-    type: "toggle",
-    placement: "drawer",
-    filter: (row) => !!row.notes && row.notes.length > 0,
-  },
-  {
-    key: "created_by",
-    label: "ثبت‌کننده",
-    type: "search_select",
-    placement: "drawer",
-    async: true,
-    endpoint: API_ENDPOINTS.ACCOUNTS.USERS.LIST.url,
-    search_fields: ["full_name"],
-    optionLabel: "full_name",
-    optionValue: "id",
-  },
-  {
-    key: "created_at",
-    label: "تاریخ ثبت",
-    type: "date_range",
-    placement: "drawer",
-    from_key: "created_from",
-    to_key: "created_to",
-  },
-  {
-    key: "updated_at",
-    label: "آخرین بروزرسانی",
-    type: "date_range",
-    placement: "drawer",
-    from_key: "updated_from",
-    to_key: "updated_to",
-  },
+export const USER_ALL_FILTERS = [
+  ...USER_QUICK_FILTERS,
+  ...USER_ADVANCED_FILTERS,
 ];
 
-export const OWNER_ALL_FILTERS = [
-  ...OWNER_QUICK_FILTERS,
-  ...OWNER_ADVANCED_FILTERS,
-];

@@ -110,6 +110,18 @@ export const FOLLOWUP_ADVANCED_FILTERS = [
     placement: "drawer",
   },
 
+  // {
+  //   key: "agency",
+  //   label: "آژانس",
+  //   type: "search_select",
+  //   placement: "drawer",
+  //   async: true,
+  //   endpoint: API_ENDPOINTS.ACCOUNTS.AGENCIES.LIST.url,
+  //   search_fields: ["name"],
+  //   optionLabel: "name",
+  //   optionValue: "id",
+  // },
+
   {
     key: "has_property",
     label: "دارای ملک مرتبط",

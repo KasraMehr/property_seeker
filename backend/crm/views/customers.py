@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from accounts.permissions import *
+from crm.filter.customer_filter import CustomerFilter
 from crm.selectors.customers import CustomerSelector
 from crm.serializers.customer_create import CustomerCreateSerializer
 from crm.serializers.customer_detail import CustomerDetailSerializer
@@ -19,7 +20,16 @@ class CustomerListCreateView(APIView):
 
     def get(self, request):
 
-        customers = CustomerSelector.all(request.user)
+        queryset = CustomerSelector.all(request.user)
+
+        filterset = CustomerFilter(request.GET, queryset=queryset)
+
+        if not filterset.is_valid():
+            return Response(
+                filterset.errors, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        customers = filterset.qs
 
         serializer = CustomerListSerializer(customers, many=True)
 

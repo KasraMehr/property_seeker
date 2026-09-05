@@ -7,6 +7,12 @@ from accounts.models import User
 class UserFilter(django_filters.FilterSet):
 
     # =========================
+    # Search
+    # =========================
+
+    search = django_filters.CharFilter(method="filter_search")
+
+    # =========================
     # Role
     # =========================
 
@@ -74,11 +80,26 @@ class UserFilter(django_filters.FilterSet):
 
     login_to = django_filters.DateTimeFilter(field_name="last_login", lookup_expr="lte")
 
+    # =========================
+    # Methods
+    # =========================
+
+    def filter_search(self, queryset, name, value):
+        if not value:
+            return queryset
+
+        return queryset.filter(
+            Q(full_name__icontains=value)
+            | Q(phone__icontains=value)
+            | Q(national_id__icontains=value)
+        ).distinct()
+
     class Meta:
 
         model = User
 
         fields = [
+            "search",
             "role",
             "is_active",
             "is_owner",
@@ -87,4 +108,8 @@ class UserFilter(django_filters.FilterSet):
             "agency",
             "service_neighborhood",
             "has_permission",
+            "created_from",
+            "created_to",
+            "login_from",
+            "login_to",
         ]

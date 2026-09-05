@@ -283,7 +283,7 @@ export const API_ENDPOINTS = {
      */
     DIVAR_NEIGHBORHOODS: {
       LIST: {
-        url: `${API_BASE}/divar-neighborhoods/`,
+        url: `${API_BASE}/divar-neighborhoods/?active=true`,
         method: "GET",
         status: "[OK]",
       },

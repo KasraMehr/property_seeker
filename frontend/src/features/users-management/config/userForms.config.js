@@ -167,7 +167,7 @@ export const USER_FORM = {
           label: "محله‌های سرویس",
           type: "multi_select",
           required: false,
-          placeholder: "هیچ محله‌ای انتخاب نشده",
+          placeholder: "",
 
           asyncSource: API_ENDPOINTS.LOCATIONS.DIVAR_NEIGHBORHOODS.LIST.url,
 

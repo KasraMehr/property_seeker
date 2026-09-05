@@ -192,6 +192,18 @@ export const LISTING_ADVANCED_FILTERS = [
     step: 10,
     unit: "",
   },
+  {
+    key: "leads_count",
+    label:"تعداد لید",
+    type: "range",
+    placement: "drawer",
+    min_key: "leads_count_min",
+    max_key: "leads_count_max",
+    min: 0,
+    max: 500,
+    step: 1,
+    unit: "",
+  },
 
   // ── Booleans ──
   {
@@ -206,6 +218,58 @@ export const LISTING_ADVANCED_FILTERS = [
     type: "toggle",
     placement: "drawer",
   },
+
+  // ── Mortgage / Price per meter / Deposit (server-side exists, not yet in UI) ──
+  {
+    key: "listed_price_per_meter",
+    label: "قیمت هر متر",
+    type: "range",
+    placement: "drawer",
+    min_key: "listed_price_per_meter_min",
+    max_key: "listed_price_per_meter_max",
+    min: 0,
+    max: 100_000_000,
+    step: 100_000,
+    unit: "تومان",
+  },
+  {
+    key: "listed_mortgage_amount",
+    label: "مبلغ رهن",
+    type: "range",
+    placement: "drawer",
+    min_key: "listed_mortgage_amount_min",
+    max_key: "listed_mortgage_amount_max",
+    min: 0,
+    max: 10_000_000_000,
+    step: 1_000_000,
+    unit: "تومان",
+  },
+  {
+    key: "listed_deposit_amount",
+    label: "مبلغ ودیعه",
+    type: "range",
+    placement: "drawer",
+    min_key: "listed_deposit_amount_min",
+    max_key: "listed_deposit_amount_max",
+    min: 0,
+    max: 10_000_000_000,
+    step: 1_000_000,
+    unit: "تومان",
+  },
+
+  // ── Scraper health ──
+  // {
+  //   key: "consecutive_failures",
+  //   label: "تعداد خطاهای متوالی",
+  //   type: "range",
+  //   placement: "drawer",
+  //   min_key: "consecutive_failures_min",
+  //   max_key: "consecutive_failures_max",
+  //   min: 0,
+  //   max: 50,
+  //   step: 1,
+  //   unit: "",
+  // },
 
   // ── Dates ──
   {
@@ -223,6 +287,14 @@ export const LISTING_ADVANCED_FILTERS = [
     placement: "drawer",
     from_key: "last_seen_from",
     to_key: "last_seen_to",
+  },
+  {
+    key: "last_checked",
+    label: "آخرین بررسی",
+    type: "date_range",
+    placement: "drawer",
+    from_key: "last_checked_from",
+    to_key: "last_checked_to",
   },
   {
     key: "created_at",

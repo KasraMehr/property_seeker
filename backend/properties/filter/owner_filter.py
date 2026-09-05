@@ -6,6 +6,12 @@ from properties.models import Owner
 class OwnerFilter(django_filters.FilterSet):
 
     # ─────────────────────────────
+    # Search
+    # ─────────────────────────────
+
+    search = django_filters.CharFilter(method="filter_search")
+
+    # ─────────────────────────────
     # Created By
     # ─────────────────────────────
 
@@ -88,10 +94,27 @@ class OwnerFilter(django_filters.FilterSet):
         field_name="updated_at", lookup_expr="lte"
     )
 
+    # ─────────────────────────────
+    # Methods
+    # ─────────────────────────────
+
+    def filter_search(self, queryset, name, value):
+        if not value:
+            return queryset
+
+        return queryset.filter(
+            Q(full_name__icontains=value)
+            | Q(phone__icontains=value)
+            | Q(national_id__icontains=value)
+            | Q(alternate_phone__icontains=value)
+            | Q(notes__icontains=value)
+        ).distinct()
+
     class Meta:
         model = Owner
 
         fields = [
+            "search",
             "created_by",
             "has_alternate_phone",
             "has_national_id",
