@@ -51,7 +51,6 @@ dist/
 celerybeat-schedule
 celerybeat.pid
 
-backend/deals
 #repomix
 repomix-output.xml
 backend/for_me

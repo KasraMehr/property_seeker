@@ -13,37 +13,84 @@ class OperatorStatsView(APIView):
     - تعداد لیدهای قابل دسترس
     - تماس‌های امروز
     - پیگیری‌های در انتظار
-    - تبدیل‌ها (لیستینگ‌های تبدیل شده به ملک)
+    - تبدیل‌ها (Listing های تبدیل شده به Property)
     """
 
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         user = request.user
-        now = timezone.now()
-        today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
 
-        # ─── لیدهای قابل دسترس ───
+        now = timezone.now()
+        today_start = now.replace(
+            hour=0,
+            minute=0,
+            second=0,
+            microsecond=0,
+        )
+
+        # ==================================================
+        # لیدها و تبدیل‌ها
+        # ==================================================
+
         if user.is_owner:
+            # همه لیدها
             my_leads = Listing.objects.count()
-            my_conversions = Listing.objects.filter(
-                review_status=Listing.ReviewStatus.PROMOTED
-            ).count()
+
+            # هر Property فقط یک بار شمرده شود
+            my_conversions = (
+                Listing.objects
+                .filter(
+                    review_status=Listing.ReviewStatus.PROMOTED,
+                    property__isnull=False,
+                )
+                .values("property_id")
+                .distinct()
+                .count()
+            )
+
         else:
             neighborhoods = user.service_neighborhoods.all()
+
             if neighborhoods.exists():
-                my_leads = Listing.objects.filter(
-                    property__divar_neighborhood__in=neighborhoods
-                ).distinct().count()
-                my_conversions = Listing.objects.filter(
-                    property__divar_neighborhood__in=neighborhoods,
-                    review_status=Listing.ReviewStatus.PROMOTED,
-                ).distinct().count()
+
+                # ------------------------------------------
+                # لیدهای قابل دسترس Agent
+                # ------------------------------------------
+
+                my_leads = (
+                    Listing.objects
+                    .filter(
+                        divar_neighborhood__in=neighborhoods,
+                    )
+                    .distinct()
+                    .count()
+                )
+
+                # ------------------------------------------
+                # لیدهای تبدیل شده به Property
+                # ------------------------------------------
+
+                my_conversions = (
+                    Listing.objects
+                    .filter(
+                        divar_neighborhood__in=neighborhoods,
+                        review_status=Listing.ReviewStatus.PROMOTED,
+                        property__isnull=False,
+                    )
+                    .values("property_id")
+                    .distinct()
+                    .count()
+                )
+
             else:
                 my_leads = 0
                 my_conversions = 0
 
-        # ─── تماس‌های امروز ───
+        # ==================================================
+        # تماس‌های امروز
+        # ==================================================
+
         my_calls_today = CallLog.objects.filter(
             agency=user.agency,
             handled_by=user,
@@ -51,16 +98,25 @@ class OperatorStatsView(APIView):
             is_deleted=False,
         ).count()
 
-        # ─── پیگیری‌های در انتظار ───
+        # ==================================================
+        # پیگیری‌های در انتظار
+        # ==================================================
+
         my_pending_followups = Reminder.objects.filter(
             agency=user.agency,
             user=user,
             status=Reminder.Status.PENDING,
         ).count()
 
-        return Response({
-            "my_leads": my_leads,
-            "my_calls_today": my_calls_today,
-            "my_pending_followups": my_pending_followups,
-            "my_conversions": my_conversions,
-        })
+        # ==================================================
+        # Response
+        # ==================================================
+
+        return Response(
+            {
+                "my_leads": my_leads,
+                "my_calls_today": my_calls_today,
+                "my_pending_followups": my_pending_followups,
+                "my_conversions": my_conversions,
+            }
+        )

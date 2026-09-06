@@ -17,26 +17,41 @@ class BasePropertySerializer(serializers.ModelSerializer):
 
         user = request.user
 
-        # فقط مالک‌های همین آژانس
+        # ==================================================
+        # Owner های همان آژانس
+        # ==================================================
+
         self.fields["owner"].queryset = Owner.objects.filter(
             agency=user.agency
         )
 
-        # فقط ایجنت‌های فعال همین آژانس
+        # ==================================================
+        # Agent های فعال همان آژانس
+        # ==================================================
+
         self.fields["agent"].queryset = User.objects.filter(
             agency=user.agency,
             is_active=True,
             is_owner=False,
         )
 
-        # Owner آژانس همه آدرس‌ها را می‌بیند
+        # ==================================================
+        # Address
+        # ==================================================
+
         if user.is_owner:
+            # Owner آژانس به همه آدرس‌ها دسترسی دارد
             self.fields["address"].queryset = Address.objects.all()
+
         else:
-            # کاربر معمولی فقط آدرس‌های محله‌های خودش
+            # Agent فقط آدرس‌های محله‌های خودش را می‌بیند
             self.fields["address"].queryset = Address.objects.filter(
                 neighborhood__in=user.service_neighborhoods.all()
             )
+
+    # ======================================================
+    # Main validation
+    # ======================================================
 
     def validate(self, attrs):
         attrs = super().validate(attrs)
@@ -44,68 +59,184 @@ class BasePropertySerializer(serializers.ModelSerializer):
         request = self.context["request"]
         user = request.user
 
+        # ==================================================
+        # مقادیر نهایی Property
+        #
+        # در Create از attrs استفاده می‌شود.
+        # در Update اگر فیلدی ارسال نشده باشد،
+        # مقدار فعلی instance استفاده می‌شود.
+        # ==================================================
+
         address = attrs.get(
             "address",
             getattr(self.instance, "address", None),
         )
 
-        # آیا کاربر Agent را خودش انتخاب کرده؟
-        agent_was_provided = "agent" in attrs
+        deal_type = attrs.get(
+            "deal_type",
+            getattr(self.instance, "deal_type", None),
+        )
 
         agent = attrs.get(
             "agent",
             getattr(self.instance, "agent", None),
         )
 
-        if address:
+        # ==================================================
+        # Owner آژانس
+        # ==================================================
 
-            neighborhood = address.neighborhood
+        # Owner محدودیت نوع معامله و محله ندارد.
+        #
+        # validate_owner / validate_agent همچنان
+        # برای کنترل آژانس اجرا می‌شوند.
+        # ==================================================
 
-            # ==================================================
-            # Agent خودکار
-            # ==================================================
+        if user.is_owner:
+            return attrs
 
-            if not agent_was_provided and self.instance is None:
-                agents = User.objects.filter(
-                    agency=user.agency,
-                    is_active=True,
-                    is_owner=False,
-                    service_neighborhoods=neighborhood,
-                ).distinct()
+        # ==================================================
+        # 1. بررسی نوع فعالیت User
+        # ==================================================
 
-                if agents.count() == 1:
-                    # فقط یک Agent مناسب وجود دارد
-                    attrs["agent"] = agents.first()
-                    agent = attrs["agent"]
+        if deal_type is not None:
+            if not user.can_access_deal_type(deal_type):
+                raise serializers.ValidationError(
+                    {
+                        "deal_type": (
+                            "شما فقط مجاز به ثبت یا ویرایش "
+                            "ملک در محدوده نوع فعالیت خود هستید."
+                        )
+                    }
+                )
 
-                elif agents.count() == 0:
-                    raise serializers.ValidationError(
-                        {
-                            "agent": (
-                                "برای این محله هیچ مشاور فعالی "
-                                "وجود ندارد."
-                            )
-                        }
-                    )
+        # ==================================================
+        # 2. بررسی محله
+        # ==================================================
 
-                else:
-                    # چند Agent مناسب وجود دارد
-                    raise serializers.ValidationError(
-                        {
-                            "agent": (
-                                "برای این محله چند مشاور فعال وجود دارد. "
-                                "لطفاً مشاور را انتخاب کنید."
-                            )
-                        }
-                    )
+        if address is not None:
+            if not user.service_neighborhoods.filter(
+                id=address.neighborhood_id
+            ).exists():
+                raise serializers.ValidationError(
+                    {
+                        "address": (
+                            "این محله در محدوده فعالیت شما نیست."
+                        )
+                    }
+                )
 
-            # ==================================================
-            # بررسی Agent
-            # ==================================================
+        # ==================================================
+        # 3. انتخاب خودکار Agent در زمان Create
+        # ==================================================
 
-            if agent:
+        agent_was_provided = "agent" in attrs
+
+        if (
+            self.instance is None
+            and not agent_was_provided
+            and address is not None
+            and deal_type is not None
+        ):
+            agents = User.objects.filter(
+                agency=user.agency,
+                is_active=True,
+                is_owner=False,
+                service_neighborhoods=address.neighborhood,
+                deal_type_scope=deal_type,
+            ).distinct()
+
+            # ----------------------------------------------
+            # فقط یک Agent مناسب
+            # ----------------------------------------------
+
+            if agents.count() == 1:
+                attrs["agent"] = agents.first()
+                agent = attrs["agent"]
+
+            # ----------------------------------------------
+            # هیچ Agent مناسب وجود ندارد
+            # ----------------------------------------------
+
+            elif agents.count() == 0:
+                raise serializers.ValidationError(
+                    {
+                        "agent": (
+                            "برای این محله و نوع معامله "
+                            "هیچ مشاور فعالی وجود ندارد."
+                        )
+                    }
+                )
+
+            # ----------------------------------------------
+            # چند Agent مناسب وجود دارد
+            # ----------------------------------------------
+
+            else:
+                raise serializers.ValidationError(
+                    {
+                        "agent": (
+                            "برای این محله و نوع معامله "
+                            "چند مشاور فعال وجود دارد. "
+                            "لطفاً مشاور را انتخاب کنید."
+                        )
+                    }
+                )
+
+        # ==================================================
+        # 4. بررسی Agent انتخاب شده
+        # ==================================================
+
+        if agent is not None:
+
+            # ----------------------------------------------
+            # Agent باید متعلق به همان Agency باشد
+            # ----------------------------------------------
+
+            if agent.agency_id != user.agency_id:
+                raise serializers.ValidationError(
+                    {
+                        "agent": (
+                            "مشاور متعلق به آژانس شما نیست."
+                        )
+                    }
+                )
+
+            # ----------------------------------------------
+            # Agent باید فعال باشد
+            # ----------------------------------------------
+
+            if not agent.is_active:
+                raise serializers.ValidationError(
+                    {
+                        "agent": (
+                            "این مشاور فعال نیست."
+                        )
+                    }
+                )
+
+            # ----------------------------------------------
+            # Owner نباید به عنوان Agent انتخاب شود
+            # ----------------------------------------------
+
+            if agent.is_owner:
+                raise serializers.ValidationError(
+                    {
+                        "agent": (
+                            "مالک آژانس نمی‌تواند "
+                            "به عنوان مشاور انتخاب شود."
+                        )
+                    }
+                )
+
+            # ----------------------------------------------
+            # Agent باید در محله Property فعالیت داشته باشد
+            # ----------------------------------------------
+
+            if address is not None:
+
                 if not agent.service_neighborhoods.filter(
-                    id=neighborhood.id
+                    id=address.neighborhood_id
                 ).exists():
                     raise serializers.ValidationError(
                         {
@@ -116,30 +247,68 @@ class BasePropertySerializer(serializers.ModelSerializer):
                         }
                     )
 
+            # ----------------------------------------------
+            # Agent باید در نوع معامله Property فعالیت داشته باشد
+            # ----------------------------------------------
+
+            if deal_type is not None:
+
+                if not agent.can_access_deal_type(
+                    deal_type
+                ):
+                    raise serializers.ValidationError(
+                        {
+                            "agent": (
+                                "مشاور انتخاب شده در این نوع "
+                                "معامله فعالیت ندارد."
+                            )
+                        }
+                    )
+
         return attrs
+
+    # ======================================================
+    # Owner Validation
+    # ======================================================
 
     def validate_owner(self, owner):
         user = self.context["request"].user
 
-        if owner.agency != user.agency:
+        if owner.agency_id != user.agency_id:
             raise serializers.ValidationError(
                 "مالک متعلق به آژانس شما نیست."
             )
 
         return owner
 
+    # ======================================================
+    # Agent Validation
+    # ======================================================
+
     def validate_agent(self, agent):
         user = self.context["request"].user
 
-        if agent.agency != user.agency:
+        # ----------------------------------------------
+        # Agency
+        # ----------------------------------------------
+
+        if agent.agency_id != user.agency_id:
             raise serializers.ValidationError(
                 "مشاور متعلق به آژانس شما نیست."
             )
+
+        # ----------------------------------------------
+        # Active
+        # ----------------------------------------------
 
         if not agent.is_active:
             raise serializers.ValidationError(
                 "این مشاور فعال نیست."
             )
+
+        # ----------------------------------------------
+        # Owner
+        # ----------------------------------------------
 
         if agent.is_owner:
             raise serializers.ValidationError(
@@ -148,6 +317,10 @@ class BasePropertySerializer(serializers.ModelSerializer):
 
         return agent
 
+    # ======================================================
+    # Address Validation
+    # ======================================================
+
     def validate_address(self, address):
         user = self.context["request"].user
 
@@ -155,7 +328,8 @@ class BasePropertySerializer(serializers.ModelSerializer):
         if user.is_owner:
             return address
 
-        # کاربر فقط در محدوده خودش می‌تواند ملک ثبت کند
+        # Agent فقط در محله‌های خودش می‌تواند Property
+        # ایجاد یا ویرایش کند.
         if not user.service_neighborhoods.filter(
             id=address.neighborhood_id
         ).exists():
@@ -164,3 +338,23 @@ class BasePropertySerializer(serializers.ModelSerializer):
             )
 
         return address
+
+    # ======================================================
+    # Deal Type Validation
+    # ======================================================
+
+    def validate_deal_type(self, deal_type):
+        user = self.context["request"].user
+
+        # Owner آژانس محدودیت نوع معامله ندارد
+        if user.is_owner:
+            return deal_type
+
+        # Agent فقط در نوع فعالیت خودش می‌تواند
+        # Property ایجاد یا ویرایش کند.
+        if not user.can_access_deal_type(deal_type):
+            raise serializers.ValidationError(
+                "شما مجاز به فعالیت در این نوع معامله نیستید."
+            )
+
+        return deal_type
