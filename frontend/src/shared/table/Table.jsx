@@ -88,6 +88,15 @@ export default function Table({
       <table className="w-full border-collapse text-sm">
         <thead className="sticky top-0 z-10 bg-surface">
           <tr className="border-b border-border bg-surface">
+            {selectable && (
+              <th className="w-10 px-3 py-3">
+                <Checkbox
+                  checked={allSelected}
+                  indeterminate={someSelected}
+                  onChange={toggleAll}
+                />
+              </th>
+            )}
             {columns.map((col) => (
               <th
                 key={col.key}
@@ -127,6 +136,17 @@ export default function Table({
                 setOpenMenuRowKey(row[rowKey]);
               }}
             >
+              {selectable && (
+                <td
+                  className="w-10 px-3 py-2.5"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Checkbox
+                    checked={selected.includes(row[rowKey])}
+                    onChange={() => toggleRow(row[rowKey])}
+                  />
+                </td>
+              )}
               {columns.map((col) => (
                 <td
                   key={col.key}

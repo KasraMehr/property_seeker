@@ -828,6 +828,16 @@ export const API_ENDPOINTS = {
         method: "DELETE",
         status: "[OK]",
       }),
+      BULK_DELETE: {
+        url: `${API_BASE}/ingestion/targets/bulk-delete/`,
+        method: "DELETE",
+        status: "[OK]",
+      },
+      BULK_TOGGLE: {
+        url: `${API_BASE}/ingestion/targets/bulk-toggle/`,
+        method: "PATCH",
+        status: "[OK]",
+      },
       TRIGGER_RUN: (id) => ({
         url: `${API_BASE}/ingestion/targets/${id}/trigger/`,
         method: "POST",
@@ -860,6 +870,16 @@ export const API_ENDPOINTS = {
         method: "POST",
         status: "[OK]",
       }),
+      BULK_CANCEL: {
+        url: `${API_BASE}/ingestion/runs/bulk-cancel/`,
+        method: "POST",
+        status: "[OK]",
+      },
+      BULK_DELETE: {
+        url: `${API_BASE}/ingestion/runs/bulk-delete/`,
+        method: "DELETE",
+        status: "[OK]",
+      },
       DELETE: (id) => ({
         url: `${API_BASE}/ingestion/runs/${id}/delete/`,
         method: "DELETE",

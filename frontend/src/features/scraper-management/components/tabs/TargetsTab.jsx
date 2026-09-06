@@ -4,12 +4,14 @@ import useScraper from "../../hooks/useScraper";
 import {
   SCRAPER_TARGET_TABLE_COLUMNS,
   SCRAPER_TARGET_ROW_ACTIONS,
+  SCRAPER_TARGET_BULK_ACTIONS,
 } from "../../config";
 import ScraperTargetDetailModal from "../ScraperTargetDetailModal";
 import ScraperTargetFormModal from "../ScraperTargetFormModal";
 import TriggerScraperRunModal from "../TriggerScraperRunModal";
 import TargetPickerModal from "../TargetPickerModal";
 import EmptyState from "./EmptyState";
+import ConfirmModal from "@/shared/ui/modal/ConfirmModal";
 import { toastService } from "@/lib/toast";
 
 /**
@@ -20,7 +22,7 @@ export default function TargetsTab({
   onRunTriggered,
   onHeaderStateChange,
 }) {
-  const { targets, loading, meta, page, setPage, fetchTargets, toggleTarget, deleteTarget } =
+  const { targets, loading, meta, page, setPage, fetchTargets, toggleTarget, deleteTarget, bulkDeleteTargets, bulkToggleTargets } =
     useScraper();
 
   const [selected, setSelected] = useState([]);
@@ -29,6 +31,8 @@ export default function TargetsTab({
   const [triggerTarget, setTriggerTarget] = useState(null);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [pendingConfirm, setPendingConfirm] = useState(null);
+  const [confirmLoading, setConfirmLoading] = useState(false);
 
   useEffect(() => {
     fetchTargets({ page });
@@ -72,6 +76,15 @@ export default function TargetsTab({
 
   const handleRowAction = useCallback(
     async (key, row) => {
+      const action = SCRAPER_TARGET_ROW_ACTIONS.find((a) => a.key === key);
+      if (!action) return;
+
+      // Actions that need confirmation go through ConfirmModal
+      if (action.confirm) {
+        setPendingConfirm({ action, rows: [row] });
+        return;
+      }
+
       switch (key) {
         case "view":
           setDetailTarget(row);
@@ -98,25 +111,109 @@ export default function TargetsTab({
           }
           setTriggerTarget(row);
           break;
-        case "delete":
-          try {
-            await deleteTarget(row.id);
-            toastService.success("تارگت حذف شد");
-          } catch (err) {
-            console.error(err);
-            const detail =
-              err?.response?.data?.detail ||
-              err?.response?.data?.error ||
-              "حذف تارگت ناموفق بود.";
-            toastService.error(detail);
-          }
-          break;
         default:
           break;
       }
     },
-    [toggleTarget, deleteTarget],
+    [toggleTarget],
   );
+
+  const handleBulkAction = useCallback(
+    (actionKey) => {
+      if (selected.length === 0) return;
+      const action = SCRAPER_TARGET_BULK_ACTIONS.find((a) => a.key === actionKey);
+      const rows = (targets || []).filter((t) => selected.includes(t.id));
+      if (!action || rows.length === 0) return;
+
+      // trigger_run opens the modal for the first enabled target directly
+      if (action.handler === "trigger_run") {
+        const firstEnabled = rows.find((r) => r.enabled);
+        if (!firstEnabled) {
+          toastService.error("هیچ تارگت فعالی در انتخاب‌ها وجود ندارد");
+          return;
+        }
+        setTriggerTarget(firstEnabled);
+        return;
+      }
+
+      // Actions with confirm block go through ConfirmModal
+      if (action.confirm) {
+        setPendingConfirm({ action, rows });
+        return;
+      }
+
+      // toggle_enabled without confirm — execute directly
+      if (action.handler === "toggle_enabled") {
+        const enable_ids = [];
+        const disable_ids = [];
+        for (const row of rows) {
+          if (row.enabled) disable_ids.push(row.id);
+          else enable_ids.push(row.id);
+        }
+        bulkToggleTargets(enable_ids, disable_ids)
+          .then(() => {
+            setSelected([]);
+            toastService.success(`${rows.length} تارگت بروزرسانی شد`);
+          })
+          .catch((err) => {
+            console.error(err);
+            toastService.error("تغییر وضعیت گروهی ناموفق بود");
+          });
+      }
+    },
+    [selected, targets, bulkDeleteTargets, bulkToggleTargets],
+  );
+
+  /* ─── Confirm dialog copy ─── */
+  const confirmDialogCopy = useMemo(() => {
+    if (!pendingConfirm) return null;
+    const { action } = pendingConfirm;
+    return action.confirm || { title: action.label, message: "آیا مطمئن هستید؟" };
+  }, [pendingConfirm]);
+
+  /* ─── Execute confirmed action ─── */
+  const runConfirmedAction = useCallback(async () => {
+    if (!pendingConfirm) return;
+    const { action, rows } = pendingConfirm;
+    const ids = rows.map((r) => r.id);
+
+    setConfirmLoading(true);
+    try {
+      if (action.handler === "bulk_delete") {
+        await bulkDeleteTargets(ids);
+        setSelected([]);
+        toastService.success(
+          ids.length > 1 ? `${ids.length} تارگت حذف شدند` : "تارگت حذف شد",
+        );
+      } else if (action.handler === "toggle_enabled") {
+        const enable_ids = [];
+        const disable_ids = [];
+        for (const row of rows) {
+          if (row.enabled) disable_ids.push(row.id);
+          else enable_ids.push(row.id);
+        }
+        await bulkToggleTargets(enable_ids, disable_ids);
+        setSelected([]);
+        toastService.success(`${ids.length} تارگت بروزرسانی شد`);
+      } else if (action.key === "delete") {
+        await deleteTarget(ids[0]);
+        toastService.success("تارگت حذف شد");
+      } else if (action.key === "trigger_run") {
+        // Single row confirm — open trigger modal
+        setTriggerTarget(rows[0]);
+      }
+    } catch (err) {
+      console.error(err);
+      const detail =
+        err?.response?.data?.detail ||
+        err?.response?.data?.error ||
+        "عملیات ناموفق بود.";
+      toastService.error(detail);
+    } finally {
+      setConfirmLoading(false);
+      setPendingConfirm(null);
+    }
+  }, [pendingConfirm, bulkDeleteTargets, bulkToggleTargets, deleteTarget]);
 
   const pagination = useMemo(
     () => ({
@@ -139,8 +236,9 @@ export default function TargetsTab({
           selected={selected}
           onSelectionChange={setSelected}
           rowActions={SCRAPER_TARGET_ROW_ACTIONS}
-          bulkActions={[]}
+          bulkActions={SCRAPER_TARGET_BULK_ACTIONS}
           onRowAction={handleRowAction}
+          onBulkAction={handleBulkAction}
           pagination={pagination}
           onPageChange={setPage}
           emptyState={<EmptyState message="تارگتی ثبت نشده" />}
@@ -176,6 +274,17 @@ export default function TargetsTab({
           setPickerOpen(false);
           setTriggerTarget(target);
         }}
+      />
+
+      {/* ─── Confirm dialog ─── */}
+      <ConfirmModal
+        isOpen={pendingConfirm !== null}
+        onClose={() => setPendingConfirm(null)}
+        onConfirm={runConfirmedAction}
+        title={confirmDialogCopy?.title || ""}
+        message={confirmDialogCopy?.message || ""}
+        variant={pendingConfirm?.action.variant === "danger" ? "danger" : "warning"}
+        isLoading={confirmLoading}
       />
 
       {triggerTarget && (

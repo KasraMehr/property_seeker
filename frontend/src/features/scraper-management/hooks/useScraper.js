@@ -61,6 +61,22 @@ export default function useScraper() {
     [fetchTargets, page],
   );
 
+  const bulkDeleteTargets = useCallback(
+    async (ids) => {
+      await scraperService.bulkDeleteTargets(ids);
+      await fetchTargets({ page });
+    },
+    [fetchTargets, page],
+  );
+
+  const bulkToggleTargets = useCallback(
+    async (enable_ids, disable_ids) => {
+      await scraperService.bulkToggleTargets(enable_ids, disable_ids);
+      await fetchTargets({ page });
+    },
+    [fetchTargets, page],
+  );
+
   const triggerRun = useCallback(async (id, mode, configuration = {}) => {
     const config =
       configuration &&
@@ -91,6 +107,22 @@ export default function useScraper() {
     [fetchRuns, page],
   );
 
+  const bulkCancelRuns = useCallback(
+    async (cancel_ids, resume_ids) => {
+      await scraperService.bulkCancelRuns(cancel_ids, resume_ids);
+      await fetchRuns({ page });
+    },
+    [fetchRuns, page],
+  );
+
+  const bulkDeleteRuns = useCallback(
+    async (ids) => {
+      await scraperService.bulkDeleteRuns(ids);
+      await fetchRuns({ page });
+    },
+    [fetchRuns, page],
+  );
+
   return {
     targets,
     runs,
@@ -102,9 +134,13 @@ export default function useScraper() {
     fetchRuns,
     toggleTarget,
     deleteTarget,
+    bulkDeleteTargets,
+    bulkToggleTargets,
     triggerRun,
     resumeRun,
     cancelRun,
     deleteRun,
+    bulkCancelRuns,
+    bulkDeleteRuns,
   };
 }

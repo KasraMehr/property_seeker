@@ -7,6 +7,7 @@ import {
   Zap,
   Settings,
   Download,
+  Ban,
 } from "lucide-react";
 
 /**
@@ -88,7 +89,7 @@ export const SCRAPER_TARGET_BULK_ACTIONS = [
   {
     key: "toggle_enabled",
     label: "فعال / غیرفعال",
-    icon: Play,
+    icon: Pause,
     variant: "outline",
     type: "bulk",
     permission: null,
@@ -105,6 +106,19 @@ export const SCRAPER_TARGET_BULK_ACTIONS = [
     confirm: {
       title: "اجرای گروهی",
       message: "مودال اجرا برای اولین تارگت فعال انتخاب‌شده باز می‌شود.",
+    },
+  },
+  {
+    key: "bulk_delete",
+    label: "حذف گروهی",
+    icon: Trash2,
+    variant: "danger",
+    type: "bulk",
+    permission: null,
+    handler: "bulk_delete",
+    confirm: {
+      title: "حذف گروهی تارگت‌ها",
+      message: "آیا از حذف تارگت‌های انتخاب‌شده اطمینان دارید؟ این عمل قابل بازگشت نیست.",
     },
   },
 ];

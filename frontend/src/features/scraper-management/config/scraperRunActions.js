@@ -1,5 +1,5 @@
 import {
-  Eye, Ban, Trash2, List, AlertTriangle,Play, Download
+  Eye, Ban, Trash2, List, AlertTriangle, Play, Download, Pause
 } from "lucide-react";
 
 /**
@@ -75,6 +75,31 @@ export const SCRAPER_RUN_ROW_ACTIONS = [
     confirm: {
       title: "حذف اجرا",
       message: "آیا از حذف این اجرا اطمینان دارید؟ این عمل قابل بازگشت نیست.",
+    },
+  },
+];
+
+export const SCRAPER_RUN_BULK_ACTIONS = [
+  {
+    key: "bulk_toggle",
+    label: "توقف / ادامه",
+    icon: Pause,
+    variant: "outline",
+    type: "bulk",
+    permission: null,
+    handler: "bulk_toggle",
+  },
+  {
+    key: "bulk_delete",
+    label: "حذف گروهی",
+    icon: Trash2,
+    variant: "danger",
+    type: "bulk",
+    permission: null,
+    handler: "bulk_delete",
+    confirm: {
+      title: "حذف گروهی اجراها",
+      message: "آیا از حذف اجراهای انتخاب‌شده اطمینان دارید؟ این عمل قابل بازگشت نیست.",
     },
   },
 ];

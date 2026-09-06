@@ -55,7 +55,18 @@ class DivarSessionStatusView(APIView):
     required_permission = "run_scrape_target"
 
     def get(self, request):
-        return Response(get_session_state())
+        try:
+            return Response(get_session_state())
+        except Exception:
+            return Response(
+                {
+                    "status": "unknown",
+                    "authenticated": False,
+                    "detail": "Session state unavailable (Redis not connected).",
+                    "phone_masked": "",
+                    "checked_at": "",
+                }
+            )
 
 
 class DivarSessionCheckView(APIView):
@@ -188,6 +199,62 @@ class ScrapeTargetDetailView(generics.RetrieveUpdateDestroyAPIView):
         )
 
 
+class BulkScrapeTargetDeleteView(APIView):
+    permission_classes = (HasRolePermission,)
+    required_permission = "delete_scrape_target"
+
+    def delete(self, request):
+        ids = request.data.get("ids", [])
+        if not ids:
+            return Response(
+                {"detail": "ids is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        targets = ScrapeTarget.objects.filter(pk__in=ids)
+        deleted_count, _ = targets.delete()
+        return Response({"deleted_count": deleted_count})
+
+
+class BulkScrapeTargetToggleView(APIView):
+    """Bulk toggle: accept either { ids, enabled } or { enable_ids, disable_ids }.
+
+    The per-row invert pattern sends enable_ids + disable_ids so each target
+    flips its own state independently.
+    """
+    permission_classes = (HasRolePermission,)
+    required_permission = "change_scrape_target"
+
+    def patch(self, request):
+        enable_ids = request.data.get("enable_ids")
+        disable_ids = request.data.get("disable_ids")
+
+        # Legacy mode: { ids, enabled }
+        if enable_ids is None and disable_ids is None:
+            ids = request.data.get("ids", [])
+            enabled = request.data.get("enabled")
+            if not ids:
+                return Response(
+                    {"detail": "ids is required."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            if enabled is None:
+                return Response(
+                    {"detail": "enabled is required."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            updated = ScrapeTarget.objects.filter(pk__in=ids).update(enabled=enabled)
+            return Response({"updated_count": updated})
+
+        # Per-row mode
+        enabled_count = 0
+        disabled_count = 0
+        if enable_ids:
+            enabled_count = ScrapeTarget.objects.filter(pk__in=enable_ids).update(enabled=True)
+        if disable_ids:
+            disabled_count = ScrapeTarget.objects.filter(pk__in=disable_ids).update(enabled=False)
+        return Response({"enabled_count": enabled_count, "disabled_count": disabled_count})
+
+
 class ScrapeTargetTriggerView(APIView):
     permission_classes = (HasRolePermission,)
     required_permission = "run_scrape_target"
@@ -316,8 +383,7 @@ class IngestionRunCancelView(APIView):
     def post(self, request, uuid):
         run = get_object_or_404(IngestionRun, pk=uuid)
         if run.status not in {IngestionRun.Status.QUEUED, IngestionRun.Status.RUNNING}:
-            return Response(
-                {"detail": "Only queued or running runs can be cancelled."},
+            return Response(                    {"detail": "فقط اجراهای در صف یا در حال اجرا قابل توقف هستند."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         run.status = IngestionRun.Status.CANCELLED
@@ -334,12 +400,94 @@ class IngestionRunDeleteView(APIView):
     def delete(self, request, uuid):
         run = get_object_or_404(IngestionRun, pk=uuid)
         if run.status in {IngestionRun.Status.QUEUED, IngestionRun.Status.RUNNING}:
-            return Response(
-                {"detail": "Cannot delete a queued or running run. Cancel it first."},
+            return Response(                    {"detail": "نمی‌توان اجرای در صف یا در حال اجرا را حذف کرد. ابتدا آن را متوقف کنید."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         run.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class BulkIngestionRunCancelView(APIView):
+    """Bulk toggle runs: accept either { ids } or { cancel_ids, resume_ids }.
+
+    Per-row invert: each run flips independently —
+    active (queued/running) → cancel, inactive (failed/cancelled) → resume.
+    """
+    permission_classes = (HasRolePermission,)
+    required_permission = "run_ingestion_run"
+
+    def post(self, request):
+        cancel_ids = request.data.get("cancel_ids")
+        resume_ids = request.data.get("resume_ids")
+
+        # Per-row mode
+        if cancel_ids is not None and resume_ids is not None:
+            cancelled_count = 0
+            resumed_count = 0
+            if cancel_ids:
+                cancelled_count = IngestionRun.objects.filter(pk__in=cancel_ids).filter(
+                    status__in={IngestionRun.Status.QUEUED, IngestionRun.Status.RUNNING}
+                ).update(
+                    status=IngestionRun.Status.CANCELLED,
+                    finished_at=timezone.now(),
+                    error_summary="Cancelled by user (bulk).",
+                )
+            if resume_ids:
+                from .services.runs import resume_run as _resume_run
+                resumed_count = 0
+                for run in IngestionRun.objects.filter(pk__in=resume_ids).filter(
+                    status__in={IngestionRun.Status.FAILED, IngestionRun.Status.CANCELLED}
+                ):
+                    try:
+                        _resume_run(run=run)
+                        resumed_count += 1
+                    except Exception:
+                        pass
+            return Response({"cancelled_count": cancelled_count, "resumed_count": resumed_count})
+
+        # Legacy mode: { ids } — cancel all active ones
+        ids = request.data.get("ids", [])
+        if not ids:
+            return Response(
+                {"detail": "ids is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        runs = IngestionRun.objects.filter(pk__in=ids).filter(
+            status__in={IngestionRun.Status.QUEUED, IngestionRun.Status.RUNNING}
+        )
+        cancelled_count = runs.update(
+            status=IngestionRun.Status.CANCELLED,
+            finished_at=timezone.now(),
+            error_summary="Cancelled by user (bulk).",
+        )
+        return Response({"cancelled_count": cancelled_count})
+
+
+class BulkIngestionRunDeleteView(APIView):
+    permission_classes = (HasRolePermission,)
+    required_permission = "run_ingestion_run"
+
+    def delete(self, request):
+        ids = request.data.get("ids", [])
+        if not ids:
+            return Response(
+                {"detail": "ids is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        # Only allow deleting non-active runs
+        active_ids = list(
+            IngestionRun.objects.filter(pk__in=ids)
+            .filter(status__in={IngestionRun.Status.QUEUED, IngestionRun.Status.RUNNING})
+            .values_list("pk", flat=True)
+        )
+        if active_ids:
+            return Response(                    {"detail": f"امکان حذف {len(active_ids)} اجرای فعال وجود ندارد. ابتدا آن‌ها را متوقف کنید.",
+                    "active_ids": [str(i) for i in active_ids],
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        deleted_count, _ = IngestionRun.objects.filter(pk__in=ids).delete()
+        return Response({"deleted_count": deleted_count})
 
 
 class IngestionRunExportView(APIView):

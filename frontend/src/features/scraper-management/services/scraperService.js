@@ -18,6 +18,12 @@ const updateTarget = (id, data) =>
 const deleteTarget = (id) =>
   api.delete(API_ENDPOINTS.INGESTION.TARGETS.DELETE(id).url);
 
+const bulkDeleteTargets = (ids) =>
+  api.delete(API_ENDPOINTS.INGESTION.TARGETS.BULK_DELETE.url, { data: { ids } });
+
+const bulkToggleTargets = (enable_ids, disable_ids) =>
+  api.patch(API_ENDPOINTS.INGESTION.TARGETS.BULK_TOGGLE.url, { enable_ids, disable_ids });
+
 // ── ingestionRuns ──
 const getRuns = (params = {}) =>
   api.get(API_ENDPOINTS.INGESTION.RUNS.LIST.url, { params });
@@ -87,6 +93,12 @@ const cancelRun = (uuid) =>
 
 const deleteRun = (uuid) =>
   api.delete(API_ENDPOINTS.INGESTION.RUNS.DELETE(uuid).url);
+
+const bulkCancelRuns = (cancel_ids, resume_ids) =>
+  api.post(API_ENDPOINTS.INGESTION.RUNS.BULK_CANCEL.url, { cancel_ids, resume_ids });
+
+const bulkDeleteRuns = (ids) =>
+  api.delete(API_ENDPOINTS.INGESTION.RUNS.BULK_DELETE.url, { data: { ids } });
 
 // get data from axios
 function unwrapList(res) {
@@ -171,6 +183,8 @@ const scraperService = {
   createTarget,
   updateTarget,
   deleteTarget,
+  bulkDeleteTargets,
+  bulkToggleTargets,
   getRuns,
   getRunById,
   getRunItems,
@@ -189,6 +203,8 @@ const scraperService = {
   resumeRun,
   cancelRun,
   deleteRun,
+  bulkCancelRuns,
+  bulkDeleteRuns,
   getScraperTodayStatus,
 };
 
