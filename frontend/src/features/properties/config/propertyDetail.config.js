@@ -72,7 +72,12 @@ export const PROPERTY_DETAIL_FIELDS = [
     fields: [
       { key: "property_code", label: "کد ملک", type: "mono" },
       { key: "title", label: "عنوان ملک", fullWidth: true },
-      { key: "property_type", label: "نوع ملک" },
+      {
+        key: "property_type",
+        label: "نوع ملک",
+        type: "status",
+        configKey: "propertyType",
+      },
       {
         key: "deal_type",
         label: "نوع معامله",
@@ -147,6 +152,11 @@ export const PROPERTY_DETAIL_FIELDS = [
     ],
   },
   {
+    section: "description",
+    sectionLabel: "توضیحات",
+    fields: [{ key: "description", label: "توضیحات", fullWidth: true }],
+  },
+  {
     section: "people",
     sectionLabel: "اشخاص",
     fields: [
@@ -165,11 +175,7 @@ export const PROPERTY_DETAIL_FIELDS = [
       { key: "updated_at", label: "آخرین بروزرسانی", type: "dateTime" },
     ],
   },
-  {
-    section: "description",
-    sectionLabel: "توضیحات",
-    fields: [{ key: "description", label: "توضیحات", fullWidth: true }],
-  },
+  
 ];
 
 /* ─── Tab 2: Status History ─── */

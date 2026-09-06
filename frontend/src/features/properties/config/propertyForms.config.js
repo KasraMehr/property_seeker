@@ -456,17 +456,65 @@ export const PROMOTE_LISTING_FORM = {
     },
     {
       key: "location",
-      label: "موقعیت / آدرس",
+      label: "موقعیت",
       type: "location_cascade",
-      includeAddress: true,
+      includeAddress: false,
+      autoFill: {
+        source: "listing",
+        field: "divar_neighborhood",
+        transform: (dn) => {
+          if (!dn || typeof dn !== "object") return undefined;
+          return {
+            province: dn.city_province ?? null,
+            city: dn.city ?? null,
+            district: null,
+            neighborhood: null,
+          };
+        },
+      },
+      span: 12,
+    },
+    {
+      key: "address_text",
+      label: "آدرس دقیق",
+      type: "textarea",
+      required: false,
+      placeholder: "خیابان، کوچه، پلاک و...",
+      rows: 2,
+      autoFill: {
+        source: "listing",
+        field: "address",
+        transform: (addr) => addr || "",
+      },
       span: 12,
     },
     {
       key: "property_type",
       label: "نوع ملک",
-      type: "text",
+      type: "select",
       required: false,
-      placeholder: "مثلاً آپارتمان",
+      placeholder: "انتخاب نوع ملک",
+      options: [
+        { value: "APARTMENT", label: "آپارتمان" },
+        { value: "VILLA", label: "ویلا" },
+        { value: "LAND", label: "زمین" },
+        { value: "COMMERCIAL", label: "تجاری" },
+        { value: "OFFICE", label: "دفتر" },
+        { value: "STORE", label: "مغازه" },
+      ],
+      autoFill: {
+        source: "listing",
+        field: "category",
+        transform: (cat) => {
+          const map = {
+            "rent-residential": "APARTMENT",
+            "buy-residential": "APARTMENT",
+            "buy-commercial-property": "COMMERCIAL",
+            "rent-commercial-property": "COMMERCIAL",
+          };
+          return map[cat] || "";
+        },
+      },
       span: 6,
     },
     {

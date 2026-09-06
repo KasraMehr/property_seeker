@@ -9,6 +9,7 @@ from rest_framework.views import APIView
 
 from accounts.permissions import *
 from accounts.permissions import HasRolePermission
+from amlak.pagination import StandardPagination
 from audit.services.activity_log import *
 
 from ..filter.owner_filter import OwnerFilter
@@ -23,6 +24,7 @@ from ..serializers.owner_update import OwnerUpdateSerializer
 class OwnerListView(ListAPIView):
 
     serializer_class = OwnerListSerializer
+    pagination_class = StandardPagination
 
     permission_classes = (
         IsAuthenticated,

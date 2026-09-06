@@ -3,6 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from amlak.pagination import StandardPagination
 from crm.filter.filters import CallLogFilter
 from crm.selectors.call_log_selector import CallLogSelector
 from crm.serializers.call_log_create import CallLogCreateSerializer
@@ -60,12 +61,13 @@ class CallLogListCreateView(APIView):
             calls = calls.order_by(ordering)
 
         # =========================
-        # Serializer
+        # Pagination
         # =========================
 
-        serializer = CallLogListSerializer(calls, many=True)
-
-        return Response(serializer.data)
+        paginator = StandardPagination()
+        page = paginator.paginate_queryset(calls, request)
+        serializer = CallLogListSerializer(page, many=True)
+        return paginator.get_paginated_response(serializer.data)
 
     def post(self, request):
 

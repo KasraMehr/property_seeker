@@ -1,5 +1,5 @@
 import { useMemo, useEffect, useState, useCallback } from "react";
-import { Inbox } from "lucide-react";
+import { Inbox, RefreshCw } from "lucide-react";
 import { useOutletContext } from "react-router-dom";
 import ResourceTemplate from "@/shared/templates/resource/ResourceTemplate";
 import PageTabs from "@/shared/page/PageTabs";
@@ -243,9 +243,20 @@ export default function ListingsPage() {
       title: "آگهی‌ها",
       subtitle: "آگهی‌های استخراج‌شده",
       breadcrumb: [],
+      actions: (
+        <Button
+          variant="outline"
+          size="sm"
+          icon={RefreshCw}
+          onClick={() => refresh?.()}
+          disabled={loading}
+        >
+          بروزرسانی
+        </Button>
+      ),
     });
     return () => setPageHeader(null);
-  }, [setPageHeader]);
+  }, [setPageHeader, loading, refresh]);
 
   const emptyState = useMemo(
     () => (

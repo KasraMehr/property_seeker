@@ -11,6 +11,7 @@ class ListingSelector:
                 "source",
                 "divar_neighborhood__zone",
                 "divar_neighborhood__city",
+                "divar_neighborhood__city__province",
             )
             .order_by("-last_seen_at", "-id")
         )

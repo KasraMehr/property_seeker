@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from accounts.permissions import HasRolePermission
+from amlak.pagination import StandardPagination
 
 from .models import (
     IngestionRun,
@@ -144,8 +145,13 @@ class DivarLoginConfirmView(APIView):
 
 
 class ScrapeTargetListCreateView(generics.ListCreateAPIView):
-    queryset = ScrapeTarget.objects.select_related("source", "zone__city").all()
+    queryset = (
+        ScrapeTarget.objects
+        .select_related("source", "zone__city")
+        .order_by("-enabled", "name")
+    )
     serializer_class = ScrapeTargetSerializer
+    pagination_class = StandardPagination
     permission_classes = (HasRolePermission,)
     @property
     def required_permission(self):
@@ -315,8 +321,25 @@ class ScrapeTargetTriggerView(APIView):
 
 
 class IngestionRunListView(generics.ListAPIView):
-    queryset = IngestionRun.objects.select_related("target", "target__source").all()
+    def get_queryset(self):
+        from django.db.models import Case, When, Value, IntegerField
+        status_order = Case(
+            When(status="running", then=Value(0)),
+            When(status="queued", then=Value(1)),
+            When(status="completed", then=Value(2)),
+            When(status="cancelled", then=Value(3)),
+            When(status="failed", then=Value(4)),
+            default=Value(5),
+            output_field=IntegerField(),
+        )
+        return (
+            IngestionRun.objects
+            .select_related("target", "target__source")
+            .order_by(status_order, "-created_at")
+        )
+
     serializer_class = IngestionRunSerializer
+    pagination_class = StandardPagination
     permission_classes = (HasRolePermission,)
     required_permission = "view_ingestion_run"
 

@@ -11,7 +11,7 @@ export default function useScraper() {
   const fetchTargets = useCallback(async (params = {}) => {
     setLoading(true);
     try {
-      const res = await scraperService.getTargets(params);
+      const res = await scraperService.getTargets({ page_size: 10, ...params });
       const payload = res.data;
 
       const list = Array.isArray(payload) ? payload : (payload?.results ?? []);
@@ -30,7 +30,7 @@ export default function useScraper() {
   const fetchRuns = useCallback(async (params = {}) => {
     setLoading(true);
     try {
-      const res = await scraperService.getRuns(params);
+      const res = await scraperService.getRuns({ page_size: 10, ...params });
       const payload = res.data;
       const list = Array.isArray(payload) ? payload : (payload?.results ?? []);
 

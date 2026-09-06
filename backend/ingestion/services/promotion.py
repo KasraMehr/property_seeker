@@ -15,6 +15,11 @@ def promote_listing(
     area=None,
     title=None,
     address=None,
+    province=None,
+    city=None,
+    district=None,
+    neighborhood=None,
+    address_text=None,
     property_type=None,
     floor=None,
     total_floors=None,
@@ -38,6 +43,19 @@ def promote_listing(
             age = max(0, jdatetime.date.today().year - listing.build_year)
         except (ValueError, TypeError):
             age = 0
+
+    # Auto-create Address from neighborhood if no explicit address provided
+    if not address and neighborhood:
+        from locations.models import Address
+        addr, _ = Address.objects.get_or_create(
+            neighborhood_id=neighborhood,
+            agency=owner.agency,
+            defaults={"street": address_text or ""},
+        )
+        address = addr
+    elif address and address_text:
+        address.street = address_text
+        address.save(update_fields=["street"])
 
     property_record = Property.objects.create(
         agency=owner.agency,

@@ -1,5 +1,6 @@
 export * from "./propertyStatus.config";
 export * from "./propertyDealType.config";
+export * from "./propertyType.config";
 // propertyVisitStatus.config removed — no backend endpoint supports property visits yet.
 // export * from "./propertyVisitStatus.config";
 export * from "./propertyTable.config.jsx";

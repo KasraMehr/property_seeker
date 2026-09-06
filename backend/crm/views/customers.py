@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from accounts.permissions import *
+from amlak.pagination import StandardPagination
 from crm.filter.customer_filter import CustomerFilter
 from crm.selectors.customers import CustomerSelector
 from crm.serializers.customer_create import CustomerCreateSerializer
@@ -31,9 +32,10 @@ class CustomerListCreateView(APIView):
 
         customers = filterset.qs
 
-        serializer = CustomerListSerializer(customers, many=True)
-
-        return Response(serializer.data)
+        paginator = StandardPagination()
+        page = paginator.paginate_queryset(customers, request)
+        serializer = CustomerListSerializer(page, many=True)
+        return paginator.get_paginated_response(serializer.data)
 
     def post(self, request):
 

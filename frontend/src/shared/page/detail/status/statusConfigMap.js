@@ -7,6 +7,7 @@ import {
 import {
   PROPERTY_STATUS_CONFIG,
   PROPERTY_DEAL_TYPE_CONFIG,
+  PROPERTY_TYPE_CONFIG,
 } from "@/features/properties/config";
 import { CALL_TYPE_CONFIG, CALL_RESULT_CONFIG } from "@/features/calls/config";
 import {
@@ -41,6 +42,7 @@ export const STATUS_CONFIG_MAP = {
     LISTING_ADVERTISER_CLASSIFICATION_STATUS_CONFIG,
   propertyStatus: PROPERTY_STATUS_CONFIG,
   propertyDealType: PROPERTY_DEAL_TYPE_CONFIG,
+  propertyType: PROPERTY_TYPE_CONFIG,
   callType: CALL_TYPE_CONFIG,
   callResult: CALL_RESULT_CONFIG,
   followupType: FOLLOWUP_TYPE_CONFIG,

@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 
 from accounts.permissions import *
 from accounts.permissions import HasRolePermission
+from amlak.pagination import StandardPagination
 from audit.services.activity_log import ActivityLogService
 from properties.selector.property_selector import PropertySelector
 from properties.serializers.property_create import PropertyCreateSerializer
@@ -83,18 +84,13 @@ class PropertyListView(APIView):
             properties = properties.order_by(ordering)
 
         # ==========================================
-        # Serializer
+        # Pagination
         # ==========================================
 
-        serializer = self.serializer_class(
-            properties,
-            many=True,
-        )
-
-        return Response(
-            serializer.data,
-            status=status.HTTP_200_OK,
-        )
+        paginator = StandardPagination()
+        page = paginator.paginate_queryset(properties, request)
+        serializer = self.serializer_class(page, many=True)
+        return paginator.get_paginated_response(serializer.data)
 
 
 class PropertyCreateView(APIView):

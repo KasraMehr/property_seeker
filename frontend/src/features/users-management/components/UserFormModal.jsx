@@ -123,28 +123,19 @@ export default function UserFormModal({
        * No district IDs should be sent.
        */
       if (Array.isArray(payload.service_neighborhoods)) {
-        payload.service_neighborhoods =
-          payload.service_neighborhoods
-            .map((value) => {
-              /**
-               * Defensive handling in case a select component
-               * returns objects instead of raw IDs.
-               */
-              if (
-                value &&
-                typeof value === "object"
-              ) {
-                return value.id;
-              }
+        payload.service_neighborhoods = payload.service_neighborhoods
+          .map((value) => {
+            /**
+             * Defensive handling in case a select component
+             * returns objects instead of raw IDs.
+             */
+            if (value && typeof value === "object") {
+              return value.id;
+            }
 
-              return value;
-            })
-            .filter(
-              (id) =>
-                id !== null &&
-                id !== undefined &&
-                id !== "",
-            );
+            return value;
+          })
+          .filter((id) => id !== null && id !== undefined && id !== "");
       } else {
         payload.service_neighborhoods = [];
       }
@@ -172,11 +163,7 @@ export default function UserFormModal({
         responseData?.national_id?.[0] ||
         responseData?.phone?.[0];
 
-      toastService.error(
-        typeof msg === "string"
-          ? msg
-          : "خطا در ذخیره کاربر",
-      );
+      toastService.error(typeof msg === "string" ? msg : "خطا در ذخیره کاربر");
     } finally {
       setLoading(false);
     }
@@ -186,12 +173,8 @@ export default function UserFormModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      size="lg"
-      title={
-        isEdit
-          ? "ویرایش کاربر"
-          : "ثبت کاربر جدید"
-      }
+      size="xl"
+      title={isEdit ? "ویرایش کاربر" : "ثبت کاربر جدید"}
     >
       <FormRenderer
         config={USER_FORM}

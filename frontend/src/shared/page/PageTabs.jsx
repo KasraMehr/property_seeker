@@ -13,7 +13,7 @@ export default function PageTabs({
 
   return (
     <div
-      className={`flex items-center gap-1 overflow-x-auto border-b border-border ${className}`}
+      className={`flex items-center gap-1 overflow-x-auto overflow-y-hidden border-b border-border ${className}`}
     >
       {items.map((item) => {
         const isActive = activeTab?.id === item.id;

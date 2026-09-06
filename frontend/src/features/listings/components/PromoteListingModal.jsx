@@ -14,6 +14,11 @@ const PROMOTE_PAYLOAD_KEYS = [
   "area",
   "title",
   "address",
+  "province",
+  "city",
+  "district",
+  "neighborhood",
+  "address_text",
   "property_type",
   "floor",
   "total_floors",
@@ -79,7 +84,10 @@ export default function PromoteListingModal({
     try {
       const normalized = { ...data };
       if (normalized.location && typeof normalized.location === "object") {
-        normalized.address = normalized.location.address ?? null;
+        normalized.province = normalized.location.province ?? null;
+        normalized.city = normalized.location.city ?? null;
+        normalized.district = normalized.location.district ?? null;
+        normalized.neighborhood = normalized.location.neighborhood ?? null;
         delete normalized.location;
       }
       // Extract features before promote

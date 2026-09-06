@@ -111,6 +111,7 @@ class ListingDetailSerializer(serializers.ModelSerializer):
             "zone_name": item.zone.name if item.zone_id else None,
             "city": item.city_id,
             "city_name": item.city.name,
+            "city_province": item.city.province_id if item.city_id else None,
         }
 
 
@@ -185,6 +186,13 @@ class ListingPromotionSerializer(serializers.Serializer):
         queryset=Address.objects.all(),
         required=False,
         allow_null=True,
+    )
+    province = serializers.IntegerField(required=False, allow_null=True)
+    city = serializers.IntegerField(required=False, allow_null=True)
+    district = serializers.IntegerField(required=False, allow_null=True)
+    neighborhood = serializers.IntegerField(required=False, allow_null=True)
+    address_text = serializers.CharField(
+        required=False, allow_blank=True, allow_null=True
     )
     property_type = serializers.CharField(
         max_length=30,

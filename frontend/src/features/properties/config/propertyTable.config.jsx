@@ -2,6 +2,7 @@ import StatusBadge from "@/shared/ui/badges/StatusBadge";
 import {
   PROPERTY_STATUS_CONFIG,
   PROPERTY_DEAL_TYPE_CONFIG,
+  PROPERTY_TYPE_CONFIG,
 } from "@/features/properties/config";
 import {buildStatusConfig} from "@/constants/status.utils"
 import { formatPrice } from "@/utils/formatters";
@@ -17,14 +18,7 @@ import { formatPrice } from "@/utils/formatters";
  *   address/district are ONLY available in PropertyDetailSerializer.
  *   Add them back here only after backend expands PropertyListSerializer.
  */
-export const PROPERTY_TYPE_CONFIG = {
-  APARTMENT: { label: "آپارتمان" },
-  VILLA: { label: "ویلا" },
-  LAND: { label: "زمین" },
-  COMMERCIAL: { label: "تجاری" },
-  OFFICE: { label: "دفتر" },
-  STORE: { label: "مغازه" },
-};
+
 export const PROPERTY_TABLE_COLUMNS = [
   {
     key: "property_code",
@@ -58,9 +52,7 @@ export const PROPERTY_TABLE_COLUMNS = [
     header: "نوع ملک",
     width: "w-24",
     cell: ({ property_type }) => (
-      <span className="text-xs text-muted-foreground">
-        {property_type || "—"}
-      </span>
+      <StatusBadge config={buildStatusConfig(PROPERTY_TYPE_CONFIG, property_type)} />
     ),
   },
   {
@@ -101,17 +93,17 @@ export const PROPERTY_TABLE_COLUMNS = [
     // agent is a plain string in PropertyListSerializer
     cell: ({ agent }) => <span className="text-sm">{agent || "—"}</span>,
   },
-  {
-    key: "area",
-    header: "متراژ",
-    width: "w-20",
-    cell: ({ area }) =>
-      area ? (
-        <span>{area} م²</span>
-      ) : (
-        <span className="text-muted-foreground text-xs">—</span>
-      ),
-  },
+  // {
+  //   key: "area",
+  //   header: "متراژ",
+  //   width: "w-20",
+  //   cell: ({ area }) =>
+  //     area ? (
+  //       <span>{area} م²</span>
+  //     ) : (
+  //       <span className="text-muted-foreground text-xs">—</span>
+  //     ),
+  // },
   {
     key: "price",
     header: "قیمت / اجاره",
