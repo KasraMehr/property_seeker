@@ -1,5 +1,3 @@
-import { icons } from "lucide-react";
-
 /**
  * Modal configs — reusable confirmation presets
  */

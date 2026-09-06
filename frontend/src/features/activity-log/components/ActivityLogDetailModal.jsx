@@ -1,10 +1,10 @@
-import { useState, useMemo } from "react";
-import { Activity, Code, FileText } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Activity } from "lucide-react";
 import Modal from "@/shared/ui/modal/Modal";
 import Button from "@/shared/ui/Button";
 import Tabs from "@/shared/ui/Tabs";
 import Can from "@/shared/access/Can";
-import { PERMISSIONS } from "@/constants/permissions";
+
 import {
   ACTIVITY_LOG_DETAIL_TABS,
   ACTIVITY_LOG_DETAIL_FIELDS,
@@ -16,11 +16,12 @@ import { DetailFieldGrid } from "@/shared/page/DetailContentRenderer";
 export default function ActivityLogDetailModal({ isOpen, onClose, log }) {
   const [activeTab, setActiveTab] = useState("details");
 
-  if (!log) return null;
-
-  useMemo(() => {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
     if (isOpen) setActiveTab("details");
   }, [isOpen, log?.id]);
+
+  if (!log) return null;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="xl" title="جزئیات لاگ" className="h-[85vh]">

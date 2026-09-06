@@ -77,6 +77,7 @@ export default function PropertiesTab({ onHeaderStateChange }) {
     if (filterValues.search !== searchInput) {
       setSearchInput(filterValues.search || "");
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterValues.search]);
 
   useEffect(() => {

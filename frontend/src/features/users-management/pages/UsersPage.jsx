@@ -161,6 +161,7 @@ export default function UsersPage() {
   useEffect(() => {
     if (filterValues.search !== searchInput)
       setSearchInput(filterValues.search || "");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterValues.search]);
 
   useEffect(() => {

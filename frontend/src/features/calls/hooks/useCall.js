@@ -19,7 +19,7 @@ export default function useCall() {
       didFetch.current = true;
       fetchList(query.queryParams);
     }
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const prevQueryRef = useRef(null);
   const fetchTimerRef = useRef(null);

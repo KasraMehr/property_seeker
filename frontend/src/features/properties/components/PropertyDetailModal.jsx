@@ -56,7 +56,7 @@ export default function PropertyDetailModal({
     } finally {
       setTabLoading(false);
     }
-  }, [property?.id, activeTab]);
+  }, [property?.id, property?.property_code, activeTab]);
 
   useEffect(() => {
     if (isOpen) {
@@ -67,7 +67,7 @@ export default function PropertyDetailModal({
 
   useEffect(() => {
     if (property?.id) fetchTabData();
-  }, [activeTab, property?.id]);
+  }, [activeTab, property?.id, fetchTabData]);
 
   const { user } = useAuth();
   const isAdmin = Boolean(user?.is_owner);
@@ -79,6 +79,7 @@ export default function PropertyDetailModal({
       ...section,
       fields: section.fields.filter((f) => f.key !== "agent"),
     })).filter((section) => section.fields.length > 0);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAdmin]);
 
   if (!isOpen || !property) return null;
