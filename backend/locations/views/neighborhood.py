@@ -12,13 +12,9 @@ from locations.serializers.neighborhood_update import NeighborhoodUpdateSerializ
 
 class NeighborhoodListCreateView(APIView):
 
-    permission_classes = (
-        IsAuthenticated,
-        HasRolePermission,
-    )
+    permission_classes = (IsAuthenticated,)
 
     permission_map = {
-        "GET": "locations.view_neighborhood",
         "POST": "locations.add_neighborhood",
     }
 

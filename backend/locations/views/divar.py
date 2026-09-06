@@ -15,8 +15,8 @@ from locations.services import sync_divar_neighborhoods
 
 class ZoneListView(generics.ListAPIView):
     serializer_class = ZoneSerializer
-    permission_classes = (HasRolePermission,)
-    required_permission = "view_neighborhood"
+    from rest_framework.permissions import IsAuthenticated
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         queryset = Zone.objects.select_related("city").annotate(
@@ -38,8 +38,8 @@ class ZoneListView(generics.ListAPIView):
 
 class DivarNeighborhoodListView(generics.ListAPIView):
     serializer_class = DivarNeighborhoodSerializer
-    permission_classes = (HasRolePermission,)
-    required_permission = "view_neighborhood"
+    from rest_framework.permissions import IsAuthenticated
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         queryset = DivarNeighborhood.objects.select_related("city", "zone")

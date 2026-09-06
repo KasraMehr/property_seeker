@@ -1,5 +1,3 @@
-from properties.models import Property, PropertyHistory
-
 from ..models import Property, PropertyHistory
 from .baseSerializers import BasePropertySerializer
 
@@ -19,7 +17,6 @@ class PropertyCreateSerializer(BasePropertySerializer):
         )
 
     def create(self, validated_data):
-
         user = self.context["request"].user
 
         property = Property.objects.create(

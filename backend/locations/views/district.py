@@ -12,12 +12,8 @@ from locations.serializers.district_update import *
 
 class DistrictListCreateView(APIView):
 
-    permission_classes = (
-        IsAuthenticated,
-        HasRolePermission,
-    )
+    permission_classes = (IsAuthenticated,)
     permission_map = {
-        "GET": "locations.view_district",
         "POST": "locations.add_district",
     }
 

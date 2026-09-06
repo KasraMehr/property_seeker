@@ -43,12 +43,7 @@ class ProvinceCreateView(APIView):
 class ProvinceListView(APIView):
 
     serializer_class = ProvinceListSerializer
-    permission_classes = (
-        IsAuthenticated,
-        HasRolePermission,
-    )
-
-    required_permission = "view_province"
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request):
 

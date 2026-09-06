@@ -41,12 +41,7 @@ class CityCreateView(APIView):
 class CityListView(APIView):
 
     serializer_class = CityListSerializer
-    permission_classes = (
-        IsAuthenticated,
-        HasRolePermission,
-    )
-
-    required_permission = "list_province"
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request):
 

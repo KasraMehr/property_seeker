@@ -4,7 +4,7 @@ import FormRenderer from "@/shared/page/FormRenderer";
 import { PROPERTY_FORM } from "@/features/properties/config";
 import propertyService from "@/features/properties/services/propertyService";
 import OwnerFormModal from "@/features/owners/components/OwnerFormModal";
-import locationService from "@/features/location-management/services/locationService";
+import useAuth from "@/features/auth/hooks/useAuth";
 import { toastService } from "@/lib/toast";
 
 
@@ -16,11 +16,12 @@ export default function PropertyFormModal({
   onSuccess,
 }) {
   const isEdit = !!property?.id;
+  const { user } = useAuth();
+  const isOperator = !user?.is_owner;
   const [loading, setLoading] = useState(false);
   const [showOwnerForm, setShowOwnerForm] = useState(false);
   const [ownerFormKey, setOwnerFormKey] = useState(0);
   const [propertyFeatures, setPropertyFeatures] = useState([]);
-  const [resolvedLocation, setResolvedLocation] = useState({});
   const [editReady, setEditReady] = useState(!isEdit);
 
   // For create mode, always ready. For edit, wait for data.
@@ -28,7 +29,6 @@ export default function PropertyFormModal({
     if (!isEdit) {
       setEditReady(true);
       setPropertyFeatures([]);
-      setResolvedLocation({});
       return;
     }
 
@@ -37,15 +37,9 @@ export default function PropertyFormModal({
 
     const loadEditData = async () => {
       try {
-        const [features, location] = await Promise.all([
-          propertyService.getPropertyFeatures(property.id).catch(() => []),
-          property?.address && typeof property.address === "object"
-            ? locationService.resolveLocationFromAddress(property.address).catch(() => ({}))
-            : Promise.resolve({}),
-        ]);
+        const features = await propertyService.getPropertyFeatures(property.id).catch(() => []);
         if (cancelled) return;
         setPropertyFeatures(Array.isArray(features) ? features : []);
-        setResolvedLocation(location || {});
         setEditReady(true);
       } catch {
         if (!cancelled) setEditReady(true);
@@ -76,8 +70,13 @@ export default function PropertyFormModal({
             }
             return { ...f, addAction: () => setShowOwnerForm(true), addActionLabel: "مالک جدید" };
           }
-          if (f.key === "agent" && isEdit) {
-            return { ...f, type: "text", readOnly: true, defaultValue: agentName };
+          if (f.key === "agent") {
+            if (isEdit) {
+              return { ...f, type: "text", readOnly: true, defaultValue: agentName };
+            }
+            if (isOperator) {
+              return { ...f, type: "text", readOnly: true, defaultValue: user?.full_name || "" };
+            }
           }
           if (f.key === "property_type" && isEdit) {
             return { ...f, type: "text", readOnly: true, defaultValue: property?.property_type || "—" };
@@ -106,10 +105,8 @@ export default function PropertyFormModal({
       agent: agentName,
       description: property?.description || "",
       // Location
-      location: resolvedLocation || {},
-      city:
-        property?.divar_neighborhood?.city || resolvedLocation?.city || null,
-      zone: property?.divar_neighborhood?.zone || null,
+      city: property?.city || null,
+      zone: property?.zone || null,
       divar_neighborhood: property?.divar_neighborhood?.id || null,
       // Specs
       area: property?.area || "",
@@ -133,7 +130,7 @@ export default function PropertyFormModal({
         ? [...new Set(propertyFeatures.map((f) => Number(f.feature_id)).filter(Boolean))]
         : [],
     };
-  }, [isEdit, property, propertyFeatures, resolvedLocation]);
+  }, [isEdit, property, propertyFeatures]);
 
   const handleOwnerCreated = () => {
     setShowOwnerForm(false);
@@ -145,13 +142,10 @@ export default function PropertyFormModal({
     try {
       const payload = { ...data };
 
-      // Map location cascade to address FK
-      if (payload.location && typeof payload.location === "object") {
-        payload.address = payload.location.address ?? null;
-        delete payload.location;
+      // For operators, auto-set agent to current user
+      if (isOperator && !isEdit) {
+        payload.agent = user?.id;
       }
-      delete payload.city;
-      delete payload.zone;
 
       // In edit mode, remove read-only fields that are strings (not FK IDs)
       if (isEdit) {

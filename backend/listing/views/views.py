@@ -174,32 +174,25 @@ class ListingCountsView(APIView):
     def get(self, request):
         qs = ListingSelector.for_user(request.user)
 
-        counts = (
-            qs.values("advertiser_type")
-            .annotate(
-                count=Count(
-                    "id",
-                    distinct=True,
-                )
-            )
-        )
+        all_count = qs.count()
 
-        result = {
-            row["advertiser_type"]: row["count"]
-            for row in counts
-        }
+        # Count by advertiser_type among successfully classified listings
+        classified = qs.filter(
+            advertiser_classification_status=Listing.AdvertiserClassificationStatus.SUCCEEDED,
+        )
+        agency_count = classified.filter(
+            advertiser_type=Listing.AdvertiserType.AGENCY,
+        ).count()
+        owner_count = classified.filter(
+            advertiser_type=Listing.AdvertiserType.OWNER,
+        ).count()
+        pending_count = all_count - agency_count - owner_count
 
         return Response({
-            "all": qs.values("id").distinct().count(),
-            "agency": result.get(
-                Listing.AdvertiserType.AGENCY,
-                0,
-            ),
-            "owner": result.get(
-                Listing.AdvertiserType.OWNER,
-                0,
-            ),
-            "pending": result.get(None, 0),
+            "all": all_count,
+            "agency": agency_count,
+            "owner": owner_count,
+            "pending": pending_count,
         })
 
 class ListingPromoteView(APIView):
