@@ -54,6 +54,7 @@ export default function PropertyFormModal({
 
     loadEditData();
     return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEdit, property?.id]);
 
   const formConfig = useMemo(() => {
@@ -85,6 +86,7 @@ export default function PropertyFormModal({
         }),
       })),
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEdit, property?.owner, property?.agent, property?.deal_type]);
 
   const defaultValues = useMemo(() => {

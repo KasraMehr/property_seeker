@@ -3,7 +3,6 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ChevronDown, User } from "lucide-react";
 
 import useAuth from "@/features/auth/hooks/useAuth";
-import ThemeToggle from "@/shared/ThemeToggle";
 import LogoutButton from "./LogoutButton";
 
 import ConfirmModal from "@/shared/ui/modal/ConfirmModal";

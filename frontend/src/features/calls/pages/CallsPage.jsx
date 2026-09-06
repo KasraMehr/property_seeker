@@ -263,6 +263,7 @@ export default function CallsPage() {
       activeChips,
     }),
     [
+      isAdmin,
       filterOptions,
       filterValues,
       setFilter,

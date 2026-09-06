@@ -20,7 +20,7 @@ export default function useProperty() {
       didFetch.current = true;
       fetchList(query.queryParams);
     }
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const prevQueryRef = useRef(null);
 

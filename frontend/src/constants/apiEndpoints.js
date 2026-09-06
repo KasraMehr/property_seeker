@@ -357,7 +357,7 @@ export const API_ENDPOINTS = {
       method: "DELETE",
       status: "[OK]",
     },
-    DELETE: (_id) => ({
+    DELETE: (id) => ({ // eslint-disable-line no-unused-vars
       url: `${API_BASE}/owner/bulk-delete/`,
       method: "DELETE",
       status: "[OK]",
@@ -452,7 +452,7 @@ export const API_ENDPOINTS = {
         method: "DELETE",
         status: "[OK]",
       },
-      DELETE: (_id) => ({
+      DELETE: (id) => ({ // eslint-disable-line no-unused-vars
         url: `${API_BASE}/calls/delete/`,
         method: "DELETE",
         status: "[OK]",
@@ -503,7 +503,7 @@ export const API_ENDPOINTS = {
       method: "DELETE",
       status: "[OK]",
     },
-    DELETE: (_id) => ({
+    DELETE: (id) => ({ // eslint-disable-line no-unused-vars
       url: `${API_BASE}/customer/delete`,
       method: "DELETE",
       status: "[OK]",
@@ -623,7 +623,7 @@ export const API_ENDPOINTS = {
     }),
     // No single-feature delete endpoint in backend.
     // Backend only supports: DELETE /api/feature/bulk-delete/ with { ids: [...] }
-    DELETE: (_id) => ({
+    DELETE: (id) => ({ // eslint-disable-line no-unused-vars
       url: `${API_BASE}/feature/bulk-delete/`,
       method: "DELETE",
       status: "[OK]",
@@ -652,7 +652,7 @@ export const API_ENDPOINTS = {
     }),
     // No single property-feature delete endpoint in backend.
     // Backend only supports: DELETE /api/property-features/bulk-delete/ with { ids: [...] }
-    DELETE: (_id) => ({
+    DELETE: (id) => ({ // eslint-disable-line no-unused-vars
       url: `${API_BASE}/property-features/bulk-delete/`,
       method: "DELETE",
       status: "[OK]",

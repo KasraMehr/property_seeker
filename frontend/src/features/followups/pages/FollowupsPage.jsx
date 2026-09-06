@@ -316,6 +316,7 @@ export default function FollowupsPage() {
       activeChips,
     }),
     [
+      isAdmin,
       filterOptions,
       filterValues,
       setFilter,

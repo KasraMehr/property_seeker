@@ -200,6 +200,7 @@ export default function PropertiesTab({ onHeaderStateChange }) {
       onClearAll: clearAll,
       activeChips,
     }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [filterValues, setFilter, clearFilter, clearAll, activeChips],
   );
 

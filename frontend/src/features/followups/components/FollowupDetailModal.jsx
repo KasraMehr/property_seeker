@@ -32,6 +32,7 @@ export default function FollowupDetailModal({
       ...section,
       fields: section.fields.filter((f) => f.key !== "user_name"),
     })).filter((section) => section.fields.length > 0);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAdmin]);
 
   // همیشه قبل از هر early return باید hookها صدا زده بشن

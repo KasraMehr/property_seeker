@@ -161,7 +161,7 @@ export default function TargetsTab({
           });
       }
     },
-    [selected, targets, bulkDeleteTargets, bulkToggleTargets],
+    [selected, targets, bulkToggleTargets],
   );
 
   /* ─── Confirm dialog copy ─── */
