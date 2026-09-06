@@ -85,29 +85,3 @@ export const LISTING_ROW_ACTIONS = [
   
 
 ];
-
-export const LISTING_BULK_ACTIONS = [
-  {
-    key: "bulk_shortlist",
-    label: "منتخب کردن",
-    icon: Star,
-    variant: "outline",
-    type: "bulk",
-    handler: "bulk_review",
-    handlerPayload: () => ({ review_status: "shortlisted" }),
-  },
-  {
-    key: "bulk_reject",
-    label: "رد کردن",
-    icon: XCircle,
-    variant: "outline",
-    type: "bulk",
-    handler: "bulk_review",
-    handlerPayload: () => ({ review_status: "rejected" }),
-  },
-];
-
-export const LISTING_ALL_ACTIONS = [
-  ...LISTING_ROW_ACTIONS,
-  ...LISTING_BULK_ACTIONS,
-];

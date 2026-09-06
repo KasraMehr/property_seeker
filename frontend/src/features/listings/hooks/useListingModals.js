@@ -9,7 +9,7 @@ export default function useListingModals() {
   });
   const [reviewStatus, setReviewStatus] = useState({
     open: false,
-    listing: null,
+    listings: [],
   });
 
   const openDetail = useCallback(
@@ -51,11 +51,14 @@ export default function useListingModals() {
     openRegisterCall,
     closeRegisterCall,
     openReviewStatus: useCallback(
-      (listing) => setReviewStatus({ open: true, listing }),
+      (listings) => {
+        const arr = Array.isArray(listings) ? listings : [listings];
+        setReviewStatus({ open: true, listings: arr });
+      },
       [],
     ),
     closeReviewStatus: useCallback(
-      () => setReviewStatus({ open: false, listing: null }),
+      () => setReviewStatus({ open: false, listings: [] }),
       [],
     ),
   };

@@ -9,6 +9,7 @@ import {
   LISTING_ALL_FILTERS,
   LISTING_TABLE_COLUMNS,
   LISTING_ROW_ACTIONS,
+  LISTING_BULK_ACTIONS,
 } from "@/features/listings/config";
 import useDebounce from "@/shared/useDebounce";
 import Button from "@/shared/ui/Button";
@@ -67,6 +68,7 @@ export default function ListingsPage() {
     closeReviewStatus,
   } = useListingModals();
 
+  const [selected, setSelected] = useState([]);
   const [detailLoading, setDetailLoading] = useState(false);
   const [promoteResult, setPromoteResult] = useState(null);
   const [viewProperty, setViewProperty] = useState(null);
@@ -138,6 +140,17 @@ export default function ListingsPage() {
     // No async filter endpoints needed yet (source list endpoint doesn't exist)
     // Placeholder for future async filters
   }, []);
+
+  // ─── Bulk Actions ───
+  const handleBulkAction = useCallback(
+    (actionKey) => {
+      if (actionKey === "change_review_status" && selected.length > 0) {
+        const selectedListings = data.filter((r) => selected.includes(r.id));
+        openReviewStatus(selectedListings);
+      }
+    },
+    [selected, data, openReviewStatus],
+  );
 
   // ─── Sort ───
   const handleSort = useCallback(
@@ -298,9 +311,12 @@ export default function ListingsPage() {
         emptyState={emptyState}
         sort={sort}
         onSort={handleSort}
-        selectable={false}
+        selectable
+        selected={selected}
+        onSelectionChange={setSelected}
         rowActions={LISTING_ROW_ACTIONS}
-        bulkActions={[]}
+        bulkActions={LISTING_BULK_ACTIONS}
+        onBulkAction={handleBulkAction}
         onRowAction={handleRowAction}
         pagination={pagination}
         onPageChange={setPage}
@@ -344,7 +360,7 @@ export default function ListingsPage() {
       <ChangeReviewStatusModal
         isOpen={reviewStatus.open}
         onClose={closeReviewStatus}
-        listings={reviewStatus.listing ? [reviewStatus.listing] : []}
+        listings={reviewStatus.listings || []}
         onSuccess={() => {
           closeReviewStatus();
           refresh?.();

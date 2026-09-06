@@ -79,7 +79,7 @@ export const CALL_BULK_ACTIONS = [
     key: "delete",
     label: "حذف انتخاب‌شده‌ها",
     icon: Trash2,
-    variant: "outline",
+    variant: "danger",
     type: "bulk",
     permission: null,
     danger: true,
@@ -89,15 +89,15 @@ export const CALL_BULK_ACTIONS = [
       message: "آیا از حذف تماس‌های انتخاب‌شده اطمینان دارید؟",
     },
   },
-  {
-    key: "export",
-    label: "خروجی Excel",
-    icon: Download,
-    variant: "outline",
-    type: "bulk",
-    permission: null,
-    handler: "export",
-  },
+  // {
+  //   key: "export",
+  //   label: "خروجی Excel",
+  //   icon: Download,
+  //   variant: "outline",
+  //   type: "bulk",
+  //   permission: null,
+  //   handler: "export",
+  // },
 ];
 
 export const CALL_ALL_ACTIONS = [...CALL_ROW_ACTIONS, ...CALL_BULK_ACTIONS];

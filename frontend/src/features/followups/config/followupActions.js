@@ -1,5 +1,5 @@
 import {
-  Eye, Pencil, Trash2, CheckCircle2, XCircle, UserCheck, Clock, Download
+  Eye, Pencil, Trash2, CheckCircle2, XCircle, UserCheck
 } from "lucide-react";
 
 /**
@@ -79,58 +79,13 @@ export const FOLLOWUP_ROW_ACTIONS = [
 
 export const FOLLOWUP_BULK_ACTIONS = [
   {
-    key: "mark_done",
-    label: "انجام شد",
-    icon: CheckCircle2,
-    variant: "outline",
-    type: "bulk",
-    permission: null,
-    handler: "mark_done",
-  },
-  {
-    key: "mark_canceled",
-    label: "لغو",
-    icon: XCircle,
-    variant: "outline",
-    type: "bulk",
-    permission: null,
-    danger: true,
-    handler: "mark_canceled",
-    confirm: {
-      title: "لغو گروهی",
-      message: "آیا از لغو پیگیری‌های انتخاب‌شده اطمینان دارید؟",
-    },
-  },
-  {
-    key: "change_user",
-    label: "تغییر مسئول",
-    icon: UserCheck,
-    variant: "outline",
-    type: "bulk",
-    permission: null,
-    modal: "change_user",
-  },
-  {
     key: "delete",
     label: "حذف انتخاب‌شده‌ها",
     icon: Trash2,
-    variant: "outline",
+    variant: "danger",
     type: "bulk",
     permission: null,
     danger: true,
-    confirm: {
-      title: "حذف گروهی",
-      message: "آیا از حذف پیگیری‌های انتخاب‌شده اطمینان دارید؟",
-    },
-  },
-  {
-    key: "export",
-    label: "خروجی Excel",
-    icon: Download,
-    variant: "outline",
-    type: "bulk",
-    permission: null,
-    handler: "export",
   },
 ];
 

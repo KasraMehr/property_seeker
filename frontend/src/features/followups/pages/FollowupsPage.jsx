@@ -7,12 +7,14 @@ import useFollowup from "@/features/followups/hooks/useFollowup";
 import {
   FOLLOWUP_ALL_FILTERS,
   FOLLOWUP_TABLE_COLUMNS,
+  FOLLOWUP_BULK_ACTIONS,
 } from "@/features/followups/config";
 import useDebounce from "@/shared/useDebounce";
 import ConfirmModal from "@/shared/ui/modal/ConfirmModal";
 import Button from "@/shared/ui/Button";
 import FollowupDetailModal from "@/features/followups/components/FollowupDetailModal";
 import FollowupFormModal from "@/features/followups/components/FollowupFormModal";
+import followupService from "@/features/followups/services/followupService";
 import {toastService} from "@/lib/toast"
 
 /* ─── Supademo Demo Popup ─── */
@@ -146,6 +148,7 @@ export default function FollowupsPage() {
   const [pendingComplete, setPendingComplete] = useState(null);
   const [pendingCancel, setPendingCancel] = useState(null);
   const [pendingAction, setPendingAction] = useState(null);
+  const [pendingBulkAction, setPendingBulkAction] = useState(null);
   const [detailFollowup, setDetailFollowup] = useState(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [editFollowup, setEditFollowup] = useState(null);
@@ -226,6 +229,27 @@ export default function FollowupsPage() {
         break;
     }
   }, []);
+
+  /* ─── Bulk Action ─── */
+  const handleBulkAction = useCallback(
+    (actionKey) => {
+      if (actionKey === "delete" && selected.length > 0) {
+        setPendingBulkAction({ key: actionKey });
+      }
+    },
+    [selected],
+  );
+
+  const confirmBulkAction = useCallback(async () => {
+    if (!pendingBulkAction) return;
+    if (pendingBulkAction.key === "delete") {
+      await followupService.bulkDelete(selected);
+      setSelected([]);
+      refresh();
+      toastService.success(`${selected.length} پیگیری با موفقیت حذف شدند.`);
+    }
+    setPendingBulkAction(null);
+  }, [pendingBulkAction, selected, refresh]);
 
   /* ─── Confirm handlers ─── */
   const confirmComplete = useCallback(async () => {
@@ -389,7 +413,9 @@ export default function FollowupsPage() {
         selected={selected}
         onSelectionChange={setSelected}
         rowActions={FOLLOWUP_ROW_ACTIONS[role]}
+        bulkActions={FOLLOWUP_BULK_ACTIONS}
         onRowAction={handleRowAction}
+        onBulkAction={handleBulkAction}
         pagination={pagination}
         onPageChange={setPage}
       />
@@ -416,13 +442,23 @@ export default function FollowupsPage() {
         confirmLabel="لغو"
       />
 
-      {/* Confirm Delete */}
+      {/* Confirm Delete (row) */}
       <ConfirmModal
         isOpen={pendingAction !== null}
         onClose={() => setPendingAction(null)}
         onConfirm={confirmAction}
         title={pendingAction?.confirm?.title || "تأیید"}
         message={pendingAction?.confirm?.message || "آیا مطمئن هستید؟"}
+        variant="danger"
+      />
+
+      {/* Confirm Bulk Delete */}
+      <ConfirmModal
+        isOpen={pendingBulkAction !== null}
+        onClose={() => setPendingBulkAction(null)}
+        onConfirm={confirmBulkAction}
+        title="حذف گروهی پیگیری‌ها"
+        message={`آیا از حذف ${selected.length} پیگیری انتخاب‌شده مطمئن هستید؟`}
         variant="danger"
       />
 

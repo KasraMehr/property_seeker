@@ -6,3 +6,4 @@ export * from "./listingFilters.config";
 export * from "./listingDetail.config";
 export * from "./listingForms.config";
 export * from "./listingActions";
+export * from "./listingBulkActions";

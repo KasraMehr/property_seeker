@@ -51,6 +51,7 @@ export default function CustomersPage() {
   const [editCustomer, setEditCustomer] = useState(null);
   const [detailCustomer, setDetailCustomer] = useState(null);
   const [pendingAction, setPendingAction] = useState(null);
+  const [pendingBulkAction, setPendingBulkAction] = useState(null);
   const [registerCallCustomer, setRegisterCallCustomer] = useState(null);
   const [addPreferenceCustomerId, setAddPreferenceCustomerId] = useState(null);
   const [statusCustomer, setStatusCustomer] = useState(null);
@@ -167,16 +168,24 @@ export default function CustomersPage() {
 
   /* ─── Bulk Action ─── */
   const handleBulkAction = useCallback(
-    async (actionKey) => {
+    (actionKey) => {
       if (actionKey === "delete" && selected.length > 0) {
-        await Promise.all(selected.map((id) => remove(id)));
-        setSelected([]);
-        refresh();
-        toastService.success(`${selected.length} مشتری با موفقیت حذف شدند.`);
+        setPendingBulkAction({ key: actionKey });
       }
     },
-    [selected, remove, refresh],
+    [selected],
   );
+
+  const confirmBulkAction = useCallback(async () => {
+    if (!pendingBulkAction) return;
+    if (pendingBulkAction.key === "delete") {
+      await Promise.all(selected.map((id) => remove(id)));
+      setSelected([]);
+      refresh();
+      toastService.success(`${selected.length} مشتری با موفقیت حذف شدند.`);
+    }
+    setPendingBulkAction(null);
+  }, [pendingBulkAction, selected, remove, refresh]);
 
   /* ─── Table Columns (conditional based on isOwner) ─── */
   const tableColumns = useMemo(() => {
@@ -264,13 +273,23 @@ export default function CustomersPage() {
         onPageChange={setPage}
       />
 
-      {/* Confirm Delete */}
+      {/* Confirm Delete (row) */}
       <ConfirmModal
         isOpen={pendingAction !== null}
         onClose={() => setPendingAction(null)}
         onConfirm={confirmAction}
         title={pendingAction?.confirm?.title || "تأیید"}
         message={pendingAction?.confirm?.message || "آیا مطمئن هستید؟"}
+        variant="danger"
+      />
+
+      {/* Confirm Bulk Delete */}
+      <ConfirmModal
+        isOpen={pendingBulkAction !== null}
+        onClose={() => setPendingBulkAction(null)}
+        onConfirm={confirmBulkAction}
+        title="حذف گروهی مشتریان"
+        message={`آیا از حذف ${selected.length} مشتری انتخاب‌شده مطمئن هستید؟`}
         variant="danger"
       />
 

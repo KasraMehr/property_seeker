@@ -54,7 +54,7 @@ export const PROPERTY_BULK_ACTIONS = [
     key: "delete",
     label: "حذف انتخاب‌شده‌ها",
     icon: Trash2,
-    variant: "outline",
+    variant: "danger",
     type: "bulk",
     permission: PERMISSIONS.PROPERTY?.DELETE ?? null,
     danger: true,

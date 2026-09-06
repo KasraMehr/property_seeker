@@ -72,29 +72,29 @@ export const USER_ROW_ACTIONS = [
 ];
 
 export const USER_BULK_ACTIONS = [
-  {
-    key: "toggle_active",
-    label: "فعال/غیرفعال",
-    icon: ShieldCheck,
-    variant: "outline",
-    type: "bulk",
-    permission: null,
-    handler: "toggle_active",
-  },
-  {
-    key: "change_role",
-    label: "تغییر نقش",
-    icon: UserPlus,
-    variant: "outline",
-    type: "bulk",
-    permission: null,
-    modal: "change_role",
-  },
+  // {
+  //   key: "toggle_active",
+  //   label: "فعال/غیرفعال",
+  //   icon: ShieldCheck,
+  //   variant: "outline",
+  //   type: "bulk",
+  //   permission: null,
+  //   handler: "toggle_active",
+  // },
+  // {
+  //   key: "change_role",
+  //   label: "تغییر نقش",
+  //   icon: UserPlus,
+  //   variant: "outline",
+  //   type: "bulk",
+  //   permission: null,
+  //   modal: "change_role",
+  // },
   {
     key: "delete",
     label: "حذف انتخاب‌شده‌ها",
     icon: Trash2,
-    variant: "outline",
+    variant: "danger",
     type: "bulk",
     permission: null,
     danger: true,
@@ -103,15 +103,15 @@ export const USER_BULK_ACTIONS = [
       message: "آیا از حذف کاربران انتخاب‌شده اطمینان دارید؟",
     },
   },
-  {
-    key: "export",
-    label: "خروجی Excel",
-    icon: Download,
-    variant: "outline",
-    type: "bulk",
-    permission: null,
-    handler: "export",
-  },
+  // {
+  //   key: "export",
+  //   label: "خروجی Excel",
+  //   icon: Download,
+  //   variant: "outline",
+  //   type: "bulk",
+  //   permission: null,
+  //   handler: "export",
+  // },
 ];
 
 export const USER_ALL_ACTIONS = [...USER_ROW_ACTIONS, ...USER_BULK_ACTIONS];

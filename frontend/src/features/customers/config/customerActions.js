@@ -68,7 +68,7 @@ export const CUSTOMER_BULK_ACTIONS = [
     key: "delete",
     label: "حذف انتخاب‌شده‌ها",
     icon: Trash2,
-    variant: "outline",
+    variant: "danger",
     type: "bulk",
     permission: PERMISSIONS?.CUSTOMER?.DELETE || null,
     danger: true,

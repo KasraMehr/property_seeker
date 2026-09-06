@@ -63,6 +63,7 @@ export default function ResourceToolbar({
                   variant={action.variant === "danger" ? "danger" : "outline"}
                   size="sm"
                   icon={Icon}
+                  className="!px-2.5 !py-1 !text-xs gap-1"
                   onClick={() => onBulkAction?.(action.key)}
                 >
                   {action.label}

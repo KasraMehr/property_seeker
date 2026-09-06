@@ -60,6 +60,7 @@ export default function CallsPage() {
   const [editCall, setEditCall] = useState(null);
   const [followUpCall, setFollowUpCall] = useState(null);
   const [pendingAction, setPendingAction] = useState(null);
+  const [pendingBulkAction, setPendingBulkAction] = useState(null);
   const [createOpen, setCreateOpen] = useState(false);
 
   /* ─── Page Header ─── */
@@ -181,19 +182,27 @@ export default function CallsPage() {
 
   /* ─── Bulk ─── */
   const handleBulkAction = useCallback(
-    async (actionKey) => {
+    (actionKey) => {
       if (actionKey === "delete" && selected.length > 0) {
-        try {
-          await bulkRemove(selected);
-          setSelected([]);
-          toastService.success("تماس‌ها با موفقیت حذف شدند.");
-        } catch {
-          toastService.error("خطا در حذف تماس‌ها.");
-        }
+        setPendingBulkAction({ key: actionKey });
       }
     },
-    [selected, bulkRemove]
+    [selected],
   );
+
+  const confirmBulkAction = useCallback(async () => {
+    if (!pendingBulkAction) return;
+    if (pendingBulkAction.key === "delete") {
+      try {
+        await bulkRemove(selected);
+        setSelected([]);
+        toastService.success("تماس‌ها با موفقیت حذف شدند.");
+      } catch {
+        toastService.error("خطا در حذف تماس‌ها.");
+      }
+    }
+    setPendingBulkAction(null);
+  }, [pendingBulkAction, selected, bulkRemove]);
 
   /* ─── Tab Filtering (client-side) ─── */
   const displayData = useMemo(() => {
@@ -337,13 +346,23 @@ export default function CallsPage() {
         onPageChange={setPage}
       />
 
-      {/* Confirm Delete */}
+      {/* Confirm Delete (row) */}
       <ConfirmModal
         isOpen={pendingAction !== null}
         onClose={() => setPendingAction(null)}
         onConfirm={confirmAction}
         title={pendingAction?.confirm?.title || "تأیید"}
         message={pendingAction?.confirm?.message || "آیا مطمئن هستید؟"}
+        variant="danger"
+      />
+
+      {/* Confirm Bulk Delete */}
+      <ConfirmModal
+        isOpen={pendingBulkAction !== null}
+        onClose={() => setPendingBulkAction(null)}
+        onConfirm={confirmBulkAction}
+        title="حذف گروهی تماس‌ها"
+        message={`آیا از حذف ${selected.length} تماس انتخاب‌شده مطمئن هستید؟`}
         variant="danger"
       />
 
