@@ -53,6 +53,14 @@ export default function useScraper() {
     [fetchTargets, page],
   );
 
+  const deleteTarget = useCallback(
+    async (id) => {
+      await scraperService.deleteTarget(id);
+      await fetchTargets({ page });
+    },
+    [fetchTargets, page],
+  );
+
   const triggerRun = useCallback(async (id, mode, configuration = {}) => {
     const config =
       configuration &&
@@ -67,6 +75,22 @@ export default function useScraper() {
     await scraperService.resumeRun(uuid);
   }, []);
 
+  const cancelRun = useCallback(
+    async (uuid) => {
+      await scraperService.cancelRun(uuid);
+      await fetchRuns({ page });
+    },
+    [fetchRuns, page],
+  );
+
+  const deleteRun = useCallback(
+    async (uuid) => {
+      await scraperService.deleteRun(uuid);
+      await fetchRuns({ page });
+    },
+    [fetchRuns, page],
+  );
+
   return {
     targets,
     runs,
@@ -77,7 +101,10 @@ export default function useScraper() {
     fetchTargets,
     fetchRuns,
     toggleTarget,
+    deleteTarget,
     triggerRun,
     resumeRun,
+    cancelRun,
+    deleteRun,
   };
 }

@@ -2,6 +2,7 @@ import csv
 
 from django.http import StreamingHttpResponse
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -174,7 +175,7 @@ class ScrapeTargetListCreateView(generics.ListCreateAPIView):
         return super().post(request, *args, **kwargs)
 
 
-class ScrapeTargetDetailView(generics.RetrieveUpdateAPIView):
+class ScrapeTargetDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = ScrapeTarget.objects.select_related("source", "zone__city").all()
     serializer_class = ScrapeTargetSerializer
     permission_classes = (HasRolePermission,)
@@ -306,6 +307,39 @@ class IngestionRunResumeView(APIView):
             IngestionRunSerializer(run).data,
             status=status.HTTP_202_ACCEPTED,
         )
+
+
+class IngestionRunCancelView(APIView):
+    permission_classes = (HasRolePermission,)
+    required_permission = "run_ingestion_run"
+
+    def post(self, request, uuid):
+        run = get_object_or_404(IngestionRun, pk=uuid)
+        if run.status not in {IngestionRun.Status.QUEUED, IngestionRun.Status.RUNNING}:
+            return Response(
+                {"detail": "Only queued or running runs can be cancelled."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        run.status = IngestionRun.Status.CANCELLED
+        run.finished_at = timezone.now()
+        run.error_summary = "Cancelled by user."
+        run.save(update_fields=["status", "finished_at", "error_summary"])
+        return Response(IngestionRunSerializer(run).data)
+
+
+class IngestionRunDeleteView(APIView):
+    permission_classes = (HasRolePermission,)
+    required_permission = "run_ingestion_run"
+
+    def delete(self, request, uuid):
+        run = get_object_or_404(IngestionRun, pk=uuid)
+        if run.status in {IngestionRun.Status.QUEUED, IngestionRun.Status.RUNNING}:
+            return Response(
+                {"detail": "Cannot delete a queued or running run. Cancel it first."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        run.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class IngestionRunExportView(APIView):

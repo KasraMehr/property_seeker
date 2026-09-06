@@ -6,6 +6,8 @@ from .views import (
     DivarLoginStartView,
     DivarSessionCheckView,
     DivarSessionStatusView,
+    IngestionRunCancelView,
+    IngestionRunDeleteView,
     IngestionRunDetailView,
     IngestionRunExportView,
     IngestionRunItemsView,
@@ -49,6 +51,8 @@ urlpatterns = [
     path("runs/<uuid:uuid>/", IngestionRunDetailView.as_view(), name="ingestion-run-detail"),
     path("runs/<uuid:uuid>/items/", IngestionRunItemsView.as_view(), name="ingestion-run-items"),
     path("runs/<uuid:uuid>/resume/", IngestionRunResumeView.as_view(), name="ingestion-run-resume"),
+    path("runs/<uuid:uuid>/cancel/", IngestionRunCancelView.as_view(), name="ingestion-run-cancel"),
+    path("runs/<uuid:uuid>/delete/", IngestionRunDeleteView.as_view(), name="ingestion-run-delete"),
     path("runs/<uuid:uuid>/export/", IngestionRunExportView.as_view(), name="ingestion-run-export"),
 
     path("listings/<int:id>/snapshots/", ListingSnapshotsView.as_view(), name="listing-snapshots"),

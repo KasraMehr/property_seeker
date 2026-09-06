@@ -20,7 +20,7 @@ export default function TargetsTab({
   onRunTriggered,
   onHeaderStateChange,
 }) {
-  const { targets, loading, meta, page, setPage, fetchTargets, toggleTarget } =
+  const { targets, loading, meta, page, setPage, fetchTargets, toggleTarget, deleteTarget } =
     useScraper();
 
   const [selected, setSelected] = useState([]);
@@ -98,11 +98,24 @@ export default function TargetsTab({
           }
           setTriggerTarget(row);
           break;
+        case "delete":
+          try {
+            await deleteTarget(row.id);
+            toastService.success("تارگت حذف شد");
+          } catch (err) {
+            console.error(err);
+            const detail =
+              err?.response?.data?.detail ||
+              err?.response?.data?.error ||
+              "حذف تارگت ناموفق بود.";
+            toastService.error(detail);
+          }
+          break;
         default:
           break;
       }
     },
-    [toggleTarget],
+    [toggleTarget, deleteTarget],
   );
 
   const pagination = useMemo(

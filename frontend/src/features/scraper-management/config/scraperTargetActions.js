@@ -69,6 +69,19 @@ export const SCRAPER_TARGET_ROW_ACTIONS = [
       message: "آیا از اجرای فوری این تارگت اطمینان دارید؟",
     },
   },
+  {
+    key: "delete",
+    label: "حذف تارگت",
+    icon: Trash2,
+    variant: "danger",
+    type: "row",
+    permission: null,
+    handler: "delete",
+    confirm: {
+      title: "حذف تارگت",
+      message: "آیا از حذف این تارگت اطمینان دارید؟ این عمل قابل بازگشت نیست.",
+    },
+  },
 ];
 
 export const SCRAPER_TARGET_BULK_ACTIONS = [

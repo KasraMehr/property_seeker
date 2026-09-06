@@ -51,5 +51,31 @@ export const SCRAPER_RUN_ROW_ACTIONS = [
     message: "آیا از ادامه این اجرا اطمینان دارید؟",
   },
 },
+  {
+    key: "cancel",
+    label: "توقف اجرا",
+    icon: Ban,
+    variant: "outline",
+    type: "row",
+    condition: (row) => row.status === "queued" || row.status === "running",
+    handler: "cancel_run",
+    confirm: {
+      title: "توقف اجرا",
+      message: "آیا از توقف این اجرا اطمینان دارید؟",
+    },
+  },
+  {
+    key: "delete",
+    label: "حذف اجرا",
+    icon: Trash2,
+    variant: "danger",
+    type: "row",
+    condition: (row) => row.status !== "queued" && row.status !== "running",
+    handler: "delete_run",
+    confirm: {
+      title: "حذف اجرا",
+      message: "آیا از حذف این اجرا اطمینان دارید؟ این عمل قابل بازگشت نیست.",
+    },
+  },
 ];
 

@@ -15,6 +15,9 @@ const createTarget = (data) =>
 const updateTarget = (id, data) =>
   api.patch(API_ENDPOINTS.INGESTION.TARGETS.UPDATE(id).url, data);
 
+const deleteTarget = (id) =>
+  api.delete(API_ENDPOINTS.INGESTION.TARGETS.DELETE(id).url);
+
 // ── ingestionRuns ──
 const getRuns = (params = {}) =>
   api.get(API_ENDPOINTS.INGESTION.RUNS.LIST.url, { params });
@@ -78,6 +81,12 @@ const triggerRun = (targetId, mode, configuration = {}) => {
 };
 const resumeRun = (uuid) =>
   api.post(API_ENDPOINTS.INGESTION.RUNS.RESUME(uuid).url);
+
+const cancelRun = (uuid) =>
+  api.post(API_ENDPOINTS.INGESTION.RUNS.CANCEL(uuid).url);
+
+const deleteRun = (uuid) =>
+  api.delete(API_ENDPOINTS.INGESTION.RUNS.DELETE(uuid).url);
 
 // get data from axios
 function unwrapList(res) {
@@ -161,6 +170,7 @@ const scraperService = {
   getTargetById,
   createTarget,
   updateTarget,
+  deleteTarget,
   getRuns,
   getRunById,
   getRunItems,
@@ -177,6 +187,8 @@ const scraperService = {
   syncDivarNeighborhoods,
   triggerRun,
   resumeRun,
+  cancelRun,
+  deleteRun,
   getScraperTodayStatus,
 };
 

@@ -10,7 +10,7 @@ import EmptyState from "./EmptyState";
 import { toastService } from "@/lib/toast";
 
 export default function RunsTab({ onHeaderStateChange }) {
-  const { runs, loading, meta, page, setPage, fetchRuns, resumeRun } =
+  const { runs, loading, meta, page, setPage, fetchRuns, resumeRun, cancelRun, deleteRun } =
     useScraper();
 
   const [detailRun, setDetailRun] = useState(null);
@@ -55,11 +55,37 @@ export default function RunsTab({ onHeaderStateChange }) {
             toastService.error("ادامه اجرا ناموفق بود");
           }
           break;
+        case "cancel":
+          try {
+            await cancelRun(row.id);
+            toastService.success("اجرا متوقف شد");
+            await fetchRuns({ page });
+          } catch (err) {
+            console.error(err);
+            const detail =
+              err?.response?.data?.detail ||
+              "توقف اجرا ناموفق بود.";
+            toastService.error(detail);
+          }
+          break;
+        case "delete":
+          try {
+            await deleteRun(row.id);
+            toastService.success("اجرا حذف شد");
+            await fetchRuns({ page });
+          } catch (err) {
+            console.error(err);
+            const detail =
+              err?.response?.data?.detail ||
+              "حذف اجرا ناموفق بود.";
+            toastService.error(detail);
+          }
+          break;
         default:
           break;
       }
     },
-    [resumeRun, fetchRuns, page],
+    [resumeRun, cancelRun, deleteRun, fetchRuns, page],
   );
 
   const pagination = useMemo(

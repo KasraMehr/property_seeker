@@ -855,6 +855,16 @@ export const API_ENDPOINTS = {
         method: "POST",
         status: "[OK]",
       }),
+      CANCEL: (id) => ({
+        url: `${API_BASE}/ingestion/runs/${id}/cancel/`,
+        method: "POST",
+        status: "[OK]",
+      }),
+      DELETE: (id) => ({
+        url: `${API_BASE}/ingestion/runs/${id}/delete/`,
+        method: "DELETE",
+        status: "[OK]",
+      }),
     },
     SNAPSHOTS: {
       LIST: (listingId) => ({
