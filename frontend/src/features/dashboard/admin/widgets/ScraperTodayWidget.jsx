@@ -1,4 +1,5 @@
-import { Activity, AlertCircle, CheckCircle2, Globe } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Activity, AlertCircle, CheckCircle2, Zap, Target } from "lucide-react";
 
 export default function ScraperTodayWidget({ status, loading }) {
   if (loading) {
@@ -12,7 +13,8 @@ export default function ScraperTodayWidget({ status, loading }) {
   const failedJobs = status?.failed_jobs ?? 0;
   const discovered = status?.discovered_today ?? 0;
   const processed = status?.processed_today ?? 0;
-  const sources = status?.sources ?? [];
+  const runningRunsCount = status?.running_runs_count ?? 0;
+  const activeTargetsCount = status?.active_targets_count ?? 0;
 
   return (
     <div className="bg-surface rounded-2xl border border-border shadow-sm p-5 space-y-4">
@@ -62,26 +64,43 @@ export default function ScraperTodayWidget({ status, loading }) {
             </span>
           </div>
 
-          {sources.length > 0 && (
-            <div className="space-y-2 pt-1">
-              <p className="text-xs font-medium text-muted">تارگت‌ها</p>
-              <div className="flex flex-wrap gap-2">
-                {sources.map((s, index) => (
-                  <span
-                    key={`${s.name}-${index}`}
-                    className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md border ${
-                      s.status === "ACTIVE"
-                        ? "border-success/20 text-success bg-success/5"
-                        : "border-border text-muted bg-muted/30"
-                    }`}
-                  >
-                    <Globe className="w-3 h-3" />
-                    {s.name}
-                  </span>
-                ))}
+          <div className="grid grid-cols-2 gap-3 pt-1">
+            <div className="p-3 bg-background rounded-xl border border-border space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted flex items-center gap-2">
+                  <Zap className="w-4 h-4 text-amber-500" />
+                  اجراهای فعال
+                </span>
+                <span className="text-xl font-bold text-foreground">
+                  {runningRunsCount}
+                </span>
               </div>
+              <Link
+                to="/owner/scraper?tab=runs"
+                className="text-xs text-primary hover:underline"
+              >
+                مشاهده همه اجراها
+              </Link>
             </div>
-          )}
+
+            <div className="p-3 bg-background rounded-xl border border-border space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted flex items-center gap-2">
+                  <Target className="w-4 h-4 text-primary" />
+                  تارگت فعال
+                </span>
+                <span className="text-xl font-bold text-foreground">
+                  {activeTargetsCount}
+                </span>
+              </div>
+              <Link
+                to="/owner/scraper?tab=targets"
+                className="text-xs text-primary hover:underline"
+              >
+                مشاهده همه تارگت‌ها
+              </Link>
+            </div>
+          </div>
 
           <div className="pt-2 border-t border-border">
             <p className="text-xs text-muted">

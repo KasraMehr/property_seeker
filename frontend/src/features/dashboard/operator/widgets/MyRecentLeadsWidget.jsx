@@ -1,40 +1,42 @@
 import { Link } from "react-router-dom";
 import Table from "@/shared/table/Table";
-import StatusBadge from "@/shared/ui/badges/StatusBadge";
-import { buildStatusConfig } from "@/constants/status.utils";
-import { LISTING_STATUS_CONFIG } from "@/features/listings/config";
-import { formatDate } from "@/utils/formatters";
+import { formatPrice } from "@/utils/formatters";
 
 const LEADS_COLUMNS = [
   {
     key: "title",
     header: "عنوان",
-    cell: ({ title, source }) => (
-      <div>
-        <p className="text-sm font-medium">{title}</p>
-        <p className="text-xs text-muted">{source?.name || "—"}</p>
-      </div>
+    cell: ({ title }) => (
+      <p className="text-sm font-medium truncate max-w-48" title={title}>
+        {title || "—"}
+      </p>
     ),
   },
   {
-    key: "status",
-    header: "وضعیت آگهی",
-    width: "w-24",
-    cell: ({ status }) => (
-      <StatusBadge
-        config={buildStatusConfig(LISTING_STATUS_CONFIG, status)}
-        variant="soft"
-        size="sm"
-      />
-    ),
-  },
-  {
-    key: "published_at",
-    header: "تاریخ انتشار",
-    width: "w-28",
-    cell: ({ published_at }) => (
-      <span className="text-sm">{formatDate(published_at, "short")}</span>
-    ),
+    key: "price",
+    header: "قیمت / اجاره",
+    width: "w-36",
+    cell: ({ listed_sale_price, listed_rent_amount }) => {
+      if (listed_sale_price)
+        return (
+          <div className="flex flex-col">
+            <span className="text-[11px] text-muted">فروش</span>
+            <span className="text-sm font-medium text-emerald-600">
+              {formatPrice(listed_sale_price)}
+            </span>
+          </div>
+        );
+      if (listed_rent_amount)
+        return (
+          <div className="flex flex-col">
+            <span className="text-[11px] text-muted">اجاره</span>
+            <span className="text-sm font-medium text-sky-600">
+              {formatPrice(listed_rent_amount)}
+            </span>
+          </div>
+        );
+      return <span className="text-muted-foreground">—</span>;
+    },
   },
 ];
 

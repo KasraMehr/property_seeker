@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { formatPrice } from "@/utils/formatters";
 
 export default function RecentListingsWidget({ listings = [], loading }) {
   const recentListings = listings.slice(0, 5);
@@ -42,7 +41,7 @@ export default function RecentListingsWidget({ listings = [], loading }) {
                 </th>
 
                 <th className="px-3 py-3 text-right text-xs font-semibold text-muted">
-                  قیمت
+                  محله
                 </th>
               </tr>
             </thead>
@@ -66,23 +65,9 @@ export default function RecentListingsWidget({ listings = [], loading }) {
                   </td>
 
                   <td className="px-3 py-3 whitespace-nowrap">
-                    {listing.listed_sale_price ? (
-                      <div className="flex flex-col">
-                        <span className="text-[11px] text-muted">فروش</span>
-                        <span className="font-medium text-emerald-600">
-                          {formatPrice(listing.listed_sale_price)}
-                        </span>
-                      </div>
-                    ) : listing.listed_rent_amount ? (
-                      <div className="flex flex-col">
-                        <span className="text-[11px] text-muted">اجاره</span>
-                        <span className="font-medium text-sky-600">
-                          {formatPrice(listing.listed_rent_amount)}
-                        </span>
-                      </div>
-                    ) : (
-                      <span className="text-muted-foreground">—</span>
-                    )}
+                    <span className="text-sm text-muted-foreground">
+                      {listing.divar_neighborhood?.name || "—"}
+                    </span>
                   </td>
                 </tr>
               ))}

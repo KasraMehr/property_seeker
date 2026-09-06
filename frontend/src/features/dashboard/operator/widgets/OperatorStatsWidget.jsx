@@ -1,4 +1,5 @@
 import { Home, Phone, Clock, TrendingUp } from "lucide-react";
+import { formatCounter } from "@/utils/formatters";
 
 const COLOR_MAP = {
   primary: "bg-primary/10 text-primary",
@@ -21,10 +22,10 @@ const StatCard = ({ icon: Icon, label, value, color = "primary" }) => (
 
 export default function OperatorStatsWidget({ stats, loading }) {
   const statItems = [
-    { icon: Home, label: "لیدهای من", value: stats?.my_leads ?? 0, color: "primary" },
-    { icon: Phone, label: "تماس‌های امروز", value: stats?.my_calls_today ?? 0, color: "info" },
-    { icon: Clock, label: "پیگیری‌های در انتظار", value: stats?.my_pending_followups ?? 0, color: "warning" },
-    { icon: TrendingUp, label: "تبدیل‌های من", value: stats?.my_conversions ?? 0, color: "success" },
+    { icon: Home, label: "آگهی های من", value: formatCounter(stats?.my_leads ?? 0), color: "primary" },
+    { icon: Phone, label: "تماس‌های امروز", value: formatCounter(stats?.my_calls_today ?? 0), color: "info" },
+    { icon: Clock, label: "پیگیری‌های در انتظار", value: formatCounter(stats?.my_pending_followups ?? 0), color: "warning" },
+    { icon: TrendingUp, label: "تبدیل‌های من", value: formatCounter(stats?.my_conversions ?? 0), color: "success" },
   ];
 
   if (loading) {

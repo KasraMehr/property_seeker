@@ -157,6 +157,39 @@ export const fmtSource = (source) => {
   return source.name || source.label || "-";
 };
 
+/**
+ * Compact counter for tab badges.
+ *
+ * 1–999      → "42"
+ * 1k–99.9k   → "1.5k", "10k", "99.9k"
+ * 100k–999k  → "100k"
+ * 1M–99.9M   → "1.5m", "10m", "99.9m"
+ * 100M+      → "100m"
+ */
+export const formatCounter = (value) => {
+  if (value == null || isNaN(value)) return "0";
+
+  const n = Number(value);
+
+  if (n < 1_000) return String(n);
+
+  if (n < 100_000) {
+    const k = n / 1_000;
+    return k >= 10 ? `${Math.round(k)}k` : `${k.toFixed(1).replace(/\.0$/, "")}k`;
+  }
+
+  if (n < 1_000_000) {
+    return `${Math.round(n / 1_000)}k`;
+  }
+
+  if (n < 100_000_000) {
+    const m = n / 1_000_000;
+    return m >= 10 ? `${Math.round(m)}m` : `${m.toFixed(1).replace(/\.0$/, "")}m`;
+  }
+
+  return `${Math.round(n / 1_000_000)}m`;
+};
+
 export const formatDuration = (seconds) => {
   if (seconds === null || seconds === undefined || seconds === "") {
     return PLACEHOLDER;

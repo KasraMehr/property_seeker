@@ -1,7 +1,7 @@
 // src/features/scraper-management/pages/ScraperPage.jsx
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { Plus, RefreshCw, ShieldAlert, ShieldCheck, Zap } from "lucide-react";
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext, useSearchParams } from "react-router-dom";
 import PageTabs from "@/shared/page/PageTabs";
 import Button from "@/shared/ui/Button";
 import ScraperTargetFormModal from "../components/ScraperTargetFormModal";
@@ -30,7 +30,16 @@ function unwrapList(res) {
 }
 
 export default function ScraperPage() {
-  const [activeTab, setActiveTab] = useState("targets");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState(
+    () => searchParams.get("tab") || "targets",
+  );
+  // Sync tab to URL
+  const handleTabChange = useCallback((tab) => {
+    setActiveTab(tab);
+    setSearchParams({ tab }, { replace: true });
+  }, [setSearchParams]);
+
   const [formTarget, setFormTarget] = useState(null);
   const [targetsRefreshKey, setTargetsRefreshKey] = useState(0);
 
@@ -193,7 +202,7 @@ export default function ScraperPage() {
   return (
     <>
       <div className="flex h-full flex-col space-y-4">
-        <PageTabs items={TABS} value={activeTab} onChange={setActiveTab} />
+        <PageTabs items={TABS} value={activeTab} onChange={handleTabChange} />
 
         <div className="min-h-0 flex-1">
           {activeTab === "targets" && (

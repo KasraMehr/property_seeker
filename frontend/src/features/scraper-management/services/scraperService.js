@@ -156,6 +156,11 @@ const getScraperTodayStatus = async () => {
   const last = sorted[0];
   const last_run = last?.started_at || last?.created_at || null;
 
+  const running_runs_count = runs.filter(
+    (r) => r.status === "running" || r.status === "queued",
+  ).length;
+  const active_targets_count = targets.filter((t) => t.enabled).length;
+
   return {
     data: {
       is_running,
@@ -163,6 +168,8 @@ const getScraperTodayStatus = async () => {
       failed_jobs,
       sources,
       last_run,
+      running_runs_count,
+      active_targets_count,
       // more and more
       runs_today_count: runsToday.length,
       processed_today: runsToday.reduce(

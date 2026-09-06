@@ -52,6 +52,13 @@ class OperatorStatsView(APIView):
         else:
             neighborhoods = user.service_neighborhoods.all()
 
+            # Base filter: same as ListingSelector.for_user()
+            base_filter = {
+                "divar_neighborhood__in": neighborhoods,
+            }
+            if user.deal_type_scope:
+                base_filter["category"] = user.deal_type_scope
+
             if neighborhoods.exists():
 
                 # ------------------------------------------
@@ -60,9 +67,7 @@ class OperatorStatsView(APIView):
 
                 my_leads = (
                     Listing.objects
-                    .filter(
-                        divar_neighborhood__in=neighborhoods,
-                    )
+                    .filter(**base_filter)
                     .distinct()
                     .count()
                 )
@@ -74,7 +79,7 @@ class OperatorStatsView(APIView):
                 my_conversions = (
                     Listing.objects
                     .filter(
-                        divar_neighborhood__in=neighborhoods,
+                        **base_filter,
                         review_status=Listing.ReviewStatus.PROMOTED,
                         property__isnull=False,
                     )

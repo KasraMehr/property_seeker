@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Users, Home, Shield, UserCog } from "lucide-react";
 import { MotionStagger, MotionItem } from "@/animations/MotionElements";
+import { formatCounter } from "@/utils/formatters";
 
 const StatCard = ({ icon: Icon, label, value }) => (
   <motion.div
@@ -22,10 +23,10 @@ const StatCard = ({ icon: Icon, label, value }) => (
 
 export default function AdminStatsWidget({ stats, loading }) {
   const items = [
-    { icon: Home, label: "املاک", value: stats?.properties_count ?? 0 },
-    { icon: Users, label: "مشتریان", value: stats?.customers_count ?? 0 },
-    { icon: UserCog, label: "کاربران", value: stats?.employees_count ?? 0 },
-    { icon: Shield, label: "نقش‌ها", value: stats?.roles_count ?? 0 },
+    { icon: Home, label: "املاک", value: formatCounter(stats?.properties_count ?? 0) },
+    { icon: Users, label: "مشتریان", value: formatCounter(stats?.customers_count ?? 0) },
+    { icon: UserCog, label: "کاربران", value: formatCounter(stats?.employees_count ?? 0) },
+    { icon: Shield, label: "نقش‌ها", value: formatCounter(stats?.roles_count ?? 0) },
   ];
 
   if (loading) {

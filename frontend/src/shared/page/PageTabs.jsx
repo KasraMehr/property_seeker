@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { formatCounter } from "@/utils/formatters";
 
 export default function PageTabs({
   items = [],
@@ -36,9 +37,9 @@ export default function PageTabs({
           >
             <span>{item.label}</span>
 
-            {item.badge && (
+            {item.badge != null && item.badge !== false && (
               <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-(--role-primary)/10 px-1 text-[11px] font-semibold text-(--role-primary)">
-                {item.badge}
+                {formatCounter(item.badge)}
               </span>
             )}
 
