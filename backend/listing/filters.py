@@ -291,13 +291,17 @@ class ListingFilter(django_filters.FilterSet):
         if not value:
             return queryset
 
-        return queryset.filter(
-            Q(title__icontains=value)
-            |Q(id=value)
-            | Q(description__icontains=value)
-            | Q(external_id__icontains=value)
-            | Q(contact_phone__icontains=value)
+        search_query = (
+                Q(title__icontains=value)
+                | Q(description__icontains=value)
+                | Q(external_id__icontains=value)
+                | Q(contact_phone__icontains=value)
         )
+
+        if value.isdigit():
+            search_query |= Q(id=int(value))
+
+        return queryset.filter(search_query)
 
     def filter_removal_detected(self, queryset, name, value):
         if value is True:

@@ -78,7 +78,7 @@ export const LISTING_DETAIL_FIELDS = [
     section: "basic",
     sectionLabel: "اطلاعات پایه",
     fields: [
-      // { key: "id", label: "شناسه داخلی", format: (v) => `#${v}` },
+      { key: "id", label: "شناسه داخلی", format: (v) => `${v}` },
       // { key: "external_id", label: "شناسه خارجی (منبع)" },
       { key: "title", label: "عنوان آگهی", fullWidth: true },
       // { key: "contact_phone", label: "شماره تماس آگهی" },
