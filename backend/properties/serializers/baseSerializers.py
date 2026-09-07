@@ -120,15 +120,13 @@ class BasePropertySerializer(serializers.ModelSerializer):
         # مقدار فعلی instance استفاده می‌شود.
         # ==================================================
 
-        address = attrs.get(
-            "address",
-            getattr(self.instance, "address", None),
-        )
+        # Only use instance fallback for fields that are NOT being
+        # changed in this request.  For status-only updates (PATCH {status})
+        # we must not re-validate deal_type / address that belong to
+        # the existing property — the user is not modifying them.
 
-        deal_type = attrs.get(
-            "deal_type",
-            getattr(self.instance, "deal_type", None),
-        )
+        deal_type = attrs.get("deal_type") if "deal_type" in attrs else None
+        address = attrs.get("address") if "address" in attrs else None
 
         agent = attrs.get(
             "agent",

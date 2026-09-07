@@ -241,7 +241,8 @@ export default function PropertiesTab({ onHeaderStateChange }) {
   /* ─── Table Columns (conditional based on isAdmin) ─── */
   const tableColumns = useMemo(() => {
     if (isAdmin) return PROPERTY_TABLE_COLUMNS;
-    return PROPERTY_TABLE_COLUMNS.filter((col) => col.key !== "agent");
+    // Agents don't need deal_type (their scope is fixed) or agent column
+    return PROPERTY_TABLE_COLUMNS.filter((col) => col.key !== "agent" && col.key !== "deal_type");
   }, [isAdmin]);
 
   return (

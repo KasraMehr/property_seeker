@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import Modal from "@/shared/ui/modal/Modal";
 import FormRenderer from "@/shared/page/FormRenderer";
 import { PROPERTY_FORM } from "@/features/properties/config";
@@ -65,6 +65,52 @@ export default function PropertyFormModal({
     return () => { cancelled = true; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEdit, property?.id]);
+
+  // ─── Price auto-calc: sale_price = area × price_per_meter ───
+  // Only triggers when area or price_per_meter changes; manual sale_price edits are preserved.
+  const formApiRef = useRef(null);
+  const prevCalcRef = useRef({ area: null, price_per_meter: null });
+  const didInitCalcRef = useRef(false);
+
+  const handleCalcValuesChange = useCallback((values) => {
+    if (!formApiRef.current) return;
+    const { setValue, getValues } = formApiRef.current;
+
+    // Skip first call to avoid overwriting initial/default values
+    if (!didInitCalcRef.current) {
+      didInitCalcRef.current = true;
+      prevCalcRef.current = {
+        area: values.area,
+        price_per_meter: values.price_per_meter,
+      };
+      return;
+    }
+
+    const prevArea = prevCalcRef.current.area;
+    const prevPpm = prevCalcRef.current.price_per_meter;
+    const curArea = values.area;
+    const curPpm = values.price_per_meter;
+
+    // Update tracked values for next comparison
+    prevCalcRef.current = { area: curArea, price_per_meter: curPpm };
+
+    // Only compute for sale deals
+    if (values.deal_type !== "sale") return;
+
+    // Only compute if area or price_per_meter actually changed
+    if (curArea === prevArea && curPpm === prevPpm) return;
+
+    // Only compute when both values are valid positive numbers
+    const areaNum = Number(curArea);
+    const ppmNum = Number(curPpm);
+    if (!areaNum || areaNum <= 0 || !ppmNum || ppmNum <= 0) return;
+
+    const newSalePrice = Math.round(areaNum * ppmNum);
+    const currentSalePrice = getValues("sale_price");
+    if (newSalePrice !== currentSalePrice) {
+      setValue("sale_price", newSalePrice, { shouldValidate: false });
+    }
+  }, []);
 
   const formConfig = useMemo(() => {
     if (!PROPERTY_FORM) return PROPERTY_FORM;
@@ -196,8 +242,9 @@ export default function PropertyFormModal({
             full_text: addressText,
             street: addressText,
           });
+          // Response: { message, address: { id, ... } }
           const addrData = addrRes?.data ?? addrRes;
-          addressId = addrData?.id ?? null;
+          addressId = addrData?.address?.id ?? addrData?.id ?? null;
         } catch (addrErr) {
           // If address already exists (duplicate), try to find it
           // Backend AddressCreateSerializer.validate checks:
@@ -351,6 +398,8 @@ export default function PropertyFormModal({
             onSubmit={handleSubmit}
             onCancel={onClose}
             loading={loading}
+            onFormApi={(api) => { formApiRef.current = api; }}
+            onValuesChange={handleCalcValuesChange}
           />
         ) : (
           <div className="flex items-center justify-center py-12">

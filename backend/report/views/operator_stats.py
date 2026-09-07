@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 
 from crm.models import CallLog, Reminder
 from listing.models import Listing
+from properties.models import Property
 
 
 class OperatorStatsView(APIView):
@@ -33,23 +34,17 @@ class OperatorStatsView(APIView):
         # لیدها و تبدیل‌ها
         # ==================================================
 
-        if user.is_owner:
-            # همه لیدها
-            my_leads = Listing.objects.count()
+        # ==================================================
+        # تعداد کل Propertyهایی که این کاربر ساخته
+        # (شامل promote و ساخت مستقیم)
+        # ==================================================
+        my_conversions = Property.objects.filter(
+            create_by=user,
+        ).count()
 
-            # Propertyهایی که Listing آن‌ها توسط همین کاربر ایجاد شده
-            # و به Property تبدیل شده‌اند.
-            my_conversions = (
-                Listing.objects
-                .filter(
-                    created_by=user,
-                    review_status=Listing.ReviewStatus.PROMOTED,
-                    property__isnull=False,
-                )
-                .values("property_id")
-                .distinct()
-                .count()
-            )
+        if user.is_owner:
+            # Owner همه لیدها را می‌بیند
+            my_leads = Listing.objects.count()
 
         else:
             neighborhoods = user.service_neighborhoods.all()
@@ -63,38 +58,14 @@ class OperatorStatsView(APIView):
                 base_filter["category"] = user.deal_type_scope
 
             if neighborhoods.exists():
-
-                # ------------------------------------------
-                # لیدهای قابل دسترس Agent
-                # ------------------------------------------
-
                 my_leads = (
                     Listing.objects
                     .filter(**base_filter)
                     .distinct()
                     .count()
                 )
-
-                # ------------------------------------------
-                # لیدهای تبدیل شده توسط همین اپراتور
-                # ------------------------------------------
-
-                my_conversions = (
-                    Listing.objects
-                    .filter(
-                        **base_filter,
-                        created_by=user,
-                        review_status=Listing.ReviewStatus.PROMOTED,
-                        property__isnull=False,
-                    )
-                    .values("property_id")
-                    .distinct()
-                    .count()
-                )
-
             else:
                 my_leads = 0
-                my_conversions = 0
 
         # ==================================================
         # تماس‌های امروز

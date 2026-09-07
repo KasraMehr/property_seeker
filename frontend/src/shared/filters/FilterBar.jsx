@@ -41,9 +41,9 @@ export default function FilterBar({
 }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const topFields = useMemo(() => schema.slice(0, 4), [schema]);
+  const topFields = useMemo(() => schema.slice(0, 3), [schema]);
 
-  const drawerFields = useMemo(() => schema.slice(4), [schema]);
+  const drawerFields = useMemo(() => schema.slice(3), [schema]);
 
   const renderField = (field) => {
     const value = filters[field.key];

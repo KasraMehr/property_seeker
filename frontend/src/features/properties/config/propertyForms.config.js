@@ -318,10 +318,6 @@ export const PROPERTY_FORM = {
           type: "price",
           required: false,
           placeholder: "محاسبه خودکار یا دستی",
-          computed: (values) =>
-            values.deal_type === "sale" && values.sale_price && values.area
-              ? Math.round(values.sale_price / values.area)
-              : null,
           condition: (values) => values.deal_type === "sale",
           span: 6,
         },
