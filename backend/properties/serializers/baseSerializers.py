@@ -1,11 +1,56 @@
+from django.db.models import Exists, OuterRef
 from rest_framework import serializers
 
 from accounts.models import User
-from locations.models import Address
+from locations.models import Address, Neighborhood
 from properties.models import Owner
 
 
 class BasePropertySerializer(serializers.ModelSerializer):
+
+    # ======================================================
+    # Helpers
+    # ======================================================
+
+    @staticmethod
+    def agent_can_access_address(agent, address):
+        """
+        بررسی می‌کند Agent در محله‌ی آدرس فعالیت دارد یا نه.
+
+        چون Address به Neighborhood وصل است و
+        service_neighborhoods به DivarNeighborhood،
+        مقایسه بر اساس نام محله و شهر انجام می‌شود.
+        """
+
+        return agent.service_neighborhoods.filter(
+            active=True,
+            name=address.neighborhood.name,
+            city_id=address.neighborhood.district.city_id,
+        ).exists()
+
+    @staticmethod
+    def get_allowed_neighborhoods(user):
+        """
+        محله‌های Neighborhood را بر اساس محله‌های
+        DivarNeighborhood مجاز Agent پیدا می‌کند.
+        """
+
+        allowed_divar_neighborhoods = (
+            user.service_neighborhoods.filter(active=True)
+        )
+
+        return Neighborhood.objects.filter(
+            Exists(
+                allowed_divar_neighborhoods.filter(
+                    name=OuterRef("name"),
+                    city_id=OuterRef("district__city_id"),
+                )
+            )
+        )
+
+    # ======================================================
+    # Init
+    # ======================================================
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -40,17 +85,25 @@ class BasePropertySerializer(serializers.ModelSerializer):
         # ==================================================
 
         if user.is_owner:
-            # Owner آژانس به همه آدرس‌ها دسترسی دارد
-            self.fields["address"].queryset = Address.objects.all()
+            # Owner فقط به آدرس‌های همان آژانس دسترسی دارد
+            self.fields["address"].queryset = Address.objects.filter(
+                agency=user.agency
+            )
 
         else:
-            # Agent فقط آدرس‌های محله‌های خودش را می‌بیند
+            # محله‌های لوکیشن که متناظر با محله‌های
+            # دیوار مجاز Agent هستند
+            allowed_neighborhoods = self.get_allowed_neighborhoods(
+                user
+            )
+
             self.fields["address"].queryset = Address.objects.filter(
-                neighborhood__in=user.service_neighborhoods.all()
+                agency=user.agency,
+                neighborhood__in=allowed_neighborhoods,
             )
 
     # ======================================================
-    # Main validation
+    # Main Validation
     # ======================================================
 
     def validate(self, attrs):
@@ -86,11 +139,9 @@ class BasePropertySerializer(serializers.ModelSerializer):
         # Owner آژانس
         # ==================================================
 
-        # Owner محدودیت نوع معامله و محله ندارد.
-        #
-        # validate_owner / validate_agent همچنان
-        # برای کنترل آژانس اجرا می‌شوند.
-        # ==================================================
+        # Owner محدودیت محله و نوع معامله ندارد.
+        # validate_owner و validate_agent همچنان
+        # برای بررسی آژانس اجرا می‌شوند.
 
         if user.is_owner:
             return attrs
@@ -111,13 +162,11 @@ class BasePropertySerializer(serializers.ModelSerializer):
                 )
 
         # ==================================================
-        # 2. بررسی محله
+        # 2. بررسی محله آدرس
         # ==================================================
 
         if address is not None:
-            if not user.service_neighborhoods.filter(
-                id=address.neighborhood_id
-            ).exists():
+            if not self.agent_can_access_address(user, address):
                 raise serializers.ValidationError(
                     {
                         "address": (
@@ -142,7 +191,13 @@ class BasePropertySerializer(serializers.ModelSerializer):
                 agency=user.agency,
                 is_active=True,
                 is_owner=False,
-                service_neighborhoods=address.neighborhood,
+                service_neighborhoods__active=True,
+                service_neighborhoods__name=(
+                    address.neighborhood.name
+                ),
+                service_neighborhoods__city_id=(
+                    address.neighborhood.district.city_id
+                ),
                 deal_type_scope=deal_type,
             ).distinct()
 
@@ -234,10 +289,10 @@ class BasePropertySerializer(serializers.ModelSerializer):
             # ----------------------------------------------
 
             if address is not None:
-
-                if not agent.service_neighborhoods.filter(
-                    id=address.neighborhood_id
-                ).exists():
+                if not self.agent_can_access_address(
+                    agent,
+                    address,
+                ):
                     raise serializers.ValidationError(
                         {
                             "agent": (
@@ -252,10 +307,7 @@ class BasePropertySerializer(serializers.ModelSerializer):
             # ----------------------------------------------
 
             if deal_type is not None:
-
-                if not agent.can_access_deal_type(
-                    deal_type
-                ):
+                if not agent.can_access_deal_type(deal_type):
                     raise serializers.ValidationError(
                         {
                             "agent": (
@@ -328,11 +380,9 @@ class BasePropertySerializer(serializers.ModelSerializer):
         if user.is_owner:
             return address
 
-        # Agent فقط در محله‌های خودش می‌تواند Property
-        # ایجاد یا ویرایش کند.
-        if not user.service_neighborhoods.filter(
-            id=address.neighborhood_id
-        ).exists():
+        # Agent فقط در محله‌های مجاز خودش می‌تواند
+        # Property ایجاد یا ویرایش کند.
+        if not self.agent_can_access_address(user, address):
             raise serializers.ValidationError(
                 "این محله در محدوده فعالیت شما نیست."
             )
