@@ -13,7 +13,7 @@ class ListingSelector:
                 "divar_neighborhood__city",
                 "divar_neighborhood__city__province",
             )
-            .order_by("-last_seen_at", "-id")
+            .order_by("-created_at", "-id")
         )
 
         # Owner can access all listings
