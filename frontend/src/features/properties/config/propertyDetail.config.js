@@ -134,6 +134,18 @@ export const PROPERTY_DETAIL_FIELDS = [
         nestedKey: "full_text",
         fullWidth: true,
       },
+      {
+        key: "divar_neighborhood",
+        label: "محلهٔ دیوار",
+        type: "nested",
+        nestedKey: "name",
+      },
+      {
+        key: "divar_neighborhood",
+        label: "منطقهٔ دیوار",
+        type: "nested",
+        nestedKey: "zone_name",
+      },
     ],
   },
   {
