@@ -6,8 +6,23 @@ import propertyService from "@/features/properties/services/propertyService";
 import OwnerFormModal from "@/features/owners/components/OwnerFormModal";
 import useAuth from "@/features/auth/hooks/useAuth";
 import { toastService } from "@/lib/toast";
+import api from "@/lib/api";
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
+import { findDivarNeighborhood } from "@/utils/locationMapping";
 
+/**
+ * Resolve DivarNeighborhood from CRM Neighborhood + City.
+ * Fetches active DivarNeighborhoods, then delegates to findDivarNeighborhood.
+ */
+async function resolveDivarNeighborhood(cityId, neighborhoodName) {
+  if (!cityId || !neighborhoodName) return null;
 
+  const res = await api.get(API_ENDPOINTS.LOCATIONS.DIVAR_NEIGHBORHOODS.LIST.url);
+  const data = res?.data;
+  const list = Array.isArray(data) ? data : data?.results ?? [];
+
+  return findDivarNeighborhood(list, cityId, neighborhoodName);
+}
 
 export default function PropertyFormModal({
   isOpen,
@@ -104,10 +119,14 @@ export default function PropertyFormModal({
       owner: typeof property?.owner === "object" ? property.owner.full_name : (property?.owner || ""),
       agent: agentName,
       description: property?.description || "",
-      // Location
-      city: property?.city || null,
-      zone: property?.zone || null,
-      divar_neighborhood: property?.divar_neighborhood?.id || null,
+      // Location — resolve cascade from property's address
+      location: property?.address ? {
+        province: property.address.province || null,
+        city: property.address.city || null,
+        district: property.address.district || null,
+        neighborhood: property.address.neighborhood || null,
+      } : {},
+      address_text: property?.address?.full_text || property?.address?.street || "",
       // Specs
       area: property?.area || "",
       age: property?.age ?? "",
@@ -154,7 +173,83 @@ export default function PropertyFormModal({
         delete payload.property_code;
       }
 
-      // Extract feature ids before sending to backend
+      // ─── Location cascade → Address + DivarNeighborhood ───
+      const locationData = payload.location && typeof payload.location === "object"
+        ? payload.location
+        : {};
+      const addressText = payload.address_text || "";
+      delete payload.location;
+      delete payload.address_text;
+      delete payload.city;
+      delete payload.zone;
+      delete payload.divar_neighborhood;
+
+      const neighborhoodId = locationData.neighborhood || null;
+      const cityId = locationData.city || null;
+
+      // 1) Create Address if neighborhood is selected
+      let addressId = null;
+      if (neighborhoodId) {
+        try {
+          const addrRes = await api.post(API_ENDPOINTS.LOCATIONS.ADDRESSES.CREATE.url, {
+            neighborhood: neighborhoodId,
+            full_text: addressText,
+            street: addressText,
+          });
+          const addrData = addrRes?.data ?? addrRes;
+          addressId = addrData?.id ?? null;
+        } catch (addrErr) {
+          // If address already exists (duplicate), try to find it
+          // Backend AddressCreateSerializer.validate checks:
+          //   neighborhood + street + alley + plaque + unit
+          // We only send neighborhood, street, full_text — so alley/plaque/unit
+          // default to "". Match exactly on those 5 fields.
+          const existingMsg = addrErr?.response?.data?.detail || "";
+          if (typeof existingMsg === "string" && existingMsg.includes("قبلاً ثبت شده")) {
+            const searchRes = await api.get(API_ENDPOINTS.LOCATIONS.ADDRESSES.LIST.url);
+            const addrList = Array.isArray(searchRes?.data) ? searchRes.data : searchRes?.data?.results ?? [];
+            const match = addrList.find(
+              (a) =>
+                Number(a.neighborhood) === Number(neighborhoodId) &&
+                (a.street || "") === addressText &&
+                (a.alley || "") === "" &&
+                (a.plaque || "") === "" &&
+                (a.unit || "") === "",
+            );
+            if (match) {
+              addressId = match.id;
+            } else {
+              throw addrErr;
+            }
+          } else {
+            throw addrErr;
+          }
+        }
+      }
+      payload.address = addressId;
+
+      // 2) Resolve CRM Neighborhood → DivarNeighborhood
+      // LocationCascadeSelect doesn't expose names, so we fetch the CRM
+      // neighborhood list to get the name, then match against DivarNeighborhoods.
+      let divarNeighborhoodId = null;
+      if (neighborhoodId && cityId) {
+        try {
+          const nRes = await api.get(API_ENDPOINTS.LOCATIONS.NEIGHBORHOODS.LIST.url);
+          const nList = Array.isArray(nRes?.data) ? nRes.data : nRes?.data?.results ?? [];
+          const nObj = nList.find((n) => Number(n.id) === Number(neighborhoodId));
+          if (nObj) {
+            const resolved = await resolveDivarNeighborhood(cityId, nObj.name);
+            divarNeighborhoodId = resolved?.id ?? null;
+          }
+        } catch (resolveErr) {
+          toastService.error(resolveErr.message || "خطا در resolve محله دیوار.");
+          setLoading(false);
+          return;
+        }
+      }
+      payload.divar_neighborhood = divarNeighborhoodId;
+
+      // ─── Feature ids ───
       const featureIds = payload.features || [];
       delete payload.features;
 

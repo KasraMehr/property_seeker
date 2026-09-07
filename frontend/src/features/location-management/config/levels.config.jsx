@@ -116,6 +116,20 @@ export const NEIGHBORHOOD_TABLE_COLUMNS = [
       <span className="text-sm text-muted-foreground">{city_name || "—"}</span>
     ),
   },
+  {
+    key: "_divar_mapping",
+    header: "وضعیت دیوار",
+    width: "w-32",
+    cell: ({ _hasDivarMapping }) => (
+      <span
+        className={`text-xs font-medium ${
+          _hasDivarMapping ? "text-green-600" : "text-amber-600"
+        }`}
+      >
+        {_hasDivarMapping ? "متصل ✓" : "بدون mapping ⚠"}
+      </span>
+    ),
+  },
 ];
 
 /* ─── Forms (FormRenderer config) ─── */
