@@ -22,7 +22,7 @@ class PropertyDetailSerializer(serializers.ModelSerializer):
         source="agency.name",
         read_only=True,
     )
-    divar_neighborhood = serializers.SerializerMethodField()
+    #divar_neighborhood = serializers.SerializerMethodField()
 
     class Meta:
         model = Property
@@ -33,7 +33,7 @@ class PropertyDetailSerializer(serializers.ModelSerializer):
             "phone",
             "agent",
             "address",
-            "divar_neighborhood",
+     #       "divar_neighborhood",
             "agency",
             "create_by",
             "title",

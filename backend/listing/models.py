@@ -265,9 +265,9 @@ class Listing(models.Model):
             models.Index(fields=["review_status", "last_checked_at"]),
         ]
         permissions = [
-                ("promote_listing", "Can promote listing"),
-            ]
-
+            ("promote_listing", "Can promote listing"),
+            ("review_listing", "Can review listing"),
+        ]
     def __str__(self):
         return self.title
 

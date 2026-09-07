@@ -37,10 +37,12 @@ class OperatorStatsView(APIView):
             # همه لیدها
             my_leads = Listing.objects.count()
 
-            # هر Property فقط یک بار شمرده شود
+            # Propertyهایی که Listing آن‌ها توسط همین کاربر ایجاد شده
+            # و به Property تبدیل شده‌اند.
             my_conversions = (
                 Listing.objects
                 .filter(
+                    created_by=user,
                     review_status=Listing.ReviewStatus.PROMOTED,
                     property__isnull=False,
                 )
@@ -56,6 +58,7 @@ class OperatorStatsView(APIView):
             base_filter = {
                 "divar_neighborhood__in": neighborhoods,
             }
+
             if user.deal_type_scope:
                 base_filter["category"] = user.deal_type_scope
 
@@ -73,13 +76,14 @@ class OperatorStatsView(APIView):
                 )
 
                 # ------------------------------------------
-                # لیدهای تبدیل شده به Property
+                # لیدهای تبدیل شده توسط همین اپراتور
                 # ------------------------------------------
 
                 my_conversions = (
                     Listing.objects
                     .filter(
                         **base_filter,
+                        created_by=user,
                         review_status=Listing.ReviewStatus.PROMOTED,
                         property__isnull=False,
                     )

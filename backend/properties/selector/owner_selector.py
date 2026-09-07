@@ -7,43 +7,58 @@ from ..models import Owner
 class OwnerSelector:
 
     @staticmethod
-    def all(agency):
+    def all(agency, created_by):
         return (
-            Owner.objects.filter(agency=agency)
+            Owner.objects.filter(
+                agency=agency,
+                created_by=created_by,
+            )
             .annotate(properties_count=Count("properties"))
             .order_by("-created_at")
         )
 
     @staticmethod
-    def by_id(owner_id, agency):
-
+    def by_id(owner_id, agency, created_by):
         return get_object_or_404(
-            Owner.objects.filter(agency=agency).prefetch_related("properties"),
+            Owner.objects.filter(
+                agency=agency,
+                created_by=created_by,
+            ).prefetch_related("properties"),
             pk=owner_id,
         )
 
     @staticmethod
-    def by_phone(phone, agency):
-
+    def by_phone(phone, agency, created_by):
         return Owner.objects.filter(
             agency=agency,
+            created_by=created_by,
             phone=phone,
         ).first()
 
     @staticmethod
-    def search(query, agency):
-
+    def search(query, agency, created_by):
         return (
-            Owner.objects.filter(agency=agency).filter(full_name__icontains=query)
-            | Owner.objects.filter(agency=agency).filter(phone__icontains=query)
+            Owner.objects.filter(
+                agency=agency,
+                created_by=created_by,
+                full_name__icontains=query,
+            )
+            | Owner.objects.filter(
+                agency=agency,
+                created_by=created_by,
+                phone__icontains=query,
+            )
         ).distinct()
 
     @staticmethod
-    def detail(owner_id, agency):
-
+    def detail(owner_id, agency, created_by):
         return get_object_or_404(
-            Owner.objects.filter(agency=agency).annotate(
+            Owner.objects.filter(
+                agency=agency,
+                created_by=created_by,
+            ).annotate(
                 properties_count=Count("properties")
             ),
             pk=owner_id,
         )
+

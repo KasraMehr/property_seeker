@@ -4,7 +4,7 @@ import {
   PROPERTY_DEAL_TYPE_CONFIG,
   PROPERTY_TYPE_CONFIG,
 } from "@/features/properties/config";
-import {buildStatusConfig} from "@/constants/status.utils"
+import { buildStatusConfig } from "@/constants/status.utils";
 import { formatPrice } from "@/utils/formatters";
 
 /**
@@ -12,11 +12,8 @@ import { formatPrice } from "@/utils/formatters";
  * Backend: properties.PropertyListSerializer
  * Available fields in list: id, agency, property_code, title, owner (string),
  *   agent (string), created_by (string), city (string), property_type,
- *   deal_type, area, sale_price, monthly_rent, status
- *
- * NOTE: Fields like bedrooms, floor, age, created_at, price_per_meter,
- *   address/district are ONLY available in PropertyDetailSerializer.
- *   Add them back here only after backend expands PropertyListSerializer.
+ *   deal_type, area, sale_price, monthly_rent, status,
+ *   created_at, updated_at
  */
 
 export const PROPERTY_TABLE_COLUMNS = [
@@ -52,7 +49,9 @@ export const PROPERTY_TABLE_COLUMNS = [
     header: "نوع ملک",
     width: "w-24",
     cell: ({ property_type }) => (
-      <StatusBadge config={buildStatusConfig(PROPERTY_TYPE_CONFIG, property_type)} />
+      <StatusBadge
+        config={buildStatusConfig(PROPERTY_TYPE_CONFIG, property_type)}
+      />
     ),
   },
   {
@@ -61,7 +60,12 @@ export const PROPERTY_TABLE_COLUMNS = [
     width: "w-24",
     cell: ({ deal_type }) => {
       const cfg = PROPERTY_DEAL_TYPE_CONFIG[deal_type];
-      if (!cfg) return <span className="text-muted-foreground text-xs">—</span>;
+      if (!cfg) {
+        return (
+          <span className="text-muted-foreground text-xs">—</span>
+        );
+      }
+
       return (
         <span className="inline-flex items-center gap-1.5 text-xs font-medium">
           <cfg.icon className={`w-3.5 h-3.5 text-${cfg.color}-500`} />
@@ -75,7 +79,9 @@ export const PROPERTY_TABLE_COLUMNS = [
     header: "وضعیت",
     width: "w-24",
     cell: ({ status }) => (
-      <StatusBadge config={buildStatusConfig(PROPERTY_STATUS_CONFIG, status)} />
+      <StatusBadge
+        config={buildStatusConfig(PROPERTY_STATUS_CONFIG, status)}
+      />
     ),
   },
   {
@@ -83,27 +89,18 @@ export const PROPERTY_TABLE_COLUMNS = [
     header: "مالک",
     width: "w-32",
     searchable: true,
-    // owner is a plain string in PropertyListSerializer (e.g. "علی احمدی")
-    cell: ({ owner }) => <span className="text-sm">{owner || "—"}</span>,
+    cell: ({ owner }) => (
+      <span className="text-sm">{owner || "—"}</span>
+    ),
   },
   {
     key: "agent",
     header: "مشاور",
     width: "w-32",
-    // agent is a plain string in PropertyListSerializer
-    cell: ({ agent }) => <span className="text-sm">{agent || "—"}</span>,
+    cell: ({ agent }) => (
+      <span className="text-sm">{agent || "—"}</span>
+    ),
   },
-  // {
-  //   key: "area",
-  //   header: "متراژ",
-  //   width: "w-20",
-  //   cell: ({ area }) =>
-  //     area ? (
-  //       <span>{area} م²</span>
-  //     ) : (
-  //       <span className="text-muted-foreground text-xs">—</span>
-  //     ),
-  // },
   {
     key: "price",
     header: "قیمت / اجاره",
@@ -115,22 +112,68 @@ export const PROPERTY_TABLE_COLUMNS = [
             {formatPrice(sale_price)}
           </span>
         );
+
       if (deal_type === "rent" && monthly_rent)
         return (
           <span className="font-medium text-sky-600">
             {formatPrice(monthly_rent)}
           </span>
         );
+
       if (deal_type === "mortgage")
         return (
           <span className="text-muted-foreground text-xs">
             مشاهده در جزئیات
           </span>
         );
+
       if (deal_type === "exchange")
-        return <span className="text-muted-foreground text-xs">معاوضه</span>;
-      return <span className="text-muted-foreground text-xs">—</span>;
+        return (
+          <span className="text-muted-foreground text-xs">
+            معاوضه
+          </span>
+        );
+
+      return (
+        <span className="text-muted-foreground text-xs">—</span>
+      );
     },
+  },
+  {
+    key: "created_at",
+    header: "تاریخ ایجاد",
+    width: "w-40",
+    cell: ({ created_at }) => (
+      <span className="text-sm">
+        {created_at
+          ? new Date(created_at).toLocaleString("fa-IR", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+            })
+          : "—"}
+      </span>
+    ),
+  },
+  {
+    key: "updated_at",
+    header: "آخرین ویرایش",
+    width: "w-40",
+    cell: ({ updated_at }) => (
+      <span className="text-sm">
+        {updated_at
+          ? new Date(updated_at).toLocaleString("fa-IR", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+            })
+          : "—"}
+      </span>
+    ),
   },
   // {
   //   key: "actions",

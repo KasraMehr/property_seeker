@@ -1,4 +1,4 @@
-from django.db.models import Count, Q
+from django.db.models import Count
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework.filters import OrderingFilter, SearchFilter
@@ -7,10 +7,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from accounts.permissions import *
 from accounts.permissions import HasRolePermission
 from amlak.pagination import StandardPagination
-from audit.services.activity_log import *
+from audit.services.activity_log import ActivityLogService
 
 from ..filter.owner_filter import OwnerFilter
 from ..models import Owner
@@ -57,29 +56,25 @@ class OwnerListView(ListAPIView):
     ordering = ["-created_at"]
 
     def get_queryset(self):
-
         user = self.request.user
 
-        qs = (
+        return (
             Owner.objects
-            .filter(agency=user.agency)
+            .filter(
+                agency=user.agency,
+                created_by=user,
+            )
             .select_related("agency", "created_by")
-            .annotate(properties_count=Count("properties"))
+            .annotate(
+                properties_count=Count("properties")
+            )
         )
-
-        # Non-owners: only their own owners or owners linked to their properties
-        if not user.is_owner:
-            qs = qs.filter(
-                Q(created_by=user)
-                | Q(properties__divar_neighborhood__in=user.service_neighborhoods.all())
-            ).distinct()
-
-        return qs
 
 
 class OwnerCreateView(APIView):
 
     serializer_class = OwnerCreateSerializer
+
     permission_classes = (
         IsAuthenticated,
         HasRolePermission,
@@ -118,6 +113,7 @@ class OwnerCreateView(APIView):
 class OwnerDetailView(APIView):
 
     serializer_class = OwnerDetailSerializer
+
     permission_classes = (
         IsAuthenticated,
         HasRolePermission,
@@ -130,6 +126,7 @@ class OwnerDetailView(APIView):
         owner = OwnerSelector.detail(
             owner_id=pk,
             agency=request.user.agency,
+            created_by=request.user,
         )
 
         serializer = self.serializer_class(owner)
@@ -140,6 +137,7 @@ class OwnerDetailView(APIView):
 class OwnerUpdateView(APIView):
 
     serializer_class = OwnerUpdateSerializer
+
     permission_classes = (
         IsAuthenticated,
         HasRolePermission,
@@ -152,8 +150,11 @@ class OwnerUpdateView(APIView):
         owner = OwnerSelector.by_id(
             owner_id=pk,
             agency=request.user.agency,
+            created_by=request.user,
         )
+
         old_data = OwnerDetailSerializer(owner).data
+
         serializer = self.serializer_class(
             owner,
             data=request.data,
@@ -170,7 +171,7 @@ class OwnerUpdateView(APIView):
             entity_id=owner.id,
             old_data=old_data,
             new_data=OwnerDetailSerializer(owner).data,
-            message="اطلاعات مالک بروزرسانی شد.",
+            message="اطلاعات مالک با موفقیت بروزرسانی شد.",
         )
 
         return Response(
@@ -185,8 +186,11 @@ class OwnerUpdateView(APIView):
         owner = OwnerSelector.by_id(
             owner_id=pk,
             agency=request.user.agency,
+            created_by=request.user,
         )
+
         old_data = OwnerDetailSerializer(owner).data
+
         serializer = self.serializer_class(
             owner,
             data=request.data,
@@ -195,6 +199,7 @@ class OwnerUpdateView(APIView):
         )
 
         serializer.is_valid(raise_exception=True)
+
         owner = serializer.save()
 
         ActivityLogService.update(
@@ -203,7 +208,7 @@ class OwnerUpdateView(APIView):
             entity_id=owner.id,
             old_data=old_data,
             new_data=OwnerDetailSerializer(owner).data,
-            message="اطلاعات مالک بروزرسانی شد.",
+            message="اطلاعات مالک با موفقیت بروزرسانی شد.",
         )
 
         return Response(
@@ -215,6 +220,7 @@ class OwnerUpdateView(APIView):
 
 
 class OwnerBulkDeleteView(APIView):
+
     permission_classes = (
         IsAuthenticated,
         HasRolePermission,
@@ -223,6 +229,7 @@ class OwnerBulkDeleteView(APIView):
     required_permission = "delete_owner"
 
     def delete(self, request):
+
         owner_ids = request.data.get("ids", [])
 
         if not owner_ids:
@@ -234,9 +241,11 @@ class OwnerBulkDeleteView(APIView):
         deleted_count = 0
 
         for owner_id in owner_ids:
+
             owner = OwnerSelector.by_id(
                 owner_id=owner_id,
                 agency=request.user.agency,
+                created_by=request.user,
             )
 
             old_data = OwnerDetailSerializer(owner).data

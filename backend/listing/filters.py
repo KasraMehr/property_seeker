@@ -293,6 +293,7 @@ class ListingFilter(django_filters.FilterSet):
 
         return queryset.filter(
             Q(title__icontains=value)
+            |Q(id=value)
             | Q(description__icontains=value)
             | Q(external_id__icontains=value)
             | Q(contact_phone__icontains=value)
