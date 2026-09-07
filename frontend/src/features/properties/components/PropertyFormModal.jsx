@@ -39,6 +39,19 @@ export default function PropertyFormModal({
   const [propertyFeatures, setPropertyFeatures] = useState([]);
   const [editReady, setEditReady] = useState(!isEdit);
 
+  // ─── Mapping: deal_type_scope → default deal_type برای فرم Create/Edit ───
+  const DEAL_TYPE_SCOPE_MAP = {
+    "rent-residential": "rent",
+    "buy-residential": "sale",
+    "buy-commercial-property": "sale",
+    "rent-commercial-property": "rent",
+  };
+
+  // default deal_type بر اساس scope کاربر (برای حالت create)
+  const defaultDealType = user?.deal_type_scope
+    ? DEAL_TYPE_SCOPE_MAP[user.deal_type_scope] ?? "sale"
+    : "sale";
+
   // For create mode, always ready. For edit, wait for data.
   useEffect(() => {
     if (!isEdit) {
@@ -142,6 +155,12 @@ export default function PropertyFormModal({
           if (f.key === "property_type" && isEdit) {
             return { ...f, type: "text", readOnly: true, defaultValue: property?.property_type || "—" };
           }
+          if (f.key === "deal_type") {
+            // deal_type بر اساس scope کاربر تنظیم می‌شود و disabled است
+            // نکته: disabled باعث حذف فیلد از payload نمیشود - but verify FormRenderer behavior
+            // If FormRenderer strips disabled fields, use readOnly instead: fieldProps: { readOnly: true }
+            return { ...f, type: "select", readOnly: true, disabled: true, defaultValue: defaultDealType };
+          }
           return f;
         }),
       })),
@@ -150,7 +169,12 @@ export default function PropertyFormModal({
   }, [isEdit, property?.owner, property?.agent, property?.deal_type]);
 
   const defaultValues = useMemo(() => {
-    if (!isEdit) return {};
+    if (!isEdit) {
+      // For create mode, default deal_type from user's scope mapping
+      return {
+        deal_type: defaultDealType,
+      };
+    }
     // Flatten agent to string if it's an object
     const agentName = typeof property?.agent === "object"
       ? property.agent.full_name
@@ -159,7 +183,7 @@ export default function PropertyFormModal({
       // Basic info
       property_code: property?.property_code || "",
       title: property?.title || "",
-      deal_type: property?.deal_type || "sale",
+      deal_type: property?.deal_type || defaultDealType,
       status: property?.status || "available",
       property_type: property?.property_type || "",
       owner: typeof property?.owner === "object" ? property.owner.full_name : (property?.owner || ""),
@@ -195,7 +219,7 @@ export default function PropertyFormModal({
         ? [...new Set(propertyFeatures.map((f) => Number(f.feature_id)).filter(Boolean))]
         : [],
     };
-  }, [isEdit, property, propertyFeatures]);
+  }, [isEdit, property, propertyFeatures, defaultDealType]);
 
   const handleOwnerCreated = () => {
     setShowOwnerForm(false);
