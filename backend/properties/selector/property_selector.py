@@ -11,7 +11,7 @@ class PropertySelector:
                 "owner",
                 "agent",
                 "create_by",
-                "address",
+                "address__neighborhood__district__city",
                 "divar_neighborhood__zone",
                 "divar_neighborhood__city",
             )
@@ -31,7 +31,7 @@ class PropertySelector:
             "owner",
             "agent",
             "create_by",
-            "address",
+            "address__neighborhood__district__city",
             "divar_neighborhood__zone",
             "divar_neighborhood__city",
         ).filter(

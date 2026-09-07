@@ -84,7 +84,7 @@ class Property(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-       related_name="properties",
+        related_name="properties",
     )
 
     title = models.CharField(max_length=255)
