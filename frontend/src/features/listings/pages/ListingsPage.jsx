@@ -21,6 +21,7 @@ import PropertyDetailModal from "@/features/properties/components/PropertyDetail
 import CallFormModal from "@/features/calls/components/CallFormModal";
 import { API_ENDPOINTS } from "@/constants/apiEndpoints";
 import api from "@/lib/api";
+import useAuth from "@/features/auth/hooks/useAuth";
 
 /** Tabs map to server-side advertiser_type filter */
 const LISTING_TABS = [
@@ -67,6 +68,9 @@ export default function ListingsPage() {
     openReviewStatus,
     closeReviewStatus,
   } = useListingModals();
+
+  const { user } = useAuth();
+  const isAdmin = Boolean(user?.is_owner);
 
   const [selected, setSelected] = useState([]);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -221,7 +225,12 @@ export default function ListingsPage() {
   // ─── Filters ───
   const filters = useMemo(
     () => ({
-      schema: (LISTING_ALL_FILTERS || []).filter((f) => f.type !== "search"),
+      schema: (LISTING_ALL_FILTERS || []).filter((f) => {
+        if (f.type === "search") return false;
+        // Category filter only for admin/owner (operators have fixed category)
+        if (f.key === "category" && !isAdmin) return false;
+        return true;
+      }),
       options: filterOptions,
       values: filterValues,
       onChange: setFilter,

@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import Modal from "@/shared/ui/modal/Modal";
 import FormRenderer from "@/shared/page/FormRenderer";
 import { PROPERTY_FORM } from "@/features/properties/config";
@@ -6,8 +6,23 @@ import propertyService from "@/features/properties/services/propertyService";
 import OwnerFormModal from "@/features/owners/components/OwnerFormModal";
 import useAuth from "@/features/auth/hooks/useAuth";
 import { toastService } from "@/lib/toast";
+import api from "@/lib/api";
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
+import { findDivarNeighborhood } from "@/utils/locationMapping";
 
+/**
+ * Resolve DivarNeighborhood from CRM Neighborhood + City.
+ * Fetches active DivarNeighborhoods, then delegates to findDivarNeighborhood.
+ */
+async function resolveDivarNeighborhood(cityId, neighborhoodName) {
+  if (!cityId || !neighborhoodName) return null;
 
+  const res = await api.get(API_ENDPOINTS.LOCATIONS.DIVAR_NEIGHBORHOODS.LIST.url);
+  const data = res?.data;
+  const list = Array.isArray(data) ? data : data?.results ?? [];
+
+  return findDivarNeighborhood(list, cityId, neighborhoodName);
+}
 
 export default function PropertyFormModal({
   isOpen,
@@ -23,6 +38,19 @@ export default function PropertyFormModal({
   const [ownerFormKey, setOwnerFormKey] = useState(0);
   const [propertyFeatures, setPropertyFeatures] = useState([]);
   const [editReady, setEditReady] = useState(!isEdit);
+
+  // ─── Mapping: deal_type_scope → default deal_type برای فرم Create/Edit ───
+  const DEAL_TYPE_SCOPE_MAP = {
+    "rent-residential": "rent",
+    "buy-residential": "sale",
+    "buy-commercial-property": "sale",
+    "rent-commercial-property": "rent",
+  };
+
+  // default deal_type بر اساس scope کاربر (برای حالت create)
+  const defaultDealType = user?.deal_type_scope
+    ? DEAL_TYPE_SCOPE_MAP[user.deal_type_scope] ?? "sale"
+    : "sale";
 
   // For create mode, always ready. For edit, wait for data.
   useEffect(() => {
@@ -50,6 +78,52 @@ export default function PropertyFormModal({
     return () => { cancelled = true; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEdit, property?.id]);
+
+  // ─── Price auto-calc: sale_price = area × price_per_meter ───
+  // Only triggers when area or price_per_meter changes; manual sale_price edits are preserved.
+  const formApiRef = useRef(null);
+  const prevCalcRef = useRef({ area: null, price_per_meter: null });
+  const didInitCalcRef = useRef(false);
+
+  const handleCalcValuesChange = useCallback((values) => {
+    if (!formApiRef.current) return;
+    const { setValue, getValues } = formApiRef.current;
+
+    // Skip first call to avoid overwriting initial/default values
+    if (!didInitCalcRef.current) {
+      didInitCalcRef.current = true;
+      prevCalcRef.current = {
+        area: values.area,
+        price_per_meter: values.price_per_meter,
+      };
+      return;
+    }
+
+    const prevArea = prevCalcRef.current.area;
+    const prevPpm = prevCalcRef.current.price_per_meter;
+    const curArea = values.area;
+    const curPpm = values.price_per_meter;
+
+    // Update tracked values for next comparison
+    prevCalcRef.current = { area: curArea, price_per_meter: curPpm };
+
+    // Only compute for sale deals
+    if (values.deal_type !== "sale") return;
+
+    // Only compute if area or price_per_meter actually changed
+    if (curArea === prevArea && curPpm === prevPpm) return;
+
+    // Only compute when both values are valid positive numbers
+    const areaNum = Number(curArea);
+    const ppmNum = Number(curPpm);
+    if (!areaNum || areaNum <= 0 || !ppmNum || ppmNum <= 0) return;
+
+    const newSalePrice = Math.round(areaNum * ppmNum);
+    const currentSalePrice = getValues("sale_price");
+    if (newSalePrice !== currentSalePrice) {
+      setValue("sale_price", newSalePrice, { shouldValidate: false });
+    }
+  }, []);
 
   const formConfig = useMemo(() => {
     if (!PROPERTY_FORM) return PROPERTY_FORM;
@@ -81,6 +155,12 @@ export default function PropertyFormModal({
           if (f.key === "property_type" && isEdit) {
             return { ...f, type: "text", readOnly: true, defaultValue: property?.property_type || "—" };
           }
+          if (f.key === "deal_type") {
+            // deal_type بر اساس scope کاربر تنظیم می‌شود و disabled است
+            // نکته: disabled باعث حذف فیلد از payload نمیشود - but verify FormRenderer behavior
+            // If FormRenderer strips disabled fields, use readOnly instead: fieldProps: { readOnly: true }
+            return { ...f, type: "select", readOnly: true, disabled: true, defaultValue: defaultDealType };
+          }
           return f;
         }),
       })),
@@ -89,7 +169,12 @@ export default function PropertyFormModal({
   }, [isEdit, property?.owner, property?.agent, property?.deal_type]);
 
   const defaultValues = useMemo(() => {
-    if (!isEdit) return {};
+    if (!isEdit) {
+      // For create mode, default deal_type from user's scope mapping
+      return {
+        deal_type: defaultDealType,
+      };
+    }
     // Flatten agent to string if it's an object
     const agentName = typeof property?.agent === "object"
       ? property.agent.full_name
@@ -98,16 +183,20 @@ export default function PropertyFormModal({
       // Basic info
       property_code: property?.property_code || "",
       title: property?.title || "",
-      deal_type: property?.deal_type || "sale",
+      deal_type: property?.deal_type || defaultDealType,
       status: property?.status || "available",
       property_type: property?.property_type || "",
       owner: typeof property?.owner === "object" ? property.owner.full_name : (property?.owner || ""),
       agent: agentName,
       description: property?.description || "",
-      // Location
-      city: property?.city || null,
-      zone: property?.zone || null,
-      divar_neighborhood: property?.divar_neighborhood?.id || null,
+      // Location — resolve cascade from property's address
+      location: property?.address ? {
+        province: property.address.province || null,
+        city: property.address.city || null,
+        district: property.address.district || null,
+        neighborhood: property.address.neighborhood || null,
+      } : {},
+      address_text: property?.address?.full_text || property?.address?.street || "",
       // Specs
       area: property?.area || "",
       age: property?.age ?? "",
@@ -130,7 +219,7 @@ export default function PropertyFormModal({
         ? [...new Set(propertyFeatures.map((f) => Number(f.feature_id)).filter(Boolean))]
         : [],
     };
-  }, [isEdit, property, propertyFeatures]);
+  }, [isEdit, property, propertyFeatures, defaultDealType]);
 
   const handleOwnerCreated = () => {
     setShowOwnerForm(false);
@@ -154,7 +243,84 @@ export default function PropertyFormModal({
         delete payload.property_code;
       }
 
-      // Extract feature ids before sending to backend
+      // ─── Location cascade → Address + DivarNeighborhood ───
+      const locationData = payload.location && typeof payload.location === "object"
+        ? payload.location
+        : {};
+      const addressText = payload.address_text || "";
+      delete payload.location;
+      delete payload.address_text;
+      delete payload.city;
+      delete payload.zone;
+      delete payload.divar_neighborhood;
+
+      const neighborhoodId = locationData.neighborhood || null;
+      const cityId = locationData.city || null;
+
+      // 1) Create Address if neighborhood is selected
+      let addressId = null;
+      if (neighborhoodId) {
+        try {
+          const addrRes = await api.post(API_ENDPOINTS.LOCATIONS.ADDRESSES.CREATE.url, {
+            neighborhood: neighborhoodId,
+            full_text: addressText,
+            street: addressText,
+          });
+          // Response: { message, address: { id, ... } }
+          const addrData = addrRes?.data ?? addrRes;
+          addressId = addrData?.address?.id ?? addrData?.id ?? null;
+        } catch (addrErr) {
+          // If address already exists (duplicate), try to find it
+          // Backend AddressCreateSerializer.validate checks:
+          //   neighborhood + street + alley + plaque + unit
+          // We only send neighborhood, street, full_text — so alley/plaque/unit
+          // default to "". Match exactly on those 5 fields.
+          const existingMsg = addrErr?.response?.data?.detail || "";
+          if (typeof existingMsg === "string" && existingMsg.includes("قبلاً ثبت شده")) {
+            const searchRes = await api.get(API_ENDPOINTS.LOCATIONS.ADDRESSES.LIST.url);
+            const addrList = Array.isArray(searchRes?.data) ? searchRes.data : searchRes?.data?.results ?? [];
+            const match = addrList.find(
+              (a) =>
+                Number(a.neighborhood) === Number(neighborhoodId) &&
+                (a.street || "") === addressText &&
+                (a.alley || "") === "" &&
+                (a.plaque || "") === "" &&
+                (a.unit || "") === "",
+            );
+            if (match) {
+              addressId = match.id;
+            } else {
+              throw addrErr;
+            }
+          } else {
+            throw addrErr;
+          }
+        }
+      }
+      payload.address = addressId;
+
+      // 2) Resolve CRM Neighborhood → DivarNeighborhood
+      // LocationCascadeSelect doesn't expose names, so we fetch the CRM
+      // neighborhood list to get the name, then match against DivarNeighborhoods.
+      let divarNeighborhoodId = null;
+      if (neighborhoodId && cityId) {
+        try {
+          const nRes = await api.get(API_ENDPOINTS.LOCATIONS.NEIGHBORHOODS.LIST.url);
+          const nList = Array.isArray(nRes?.data) ? nRes.data : nRes?.data?.results ?? [];
+          const nObj = nList.find((n) => Number(n.id) === Number(neighborhoodId));
+          if (nObj) {
+            const resolved = await resolveDivarNeighborhood(cityId, nObj.name);
+            divarNeighborhoodId = resolved?.id ?? null;
+          }
+        } catch (resolveErr) {
+          toastService.error(resolveErr.message || "خطا در resolve محله دیوار.");
+          setLoading(false);
+          return;
+        }
+      }
+      payload.divar_neighborhood = divarNeighborhoodId;
+
+      // ─── Feature ids ───
       const featureIds = payload.features || [];
       delete payload.features;
 
@@ -256,6 +422,8 @@ export default function PropertyFormModal({
             onSubmit={handleSubmit}
             onCancel={onClose}
             loading={loading}
+            onFormApi={(api) => { formApiRef.current = api; }}
+            onValuesChange={handleCalcValuesChange}
           />
         ) : (
           <div className="flex items-center justify-center py-12">

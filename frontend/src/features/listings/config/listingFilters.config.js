@@ -21,6 +21,13 @@ const LISTING_CATEGORY_OPTIONS = [
  * NOTE: source filter excluded — backend filter exists but no Source list endpoint yet.
  */
 
+const TIME_RANGE_OPTIONS = [
+  { value: "today", label: "امروز" },
+  { value: "yesterday", label: "دیروز" },
+  { value: "last7days", label: "۷ روز اخیر" },
+  { value: "all", label: "همه" },
+];
+
 export const LISTING_QUICK_FILTERS = [
   {
     key: "search",
@@ -50,6 +57,14 @@ export const LISTING_QUICK_FILTERS = [
         label: cfg.label,
       }),
     ),
+  },
+  {
+    key: "time_range",
+    label: "بازه زمانی",
+    type: "select",
+    placement: "bar",
+    options: TIME_RANGE_OPTIONS,
+    clearable: true,
   },
 ];
 

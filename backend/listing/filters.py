@@ -263,6 +263,16 @@ class ListingFilter(django_filters.FilterSet):
         lookup_expr="lte",
     )
 
+    last_changed_from = django_filters.IsoDateTimeFilter(
+        field_name="last_changed_at",
+        lookup_expr="gte",
+    )
+
+    last_changed_to = django_filters.IsoDateTimeFilter(
+        field_name="last_changed_at",
+        lookup_expr="lte",
+    )
+
     last_checked_from = django_filters.IsoDateTimeFilter(
         field_name="last_checked_at",
         lookup_expr="gte",
@@ -315,6 +325,57 @@ class ListingFilter(django_filters.FilterSet):
             )
 
         return queryset
+
+    # ── Preset time-range helpers (OR across first_seen_at / last_changed_at) ──
+    # These filters are not backed by model fields, so django-filters' form
+    # won't include them in cleaned_data.  We override filter_queryset to
+    # parse them directly from request data.
+
+    _PRESET_TIME_FIELDS = {
+        "time_from": ("first_seen_at", "last_changed_at", "gte"),
+        "time_to":   ("first_seen_at", "last_changed_at", "lte"),
+    }
+
+    def filter_queryset(self, queryset):
+        qs = super().filter_queryset(queryset)
+
+        # Apply preset time-range filters that live outside Meta.fields
+        for key, (field_a, field_b, lookup) in self._PRESET_TIME_FIELDS.items():
+            raw = self.data.get(key)
+            if not raw:
+                continue
+            try:
+                value = self.form.fields[key].to_python(raw)
+            except Exception:
+                # Fall back: let the IsoDateTimeField of the first matching
+                # filter handle parsing if the form doesn't have the field.
+                from django_filters.fields import IsoDateTimeField
+                value = IsoDateTimeField().to_python(raw)
+            if value is None:
+                continue
+            qs = qs.filter(
+                Q(**{f"{field_a}__{lookup}": value})
+                | Q(**{f"{field_b}__{lookup}": value})
+            )
+        return qs
+
+    def filter_time_from(self, queryset, name, value):
+        """
+        OR filter: listing was first seen OR last changed on/after *value*.
+        Handles NULL last_changed_at correctly.
+        """
+        return queryset.filter(
+            Q(first_seen_at__gte=value) | Q(last_changed_at__gte=value)
+        )
+
+    def filter_time_to(self, queryset, name, value):
+        """
+        OR filter: listing was first seen OR last changed on/before *value*.
+        Handles NULL last_changed_at correctly.
+        """
+        return queryset.filter(
+            Q(first_seen_at__lte=value) | Q(last_changed_at__lte=value)
+        )
 
     class Meta:
         model = Listing
@@ -375,11 +436,13 @@ class ListingFilter(django_filters.FilterSet):
             "consecutive_failures_min",
             "consecutive_failures_max",
 
-            # Dates
+            # Dates — individual
             "first_seen_from",
             "first_seen_to",
             "last_seen_from",
             "last_seen_to",
+            "last_changed_from",
+            "last_changed_to",
             "last_checked_from",
             "last_checked_to",
             "created_from",

@@ -10,6 +10,9 @@ import LocationFormModal from "./LocationFormModal";
 import LocationDetailModal from "./LocationDetailModal";
 import { toastService } from "@/lib/toast";
 import locationService from "../services/locationService";
+import api from "@/lib/api";
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
+import { normalizePersian } from "@/utils/locationMapping";
 
 export default function LocationLevelPanel({ levelKey, onRegisterCreate }) {
   const level = LOCATION_LEVELS[levelKey];
@@ -36,6 +39,70 @@ export default function LocationLevelPanel({ levelKey, onRegisterCreate }) {
 
   const [searchInput, setSearchInput] = useState(search || "");
   const debouncedSearch = useDebounce(searchInput, 300);
+
+  // ─── DivarNeighborhood mapping status for neighborhood tab ───
+  // NeighborhoodSerializer lacks city FK ID, only has city_name string.
+  // We also fetch districts (which have city FK) to build a district→city map.
+  const [divarMap, setDivarMap] = useState(null);
+  const [districtCityMap, setDistrictCityMap] = useState(null);
+
+  useEffect(() => {
+    if (levelKey !== "neighborhood") return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const [divarRes, districtRes] = await Promise.all([
+          api.get(API_ENDPOINTS.LOCATIONS.DIVAR_NEIGHBORHOODS.LIST.url),
+          api.get(API_ENDPOINTS.LOCATIONS.DISTRICTS.LIST.url),
+        ]);
+        const divarList = Array.isArray(divarRes?.data)
+          ? divarRes.data
+          : divarRes?.data?.results ?? [];
+        const districtList = Array.isArray(districtRes?.data)
+          ? districtRes.data
+          : districtRes?.data?.results ?? [];
+
+        const dMap = new Map();
+        for (const d of districtList) {
+          if (d.city) dMap.set(Number(d.id), Number(d.city));
+        }
+
+        const nMap = new Map();
+        for (const dn of divarList) {
+          if (!dn.active) continue;
+          const key = `${Number(dn.city)}:${normalizePersian(dn.name)}`;
+          nMap.set(key, true);
+        }
+        if (!cancelled) {
+          setDivarMap(nMap);
+          setDistrictCityMap(dMap);
+        }
+      } catch {
+        if (!cancelled) {
+          setDivarMap(new Map());
+          setDistrictCityMap(new Map());
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [levelKey]);
+
+  // Enrich neighborhood data with mapping status
+  const enrichedData = useMemo(() => {
+    if (levelKey !== "neighborhood" || !divarMap || !districtCityMap) return data;
+    return data.map((row) => {
+      const districtId = Number(row.district) || Number(row.district_id) || null;
+      const cityId = districtId != null ? districtCityMap.get(districtId) : null;
+      const nName = normalizePersian(row.name);
+      const key = cityId != null ? `${cityId}:${nName}` : null;
+      return {
+        ...row,
+        _hasDivarMapping: key != null ? divarMap.has(key) : false,
+      };
+    });
+  }, [data, levelKey, divarMap, districtCityMap]);
 
   // client-side parent filters
   const filterSchema = LEVEL_FILTER_SCHEMA[levelKey] || [];
@@ -199,7 +266,7 @@ export default function LocationLevelPanel({ levelKey, onRegisterCreate }) {
         count={meta?.count || 0}
         countLabel={level.label}
         columns={level.columns}
-        data={data}
+        data={enrichedData}
         loading={loading}
         emptyState={emptyState}
         selectable

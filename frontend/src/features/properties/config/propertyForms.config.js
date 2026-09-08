@@ -118,13 +118,19 @@ export const PROPERTY_FORM = {
       icon: "MapPin",
       fields: [
         {
-          key: "divar_neighborhood",
-          label: "محلهٔ دیوار",
-          type: "search_select",
+          key: "location",
+          label: "موقعیت",
+          type: "location_cascade",
+          includeAddress: false,
+          span: 12,
+        },
+        {
+          key: "address_text",
+          label: "آدرس دقیق",
+          type: "textarea",
           required: false,
-          asyncSource: API_ENDPOINTS.LOCATIONS.DIVAR_NEIGHBORHOODS.LIST.url,
-          displayField: "name",
-          placeholder: "انتخاب محله دیوار",
+          placeholder: "خیابان، کوچه، پلاک و...",
+          rows: 2,
           span: 12,
         },
       ],
@@ -312,10 +318,6 @@ export const PROPERTY_FORM = {
           type: "price",
           required: false,
           placeholder: "محاسبه خودکار یا دستی",
-          computed: (values) =>
-            values.deal_type === "sale" && values.sale_price && values.area
-              ? Math.round(values.sale_price / values.area)
-              : null,
           condition: (values) => values.deal_type === "sale",
           span: 6,
         },
