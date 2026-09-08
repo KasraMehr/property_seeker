@@ -7,7 +7,7 @@ import { API_ENDPOINTS } from "@/constants/apiEndpoints";
  * Backend: crm.CallLog
  *
  * Quick: search, call_type, result, handled_by, date
- * Advanced: customer, customer_type, property/listing, follow_up, duration
+ * Advanced: customer, owner, customer_type, property/listing, follow_up, duration
  */
 
 export const CALL_QUICK_FILTERS = [
@@ -15,8 +15,8 @@ export const CALL_QUICK_FILTERS = [
     key: "search",
     label: "جستجو",
     type: "search",
-    placeholder: "نام مشتری، یادداشت، شماره...",
-    fields: ["customer.full_name", "customer.phone", "note"],
+    placeholder: "نام مشتری/مالک، یادداشت، شماره...",
+    fields: ["customer.full_name", "customer.phone", "owner.full_name", "owner.phone", "note"],
     placement: "bar",
   },
 
@@ -65,6 +65,18 @@ export const CALL_QUICK_FILTERS = [
     optionLabel: "full_name",
     optionValue: "id",
   },
+
+  {
+    key: "owner",
+    label: "مالک",
+    type: "search_select",
+    placement: "drawer",
+    async: true,
+    endpoint: API_ENDPOINTS.OWNERS.LIST.url,
+    search_fields: ["full_name", "phone"],
+    optionLabel: "full_name",
+    optionValue: "id",
+  },
 ];
 
 export const CALL_ADVANCED_FILTERS = [
@@ -90,8 +102,6 @@ export const CALL_ADVANCED_FILTERS = [
     from_key: "called_from",
     to_key: "called_to",
   },
-
-
 
   {
     key: "property",
@@ -122,7 +132,6 @@ export const CALL_ADVANCED_FILTERS = [
     label: "نیاز به پیگیری",
     type: "toggle",
     placement: "drawer",
-    filter: (row) => row.next_follow_up_at && !row.follow_up_done,
   },
 
   {
@@ -137,7 +146,6 @@ export const CALL_ADVANCED_FILTERS = [
     label: "دارای پیگیری بعدی",
     type: "toggle",
     placement: "drawer",
-    filter: (row) => !!row.next_follow_up_at,
   },
 
   {
@@ -158,8 +166,8 @@ export const CALL_ADVANCED_FILTERS = [
     label: "دارای فایل صوتی",
     type: "toggle",
     placement: "drawer",
-    filter: (row) => !!row.record_file,
   },
+
   {
     key: "is_deleted",
     label: "حذف‌شده",
