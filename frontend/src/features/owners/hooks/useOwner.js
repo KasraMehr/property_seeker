@@ -11,6 +11,7 @@ export default function useOwner() {
     filterSchema: OWNER_ALL_FILTERS,
     pageSize: 10,
     initialOrdering: "-created_at",
+    syncToUrl: true,
   });
 
   const didFetch = useRef(false);

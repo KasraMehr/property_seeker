@@ -10,6 +10,7 @@ export default function useFollowup() {
     filterSchema: FOLLOWUP_ALL_FILTERS,
     pageSize: 10,
     initialOrdering: "due_at",
+    syncToUrl: true,
   });
 
   const didFetch = useRef(false);

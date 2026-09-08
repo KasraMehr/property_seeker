@@ -11,6 +11,7 @@ export default function useCall() {
     filterSchema: CALL_ALL_FILTERS,
     pageSize: 10,
     initialOrdering: "-called_at",
+    syncToUrl: true,
   });
 
   const didFetch = useRef(false);

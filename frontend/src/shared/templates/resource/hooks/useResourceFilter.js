@@ -1,4 +1,6 @@
-import { useState, useCallback, useMemo, useRef } from "react";
+import { useState, useCallback, useMemo, useRef, useEffect } from "react";
+import { useSearchParams, useLocation } from "react-router-dom";
+import useFilterStore from "@/store/useFilterStore";
 import DateObject from "react-date-object";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
@@ -42,11 +44,58 @@ function toFaDigits(str) {
 }
 
 /**
+ * Parse a single URL param string into the correct JS type for a filter field.
+ */
+function parseUrlValue(rawValue, field) {
+  if (rawValue == null || rawValue === "") return undefined; // signal "not in URL"
+  switch (field.type) {
+    case "search":
+      return rawValue;
+    case "select":
+    case "search_select":
+      return rawValue;
+    case "multiselect":
+    case "multi_select":
+      return rawValue.split(",").filter(Boolean);
+    case "range": {
+      const minKey = field.min_key || `${field.key}_min`;
+      const maxKey = field.max_key || `${field.key}_max`;
+      // We handle range at the top level (see buildStateFromUrl), skip here
+      return undefined;
+    }
+    case "date_range": {
+      const fromKey = field.from_key || `${field.key}_from`;
+      const toKey = field.to_key || `${field.key}_to`;
+      // We handle date_range at the top level, skip here
+      return undefined;
+    }
+    case "toggle":
+      return rawValue === "true" || rawValue === "1";
+    case "location_cascade":
+      // Handled at top level
+      return undefined;
+    default:
+      return rawValue;
+  }
+}
+
+/**
  * useResourceFilter
  *
  * Generic filter state manager.
+ * @param {object[]} schema - filter field definitions
+ * @param {object} optionsData - async options data
+ * @param {object} [opts]
+ * @param {boolean} [opts.syncToUrl=false] - persist filter state in URL search params
  */
-export default function useResourceFilter(schema = [], optionsData = {}) {
+export default function useResourceFilter(schema = [], optionsData = {}, opts = {}) {
+  const { syncToUrl = false } = opts;
+  const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
+  const storeGetFilters = useFilterStore((s) => s.getFilters);
+  const storeGetLabels = useFilterStore((s) => s.getLabels);
+  const storeSetFilters = useFilterStore((s) => s.setFilters);
+
   const schemaRef = useRef(schema);
   schemaRef.current = schema;
 
@@ -95,8 +144,90 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
     return state;
   }, []);
 
-  const [filters, setFilters] = useState(buildInitialState);
-  const [filterLabels, setFilterLabels] = useState({});
+  // Build initial state, optionally hydrated from URL search params or Zustand store
+  const buildInitialStateFromUrl = useCallback(() => {
+    if (!syncToUrl) return buildInitialState();
+
+    // Priority: URL params > Zustand store > defaults
+    const hasUrlParams = Array.from(searchParams.keys()).length > 0;
+
+    if (hasUrlParams) {
+      // Hydrate from URL params
+      const state = buildInitialState();
+      const currentSchema = schemaRef.current;
+
+      currentSchema.forEach((field) => {
+        switch (field.type) {
+          case "range": {
+            const fieldMin = field.min ?? 0;
+            const fieldMax = field.max ?? 100;
+            const minKey = field.min_key || `${field.key}_min`;
+            const maxKey = field.max_key || `${field.key}_max`;
+            const urlMin = searchParams.get(minKey);
+            const urlMax = searchParams.get(maxKey);
+            if (urlMin != null || urlMax != null) {
+              state[field.key] = {
+                min: urlMin != null ? Number(urlMin) : fieldMin,
+                max: urlMax != null ? Number(urlMax) : fieldMax,
+              };
+            }
+            break;
+          }
+          case "date_range": {
+            const fromKey = field.from_key || `${field.key}_from`;
+            const toKey = field.to_key || `${field.key}_to`;
+            const urlFrom = searchParams.get(fromKey);
+            const urlTo = searchParams.get(toKey);
+            if (urlFrom || urlTo) {
+              state[field.key] = {
+                from: urlFrom || null,
+                to: urlTo || null,
+              };
+            }
+            break;
+          }
+          case "location_cascade": {
+            const prov = searchParams.get("province");
+            const city = searchParams.get("city");
+            const dist = searchParams.get("district");
+            const neigh = searchParams.get("neighborhood");
+            if (prov || city || dist || neigh) {
+              state[field.key] = {
+                province: prov || null,
+                city: city || null,
+                district: dist || null,
+                neighborhood: neigh || null,
+              };
+            }
+            break;
+          }
+          default: {
+            const urlVal = parseUrlValue(searchParams.get(field.key), field);
+            if (urlVal !== undefined) {
+              state[field.key] = urlVal;
+            }
+            break;
+          }
+        }
+      });
+
+      return state;
+    }
+
+    // No URL params — try Zustand store
+    const cached = storeGetFilters(location.pathname);
+    if (cached) {
+      return { ...buildInitialState(), ...cached };
+    }
+
+    return buildInitialState();
+  }, [syncToUrl, searchParams, buildInitialState, storeGetFilters, location.pathname]);
+
+  const [filters, setFilters] = useState(buildInitialStateFromUrl);
+  const [filterLabels, setFilterLabels] = useState(() => {
+    if (!syncToUrl) return {};
+    return storeGetLabels(location.pathname) || {};
+  });
 
   const setFilter = useCallback((key, value, label) => {
     if (label !== undefined) {
@@ -243,6 +374,70 @@ export default function useResourceFilter(schema = [], optionsData = {}) {
       return next;
     });
   }, [buildInitialState]);
+
+  // ── Sync: write filter state to URL params + Zustand store ──
+  useEffect(() => {
+    if (!syncToUrl) return;
+
+    const next = new URLSearchParams();
+    const currentSchema = schemaRef.current;
+
+    currentSchema.forEach((field) => {
+      const value = filters[field.key];
+      if (value == null) return;
+
+      switch (field.type) {
+        case "search":
+        case "select":
+        case "search_select":
+          if (value) next.set(field.key, String(value));
+          break;
+        case "multiselect":
+        case "multi_select":
+          if (Array.isArray(value) && value.length > 0) {
+            next.set(field.key, value.join(","));
+          }
+          break;
+        case "range": {
+          const fieldMin = field.min ?? 0;
+          const fieldMax = field.max ?? 100;
+          const minKey = field.min_key || `${field.key}_min`;
+          const maxKey = field.max_key || `${field.key}_max`;
+          if (value.min != null && value.min !== fieldMin) next.set(minKey, String(value.min));
+          if (value.max != null && value.max !== fieldMax) next.set(maxKey, String(value.max));
+          break;
+        }
+        case "date_range": {
+          const fromKey = field.from_key || `${field.key}_from`;
+          const toKey = field.to_key || `${field.key}_to`;
+          if (value?.from) next.set(fromKey, value.from);
+          if (value?.to) next.set(toKey, value.to);
+          break;
+        }
+        case "toggle":
+          if (value) next.set(field.key, "true");
+          break;
+        case "location_cascade":
+          if (value?.province) next.set("province", String(value.province));
+          if (value?.city) next.set("city", String(value.city));
+          if (value?.district) next.set("district", String(value.district));
+          if (value?.neighborhood) next.set("neighborhood", String(value.neighborhood));
+          break;
+        default:
+          break;
+      }
+    });
+
+    // Update URL params
+    const nextStr = next.toString();
+    const prevStr = searchParams.toString();
+    if (nextStr !== prevStr) {
+      setSearchParams(next, { replace: true });
+    }
+
+    // Always save to Zustand store so sidebar navigation restores these
+    storeSetFilters(location.pathname, { ...filters }, { ...filterLabels });
+  }, [filters, filterLabels, syncToUrl, searchParams, setSearchParams, storeSetFilters, location.pathname]);
 
   const activeChips = useMemo(() => {
     const chips = [];

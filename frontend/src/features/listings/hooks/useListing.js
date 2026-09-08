@@ -84,10 +84,13 @@ export default function useListing() {
     filterSchema: LISTING_ALL_FILTERS,
     pageSize: 10,
     initialOrdering: "-published_at",
+    syncToUrl: true,
   });
 
-  // ─── Set default time_range + freshness on first render ───
+  // ─── Set default time_range + freshness only when URL has no filter state ───
   useEffect(() => {
+    // If URL already has filter params (from syncToUrl), don't override them
+    if (query.filters.time_range != null || query.filters.freshness != null) return;
     query.setFilter("time_range", "today", "امروز");
     query.setFilter("freshness", "new", "جدید");
   }, []); // eslint-disable-line react-hooks/exhaustive-deps

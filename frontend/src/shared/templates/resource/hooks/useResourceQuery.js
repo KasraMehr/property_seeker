@@ -12,6 +12,7 @@ export default function useResourceQuery({
   initialPage = 1,
   pageSize = 10,
   initialOrdering = "-created_at",
+  syncToUrl = false,
 } = {}) {
   const {
     filters,
@@ -21,7 +22,7 @@ export default function useResourceQuery({
     activeChips,
     activeCount,
     queryParams: filterParams,
-  } = useResourceFilter(filterSchema, filterOptions);
+  } = useResourceFilter(filterSchema, filterOptions, { syncToUrl });
 
   const [ordering, setOrdering] = useState(initialOrdering);
   const [page, setPage] = useState(initialPage);

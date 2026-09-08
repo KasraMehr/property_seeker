@@ -12,6 +12,7 @@ export default function useActivityLog() {
     filterSchema: [],
     pageSize: 10,
     initialOrdering: "-created_at",
+    syncToUrl: true,
   });
 
   const didFetch = useRef(false);

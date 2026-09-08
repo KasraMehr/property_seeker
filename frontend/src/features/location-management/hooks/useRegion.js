@@ -10,6 +10,7 @@ export default function useRegion() {
     filterSchema: REGION_ALL_FILTERS,
     pageSize: 10,
     // initialOrdering: "name",
+    syncToUrl: true,
   });
 
   const didFetch = useRef(false);
