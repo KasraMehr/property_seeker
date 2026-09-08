@@ -12,7 +12,7 @@ export const CALL_TABLE_COLUMNS = [
   // },
   {
     key: "customer_name",
-    header: "مشتری / مالک",
+    header: "مخاطب",
     width: "w-44",
     searchable: true,
     cell: ({ customer_name }) => (
@@ -20,11 +20,39 @@ export const CALL_TABLE_COLUMNS = [
     ),
   },
   {
+    key: "related_property_listing",
+    header: "کد ملک / آگهی",
+    width: "w-40",
+    cell: ({ property_code, listing_title }) => {
+      if (!property_code && !listing_title) {
+        return <span className="text-muted-foreground text-xs">—</span>;
+      }
+
+      return (
+        <div className="block max-w-40">
+          {listing_title && (
+            <div className="truncate text-sm" title={listing_title}>
+              {listing_title}
+            </div>
+          )}
+
+          {property_code && (
+            <div className="mt-0.5 text-xs text-muted-foreground">
+              {property_code}
+            </div>
+          )}
+        </div>
+      );
+    },
+  },
+  {
     key: "result",
     header: "نتیجه",
     width: "w-28",
     filterKey: "result",
-    cell: ({ result }) => <StatusBadge config={buildStatusConfig(CALL_RESULT_CONFIG, result)} />,
+    cell: ({ result }) => (
+      <StatusBadge config={buildStatusConfig(CALL_RESULT_CONFIG, result)} />
+    ),
   },
   {
     key: "call_type",
@@ -35,7 +63,9 @@ export const CALL_TABLE_COLUMNS = [
       const cfg = CALL_TYPE_CONFIG[call_type];
       if (!cfg) return <span className="text-muted-foreground text-xs">—</span>;
       return (
-        <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2 py-0.5 rounded-full ${cfg.bg} ${cfg.text}`}>
+        <span
+          className={`inline-flex items-center gap-1.5 text-xs font-medium px-2 py-0.5 rounded-full ${cfg.bg} ${cfg.text}`}
+        >
           <cfg.icon className="w-3 h-3" />
           {cfg.label}
         </span>

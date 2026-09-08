@@ -1,7 +1,11 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+
 import useResource from "@/shared/templates/resource/hooks/useResource";
+
 import useResourceQuery from "@/shared/templates/resource/hooks/useResourceQuery";
+
 import callService from "../services/callService";
+
 import { CALL_ALL_FILTERS } from "../config";
 
 export default function useCall() {
@@ -14,31 +18,81 @@ export default function useCall() {
     syncToUrl: true,
   });
 
+  const [callSource, setCallSourceState] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    const hasOwner = params.get("has_owner");
+
+    if (hasOwner === "true") return "owners";
+    if (hasOwner === "false") return "customers";
+
+    return "all";
+  });
+
+  const setCallSource = useCallback(
+    (value) => {
+      const source = value || "all";
+
+      setCallSourceState(source);
+      query.setPage(1);
+
+      const url = new URL(window.location.href);
+
+      if (source === "owners") {
+        url.searchParams.set("has_owner", "true");
+      } else if (source === "customers") {
+        url.searchParams.set("has_owner", "false");
+      } else {
+        url.searchParams.delete("has_owner");
+      }
+
+      window.history.replaceState({}, "", url);
+    },
+    [query.setPage],
+  );
+
+  const serverParams = useMemo(() => {
+    const params = { ...query.queryParams };
+
+    if (callSource === "owners") {
+      params.has_owner = true;
+    } else if (callSource === "customers") {
+      params.has_owner = false;
+    }
+
+    return params;
+  }, [query.queryParams, callSource]);
+
   const didFetch = useRef(false);
+
   useEffect(() => {
     if (!didFetch.current) {
       didFetch.current = true;
-      fetchList(query.queryParams);
+      fetchList(serverParams);
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const prevQueryRef = useRef(null);
   const fetchTimerRef = useRef(null);
+
   useEffect(() => {
-    const qs = JSON.stringify(query.queryParams);
+    const qs = JSON.stringify(serverParams);
+
     if (prevQueryRef.current !== null && prevQueryRef.current !== qs) {
       clearTimeout(fetchTimerRef.current);
+
       fetchTimerRef.current = setTimeout(() => {
-        fetchList(query.queryParams);
+        fetchList(serverParams);
       }, 500);
     }
+
     prevQueryRef.current = qs;
+
     return () => clearTimeout(fetchTimerRef.current);
-  }, [query.queryParams, fetchList]);
+  }, [serverParams, fetchList]);
 
   const refresh = useCallback(() => {
-    fetchList(query.queryParams);
-  }, [fetchList, query.queryParams]);
+    fetchList(serverParams);
+  }, [fetchList, serverParams]);
 
   const getById = useCallback(async (id) => {
     const res = await callService.getById(id);
@@ -50,7 +104,7 @@ export default function useCall() {
       await callService.update(id, { follow_up_done: true });
       refresh();
     },
-    [refresh]
+    [refresh],
   );
 
   const bulkRemove = useCallback(
@@ -58,7 +112,7 @@ export default function useCall() {
       await callService.bulkRemove(ids);
       refresh();
     },
-    [refresh]
+    [refresh],
   );
 
   return {
@@ -67,6 +121,10 @@ export default function useCall() {
     remove,
     markFollowUpDone,
     bulkRemove,
+
+    callSource,
+    setCallSource,
+
     filters: query.filters,
     setFilter: query.setFilter,
     clearFilter: query.clearFilter,
@@ -79,7 +137,7 @@ export default function useCall() {
     setPage: query.setPage,
     pageSize: query.pageSize,
     sort: query.sort,
-    queryParams: query.queryParams,
+    queryParams: serverParams,
     totalPages: (count) => query.totalPages(count),
     refresh,
   };

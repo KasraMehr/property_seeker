@@ -1,11 +1,17 @@
 import { useMemo, useState, useCallback, useEffect } from "react";
+
 import { Plus, Phone } from "lucide-react";
+
 import { useOutletContext } from "react-router-dom";
 
 import useAuth from "@/features/auth/hooks/useAuth";
+
 import ResourceTemplate from "@/shared/templates/resource/ResourceTemplate";
+
 import PageTabs from "@/shared/page/PageTabs";
+
 import useCall from "@/features/calls/hooks/useCall";
+
 import {
   CALL_ALL_FILTERS,
   CALL_ROW_ACTIONS,
@@ -13,24 +19,30 @@ import {
   CALL_ALL_ACTIONS,
   CALL_TABLE_COLUMNS,
 } from "@/features/calls/config";
+
 import useDebounce from "@/shared/useDebounce";
+
 import ConfirmModal from "@/shared/ui/modal/ConfirmModal";
+
 import FollowUpModal from "../../followups/components/QuickFollowupModal";
+
 import Button from "@/shared/ui/Button";
+
 import CallDetailModal from "@/features/calls/components/CallDetailModal";
+
 import CallFormModal from "@/features/calls/components/CallFormModal";
+
 import { toastService } from "@/lib/toast";
 
 const CALL_TABS = [
   { id: "all", label: "همه" },
-  { id: "customers", label: "مشتریان" },
   { id: "owners", label: "مالکان" },
+  { id: "customers", label: "مشتریان" },
 ];
 
 export default function CallsPage() {
   const { user } = useAuth();
   const { setPageHeader } = useOutletContext();
-
   const isAdmin = Boolean(user?.is_owner);
 
   const {
@@ -52,10 +64,11 @@ export default function CallsPage() {
     markFollowUpDone,
     bulkRemove,
     refresh,
+    callSource,
+    setCallSource,
   } = useCall();
 
   const [selected, setSelected] = useState([]);
-  const [activeTab, setActiveTab] = useState("all");
   const [detailCall, setDetailCall] = useState(null);
   const [editCall, setEditCall] = useState(null);
   const [followUpCall, setFollowUpCall] = useState(null);
@@ -107,12 +120,19 @@ export default function CallsPage() {
   /* ─── Sort ─── */
   const handleSort = useCallback(
     (key) => {
-      const dir =
-        sort?.key === key && sort?.dir === "asc" ? "desc" : "asc";
+      const dir = sort?.key === key && sort?.dir === "asc" ? "desc" : "asc";
 
       setOrdering(`${dir === "desc" ? "-" : ""}${key}`);
     },
-    [sort, setOrdering]
+    [sort, setOrdering],
+  );
+
+  /* ─── Tab Change ─── */
+  const handleTabChange = useCallback(
+    (tabId) => {
+      setCallSource(tabId === "all" ? null : tabId);
+    },
+    [setCallSource],
   );
 
   /* ─── Row actions ─── */
@@ -159,7 +179,7 @@ export default function CallsPage() {
           break;
       }
     },
-    [getById, markFollowUpDone]
+    [getById, markFollowUpDone],
   );
 
   /* ─── Confirm action handler ─── */
@@ -188,11 +208,12 @@ export default function CallsPage() {
         setPendingBulkAction({ key: actionKey });
       }
     },
-    [selected]
+    [selected],
   );
 
   const confirmBulkAction = useCallback(async () => {
     if (!pendingBulkAction) return;
+
     if (pendingBulkAction.key === "delete") {
       try {
         await bulkRemove(selected);
@@ -202,44 +223,9 @@ export default function CallsPage() {
         toastService.error("خطا در حذف تماس‌ها.");
       }
     }
+
     setPendingBulkAction(null);
   }, [pendingBulkAction, selected, bulkRemove]);
-
-  /* ─── Tab Filtering via Backend Query ─── */
-  useEffect(() => {
-    if (activeTab === "all") {
-      clearFilter("owner");
-      clearFilter("customer");
-    } else if (activeTab === "owners") {
-      setFilter("owner", "has_value");
-    } else if (activeTab === "customers") {
-      // For customers tab, we filter by owner being null/empty
-      // Since Backend doesn't have direct "no owner" filter,
-      // we'll rely on the customer_source field from response
-      clearFilter("owner");
-    }
-  }, [activeTab, setFilter, clearFilter]);
-
-  /* ─── Tab Badge Counts ─── */
-  const tabItems = useMemo(() => {
-    if (!meta?.count) return CALL_TABS.map((t) => ({ ...t, badge: 0 }));
-
-    // Count logic based on data structure
-    // Since we're using backend filtering now, the counts should reflect filtered results
-    // But for real-time counts, we calculate from data as a visual indicator
-    if (!data) return CALL_TABS.map((t) => ({ ...t, badge: 0 }));
-
-    const counts = {
-      all: meta.count,
-      owners: data.filter((r) => r.owner_name).length,
-      customers: data.filter((r) => !r.owner_name).length,
-    };
-
-    return CALL_TABS.map((t) => ({
-      ...t,
-      badge: counts[t.id] || 0,
-    }));
-  }, [data, meta?.count]);
 
   /* ─── Filter options ─── */
   const filterOptions = useMemo(() => {
@@ -256,8 +242,10 @@ export default function CallsPage() {
     () => ({
       schema: CALL_ALL_FILTERS.filter((f) => {
         if (f.type === "search") return false;
+
         // handled_by filter only visible for admin/owner
         if (f.key === "handled_by" && !isAdmin) return false;
+
         return true;
       }),
       options: filterOptions,
@@ -275,7 +263,7 @@ export default function CallsPage() {
       clearFilter,
       clearAll,
       activeChips,
-    ]
+    ],
   );
 
   const pagination = useMemo(
@@ -283,7 +271,7 @@ export default function CallsPage() {
       page,
       totalPages: totalPages(meta?.count),
     }),
-    [page, meta?.count, totalPages]
+    [page, meta?.count, totalPages],
   );
 
   const searchConfig = useMemo(
@@ -293,7 +281,7 @@ export default function CallsPage() {
       label: "جستجو",
       placeholder: "یادداشت، نام مشتری/مالک، شماره...",
     }),
-    [searchInput]
+    [searchInput],
   );
 
   /* ─── Empty ─── */
@@ -315,20 +303,26 @@ export default function CallsPage() {
         </Button>
       </div>
     ),
-    [clearAll]
+    [clearAll],
   );
 
   /* ─── Table Columns (conditional based on isAdmin) ─── */
   const tableColumns = useMemo(() => {
     if (isAdmin) return CALL_TABLE_COLUMNS;
+
     return CALL_TABLE_COLUMNS.filter((col) => col.key !== "agent_name");
   }, [isAdmin]);
 
   return (
     <>
       <div className="mb-4">
-        <PageTabs items={tabItems} value={activeTab} onChange={setActiveTab} />
+        <PageTabs
+          items={CALL_TABS}
+          value={callSource ?? "all"}
+          onChange={handleTabChange}
+        />
       </div>
+
       <ResourceTemplate
         search={searchConfig}
         filters={filters}

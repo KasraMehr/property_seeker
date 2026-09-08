@@ -4,6 +4,7 @@ import Modal from "@/shared/ui/modal/Modal";
 import Button from "@/shared/ui/Button";
 import { toastService } from "@/lib/toast";
 import propertyService from "@/features/properties/services/propertyService";
+import {PROPERTY_DEAL_TYPE_CONFIG} from "@/features/properties/config"
 
 /**
  * PromoteSuccessModal — shown after a listing is successfully promoted to property

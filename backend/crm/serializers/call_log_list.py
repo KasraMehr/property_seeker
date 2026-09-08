@@ -11,6 +11,18 @@ class CallLogListSerializer(serializers.ModelSerializer):
     owner_name = serializers.CharField(source="owner.full_name", read_only=True)
     agent_name = serializers.CharField(source="handled_by.full_name", read_only=True)
 
+    property_code = serializers.CharField(
+        source="property.property_code",
+        read_only=True,
+        allow_null=True,
+    )
+
+    listing_title = serializers.CharField(
+        source="listing.title",
+        read_only=True,
+        allow_null=True,
+    )
+
     class Meta:
 
         model = CallLog
@@ -19,8 +31,10 @@ class CallLogListSerializer(serializers.ModelSerializer):
             "id",
             "customer_name",
             "customer_source",
+            "owner_name",
             "agent_name",
-             "owner_name",
+            "property_code",
+            "listing_title",
             "call_type",
             "result",
             "called_at",
