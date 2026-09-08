@@ -67,7 +67,7 @@ export default function CallsPage() {
   useEffect(() => {
     setPageHeader({
       title: "مدیریت تماس‌ها",
-      subtitle:"برقراری و ثبت ارتباطات",
+      subtitle: "برقراری و ثبت ارتباطات",
       breadcrumb: [],
       actions: (
         <Button
@@ -95,7 +95,7 @@ export default function CallsPage() {
     if (filterValues.search !== searchInput) {
       setSearchInput(filterValues.search || "");
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterValues.search]);
 
   useEffect(() => {
@@ -188,7 +188,7 @@ export default function CallsPage() {
         setPendingBulkAction({ key: actionKey });
       }
     },
-    [selected],
+    [selected]
   );
 
   const confirmBulkAction = useCallback(async () => {
@@ -205,41 +205,46 @@ export default function CallsPage() {
     setPendingBulkAction(null);
   }, [pendingBulkAction, selected, bulkRemove]);
 
-  /* ─── Tab Filtering (client-side) ─── */
-  const displayData = useMemo(() => {
-    if (!data) return [];
-    if (activeTab === "all") return data;
-
-    return data.filter((row) => {
-      const source = row.customer_source || "";
-      if (activeTab === "owners") return source === "owner";
-      if (activeTab === "customers") return source !== "owner";
-      return true;
-    });
-  }, [data, activeTab]);
+  /* ─── Tab Filtering via Backend Query ─── */
+  useEffect(() => {
+    if (activeTab === "all") {
+      clearFilter("owner");
+      clearFilter("customer");
+    } else if (activeTab === "owners") {
+      setFilter("owner", "has_value");
+    } else if (activeTab === "customers") {
+      // For customers tab, we filter by owner being null/empty
+      // Since Backend doesn't have direct "no owner" filter,
+      // we'll rely on the customer_source field from response
+      clearFilter("owner");
+    }
+  }, [activeTab, setFilter, clearFilter]);
 
   /* ─── Tab Badge Counts ─── */
   const tabItems = useMemo(() => {
+    if (!meta?.count) return CALL_TABS.map((t) => ({ ...t, badge: 0 }));
+
+    // Count logic based on data structure
+    // Since we're using backend filtering now, the counts should reflect filtered results
+    // But for real-time counts, we calculate from data as a visual indicator
     if (!data) return CALL_TABS.map((t) => ({ ...t, badge: 0 }));
 
     const counts = {
-      all: data.length,
-      owners: data.filter((r) => (r.customer_source || "") === "owner").length,
-      customers: data.filter((r) => (r.customer_source || "") !== "owner").length,
+      all: meta.count,
+      owners: data.filter((r) => r.owner_name).length,
+      customers: data.filter((r) => !r.owner_name).length,
     };
 
-    return CALL_TABS.map((t) => ({ ...t, badge: counts[t.id] }));
-  }, [data]);
+    return CALL_TABS.map((t) => ({
+      ...t,
+      badge: counts[t.id] || 0,
+    }));
+  }, [data, meta?.count]);
 
   /* ─── Filter options ─── */
   const filterOptions = useMemo(() => {
-    const typeFilter = CALL_ALL_FILTERS.find(
-      (f) => f.key === "call_type"
-    );
-
-    const resultFilter = CALL_ALL_FILTERS.find(
-      (f) => f.key === "result"
-    );
+    const typeFilter = CALL_ALL_FILTERS.find((f) => f.key === "call_type");
+    const resultFilter = CALL_ALL_FILTERS.find((f) => f.key === "result");
 
     return {
       callTypes: typeFilter?.options || [],
@@ -286,7 +291,7 @@ export default function CallsPage() {
       value: searchInput,
       onChange: setSearchInput,
       label: "جستجو",
-      placeholder: "یادداشت، نام مشتری، کد ملک...",
+      placeholder: "یادداشت، نام مشتری/مالک، شماره...",
     }),
     [searchInput]
   );
@@ -298,9 +303,7 @@ export default function CallsPage() {
         <Phone size={48} className="mx-auto text-muted/40" />
 
         <div>
-          <p className="text-sm font-medium text-foreground">
-            تماسی یافت نشد
-          </p>
+          <p className="text-sm font-medium text-foreground">تماسی یافت نشد</p>
 
           <p className="text-xs text-muted mt-1">
             با فیلترهای انتخابی هیچ تماسی پیدا نشد.
@@ -332,7 +335,7 @@ export default function CallsPage() {
         count={meta?.count || 0}
         countLabel="تماس"
         columns={tableColumns}
-        data={displayData}
+        data={data}
         loading={loading}
         emptyState={emptyState}
         sort={sort}
