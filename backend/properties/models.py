@@ -46,10 +46,11 @@ class Owner(models.Model):
 class Property(models.Model):
 
     class DealType(models.TextChoices):
-        SALE = "sale", "فروش"
-        RENT = "rent", "اجاره"
-        MORTGAGE = "mortgage", "رهن کامل"
         EXCHANGE = "exchange", "معاوضه"
+        RENT_RESIDENTIAL = "rent-residential", "اجارهٔ مسکونی"
+        BUY_RESIDENTIAL = "buy-residential", "فروش مسکونی"
+        BUY_COMMERCIAL = "buy-commercial-property", "فروش اداری و تجاری"
+        RENT_COMMERCIAL = "rent-commercial-property", "اجارهٔ اداری و تجاری"
 
     class Status(models.TextChoices):
         AVAILABLE = "available", "فعال"

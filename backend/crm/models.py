@@ -140,9 +140,9 @@ class CallLog(models.Model):
     agency = models.ForeignKey(
         "accounts.Agency", on_delete=models.CASCADE, related_name="call_logs"
     )
-
+    owner = models.ForeignKey("properties.Owner",on_delete=models.CASCADE,null=True,blank=True)
     customer = models.ForeignKey(
-        "crm.Customer", on_delete=models.CASCADE, related_name="calls"
+        "crm.Customer", on_delete=models.CASCADE, related_name="calls",null=True,blank=True
     )
 
     property = models.ForeignKey(
