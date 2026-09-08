@@ -13,7 +13,17 @@ import { DetailFieldGrid } from "@/shared/page/DetailContentRenderer";
 
 export default function CallDetailModal({ isOpen, onClose, call }) {
   const [activeTab, setActiveTab] = useState("call");
-  const isOwnerCall = call?.customer_source === "owner";
+  
+  // Determine if this is an owner call by checking if owner_name exists
+  const isOwnerCall = useMemo(() => !!call?.owner_name, [call?.owner_name]);
+  
+  // Determine display name
+  const displayName = useMemo(() => {
+    if (isOwnerCall && call?.owner_name) {
+      return call.owner_name;
+    }
+    return call?.customer_name || "—";
+  }, [call, isOwnerCall]);
 
   useEffect(() => {
     if (isOpen) setActiveTab("call");
@@ -36,7 +46,7 @@ export default function CallDetailModal({ isOpen, onClose, call }) {
         </div>
         <div className="min-w-0 flex-1">
           <h3 className="text-base font-bold text-foreground">
-            تماس با {call.customer_name || "—"}
+            تماس با {displayName}
           </h3>
           <div className="flex items-center gap-2 mt-1">
             <StatusBadge
@@ -80,7 +90,6 @@ export default function CallDetailModal({ isOpen, onClose, call }) {
           <Tabs.Content value="call">
             <DetailFieldGrid data={call} sections={CALL_DETAIL_FIELDS} />
           </Tabs.Content>
-
         </div>
       </Tabs>
 
