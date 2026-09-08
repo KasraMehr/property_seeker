@@ -1,4 +1,3 @@
-from django.db import IntegrityError
 from rest_framework import serializers
 
 from crm.models import CallLog, Customer
@@ -28,6 +27,7 @@ class CallLogUpdateSerializer(serializers.ModelSerializer):
             field: {"required": False}
             for field in [
                 "customer",
+                "owner",
                 "property",
                 "listing",
                 "call_type",
@@ -70,62 +70,14 @@ class CallLogUpdateSerializer(serializers.ModelSerializer):
         return value
 
     def validate(self, attrs):
-
-        owner = attrs.get("owner")
-
-        # اگر owner ارسال شده باشد، customer متناظر با مالک
-        # پیدا یا ایجاد می‌شود.
-        if owner:
-            attrs["customer"] = self._get_or_create_landlord_customer(owner)
-
+        # In update, allow partial data without auto-creating customers
         return attrs
 
-    def _get_or_create_landlord_customer(self, owner):
-
-        user = self.context["request"].user
-        agency = user.agency
-
-        existing = Customer.objects.filter(
-            agency=agency,
-            phone=owner.phone,
-            is_deleted=False,
-        ).order_by("-id")
-
-        customer = (
-            existing.filter(
-                customer_type=Customer.CustomerType.LANDLORD
-            ).first()
-            or existing.first()
-        )
-
-        if customer:
-            return customer
-
-        # اگر Customer قبلاً soft-delete شده باشد
-        customer = Customer.objects.filter(
-            agency=agency,
-            phone=owner.phone,
-        ).first()
-
-        if customer:
-            customer.is_deleted = False
-            customer.save(update_fields=["is_deleted"])
-            return customer
-
-        try:
-            return Customer.objects.create(
-                agency=agency,
-                full_name=owner.full_name,
-                phone=owner.phone,
-                customer_type=Customer.CustomerType.LANDLORD,
-                status=Customer.Status.NEW,
-                source="owner",
-                notes=f"ساخته شده از مالک (شناسه: {owner.id})",
-                assigned_agent=user,
-            )
-
-        except IntegrityError:
-            return Customer.objects.filter(
-                agency=agency,
-                phone=owner.phone,
-            ).first()
+    def update(self, instance, validated_data):
+        """
+        Update call log without auto-creating customers.
+        """
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        return instance
