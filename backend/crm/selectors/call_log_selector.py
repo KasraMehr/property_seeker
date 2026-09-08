@@ -9,6 +9,7 @@ class CallLogSelector:
         qs = (
             CallLog.objects.select_related(
                 "customer",
+                "owner",
                 "property",
                 "listing",
                 "handled_by",
@@ -31,6 +32,7 @@ class CallLogSelector:
 
         return CallLog.objects.select_related(
             "customer",
+            "owner",
             "property",
             "listing",
             "handled_by",
