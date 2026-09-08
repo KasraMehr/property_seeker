@@ -215,7 +215,7 @@ export default function SearchSelectField({
                         type="button"
                         onMouseDown={(e) => e.preventDefault()}
                         onClick={() => {
-                          onChange(opt.id);
+                          onChange(Number(opt.id));
                           setOpen(false);
                           setQuery("");
                         }}

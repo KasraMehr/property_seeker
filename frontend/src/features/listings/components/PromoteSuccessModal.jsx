@@ -128,7 +128,7 @@ export default function PromoteSuccessModal({ isOpen, onClose, result, onViewPro
             <div className="flex items-center justify-between">
               <span className="text-xs text-muted">نوع معامله:</span>
               <span className="text-sm text-foreground">
-                {propertyInfo.deal_type === "sale" ? "فروش" : propertyInfo.deal_type === "rent" ? "اجاره" : propertyInfo.deal_type === "mortgage" ? "رهن" : propertyInfo.deal_type === "exchange" ? "معاوضه" : propertyInfo.deal_type}
+                {PROPERTY_DEAL_TYPE_CONFIG[propertyInfo.deal_type]?.label || propertyInfo.deal_type}
               </span>
             </div>
           )}

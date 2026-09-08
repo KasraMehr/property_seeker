@@ -24,6 +24,8 @@ class AddressCreateSerializer(serializers.ModelSerializer):
             alley=attrs.get("alley", ""),
             plaque=attrs.get("plaque", ""),
             unit=attrs.get("unit", ""),
+            postal_code=attrs.get("postal_code", ""),
+            full_text=attrs.get("full_text", ""),
         ).exists():
 
             raise serializers.ValidationError("این آدرس قبلاً ثبت شده است.")

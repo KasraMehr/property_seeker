@@ -54,6 +54,16 @@ class AddressUpdateSerializer(serializers.ModelSerializer):
             instance.unit,
         )
 
+        postal_code = attrs.get(
+            "postal_code",
+            instance.postal_code,
+        )
+
+        full_text = attrs.get(
+            "full_text",
+            instance.full_text,
+        )
+
         if (
             Address.objects.exclude(id=instance.id)
             .filter(
@@ -63,6 +73,8 @@ class AddressUpdateSerializer(serializers.ModelSerializer):
                 alley=alley,
                 plaque=plaque,
                 unit=unit,
+                postal_code=postal_code,
+                full_text=full_text,
             )
             .exists()
         ):

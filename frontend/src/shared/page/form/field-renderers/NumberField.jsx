@@ -33,7 +33,7 @@ export default function NumberField({
             }
             onChange={(e) => {
               const raw = e.target.value;
-              onChange(raw === "" ? "" : Number(raw));
+              onChange(raw === "" ? null : Number(raw));
             }}
             onBlur={onBlur}
             placeholder={field.placeholder}

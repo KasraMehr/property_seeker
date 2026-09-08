@@ -13,6 +13,7 @@ export default function FormRenderer({
   mode = "create",
   onSubmit,
   onCancel,
+  onValidationError,
   loading = false,
   extraData = {},
   onValuesChange,
@@ -72,6 +73,7 @@ export default function FormRenderer({
   } = useForm({
     defaultValues: formDefaultValues,
     mode: "onChange",
+
   });
 
   // Expose form API to parent
@@ -140,6 +142,15 @@ export default function FormRenderer({
     return tabs.filter((t) => shouldShowTab(t, values));
   }, [tabs, values, hasTabs]);
 
+  // Which tabs contain at least one required field?
+  const tabHasRequired = useMemo(() => {
+    const map = {};
+    (tabs || []).forEach((tab) => {
+      map[tab.key] = (tab.fields || []).some((f) => f.required);
+    });
+    return map;
+  }, [tabs]);
+
   const renderFields = (fieldList) => (
     <div className="grid grid-cols-12 gap-4">
       {(fieldList || [])
@@ -160,9 +171,11 @@ export default function FormRenderer({
 
   if (!config) return null;
 
-  return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
+  return (      <form
+      onSubmit={handleSubmit(
+        onSubmit,
+        (errs) => onValidationError?.(errs),
+      )}
       className="flex flex-col h-full"
       dir="rtl"
     >
@@ -176,11 +189,16 @@ export default function FormRenderer({
           value={activeTab}
           onValueChange={setActiveTab}
           variant="underline"
+          keepMounted
           className="flex-1 min-h-0 flex flex-col"
         >
           <Tabs.List className="shrink-0 mb-2">
             {visibleTabs.map((tab) => (
-              <Tabs.Trigger key={tab.key} value={tab.key}>
+              <Tabs.Trigger
+                key={tab.key}
+                value={tab.key}
+                badge={tabHasRequired[tab.key] ? "*" : undefined}
+              >
                 {tab.label}
               </Tabs.Trigger>
             ))}

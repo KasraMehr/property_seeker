@@ -106,24 +106,17 @@ export const PROPERTY_TABLE_COLUMNS = [
     header: "قیمت / اجاره",
     width: "w-36",
     cell: ({ sale_price, monthly_rent, deal_type }) => {
-      if (deal_type === "sale" && sale_price)
+      if (deal_type?.includes("buy") && sale_price)
         return (
           <span className="font-medium text-emerald-600">
             {formatPrice(sale_price)}
           </span>
         );
 
-      if (deal_type === "rent" && monthly_rent)
+      if (deal_type?.includes("rent") && monthly_rent)
         return (
           <span className="font-medium text-sky-600">
             {formatPrice(monthly_rent)}
-          </span>
-        );
-
-      if (deal_type === "mortgage")
-        return (
-          <span className="text-muted-foreground text-xs">
-            مشاهده در جزئیات
           </span>
         );
 

@@ -33,7 +33,9 @@ export const toRHFRules = (field) => {
       message: field.validation?.max || `حداکثر ${field.max}`,
     };
   }
-  if (field.validation?.match) {
+  if (field.validation?.validate && typeof field.validation.validate === "function") {
+    rules.validate = field.validation.validate;
+  } else if (field.validation?.match) {
     rules.validate = (v, vals) =>
       v === vals[field.validation.match] || "مقدار با فیلد مورد نظر یکسان نیست";
   }
