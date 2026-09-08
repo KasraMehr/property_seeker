@@ -37,14 +37,28 @@ export const LISTING_TABLE_COLUMNS = [
     key: "title",
     header: "عنوان آگهی",
     width: "w-56",
-    cell: ({ title, external_id }) => (
+    cell: ({ title, external_id, is_new, is_updated }) => (
       <div className="flex flex-col">
-        <span
-          className="font-medium truncate max-w-50"
-          title={title}
-        >
-          {title || "—"}
-        </span>
+        <div className="flex items-center gap-1.5">
+          {is_new && (
+            <span
+              className="inline-block w-2 h-2 rounded-full bg-emerald-500 shrink-0"
+              title="جدید"
+            />
+          )}
+          {is_updated && (
+            <span
+              className="inline-block w-2 h-2 rounded-full bg-amber-400 shrink-0"
+              title="به‌روز شده"
+            />
+          )}
+          <span
+            className="font-medium truncate max-w-50"
+            title={title}
+          >
+            {title || "—"}
+          </span>
+        </div>
 
         <span className="text-xs text-muted-foreground font-mono">
           {external_id || "—"}
@@ -181,7 +195,7 @@ export const LISTING_TABLE_COLUMNS = [
     key: "published_at",
     header: "انتشار آگهی",
     width: "w-36",
-    cell: ({ published_at, is_new, is_updated }) => {
+    cell: ({ published_at }) => {
       if (!published_at) {
         return (
           <span className="text-muted-foreground">
@@ -208,17 +222,7 @@ export const LISTING_TABLE_COLUMNS = [
         minute: "2-digit",
       }).format(date);
 
-      return (
-        <div className="flex items-center gap-1.5">
-          {is_new && (
-            <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 shrink-0" title="جدید" />
-          )}
-          {is_updated && (
-            <span className="inline-block w-2 h-2 rounded-full bg-amber-400 shrink-0" title="به‌روز شده" />
-          )}
-          <span>{formatted}</span>
-        </div>
-      );
+      return <span>{formatted}</span>;
     },
   },
 ];

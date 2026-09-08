@@ -122,6 +122,14 @@ const Select = forwardRef(
             ${s.wrap}
           `}
         >
+          {/* Selected option dot */}
+          {hasValue && selected.dot && (
+            <span
+              className="inline-block w-2 h-2 rounded-full shrink-0"
+              style={{ backgroundColor: selected.dot }}
+            />
+          )}
+
           {/* Selected value / Placeholder */}
           <span
             className={`
@@ -320,6 +328,13 @@ const Select = forwardRef(
                         }
                       `}
                     >
+                      {opt.dot && (
+                        <span
+                          className="inline-block w-2 h-2 rounded-full shrink-0"
+                          style={{ backgroundColor: opt.dot }}
+                        />
+                      )}
+
                       {opt.icon && (
                         <opt.icon
                           size={16}

@@ -370,7 +370,7 @@ export default function FilterBar({
           <button
             type="button"
             onClick={onClearAll}
-            className="ml-auto text-xs text-danger hover:text-danger/80 transition-colors"
+            className="ml-auto text-xs text-danger cursor-pointer hover:text-danger/80 transition-colors"
           >
             حذف همه
           </button>

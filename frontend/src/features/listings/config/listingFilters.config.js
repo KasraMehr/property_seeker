@@ -33,9 +33,15 @@ const TIME_RANGE_OPTIONS = [
   { value: "all", label: "همه" },
 ];
 
+// رنگ دایره‌ها با بج‌های کنار عنوان آگهی در جدول یکسان است
+const FRESHNESS_DOT = {
+  new: "#10b981", // emerald-500
+  updated: "#fbbf24", // amber-400
+};
+
 const FRESHNESS_OPTIONS = [
-  { value: "new", label: "جدید" },
-  { value: "updated", label: "به‌روز شده" },
+  { value: "new", label: "جدید", dot: FRESHNESS_DOT.new },
+  { value: "updated", label: "به‌روز شده", dot: FRESHNESS_DOT.updated },
   { value: "all", label: "همه" },
 ];
 
