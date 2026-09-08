@@ -1,4 +1,4 @@
-"""name: CI/CD
+name: CI/CD
 
 on:
   push:
@@ -105,4 +105,3 @@ jobs:
             docker builder prune -af || true
 
             DEPLOY_SHA="$DEPLOY_SHA" ./scripts/deploy-production.sh
-"""
