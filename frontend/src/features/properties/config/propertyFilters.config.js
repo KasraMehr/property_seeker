@@ -101,7 +101,7 @@ export const PROPERTY_QUICK_FILTERS = [
 export const PROPERTY_ADVANCED_FILTERS = [
   // {
   //   key: "zone",
-  //   label: "زون",
+  //   label: "منطقه",
   //   type: "search_select",
   //   placement: "drawer",
   //   async: true,

@@ -1,5 +1,5 @@
 import { useMemo, useEffect, useState, useCallback } from "react";
-import { Inbox, RefreshCw } from "lucide-react";
+import { Inbox, RefreshCw, Flame, Sun, List } from "lucide-react";
 import { useOutletContext } from "react-router-dom";
 import ResourceTemplate from "@/shared/templates/resource/ResourceTemplate";
 import PageTabs from "@/shared/page/PageTabs";
@@ -52,6 +52,7 @@ export default function ListingsPage() {
     refresh,
     advertiserType,
     setAdvertiserType,
+    countParams,
   } = useListing();
 
   const {
@@ -85,14 +86,19 @@ export default function ListingsPage() {
     [setAdvertiserType],
   );
 
-  // ─── Tab badge counts from server ───
+  // ─── Tab badge counts from server (reflects current filters) ───
   const [tabCounts, setTabCounts] = useState(null);
+
+  // Debounce badge fetch to avoid hammering server on rapid filter changes (slider drag, etc.)
+  const debouncedCountParams = useDebounce(countParams, 500);
 
   useEffect(() => {
     let cancelled = false;
     async function loadCounts() {
       try {
-        const res = await api.get(API_ENDPOINTS.LISTINGS.COUNTS.url);
+        const res = await api.get(API_ENDPOINTS.LISTINGS.COUNTS.url, {
+          params: debouncedCountParams,
+        });
         if (!cancelled) setTabCounts(res.data);
       } catch {
         // silent — badges stay empty
@@ -100,18 +106,7 @@ export default function ListingsPage() {
     }
     loadCounts();
     return () => { cancelled = true; };
-  }, []);
-
-  // Refresh counts after data mutations (refresh changes table count)
-  useEffect(() => {
-    if (meta?.count != null) {
-      let cancelled = false;
-      api.get(API_ENDPOINTS.LISTINGS.COUNTS.url)
-        .then((res) => { if (!cancelled) setTabCounts(res.data); })
-        .catch(() => {});
-      return () => { cancelled = true; };
-    }
-  }, [meta?.count]);
+  }, [debouncedCountParams]);
 
   const tabItems = useMemo(
     () => LISTING_TABS.map((t) => ({
@@ -300,6 +295,49 @@ export default function ListingsPage() {
     [clearAll],
   );
 
+  // ─── Quick filter presets ───
+  const QUICK_PRESETS = [
+    {
+      id: "hot",
+      label: "داغ‌ترین‌ها",
+      icon: Flame,
+      tooltip: "آگهی‌های جدید ۱ ساعت اخیر",
+      filters: { time_range: "1h", freshness: "new" },
+    },
+    {
+      id: "today",
+      label: "جدیدترین‌های امروز",
+      icon: Sun,
+      tooltip: "آگهی‌های جدید امروز",
+      filters: { time_range: "today", freshness: "new" },
+    },
+    {
+      id: "all",
+      label: "همه آگهی‌های من",
+      icon: List,
+      tooltip: "بدون محدودیت زمانی یا وضعیت",
+      filters: { time_range: "all", freshness: "all" },
+    },
+  ];
+
+  const activePresetId = useMemo(() => {
+    const tr = filterValues.time_range;
+    const fr = filterValues.freshness;
+    if (tr === "1h" && fr === "new") return "hot";
+    if (tr === "today" && fr === "new") return "today";
+    if (tr === "all" && fr === "all") return "all";
+    return null;
+  }, [filterValues.time_range, filterValues.freshness]);
+
+  const handlePresetClick = useCallback(
+    (preset) => {
+      Object.entries(preset.filters).forEach(([key, value]) => {
+        setFilter(key, value);
+      });
+    },
+    [setFilter],
+  );
+
   return (
     <>
       <div className="mb-4">
@@ -308,6 +346,32 @@ export default function ListingsPage() {
           value={advertiserType ?? "all"}
           onChange={handleTabChange}
         />
+        <div className="flex items-center gap-2 mt-3">
+          {QUICK_PRESETS.map((preset) => {
+            const isActive = activePresetId === preset.id;
+            const Icon = preset.icon;
+            return (
+              <button
+                key={preset.id}
+                type="button"
+                title={preset.tooltip}
+                onClick={() => handlePresetClick(preset)}
+                className={`
+                  inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium
+                  rounded-lg transition-all duration-200 cursor-pointer
+                  ${
+                    isActive
+                      ? "bg-(--role-primary) text-white shadow-sm"
+                      : "bg-surface text-muted border border-border hover:bg-background hover:text-foreground"
+                  }
+                `}
+              >
+                <Icon size={14} />
+                {preset.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
       <ResourceTemplate
         search={searchConfig}

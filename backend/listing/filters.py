@@ -294,6 +294,30 @@ class ListingFilter(django_filters.FilterSet):
     )
 
     # =========================================================
+    # Published at (used by frontend daily time-range presets)
+    # =========================================================
+
+    published_at_from = django_filters.IsoDateTimeFilter(
+        field_name="published_at",
+        lookup_expr="gte",
+    )
+
+    published_at_to = django_filters.IsoDateTimeFilter(
+        field_name="published_at",
+        lookup_expr="lte",
+    )
+
+    # =========================================================
+    # Freshness (server-side, replaces client-side filtering)
+    # "new" = both published_at AND created_at within 24h
+    # "updated" = last_changed_at within 24h but NOT new
+    # =========================================================
+
+    freshness = django_filters.CharFilter(
+        method="filter_freshness",
+    )
+
+    # =========================================================
     # Custom filters
     # =========================================================
 
@@ -322,6 +346,37 @@ class ListingFilter(django_filters.FilterSet):
         if value is False:
             return queryset.filter(
                 removal_detected_at__isnull=True
+            )
+
+        return queryset
+
+    def filter_freshness(self, queryset, name, value):
+        """
+        Server-side freshness filter.
+        "new": listing created AND published within last 24 hours.
+        "updated": last_changed_at within 24 hours but NOT new.
+        "all" or empty: no filter.
+        """
+        from datetime import timedelta
+        from django.utils import timezone
+
+        if not value or value == "all":
+            return queryset
+
+        threshold = timezone.now() - timedelta(hours=24)
+
+        if value == "new":
+            return queryset.filter(
+                published_at__gte=threshold,
+                created_at__gte=threshold,
+            )
+
+        if value == "updated":
+            return queryset.filter(
+                last_changed_at__gte=threshold,
+            ).exclude(
+                published_at__gte=threshold,
+                created_at__gte=threshold,
             )
 
         return queryset
@@ -447,4 +502,7 @@ class ListingFilter(django_filters.FilterSet):
             "last_checked_to",
             "created_from",
             "created_to",
+            "published_at_from",
+            "published_at_to",
+            "freshness",
         ]

@@ -71,12 +71,12 @@ export const LISTING_TABLE_COLUMNS = [
 
   {
     key: "divar_neighborhood",
-    header: "زون / محله",
+    header: "منطقه / محله",
     width: "w-40",
     cell: ({ divar_neighborhood }) => (
       <div className="flex flex-col text-xs">
         <span>
-          {divar_neighborhood?.zone_name || "زون تعیین نشده"}
+          {divar_neighborhood?.zone_name || "منطقه تعیین نشده"}
         </span>
 
         <span className="text-muted-foreground">
@@ -180,8 +180,8 @@ export const LISTING_TABLE_COLUMNS = [
   {
     key: "published_at",
     header: "انتشار آگهی",
-    width: "w-32",
-    cell: ({ published_at }) => {
+    width: "w-36",
+    cell: ({ published_at, is_new, is_updated }) => {
       if (!published_at) {
         return (
           <span className="text-muted-foreground">
@@ -200,13 +200,25 @@ export const LISTING_TABLE_COLUMNS = [
         );
       }
 
-      return new Intl.DateTimeFormat("fa-IR", {
+      const formatted = new Intl.DateTimeFormat("fa-IR", {
         year: "numeric",
         month: "2-digit",
         day: "2-digit",
         hour: "2-digit",
         minute: "2-digit",
       }).format(date);
+
+      return (
+        <div className="flex items-center gap-1.5">
+          {is_new && (
+            <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 shrink-0" title="جدید" />
+          )}
+          {is_updated && (
+            <span className="inline-block w-2 h-2 rounded-full bg-amber-400 shrink-0" title="به‌روز شده" />
+          )}
+          <span>{formatted}</span>
+        </div>
+      );
     },
   },
 ];

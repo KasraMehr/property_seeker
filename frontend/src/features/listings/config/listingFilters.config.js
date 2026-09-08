@@ -22,9 +22,20 @@ const LISTING_CATEGORY_OPTIONS = [
  */
 
 const TIME_RANGE_OPTIONS = [
+  { value: "1h", label: "۱ ساعت اخیر" },
+  { value: "3h", label: "۳ ساعت اخیر" },
+  { value: "6h", label: "۶ ساعت اخیر" },
+  { value: "12h", label: "۱۲ ساعت اخیر" },
   { value: "today", label: "امروز" },
   { value: "yesterday", label: "دیروز" },
-  { value: "last7days", label: "۷ روز اخیر" },
+  { value: "3days", label: "۳ روز اخیر" },
+  { value: "7days", label: "۷ روز اخیر" },
+  { value: "all", label: "همه" },
+];
+
+const FRESHNESS_OPTIONS = [
+  { value: "new", label: "جدید" },
+  { value: "updated", label: "به‌روز شده" },
   { value: "all", label: "همه" },
 ];
 
@@ -36,16 +47,16 @@ export const LISTING_QUICK_FILTERS = [
     placeholder: "عنوان، شناسه خارجی...",
     placement: "bar",
   },
-  {
-    key: "status",
-    label: "وضعیت آگهی",
-    type: "multi_select",
-    placement: "bar",
-    options: Object.entries(LISTING_STATUS_CONFIG).map(([value, cfg]) => ({
-      value,
-      label: cfg.label,
-    })),
-  },
+  // {
+  //   key: "status",
+  //   label: "وضعیت آگهی",
+  //   type: "multi_select",
+  //   placement: "bar",
+  //   options: Object.entries(LISTING_STATUS_CONFIG).map(([value, cfg]) => ({
+  //     value,
+  //     label: cfg.label,
+  //   })),
+  // },
   {
     key: "review_status",
     label: "وضعیت بررسی",
@@ -57,6 +68,14 @@ export const LISTING_QUICK_FILTERS = [
         label: cfg.label,
       }),
     ),
+  },
+  {
+    key: "freshness",
+    label: "وضعیت بروزرسانی",
+    type: "select",
+    placement: "bar",
+    options: FRESHNESS_OPTIONS,
+    clearable: true,
   },
   {
     key: "time_range",
@@ -78,7 +97,7 @@ export const LISTING_ADVANCED_FILTERS = [
   },
   {
     key: "zone",
-    label: "زون",
+    label: "منطقه",
     type: "search_select",
     placement: "drawer",
     async: true,

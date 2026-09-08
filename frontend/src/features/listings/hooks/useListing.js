@@ -7,38 +7,62 @@ import { LISTING_ALL_FILTERS } from "../config";
 /**
  * Compute server-side date params from a time_range preset.
  *
- * Logic:
- *   "today"      → first_seen_at in today  OR last_changed_at in today
- *   "yesterday"   → first_seen_at in yesterday OR last_changed_at in yesterday
- *   "last7days"  → first_seen_at >= now-7d OR last_changed_at >= now-7d
- *   "all"        → no time restriction
+ * Hourly ranges (1h, 3h, 6h, 12h):
+ *   Uses OR across first_seen_at / last_changed_at (freshness logic).
  *
- * Uses browser-local timezone (Asia/Tehran in production).
+ * Daily ranges (today, yesterday, 3days, 7days):
+ *   Uses published_at for publication-time filtering.
+ *
+ * "all": no time restriction.
  */
 function computeTimeRangeParams(timeRange) {
   if (!timeRange || timeRange === "all") return null;
 
   const now = new Date();
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-  const toIso = (d) => d.toISOString().split(".")[0]; // YYYY-MM-DDTHH:mm:ss
+  const toIso = (d) => d.toISOString().split(".")[0];
 
   switch (timeRange) {
+    // ── Hourly ranges: freshness OR logic ──
+    case "1h": {
+      const from = new Date(now.getTime() - 1 * 60 * 60 * 1000);
+      return { time_from: toIso(from) };
+    }
+    case "3h": {
+      const from = new Date(now.getTime() - 3 * 60 * 60 * 1000);
+      return { time_from: toIso(from) };
+    }
+    case "6h": {
+      const from = new Date(now.getTime() - 6 * 60 * 60 * 1000);
+      return { time_from: toIso(from) };
+    }
+    case "12h": {
+      const from = new Date(now.getTime() - 12 * 60 * 60 * 1000);
+      return { time_from: toIso(from) };
+    }
+
+    // ── Daily ranges: published_at logic ──
     case "today":
-      return { time_from: toIso(todayStart) };
+      return { published_at_from: toIso(todayStart) };
 
     case "yesterday": {
       const yStart = new Date(todayStart);
       yStart.setDate(yStart.getDate() - 1);
       const yEnd = new Date(todayStart);
       yEnd.setSeconds(yEnd.getSeconds() - 1);
-      return { time_from: toIso(yStart), time_to: toIso(yEnd) };
+      return { published_at_from: toIso(yStart), published_at_to: toIso(yEnd) };
     }
 
-    case "last7days": {
+    case "3days": {
+      const d3Start = new Date(todayStart);
+      d3Start.setDate(d3Start.getDate() - 2);
+      return { published_at_from: toIso(d3Start) };
+    }
+
+    case "7days": {
       const d7Start = new Date(todayStart);
       d7Start.setDate(d7Start.getDate() - 6);
-      return { time_from: toIso(d7Start) };
+      return { published_at_from: toIso(d7Start) };
     }
 
     default:
@@ -59,12 +83,13 @@ export default function useListing() {
   const query = useResourceQuery({
     filterSchema: LISTING_ALL_FILTERS,
     pageSize: 10,
-    initialOrdering: "-last_seen_at",
+    initialOrdering: "-published_at",
   });
 
-  // ─── Set default time_range to "today" on first render ───
+  // ─── Set default time_range + freshness on first render ───
   useEffect(() => {
     query.setFilter("time_range", "today", "امروز");
+    query.setFilter("freshness", "new", "جدید");
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ─── Tab-driven advertiser_type (server-side, not in filter chips) ───
@@ -76,9 +101,7 @@ export default function useListing() {
 
   // Merge filter params with advertiserType + time range into one params object.
   // The raw "time_range" key is stripped; derived date params replace it.
-  // On the very first render the filter state is still null (before the
-  // mount-effect sets "today"), so we fall back to "today" via || here
-  // to avoid an extra fetch without any time restriction.
+  // "freshness" is passed through to the server for server-side filtering.
   const serverParams = useMemo(() => {
     const { time_range, ...rest } = query.queryParams;
     const params = { ...rest };
@@ -91,6 +114,38 @@ export default function useListing() {
     }
     return params;
   }, [query.queryParams, advertiserType]);
+
+  // ─── Freshness computation: is_new / is_updated for each listing ───
+  const FRESHNESS_THRESHOLD_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+  const computeFreshness = useCallback((listing) => {
+    const now = Date.now();
+    const pub = listing.published_at ? new Date(listing.published_at).getTime() : 0;
+    const created = listing.created_at ? new Date(listing.created_at).getTime() : 0;
+    const changed = listing.last_changed_at ? new Date(listing.last_changed_at).getTime() : 0;
+
+    // New: both published_at AND created_at within threshold
+    const isNew =
+      pub > 0 &&
+      created > 0 &&
+      now - pub < FRESHNESS_THRESHOLD_MS &&
+      now - created < FRESHNESS_THRESHOLD_MS;
+
+    // Updated: last_changed_at recent but NOT new
+    const isUpdated = !isNew && changed > 0 && now - changed < FRESHNESS_THRESHOLD_MS;
+
+    return { is_new: isNew, is_updated: isUpdated };
+  }, []);
+
+  // ─── Enrich rows with freshness badges (no client-side filtering) ───
+  const filteredData = useMemo(() => {
+    if (!resourceState.data) return [];
+
+    return resourceState.data.map((row) => ({
+      ...row,
+      ...computeFreshness(row),
+    }));
+  }, [resourceState.data, computeFreshness]);
 
   // ─── Fetch on mount ───
   const didFetch = useRef(false);
@@ -115,9 +170,16 @@ export default function useListing() {
     return fetchList(serverParams);
   }, [fetchList, serverParams]);
 
+  // Params for badge counts — same as serverParams but WITHOUT advertiser_type,
+  // so the counts endpoint returns totals across all tabs.
+  const countParams = useMemo(() => {
+    const { advertiser_type, ...rest } = serverParams;
+    return rest;
+  }, [serverParams]);
+
   return {
     ...resourceState,
-    data: resourceState.data,
+    data: filteredData,
 
     fetchList,
     getById,
@@ -148,5 +210,8 @@ export default function useListing() {
     advertiserType,
     setAdvertiserType,
     resetTab,
+
+    // Badge counts params (filters without advertiser_type)
+    countParams,
   };
 }

@@ -166,13 +166,33 @@ class ListingBulkReviewView(APIView):
 
 
 class ListingCountsView(APIView):
-    """Return counts per advertiser_type for tab badges."""
+    """
+    Return counts per advertiser_type for tab badges.
+
+    Accepts the same filter query params as ListingListView so badge
+    counts reflect the currently active filters (except advertiser_type,
+    which is computed per-tab).
+    """
 
     permission_classes = (HasRolePermission,)
     required_permission = "view_listing"
 
     def get(self, request):
-        qs = ListingSelector.for_user(request.user)
+        base_qs = ListingSelector.for_user(request.user)
+
+        # Strip advertiser_type from request data so the filter applies
+        # all other filters (search, price, freshness, dates, …) but does
+        # NOT restrict to a single tab — we count each tab separately.
+        filter_data = request.query_params.copy()
+        filter_data.pop("advertiser_type", None)
+
+        filterset = ListingFilter(filter_data, queryset=base_qs)
+        if not filterset.is_valid():
+            return Response(
+                filterset.errors,
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        qs = filterset.qs
 
         all_count = qs.count()
 
