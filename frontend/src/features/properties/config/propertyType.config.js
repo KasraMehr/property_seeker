@@ -2,35 +2,35 @@ import { Home, TreePine, Building2, Store, Briefcase, Warehouse } from "lucide-r
 
 /**
  * Property.Type choices
- * APARTMENT, VILLA, LAND, COMMERCIAL, OFFICE, STORE
+ * آپارتمان, ویلا, زمین, تجاری, دفتر, مغازه
  */
 export const PROPERTY_TYPE_CONFIG = {
-  APARTMENT: {
+  آپارتمان: {
     label: "آپارتمان",
     icon: Home,
     color: "sky",
   },
-  VILLA: {
+  ویلا: {
     label: "ویلا",
     icon: TreePine,
     color: "emerald",
   },
-  LAND: {
+  زمین: {
     label: "زمین",
     icon: Warehouse,
     color: "amber",
   },
-  COMMERCIAL: {
+  تجاری: {
     label: "تجاری",
     icon: Store,
     color: "purple",
   },
-  OFFICE: {
+  دفتر: {
     label: "دفتر",
     icon: Briefcase,
     color: "blue",
   },
-  STORE: {
+  مغازه: {
     label: "مغازه",
     icon: Building2,
     color: "rose",

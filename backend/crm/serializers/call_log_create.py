@@ -1,7 +1,6 @@
-from django.db import IntegrityError
 from rest_framework import serializers
 
-from crm.models import CallLog, Customer
+from crm.models import CallLog
 from properties.models import Owner
 
 # from crm.models import Reminder  # TODO: Enable when auto-reminder from call is ready
@@ -56,72 +55,12 @@ class CallLogCreateSerializer(serializers.ModelSerializer):
 
         owner = attrs.get("owner")
 
-        if owner:
-            # مالک را نگه می‌داریم تا در create داخل CallLog ذخیره شود.
-            # customer نیز بر اساس شماره تلفن مالک پیدا/ساخته می‌شود.
-            attrs["customer"] = self._get_or_create_landlord_customer(owner)
-
-        elif not attrs.get("customer"):
+        if not owner and not attrs.get("customer"):
             raise serializers.ValidationError(
                 {"customer": "انتخاب مشتری یا مالک الزامی است."}
             )
 
         return attrs
-
-    def _get_or_create_landlord_customer(self, owner):
-
-        user = self.context["request"].user
-        agency = user.agency
-
-        # ابتدا Customer فعال با شماره مالک را پیدا می‌کنیم.
-        existing = Customer.objects.filter(
-            agency=agency,
-            phone=owner.phone,
-            is_deleted=False,
-        ).order_by("-id")
-
-        # اگر چند Customer با این شماره وجود داشت،
-        # ابتدا Customer از نوع LANDLORD را ترجیح می‌دهیم.
-        customer = (
-            existing.filter(
-                customer_type=Customer.CustomerType.LANDLORD
-            ).first()
-            or existing.first()
-        )
-
-        if customer:
-            return customer
-
-        # اگر Customer حذف نرم شده وجود دارد، آن را برمی‌گردانیم.
-        customer = Customer.objects.filter(
-            agency=agency,
-            phone=owner.phone,
-        ).first()
-
-        if customer:
-            customer.is_deleted = False
-            customer.save(update_fields=["is_deleted"])
-            return customer
-
-        # در غیر این صورت Customer جدید می‌سازیم.
-        try:
-            return Customer.objects.create(
-                agency=agency,
-                full_name=owner.full_name,
-                phone=owner.phone,
-                customer_type=Customer.CustomerType.LANDLORD,
-                status=Customer.Status.NEW,
-                source="owner",
-                notes=f"ساخته شده از مالک (شناسه: {owner.id})",
-                assigned_agent=user,
-            )
-
-        except IntegrityError:
-            # جلوگیری از خطای race condition در ایجاد Customer
-            return Customer.objects.filter(
-                agency=agency,
-                phone=owner.phone,
-            ).first()
 
     def create(self, validated_data):
 

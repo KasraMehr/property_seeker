@@ -16,7 +16,13 @@ export const CALL_QUICK_FILTERS = [
     label: "جستجو",
     type: "search",
     placeholder: "نام مشتری/مالک، یادداشت، شماره...",
-    fields: ["customer.full_name", "customer.phone", "owner.full_name", "owner.phone", "note"],
+    fields: [
+      "customer.full_name",
+      "customer.phone",
+      "owner.full_name",
+      "owner.phone",
+      "note",
+    ],
     placement: "bar",
   },
 
@@ -55,6 +61,32 @@ export const CALL_QUICK_FILTERS = [
   },
 
   {
+    key: "property",
+    label: "ملک",
+    type: "search_select",
+    placement: "drawer",
+    async: true,
+    endpoint: API_ENDPOINTS.PROPERTIES.LIST.url,
+    search_fields: ["title", "property_code"],
+    optionLabel: "title",
+    optionValue: "id",
+  },
+
+  {
+    key: "listing",
+    label: "آگهی",
+    type: "search_select",
+    placement: "drawer",
+    async: true,
+    endpoint: API_ENDPOINTS.LISTINGS.LIST.url,
+    search_fields: ["title", "external_id"],
+    optionLabel: "title",
+    optionValue: "id",
+  },
+];
+
+export const CALL_ADVANCED_FILTERS = [
+  {
     key: "customer",
     label: "مشتری",
     type: "search_select",
@@ -77,9 +109,6 @@ export const CALL_QUICK_FILTERS = [
     optionLabel: "full_name",
     optionValue: "id",
   },
-];
-
-export const CALL_ADVANCED_FILTERS = [
   {
     key: "customer_type",
     label: "نوع مشتری",
@@ -102,29 +131,13 @@ export const CALL_ADVANCED_FILTERS = [
     from_key: "called_from",
     to_key: "called_to",
   },
-
   {
-    key: "property",
-    label: "ملک",
-    type: "search_select",
+    key: "created_at",
+    label: "تاریخ ثبت",
+    type: "date_range",
     placement: "drawer",
-    async: true,
-    endpoint: API_ENDPOINTS.PROPERTIES.LIST.url,
-    search_fields: ["title", "property_code"],
-    optionLabel: "title",
-    optionValue: "id",
-  },
-
-  {
-    key: "listing",
-    label: "آگهی",
-    type: "search_select",
-    placement: "drawer",
-    async: true,
-    endpoint: API_ENDPOINTS.LISTINGS.LIST.url,
-    search_fields: ["title", "external_id"],
-    optionLabel: "title",
-    optionValue: "id",
+    from_key: "created_from",
+    to_key: "created_to",
   },
 
   {
@@ -173,15 +186,6 @@ export const CALL_ADVANCED_FILTERS = [
     label: "حذف‌شده",
     type: "toggle",
     placement: "drawer",
-  },
-
-  {
-    key: "created_at",
-    label: "تاریخ ثبت",
-    type: "date_range",
-    placement: "drawer",
-    from_key: "created_from",
-    to_key: "created_to",
   },
 ];
 

@@ -106,6 +106,11 @@ export const CALL_DETAIL_FIELDS = [
     sectionLabel: "ملک / آگهی مرتبط",
     fields: [
       {
+        key: "property_code",
+        label: "کد ملک",
+        condition: (v) => !!v,
+      },
+      {
         key: "property_title",
         label: "عنوان ملک",
         fullWidth: true,

@@ -23,14 +23,17 @@ export default function OwnerFormModal({
   const handleSubmit = async (data) => {
     setLoading(true);
     try {
+      let createdObj = null;
       if (isEdit) {
         await ownerService.update(owner.id, data);
         toastService.success("مالک با موفقیت ویرایش شد.");
       } else {
-        await ownerService.create(data);
+        const res = await ownerService.create(data);
+        const o = res.data?.owner;
+        createdObj = o ? { id: o.id, full_name: o.full_name } : null;
         toastService.success("مالک جدید با موفقیت ثبت شد.");
       }
-      onSuccess?.();
+      onSuccess?.(createdObj);
       onClose();
     } catch (error) {
       toastService.error(error?.response?.data?.detail || "خطا در ذخیره مالک.");

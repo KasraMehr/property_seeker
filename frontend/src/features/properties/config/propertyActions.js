@@ -1,4 +1,4 @@
-import { Eye, Pencil, Trash2, Phone, ClipboardCheck } from "lucide-react";
+import { Eye, Pencil, Trash2, Phone, ClipboardCheck, ExternalLink } from "lucide-react";
 import { PERMISSIONS } from "@/constants/permissions";
 
 export const PROPERTY_ROW_ACTIONS = [
@@ -20,6 +20,14 @@ export const PROPERTY_ROW_ACTIONS = [
   //   permission: PERMISSIONS.PROPERTY?.CHANGE ?? null,
   //   modal: "edit",
   // },
+  {
+    key: "view_listing",
+    label: "مشاهده آگهی مرتبط",
+    icon: ExternalLink,
+    variant: "outline",
+    type: "row",
+    permission: null,
+  },
   {
     key: "register_call",
     label: "ثبت تماس",

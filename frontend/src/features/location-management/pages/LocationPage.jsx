@@ -38,11 +38,13 @@ export default function LocationPage() {
 
   return (
     <div className="flex h-full flex-col min-h-0">
-      <PageTabs
-        items={LOCATION_TAB_ITEMS}
-        value={activeTab}
-        onChange={setActiveTab}
-      />
+      <div className="sticky top-0 z-10 bg-background">
+        <PageTabs
+          items={LOCATION_TAB_ITEMS}
+          value={activeTab}
+          onChange={setActiveTab}
+        />
+      </div>
 
       {/* remount panel on tab change so hook refetches cleanly */}
       <LocationLevelPanel

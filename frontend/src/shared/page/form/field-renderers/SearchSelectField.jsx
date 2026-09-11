@@ -134,7 +134,7 @@ export default function SearchSelectField({
 
 
         return (
-          <div className={`relative ${spanClass}`}>
+          <div key={field.asyncSource || name} className={`relative ${spanClass}`}>
             {field.label && (
               <label className="block text-sm font-medium mb-1.5 text-foreground">
                 {field.label}

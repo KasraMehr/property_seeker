@@ -20,6 +20,11 @@ from ..serializers.owner_list import OwnerListSerializer
 from ..serializers.owner_update import OwnerUpdateSerializer
 
 
+def _resolve_created_by(user):
+    """Return None for owner users (see all), user for operators (own only)."""
+    return None if user.is_owner else user
+
+
 class OwnerListView(ListAPIView):
 
     serializer_class = OwnerListSerializer
@@ -58,12 +63,15 @@ class OwnerListView(ListAPIView):
     def get_queryset(self):
         user = self.request.user
 
+        qs = Owner.objects.filter(agency=user.agency)
+
+        # صاحب آژانس همه مالکان آژانس را می‌بیند
+        # اپراتور فقط مالکانی را که خودش ثبت کرده
+        if not user.is_owner:
+            qs = qs.filter(created_by=user)
+
         return (
-            Owner.objects
-            .filter(
-                agency=user.agency,
-                created_by=user,
-            )
+            qs
             .select_related("agency", "created_by")
             .annotate(
                 properties_count=Count("properties")
@@ -126,7 +134,7 @@ class OwnerDetailView(APIView):
         owner = OwnerSelector.detail(
             owner_id=pk,
             agency=request.user.agency,
-            created_by=request.user,
+            created_by=_resolve_created_by(request.user),
         )
 
         serializer = self.serializer_class(owner)
@@ -150,7 +158,7 @@ class OwnerUpdateView(APIView):
         owner = OwnerSelector.by_id(
             owner_id=pk,
             agency=request.user.agency,
-            created_by=request.user,
+            created_by=_resolve_created_by(request.user),
         )
 
         old_data = OwnerDetailSerializer(owner).data
@@ -186,7 +194,7 @@ class OwnerUpdateView(APIView):
         owner = OwnerSelector.by_id(
             owner_id=pk,
             agency=request.user.agency,
-            created_by=request.user,
+            created_by=_resolve_created_by(request.user),
         )
 
         old_data = OwnerDetailSerializer(owner).data
@@ -240,12 +248,15 @@ class OwnerBulkDeleteView(APIView):
 
         deleted_count = 0
 
+        user = request.user
+        created_by = None if user.is_owner else user
+
         for owner_id in owner_ids:
 
             owner = OwnerSelector.by_id(
                 owner_id=owner_id,
-                agency=request.user.agency,
-                created_by=request.user,
+                agency=user.agency,
+                created_by=created_by,
             )
 
             old_data = OwnerDetailSerializer(owner).data

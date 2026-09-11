@@ -15,9 +15,11 @@ export const CALL_TABLE_COLUMNS = [
     header: "مخاطب",
     width: "w-44",
     searchable: true,
-    cell: ({ customer_name }) => (
-      <span className="font-medium text-sm">{customer_name || "—"}</span>
-    ),
+    cell: ({ customer_name, owner_name }) => {
+      const name = owner_name || customer_name;
+
+      return <span className="font-medium text-sm">{name || "—"}</span>;
+    },
   },
   {
     key: "related_property_listing",

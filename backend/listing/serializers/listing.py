@@ -14,6 +14,7 @@ class SourceSerializer(serializers.ModelSerializer):
 class ListingListSerializer(serializers.ModelSerializer):
     source = SourceSerializer(read_only=True)
     divar_neighborhood = serializers.SerializerMethodField()
+    property = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Listing
@@ -30,6 +31,7 @@ class ListingListSerializer(serializers.ModelSerializer):
             "advertiser_classification_status",
             "title",
             "contact_phone",
+            "property",
             "listed_sale_price",
             "listed_rent_amount",
             "published_at",
@@ -52,6 +54,7 @@ class ListingListSerializer(serializers.ModelSerializer):
 class ListingDetailSerializer(serializers.ModelSerializer):
     source = SourceSerializer(read_only=True)
     divar_neighborhood = serializers.SerializerMethodField()
+    property = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Listing
@@ -71,6 +74,7 @@ class ListingDetailSerializer(serializers.ModelSerializer):
             "title",
             "contact_phone",
             "description",
+            "property",
             "listed_sale_price",
             "listed_price_per_meter",
             "listed_mortgage_amount",

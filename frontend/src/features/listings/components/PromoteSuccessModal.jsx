@@ -4,13 +4,18 @@ import Modal from "@/shared/ui/modal/Modal";
 import Button from "@/shared/ui/Button";
 import { toastService } from "@/lib/toast";
 import propertyService from "@/features/properties/services/propertyService";
-import {PROPERTY_DEAL_TYPE_CONFIG} from "@/features/properties/config"
+import { PROPERTY_DEAL_TYPE_CONFIG } from "@/features/properties/config";
 
 /**
  * PromoteSuccessModal — shown after a listing is successfully promoted to property
  * Shows property info + owner info and allows viewing the property detail.
  */
-export default function PromoteSuccessModal({ isOpen, onClose, result, onViewProperty }) {
+export default function PromoteSuccessModal({
+  isOpen,
+  onClose,
+  result,
+  onViewProperty,
+}) {
   const [copied, setCopied] = useState(false);
   const [propertyInfo, setPropertyInfo] = useState(null);
 
@@ -64,9 +69,7 @@ export default function PromoteSuccessModal({ isOpen, onClose, result, onViewPro
           <p className="text-sm font-medium text-foreground">
             آگهی با موفقیت به ملک تبدیل شد.
           </p>
-          <p className="text-xs text-muted">
-            فایل ملکی جدید در سیستم ثبت شد.
-          </p>
+          <p className="text-xs text-muted">فایل ملکی جدید در سیستم ثبت شد.</p>
         </div>
 
         {/* Property Info Card */}
@@ -101,8 +104,11 @@ export default function PromoteSuccessModal({ isOpen, onClose, result, onViewPro
                 <User size={14} className="text-muted" />
                 <span className="text-xs text-muted">مالک:</span>
               </div>
+
               <span className="text-sm font-medium text-foreground">
-                {propertyInfo.owner}
+                {typeof propertyInfo.owner === "object"
+                  ? propertyInfo.owner.full_name
+                  : propertyInfo.owner}
               </span>
             </div>
           )}
@@ -129,7 +135,8 @@ export default function PromoteSuccessModal({ isOpen, onClose, result, onViewPro
             <div className="flex items-center justify-between">
               <span className="text-xs text-muted">نوع معامله:</span>
               <span className="text-sm text-foreground">
-                {PROPERTY_DEAL_TYPE_CONFIG[propertyInfo.deal_type]?.label || propertyInfo.deal_type}
+                {PROPERTY_DEAL_TYPE_CONFIG[propertyInfo.deal_type]?.label ||
+                  propertyInfo.deal_type}
               </span>
             </div>
           )}

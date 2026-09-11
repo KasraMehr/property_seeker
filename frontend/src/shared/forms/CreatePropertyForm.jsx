@@ -12,9 +12,12 @@ const REGION_OPTIONS = [
 ];
 
 const TYPE_OPTIONS = [
-  { value: "APARTMENT", label: "آپارتمان" },
-  { value: "VILLA", label: "ویلا" },
-  { value: "COMMERCIAL", label: "تجاری" },
+  { value: "آپارتمان", label: "آپارتمان" },
+  { value: "ویلا", label: "ویلا" },
+  { value: "زمین", label: "زمین" },
+  { value: "تجاری", label: "تجاری" },
+  { value: "دفتر", label: "دفتر" },
+  { value: "مغازه", label: "مغازه" },
 ];
 
 export default function CreatePropertyForm({ onSubmit, onCancel }) {

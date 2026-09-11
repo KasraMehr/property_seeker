@@ -301,33 +301,35 @@ export default function ListingsPage() {
       id: "hot",
       label: "داغ‌ترین‌ها",
       icon: Flame,
-      tooltip: "آگهی‌های جدید ۱ ساعت اخیر",
-      filters: { time_range: "1h", freshness: "new" },
+      tooltip: "آگهی‌های جدید ۱ ساعت اخیر بررسی نشده",
+      filters: { time_range: "1h", freshness: "new", review_status: ["unreviewed"] },
     },
     {
       id: "today",
       label: "جدیدترین‌های امروز",
       icon: Sun,
       tooltip: "آگهی‌های جدید امروز",
-      filters: { time_range: "today", freshness: "new" },
+      filters: { time_range: "today", freshness: "new" , review_status:["unreviewed"]},
     },
     {
       id: "all",
       label: "همه آگهی‌های من",
       icon: List,
       tooltip: "بدون محدودیت زمانی یا وضعیت",
-      filters: { time_range: "all", freshness: "all" },
+      filters: { time_range: "all", freshness: "all", review_status: null },
     },
   ];
 
   const activePresetId = useMemo(() => {
     const tr = filterValues.time_range;
     const fr = filterValues.freshness;
-    if (tr === "1h" && fr === "new") return "hot";
+    const rs = filterValues.review_status;
+    const isHot = tr === "1h" && fr === "new" && JSON.stringify(rs) === JSON.stringify(["unreviewed"]);
+    if (isHot) return "hot";
     if (tr === "today" && fr === "new") return "today";
     if (tr === "all" && fr === "all") return "all";
     return null;
-  }, [filterValues.time_range, filterValues.freshness]);
+  }, [filterValues.time_range, filterValues.freshness, filterValues.review_status]);
 
   const handlePresetClick = useCallback(
     (preset) => {

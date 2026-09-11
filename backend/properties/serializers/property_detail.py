@@ -3,13 +3,13 @@ from rest_framework import serializers
 from accounts.serializers.serializers import *
 from locations.serializers.address_list import *
 
-from ..models import Property
+from ..models import Property, Owner
 from .owner_detail import *
 
 
 class PropertyDetailSerializer(serializers.ModelSerializer):
 
-    owner = serializers.ReadOnlyField(source="owner.full_name")
+    owner = serializers.SerializerMethodField()
     phone = serializers.ReadOnlyField(source="owner.phone")
 
     agent = UserSerializer(read_only=True)
@@ -59,6 +59,11 @@ class PropertyDetailSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         )
+
+    def get_owner(self, obj):
+        if not obj.owner:
+            return None
+        return {"id": obj.owner.id, "full_name": obj.owner.full_name}
 
     def get_divar_neighborhood(self, obj):
         item = obj.divar_neighborhood

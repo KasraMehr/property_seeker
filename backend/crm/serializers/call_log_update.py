@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from crm.models import CallLog, Customer
+from crm.models import CallLog
 from properties.models import Owner
 
 

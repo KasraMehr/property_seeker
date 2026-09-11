@@ -22,6 +22,7 @@ export default function CustomerFormModal({
     setLoading(true);
 
     try {
+      let createdObj = null;
       const payload = {
         full_name: values.full_name,
         phone: values.phone,
@@ -40,11 +41,13 @@ export default function CustomerFormModal({
         await customerService.update(customer.id, payload);
         toastService.success("مشتری با موفقیت ویرایش شد.");
       } else {
-        await customerService.create(payload);
+        const res = await customerService.create(payload);
+        const c = res.data?.customer;
+        createdObj = c ? { id: c.id, full_name: c.full_name } : null;
         toastService.success("مشتری جدید با موفقیت ثبت شد.");
       }
 
-      onSuccess?.();
+      onSuccess?.(createdObj);
       onClose();
     } catch (error) {
       const msg = error?.response?.data?.detail || error?.response?.data?.message;

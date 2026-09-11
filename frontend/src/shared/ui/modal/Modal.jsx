@@ -46,6 +46,7 @@ const Modal = forwardRef(
       md: "max-w-lg h-[75vh]",
       lg: "max-w-2xl h-[75vh]",
       xl: "max-w-4xl h-[85vh]",
+      "2xl": "max-w-6xl h-[88vh]",
       full: "max-w-[95vw] h-[90vh]",
     };
 
