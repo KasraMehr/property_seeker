@@ -1,4 +1,5 @@
 import { API_ENDPOINTS } from "@/constants/apiEndpoints";
+import { PERMISSION_CATEGORIES } from "./permissionCategories.config";
 
 /**
  * Create / Edit User Form
@@ -7,15 +8,25 @@ import { API_ENDPOINTS } from "@/constants/apiEndpoints";
  *
  * User:
  *   full_name, phone, national_id, password,
- *   role, service_neighborhoods, is_owner, is_active
+ *   role, service_neighborhoods, is_owner, is_active,
+ *   deal_type_scope, permissions (user_permissions)
  *
  * Backend mappings:
  *   role                  -> Role (PK on write, array on read)
  *   service_neighborhoods -> DivarNeighborhood (PK[], only active)
+ *   deal_type_scope       -> DealTypeScope choices (string)
+ *   permissions           -> django Permission (PK[], read as user_permissions)
  *
  * Frontend-only fields (stripped in UserFormModal before submit):
  *   confirm_password
  */
+
+export const DEAL_TYPE_SCOPE_OPTIONS = [
+  { value: "rent-residential", label: "اجارهٔ مسکونی" },
+  { value: "buy-residential", label: "فروش مسکونی" },
+  { value: "buy-commercial-property", label: "فروش اداری و تجاری" },
+  { value: "rent-commercial-property", label: "اجارهٔ اداری و تجاری" },
+];
 
 export const USER_FORM = {
   title: "کاربر",
@@ -117,6 +128,18 @@ export const USER_FORM = {
           condition: (values, mode) => mode === "edit",
           span: 6,
         },
+        {
+          /**
+           * Only editable on update.
+           */
+          key: "is_owner",
+          label: "مالک آژانس",
+          type: "checkbox",
+          required: false,
+          defaultValue: false,
+          condition: (values, mode) => mode === "edit",
+          span: 12,
+        },
       ],
     },
 
@@ -143,14 +166,39 @@ export const USER_FORM = {
 
         {
           /**
-           * Only editable on update.
+           * Backend: User.deal_type_scope (DealTypeScope choices).
+           * Defaults to "rent-residential" on the model.
            */
-          key: "is_owner",
-          label: "مالک آژانس",
-          type: "checkbox",
+          key: "deal_type_scope",
+          label: "نوع معامله",
+          type: "select",
+          required: true,
+          placeholder: "انتخاب نوع معامله",
+          defaultValue: "rent-residential",
+          options: DEAL_TYPE_SCOPE_OPTIONS,
+          validation: {
+            required: "انتخاب نوع معامله الزامی است",
+          },
+          span: 12,
+        },
+
+        {
+          /**
+           * Backend: User.user_permissions (django Permission PK[]).
+           *
+           * The value is an array of permission IDs; the
+           * PermissionToggleField renderer adds/removes the whole
+           * category's IDs when a toggle is switched.
+           *
+           * "انتخاب همه" grants every visible category's permissions.
+           */
+          key: "permissions",
+          label: "دسترسی‌ها",
+          type: "permission_toggles",
           required: false,
-          defaultValue: false,
-          condition: (values, mode) => mode === "edit",
+          defaultValue: [],
+          asyncSource: API_ENDPOINTS.ACCOUNTS.PERMISSIONS.LIST.url,
+          categories: PERMISSION_CATEGORIES,
           span: 12,
         },
       ],

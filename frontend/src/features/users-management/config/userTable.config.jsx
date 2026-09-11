@@ -1,5 +1,6 @@
 import StatusBadge from "@/shared/ui/badges/StatusBadge";
 import RoleBadge from "@/shared/ui/badges/RoleBadge";
+import DealTypeBadge from "@/shared/ui/badges/DealTypeBadge";
 import { formatDate } from "@/utils/formatters";
 import { ShieldCheck, ShieldX } from "lucide-react";
 
@@ -78,6 +79,14 @@ export const USER_TABLE_COLUMNS = [
           <ShieldX className="w-3.5 h-3.5" /> خیر
         </span>
       ),
+  },
+  {
+    key: "deal_type_scope",
+    header: "نوع معامله",
+    width: "w-36",
+    cell: ({ deal_type_scope, is_owner }) => (
+      <DealTypeBadge value={deal_type_scope} isOwner={is_owner} size="sm" />
+    ),
   },
   {
     key: "is_active",

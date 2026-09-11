@@ -41,6 +41,12 @@ import { toastService } from "@/lib/toast";
  *
  * service_neighborhoods:
  * number[]
+ *
+ * deal_type_scope:
+ * string (DealTypeScope value)
+ *
+ * permissions:
+ * number[] (Permission IDs — read as user_permissions)
  */
 function toFormDefaults(user) {
   if (!user) {
@@ -66,6 +72,14 @@ function toFormDefaults(user) {
       ? user.service_neighborhoods
           .map((item) => item?.id)
           .filter((id) => id != null)
+      : [],
+
+    /**
+     * Backend returns the user's direct permissions as user_permissions.
+     * Form field key is "permissions" (PermissionToggleField).
+     */
+    permissions: Array.isArray(user.user_permissions)
+      ? user.user_permissions
       : [],
   };
 }
@@ -140,6 +154,24 @@ export default function UserFormModal({
         payload.service_neighborhoods = [];
       }
 
+      /**
+       * permissions must be an array of django Permission IDs
+       * (managed by PermissionToggleField as whole categories).
+       */
+      if (Array.isArray(payload.permissions)) {
+        payload.permissions = payload.permissions
+          .map((value) => {
+            if (value && typeof value === "object") {
+              return value.id;
+            }
+
+            return value;
+          })
+          .filter((id) => id !== null && id !== undefined && id !== "");
+      } else {
+        payload.permissions = [];
+      }
+
       if (isEdit) {
         await userService.update(user.id, payload);
 
@@ -160,6 +192,8 @@ export default function UserFormModal({
         responseData?.message ||
         responseData?.service_neighborhoods?.[0] ||
         responseData?.role?.[0] ||
+        responseData?.deal_type_scope?.[0] ||
+        responseData?.permissions?.[0] ||
         responseData?.national_id?.[0] ||
         responseData?.phone?.[0];
 

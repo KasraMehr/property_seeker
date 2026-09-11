@@ -1,7 +1,7 @@
 from django.contrib.auth.models import Permission
 from rest_framework import serializers
 
-from accounts.models import Agency, Role, User
+from accounts.models import Agency, DealTypeScope, Role, User
 from locations.models import District, DivarNeighborhood
 
 
@@ -248,6 +248,7 @@ class UserSerializer(serializers.ModelSerializer):
             "is_owner",
             "is_active",
             "deal_type_scope",
+            "user_permissions",
             "created_at",
             "updated_at",
         )
@@ -279,6 +280,17 @@ class UserCreateSerializer(serializers.ModelSerializer):
         required=False,
     )
 
+    deal_type_scope = serializers.ChoiceField(
+        choices=DealTypeScope.choices,
+        required=False,
+    )
+
+    permissions = serializers.PrimaryKeyRelatedField(
+        queryset=Permission.objects.all(),
+        many=True,
+        required=False,
+    )
+
     class Meta:
         model = User
         fields = (
@@ -288,6 +300,8 @@ class UserCreateSerializer(serializers.ModelSerializer):
             "role",
             "password",
             "service_neighborhoods",
+            "deal_type_scope",
+            "permissions",
         )
 
     def __init__(self, *args, **kwargs):
@@ -331,6 +345,10 @@ class UserCreateSerializer(serializers.ModelSerializer):
             "service_neighborhoods",
             [],
         )
+        permissions = validated_data.pop(
+            "permissions",
+            [],
+        )
 
         owner = self.context["request"].user
 
@@ -341,6 +359,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
         )
 
         user.service_neighborhoods.set(neighborhoods)
+        user.user_permissions.set(permissions)
 
         return user
 
@@ -369,6 +388,17 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     national_id = serializers.CharField(required=False)
     is_owner = serializers.BooleanField(required=False)
 
+    deal_type_scope = serializers.ChoiceField(
+        choices=DealTypeScope.choices,
+        required=False,
+    )
+
+    permissions = serializers.PrimaryKeyRelatedField(
+        queryset=Permission.objects.all(),
+        many=True,
+        required=False,
+    )
+
     class Meta:
         model = User
         fields = (
@@ -380,6 +410,8 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             "is_active",
             "is_owner",
             "service_neighborhoods",
+            "deal_type_scope",
+            "permissions",
         )
 
     def __init__(self, *args, **kwargs):
@@ -431,6 +463,11 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             None,
         )
 
+        permissions = validated_data.pop(
+            "permissions",
+            None,
+        )
+
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
 
@@ -445,6 +482,9 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
         if neighborhoods is not None:
             instance.service_neighborhoods.set(neighborhoods)
+
+        if permissions is not None:
+            instance.user_permissions.set(permissions)
 
         return instance
 

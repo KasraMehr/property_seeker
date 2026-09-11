@@ -4,3 +4,4 @@ export * from "./userFilters.config";
 export * from "./userDetail.config";
 export * from "./userForms.config";
 export * from "./userActions";
+export * from "./permissionCategories.config";

@@ -9,23 +9,27 @@ import {
   CheckCircle2,
   Crown,
   Calendar,
+  KeyRound,
 } from "lucide-react";
 
 /**
  * User Detail Modal Config
  * Backend: accounts.UserSerializer
  * id, full_name, phone, national_id, agency, role,
- * service_neighborhoods, is_owner, is_active, created_at, updated_at
+ * service_neighborhoods, is_owner, is_active, deal_type_scope,
+ * user_permissions, created_at, updated_at
  */
 
 /* ─── Tabs ─── */
 export const USER_DETAIL_TABS = [
   { key: "profile", label: "مشخصات کاربر", icon: User },
+  { key: "neighborhoods", label: "محله‌های خدمت", icon: MapPin },
+  { key: "permissions", label: "دسترسی‌ها", icon: Shield },
   {
     key: "activity",
     label: "تاریخچه فعالیت",
     icon: Calendar,
-    permission: "view_property_status_history",
+    comingSoon: true,
   },
 ];
 
@@ -42,7 +46,7 @@ export const USER_ICON_MAP = {
   is_owner: Crown,
   created_at: Calendar,
   updated_at: Calendar,
-  deal_type_scope: Fingerprint,
+  deal_type_scope: KeyRound,
 };
 
 /* ─── Tab 1: Profile ─── */
@@ -88,39 +92,6 @@ export const USER_PROFILE_FIELDS = [
         type: "boolean",
         trueLabel: "بله",
         falseLabel: "خیر",
-      },
-    ],
-  },
-  {
-    section: "deal_type",
-    sectionLabel: "نوع معامله",
-    fields: [
-      {
-        key: "deal_type_scope",
-        label: "نوع معامله",
-        fullWidth: true,
-        format: (v) => {
-          if (!v) return "—";
-          const map = {
-            "rent-residential": "اجارهٔ مسکونی",
-            "buy-residential": "فروش مسکونی",
-            "buy-commercial-property": "فروش اداری و تجاری",
-            "rent-commercial-property": "اجارهٔ اداری و تجاری",
-          };
-          return map[v] ?? v;
-        },
-      },
-    ],
-  },
-  {
-    section: "service_area",
-    sectionLabel: "محله‌های سرویس",
-    fields: [
-      {
-        key: "service_neighborhoods",
-        label: "محله‌ها",
-        type: "tag_list",
-        fullWidth: true,
       },
     ],
   },

@@ -15,7 +15,9 @@ class IsAgencyOwner(BasePermission):
 
 class HasRolePermission(BasePermission):
     """
-    چک می‌کند که آیا کاربر حداقل یک Role دارد که پرمیشن مورد نیاز را داشته باشد.
+    چک می‌کند که آیا کاربر پرمیشن مورد نیاز را دارد؛
+    یا از طریق دسترسی‌های مستقیم (user_permissions)
+    یا از طریق نقش‌های (Role) کاربر.
     """
 
     def has_permission(self, request, view):
@@ -32,6 +34,13 @@ class HasRolePermission(BasePermission):
         # اگر ویو required_permission تعریف نکرده باشد، اجازه بده
         required_permission = getattr(view, "required_permission", None)
         if not required_permission:
+            return True
+
+        # چک کردن دسترسی‌های مستقیم کاربر
+        # (دسترسی‌هایی که هنگام ساخت/ویرایش کاربر به او داده شده)
+        if user.user_permissions.filter(
+            codename=required_permission
+        ).exists():
             return True
 
         # چک کردن پرمیشن از طریق نقش‌های کاربر

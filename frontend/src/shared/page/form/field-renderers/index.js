@@ -12,6 +12,7 @@ import PriceField from "./PriceField";
 import NumberField from "./NumberField";
 import TextField from "./TextField";
 import LocationCascadeField from "./LocationCascadeField";
+import PermissionToggleField from "./PermissionToggleField";
 
 export const FORM_FIELD_RENDERERS = {
   nested_display: NestedDisplayField,
@@ -20,6 +21,7 @@ export const FORM_FIELD_RENDERERS = {
   multi_select: MultiSelectField,
   select: SelectField,
   checkbox: CheckboxField,
+  permission_toggles: PermissionToggleField,
   file: FileField,
   date: DateField,
   datetime: DateTimeField,
@@ -41,6 +43,7 @@ export {
   MultiSelectField,
   SelectField,
   CheckboxField,
+  PermissionToggleField,
   FileField,
   DateField,
   DateTimeField,
