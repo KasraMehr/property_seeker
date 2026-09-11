@@ -4,9 +4,9 @@ WORKDIR /app
 
 # کپی کردن فایل‌های پکیج برای نصب وابستگی‌ها
 COPY package*.json ./
+RUN npm ci
 # استفاده از رجیستری اصلی به جای لیارا (موقت)
-# RUN npm ci
-RUN npm config set registry https://registry.npmjs.org/ && npm ci
+# RUN npm config set registry https://registry.npmjs.org/ && npm ci
 
 # کپی کردن کل کدهای فرانت‌اند و گرفتن Build
 COPY . .
