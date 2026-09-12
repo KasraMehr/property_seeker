@@ -1,8 +1,11 @@
 import json
 import re
+import time
 from collections.abc import Callable, Iterable
+from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
+from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils import timezone
@@ -19,6 +22,13 @@ DIVAR_CATEGORY_SLUGS = (
 )
 DISTRICT_PATTERN = re.compile(r'"district_persian"\s*:\s*"((?:\\.|[^"\\])*)"')
 
+# District names are identical across category pages, so one successful page
+# is enough. Cache them to keep Divar request volume minimal.
+NEIGHBORHOOD_CACHE_TTL = 60 * 60 * 24  # 24 hours
+# Pauses before retries when Divar throttles us (429 / 5xx / network errors)
+RETRY_DELAYS = (2, 6, 15)
+MAX_RETRY_AFTER = 60
+
 
 def _extract_district_names(document: str) -> set[str]:
     names = set()
@@ -33,8 +43,52 @@ def _extract_district_names(document: str) -> set[str]:
     return names
 
 
+def _retry_delay_for(error: HTTPError, attempt: int) -> int:
+    """Seconds to wait before the next attempt (honours Retry-After when set)."""
+    retry_after = error.headers.get("Retry-After") if error.headers else None
+    if retry_after:
+        try:
+            return min(int(float(retry_after)), MAX_RETRY_AFTER)
+        except (TypeError, ValueError):
+            pass
+    return RETRY_DELAYS[min(attempt, len(RETRY_DELAYS) - 1)]
+
+
+def _fetch_divar_document(url: str, headers: dict) -> str:
+    """Fetch one Divar page, retrying throttled/failed attempts with backoff."""
+    last_error: Exception | None = None
+    for attempt in range(len(RETRY_DELAYS) + 1):
+        if attempt:
+            delay = (
+                _retry_delay_for(last_error, attempt - 1)
+                if isinstance(last_error, HTTPError)
+                else RETRY_DELAYS[min(attempt - 1, len(RETRY_DELAYS) - 1)]
+            )
+            time.sleep(delay)
+        try:
+            request = Request(url, headers=headers)
+            with urlopen(request, timeout=30) as response:
+                return response.read().decode("utf-8", errors="replace")
+        except HTTPError as error:
+            last_error = error
+            if error.code != 429 and error.code < 500:
+                raise  # permanent client error — retrying won't help
+        except OSError as error:  # network errors / timeouts
+            last_error = error
+    raise last_error
+
+
 def fetch_divar_neighborhoods(city_slug: str) -> set[str]:
-    """Read canonical district names exposed by Divar's public search pages."""
+    """Read canonical district names exposed by Divar's public search pages.
+
+    Results are cached for 24 hours; only the first category page that yields
+    names is fetched (district names are the same across categories).
+    """
+
+    cache_key = f"divar_neighborhoods:{city_slug}"
+    cached = cache.get(cache_key)
+    if cached is not None:
+        return cached
 
     headers = {
         "Accept-Language": "fa-IR,fa;q=0.9",
@@ -43,14 +97,25 @@ def fetch_divar_neighborhoods(city_slug: str) -> set[str]:
             "AppleWebKit/537.36 Chrome/140 Safari/537.36"
         ),
     }
-    names = set()
+    names: set[str] = set()
     for category in DIVAR_CATEGORY_SLUGS:
-        request = Request(
-            f"https://divar.ir/s/{city_slug}/{category}", headers=headers
-        )
-        with urlopen(request, timeout=30) as response:
-            document = response.read().decode("utf-8", errors="replace")
+        try:
+            document = _fetch_divar_document(
+                f"https://divar.ir/s/{city_slug}/{category}", headers
+            )
+        except OSError:
+            # Keep whatever earlier categories already produced; only fail
+            # when nothing was fetched at all.
+            if names:
+                break
+            raise
         names.update(_extract_district_names(document))
+        if names:
+            break  # one page is enough
+        time.sleep(2)  # pause before falling back to the next category
+
+    if names:
+        cache.set(cache_key, names, NEIGHBORHOOD_CACHE_TTL)
     return names
 
 
