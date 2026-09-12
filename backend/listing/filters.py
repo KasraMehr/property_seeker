@@ -43,6 +43,10 @@ class ListingFilter(django_filters.FilterSet):
         field_name="property_id",
     )
 
+    owner = django_filters.NumberFilter(
+        field_name="property__owner_id",
+    )
+
     # =========================================================
     # Location
     # =========================================================
@@ -444,6 +448,7 @@ class ListingFilter(django_filters.FilterSet):
             "category",
             "source",
             "property",
+            "owner",
 
             # Location
             "zone",

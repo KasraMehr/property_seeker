@@ -120,7 +120,7 @@ class IngestionRunSerializer(serializers.ModelSerializer):
             "discovered_count", "queued_count", "processed_count",
             "new_count", "changed_count", "failed_count", "removed_count",
             "error_summary", "artifact_path", "started_at", "finished_at",
-            "created_at",
+            "created_at", "updated_at",
         )
 
     def get_target(self, obj):

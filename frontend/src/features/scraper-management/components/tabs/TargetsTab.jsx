@@ -1,10 +1,14 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import ResourceTemplate from "@/shared/templates/resource/ResourceTemplate";
+import useDebounce from "@/shared/useDebounce";
+import useResourceQuery from "@/shared/templates/resource/hooks/useResourceQuery";
 import useScraper from "../../hooks/useScraper";
+import scraperService from "../../services/scraperService";
 import {
   SCRAPER_TARGET_TABLE_COLUMNS,
   SCRAPER_TARGET_ROW_ACTIONS,
   SCRAPER_TARGET_BULK_ACTIONS,
+  SCRAPER_TARGET_FILTERS,
 } from "../../config";
 import ScraperTargetDetailModal from "../ScraperTargetDetailModal";
 import ScraperTargetFormModal from "../ScraperTargetFormModal";
@@ -34,18 +38,60 @@ export default function TargetsTab({
   const [pendingConfirm, setPendingConfirm] = useState(null);
   const [confirmLoading, setConfirmLoading] = useState(false);
 
+  /* ─── Filters (URL-synced) ─── */
+  const query = useResourceQuery({
+    filterSchema: SCRAPER_TARGET_FILTERS,
+    syncToUrl: true,
+  });
+  const filterParams = useMemo(() => {
+    // eslint-disable-next-line no-unused-vars
+    const { page: _p, page_size: _ps, ordering: _o, ...params } = query.queryParams;
+    return params;
+  }, [query.queryParams]);
+
+  /* ─── Zone options for the zone multi-select ─── */
+  const [zoneOptions, setZoneOptions] = useState([]);
   useEffect(() => {
-    fetchTargets({ page });
-  }, [fetchTargets, page, refreshKey]);
+    let cancelled = false;
+    scraperService
+      .getZones({ active: true })
+      .then((res) => {
+        if (cancelled) return;
+        const zones = Array.isArray(res?.data) ? res.data : (res?.data?.results ?? []);
+        setZoneOptions(zones.map((z) => ({ value: z.id, label: z.name })));
+      })
+      .catch((err) => console.error("failed to load zones", err));
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  /* ─── Search ─── */
+  const [searchInput, setSearchInput] = useState("");
+  const debouncedSearch = useDebounce(searchInput, 400);
+
+  // Reset page whenever filters or search change
+  useEffect(() => {
+    setPage(1);
+  }, [filterParams, debouncedSearch, setPage]);
+
+  const loadData = useCallback(
+    () => fetchTargets({ ...filterParams, page, search: debouncedSearch }),
+    [fetchTargets, filterParams, page, debouncedSearch],
+  );
+
+  useEffect(() => {
+    loadData();
+  }, [loadData, refreshKey]);
 
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
-      await fetchTargets({ page });
+      await loadData();
     } finally {
       setRefreshing(false);
     }
-  }, [fetchTargets, page]);
+  }, [loadData]);
 
   const enabledTargets = useMemo(
     () => (targets || []).filter((t) => t.enabled),
@@ -223,12 +269,37 @@ export default function TargetsTab({
     [page, meta],
   );
 
+  const searchConfig = useMemo(
+    () => ({
+      value: searchInput,
+      onChange: setSearchInput,
+      label: "جستجو",
+      placeholder: "جستجو (نام، آدرس، منطقه)...",
+    }),
+    [searchInput],
+  );
+
+  const filtersConfig = useMemo(
+    () => ({
+      schema: SCRAPER_TARGET_FILTERS,
+      options: { zone: zoneOptions },
+      values: query.filters,
+      onChange: query.setFilter,
+      onClear: query.clearFilter,
+      onClearAll: query.clearAll,
+      activeChips: query.activeChips,
+    }),
+    [zoneOptions, query.filters, query.setFilter, query.clearFilter, query.clearAll, query.activeChips],
+  );
+
   return (
     <>
       <div className="flex h-full flex-col min-h-0">
         <ResourceTemplate
           count={meta?.count || 0}
           countLabel="تارگت"
+          search={searchConfig}
+          filters={filtersConfig}
           columns={SCRAPER_TARGET_TABLE_COLUMNS}
           data={targets}
           loading={loading || refreshing}
@@ -260,7 +331,7 @@ export default function TargetsTab({
           target={editTarget}
           onSuccess={() => {
             setEditTarget(null);
-            fetchTargets({ page });
+            loadData();
             toastService.success("تارگت ویرایش شد");
           }}
         />
@@ -293,7 +364,7 @@ export default function TargetsTab({
           onClose={() => setTriggerTarget(null)}
           target={triggerTarget}
           onSuccess={() => {
-            fetchTargets({ page });
+            loadData();
             toastService.success("اجرا شروع شد");
             onRunTriggered?.();
           }}

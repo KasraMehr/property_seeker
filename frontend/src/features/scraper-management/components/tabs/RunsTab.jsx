@@ -1,10 +1,13 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import ResourceTemplate from "@/shared/templates/resource/ResourceTemplate";
+import useDebounce from "@/shared/useDebounce";
+import useResourceQuery from "@/shared/templates/resource/hooks/useResourceQuery";
 import useScraper from "../../hooks/useScraper";
 import {
   SCRAPER_RUN_TABLE_COLUMNS,
   SCRAPER_RUN_ROW_ACTIONS,
   SCRAPER_RUN_BULK_ACTIONS,
+  SCRAPER_RUN_FILTERS,
 } from "../../config";
 import ScraperRunDetailModal from "../ScraperRunDetailModal";
 import EmptyState from "./EmptyState";
@@ -32,18 +35,43 @@ export default function RunsTab({ onHeaderStateChange }) {
   const [pendingConfirm, setPendingConfirm] = useState(null);
   const [confirmLoading, setConfirmLoading] = useState(false);
 
+  /* ─── Filters (URL-synced) ─── */
+  const query = useResourceQuery({
+    filterSchema: SCRAPER_RUN_FILTERS,
+    syncToUrl: true,
+  });
+  const filterParams = useMemo(() => {
+    // eslint-disable-next-line no-unused-vars
+    const { page: _p, page_size: _ps, ordering: _o, ...params } = query.queryParams;
+    return params;
+  }, [query.queryParams]);
+
+  /* ─── Search ─── */
+  const [searchInput, setSearchInput] = useState("");
+  const debouncedSearch = useDebounce(searchInput, 400);
+
+  // Reset page whenever filters or search change
   useEffect(() => {
-    fetchRuns({ page });
-  }, [fetchRuns, page]);
+    setPage(1);
+  }, [filterParams, debouncedSearch, setPage]);
+
+  const loadData = useCallback(
+    () => fetchRuns({ ...filterParams, page, search: debouncedSearch }),
+    [fetchRuns, filterParams, page, debouncedSearch],
+  );
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
-      await fetchRuns({ page });
+      await loadData();
     } finally {
       setRefreshing(false);
     }
-  }, [fetchRuns, page]);
+  }, [loadData]);
 
   useEffect(() => {
     onHeaderStateChange?.({
@@ -165,7 +193,7 @@ export default function RunsTab({ onHeaderStateChange }) {
         await resumeRun(ids[0]);
         toastService.success("اجرا از سر گرفته شد");
       }
-      await fetchRuns({ page });
+      await loadData();
     } catch (err) {
       console.error(err);
       const detail =
@@ -181,8 +209,7 @@ export default function RunsTab({ onHeaderStateChange }) {
     deleteRun,
     cancelRun,
     resumeRun,
-    fetchRuns,
-    page,
+    loadData,
   ]);
 
   const pagination = useMemo(
@@ -193,12 +220,36 @@ export default function RunsTab({ onHeaderStateChange }) {
     [page, meta],
   );
 
+  const searchConfig = useMemo(
+    () => ({
+      value: searchInput,
+      onChange: setSearchInput,
+      label: "جستجو",
+      placeholder: "جستجو (نام تارگت)...",
+    }),
+    [searchInput],
+  );
+
+  const filtersConfig = useMemo(
+    () => ({
+      schema: SCRAPER_RUN_FILTERS,
+      values: query.filters,
+      onChange: query.setFilter,
+      onClear: query.clearFilter,
+      onClearAll: query.clearAll,
+      activeChips: query.activeChips,
+    }),
+    [query.filters, query.setFilter, query.clearFilter, query.clearAll, query.activeChips],
+  );
+
   return (
     <>
       <div className="flex h-full flex-col min-h-0">
         <ResourceTemplate
           count={meta?.count || 0}
           countLabel="اجرا"
+          search={searchConfig}
+          filters={filtersConfig}
           columns={SCRAPER_RUN_TABLE_COLUMNS}
           data={runs}
           loading={loading || refreshing}

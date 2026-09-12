@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import scraperService from "../services/scraperService";
 
 export default function useScraper() {
@@ -7,11 +7,18 @@ export default function useScraper() {
   const [loading, setLoading] = useState(false);
   const [meta, setMeta] = useState(null);
   const [page, setPage] = useState(1);
+  // Ignore responses from superseded requests (e.g. when search/page
+  // changes faster than the network responds).
+  const targetsEpoch = useRef(0);
+  const runsEpoch = useRef(0);
 
   const fetchTargets = useCallback(async (params = {}) => {
+    const epoch = ++targetsEpoch.current;
     setLoading(true);
     try {
       const res = await scraperService.getTargets({ page_size: 10, ...params });
+      if (epoch !== targetsEpoch.current) return;
+
       const payload = res.data;
 
       const list = Array.isArray(payload) ? payload : (payload?.results ?? []);
@@ -23,14 +30,16 @@ export default function useScraper() {
           : payload,
       );
     } finally {
-      setLoading(false);
+      if (epoch === targetsEpoch.current) setLoading(false);
     }
   }, []);
 
   const fetchRuns = useCallback(async (params = {}) => {
+    const epoch = ++runsEpoch.current;
     setLoading(true);
     try {
       const res = await scraperService.getRuns({ page_size: 10, ...params });
+      if (epoch !== runsEpoch.current) return;
       const payload = res.data;
       const list = Array.isArray(payload) ? payload : (payload?.results ?? []);
 
@@ -41,7 +50,7 @@ export default function useScraper() {
           : payload,
       );
     } finally {
-      setLoading(false);
+      if (epoch === runsEpoch.current) setLoading(false);
     }
   }, []);
 

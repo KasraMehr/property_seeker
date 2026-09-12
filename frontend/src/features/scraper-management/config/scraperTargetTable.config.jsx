@@ -1,16 +1,10 @@
 import StatusBadge from "@/shared/ui/badges/StatusBadge";
 import { SCRAPE_TARGET_STATUS_CONFIG } from "@/features/scraper-management/config";
-import { formatDate } from "@/utils/formatters";
+import DateTimeStacked from "./DateTimeStacked";
+import { SCRAPER_TARGET_CATEGORY_LABELS } from "./scraperFilters.config";
 import { buildStatusConfig } from "@/constants/status.utils";
 
 import { Clock, Link2 } from "lucide-react";
-
-const CATEGORY_LABELS = {
-  "rent-residential": "اجارهٔ مسکونی",
-  "buy-residential": "فروش مسکونی",
-  "buy-commercial-property": "فروش اداری و تجاری",
-  "rent-commercial-property": "اجارهٔ اداری و تجاری",
-};
 
 /**
  * ScrapeTarget Table Columns
@@ -61,7 +55,8 @@ export const SCRAPER_TARGET_TABLE_COLUMNS = [
     key: "category",
     header: "دسته‌بندی",
     width: "w-36",
-    cell: ({ listing_category }) => CATEGORY_LABELS[listing_category] || "—",
+    cell: ({ listing_category }) =>
+      SCRAPER_TARGET_CATEGORY_LABELS[listing_category] || "—",
   },
   {
     key: "zone",
@@ -98,14 +93,15 @@ export const SCRAPER_TARGET_TABLE_COLUMNS = [
     key: "last_discovery",
     header: "آخرین کشف",
     width: "w-32",
-    cell: ({ last_discovery_at }) => formatDate(last_discovery_at, "short"),
+    cell: ({ last_discovery_at }) => <DateTimeStacked value={last_discovery_at} />,
   },
   {
     key: "last_full",
     header: "آخرین کشف کامل",
     width: "w-32",
-    cell: ({ last_full_discovery_at }) =>
-      formatDate(last_full_discovery_at, "short"),
+    cell: ({ last_full_discovery_at }) => (
+      <DateTimeStacked value={last_full_discovery_at} />
+    ),
   },
   // {
   //   key: "actions",

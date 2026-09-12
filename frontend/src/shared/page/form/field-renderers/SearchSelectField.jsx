@@ -50,6 +50,7 @@ export default function SearchSelectField({
         }
         const list = Array.isArray(data) ? data : data?.results || [];
         setOptions(list);
+        loadedSourceRef.current = field.asyncSource;
         setFetchError(null);
       } catch (err) {
         setOptions([]);
@@ -70,6 +71,9 @@ export default function SearchSelectField({
 
   const depValue = field.dependsOn ? getValues(field.dependsOn) : null;
   const previousDepValue = useRef(depValue);
+  // Which asyncSource the currently loaded options came from — used to
+  // refetch immediately on focus after a source switch (e.g. customer↔owner)
+  const loadedSourceRef = useRef(null);
 
   // Refetch when asyncSource changes (e.g., mode toggle between customer/owner)
   const prevAsyncSource = useRef(field.asyncSource);
@@ -152,7 +156,11 @@ export default function SearchSelectField({
                 }}
                 onFocus={() => {
                   setOpen(true);
-                  // fetch option query if needed
+                  // Options may be stale after an asyncSource switch —
+                  // refetch immediately so the list matches the current source
+                  if (loadedSourceRef.current !== field.asyncSource) {
+                    fetchOptions(query || "");
+                  }
                 }}
                 onBlur={() => setTimeout(() => setOpen(false), 150)}
                 placeholder={field.placeholder || "جستجو..."}

@@ -7,4 +7,5 @@ export * from "./ingestionRunItemStatus.config";
 export * from "./scraperTargetDetail";
 export * from "./scraperTargetForms.config";
 export * from "./scraperTargetActions";
-export * from "./scraperRunActions";
+export * from "./scraperRunActions";export * from "./scraperFilters.config";
+

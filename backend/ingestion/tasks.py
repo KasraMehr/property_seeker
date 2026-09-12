@@ -196,7 +196,7 @@ def _fail_run_for_session(run, error):
     run.status = IngestionRun.Status.FAILED
     run.error_summary = str(error)
     run.finished_at = timezone.now()
-    run.save(update_fields=["status", "error_summary", "finished_at"])
+    run.save(update_fields=["status", "error_summary", "finished_at", "updated_at"])
 
 
 def refresh_run_counters(run):
@@ -247,6 +247,7 @@ def refresh_run_counters(run):
             "removed_count",
             "finished_at",
             "status",
+            "updated_at",
         ]
     )
     return aggregate
@@ -264,7 +265,7 @@ def discover_run(run_id, enqueue_details=True):
         return str(run.pk)
     run.status = IngestionRun.Status.RUNNING
     run.started_at = run.started_at or timezone.now()
-    run.save(update_fields=["status", "started_at"])
+    run.save(update_fields=["status", "started_at", "updated_at"])
     provider = create_divar_provider()
     known_ids = set(
         Listing.objects.filter(source=run.target.source).values_list(
@@ -286,7 +287,7 @@ def discover_run(run_id, enqueue_details=True):
         run.status = IngestionRun.Status.FAILED
         run.error_summary = str(error)
         run.finished_at = timezone.now()
-        run.save(update_fields=["status", "error_summary", "finished_at"])
+        run.save(update_fields=["status", "error_summary", "finished_at", "updated_at"])
         raise
 
     if (

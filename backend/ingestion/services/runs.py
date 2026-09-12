@@ -159,7 +159,7 @@ def populate_discovery_run(*, run, discovered):
     run.queued_count = queued_count
     run.status = IngestionRun.Status.RUNNING
     run.started_at = run.started_at or now
-    run.save(update_fields=["discovered_count", "queued_count", "status", "started_at"])
+    run.save(update_fields=["discovered_count", "queued_count", "status", "started_at", "updated_at"])
     return run
 
 
@@ -187,7 +187,7 @@ def resume_run(*, run):
     run.status = IngestionRun.Status.QUEUED
     run.finished_at = None
     run.error_summary = ""
-    run.save(update_fields=["status", "finished_at", "error_summary"])
+    run.save(update_fields=["status", "finished_at", "error_summary", "updated_at"])
     return run
 
 
@@ -245,5 +245,5 @@ def build_refresh_run(*, target, limit=500):
     run.started_at = now
     run.discovered_count = len(listings)
     run.queued_count = len(listings)
-    run.save(update_fields=["status", "started_at", "discovered_count", "queued_count"])
+    run.save(update_fields=["status", "started_at", "discovered_count", "queued_count", "updated_at"])
     return run

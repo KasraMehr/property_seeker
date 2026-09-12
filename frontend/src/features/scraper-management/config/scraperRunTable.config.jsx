@@ -4,7 +4,7 @@ import {
   INGESTION_RUN_MODE_CONFIG,
 } from "@/features/scraper-management/config";
 import {buildStatusConfig } from "@/constants/status.utils"
-import { formatDate } from "@/utils/formatters";
+import DateTimeStacked from "./DateTimeStacked";
 
 /**
  * ingestionRun Table Columns
@@ -88,16 +88,16 @@ export const SCRAPER_RUN_TABLE_COLUMNS = [
     key: "started_at",
     header: "شروع",
     width: "w-28",
-    cell: ({ started_at }) => formatDate(started_at, "short"),
+    cell: ({ started_at }) => <DateTimeStacked value={started_at} />,
   },
   {
     key: "finished_at",
     header: "پایان",
     width: "w-28",
-    cell: ({ finished_at, status }) => {
+    cell: ({ finished_at }) => {
       if (!finished_at)
         return <span className="text-xs text-amber-600">در حال اجرا...</span>;
-      return formatDate(finished_at, "short");
+      return <DateTimeStacked value={finished_at} />;
     },
   },
   // {

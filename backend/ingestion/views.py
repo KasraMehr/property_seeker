@@ -3,12 +3,15 @@ import csv
 from django.http import StreamingHttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from accounts.permissions import HasRolePermission
 from amlak.pagination import StandardPagination
+
+from .filters import IngestionRunFilter, ScrapeTargetFilter
 
 from .models import (
     IngestionRun,
@@ -148,11 +151,13 @@ class ScrapeTargetListCreateView(generics.ListCreateAPIView):
     queryset = (
         ScrapeTarget.objects
         .select_related("source", "zone__city")
-        .order_by("-enabled", "name")
+        .order_by("-updated_at")
     )
     serializer_class = ScrapeTargetSerializer
     pagination_class = StandardPagination
     permission_classes = (HasRolePermission,)
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = ScrapeTargetFilter
     @property
     def required_permission(self):
         return (
@@ -248,16 +253,22 @@ class BulkScrapeTargetToggleView(APIView):
                     {"detail": "enabled is required."},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-            updated = ScrapeTarget.objects.filter(pk__in=ids).update(enabled=enabled)
+            updated = ScrapeTarget.objects.filter(pk__in=ids).update(
+                enabled=enabled, updated_at=timezone.now()
+            )
             return Response({"updated_count": updated})
 
         # Per-row mode
         enabled_count = 0
         disabled_count = 0
         if enable_ids:
-            enabled_count = ScrapeTarget.objects.filter(pk__in=enable_ids).update(enabled=True)
+            enabled_count = ScrapeTarget.objects.filter(pk__in=enable_ids).update(
+                enabled=True, updated_at=timezone.now()
+            )
         if disable_ids:
-            disabled_count = ScrapeTarget.objects.filter(pk__in=disable_ids).update(enabled=False)
+            disabled_count = ScrapeTarget.objects.filter(pk__in=disable_ids).update(
+                enabled=False, updated_at=timezone.now()
+            )
         return Response({"enabled_count": enabled_count, "disabled_count": disabled_count})
 
 
@@ -322,26 +333,20 @@ class ScrapeTargetTriggerView(APIView):
 
 class IngestionRunListView(generics.ListAPIView):
     def get_queryset(self):
-        from django.db.models import Case, When, Value, IntegerField
-        status_order = Case(
-            When(status="running", then=Value(0)),
-            When(status="queued", then=Value(1)),
-            When(status="completed", then=Value(2)),
-            When(status="cancelled", then=Value(3)),
-            When(status="failed", then=Value(4)),
-            default=Value(5),
-            output_field=IntegerField(),
-        )
+        # Most recently touched runs first: every state change or user
+        # action (trigger, start, resume, cancel, finish) bumps updated_at.
         return (
             IngestionRun.objects
             .select_related("target", "target__source")
-            .order_by(status_order, "-created_at")
+            .order_by("-updated_at", "-created_at")
         )
 
     serializer_class = IngestionRunSerializer
     pagination_class = StandardPagination
     permission_classes = (HasRolePermission,)
     required_permission = "view_ingestion_run"
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = IngestionRunFilter
 
 
 class IngestionRunDetailView(generics.RetrieveAPIView):
@@ -412,7 +417,7 @@ class IngestionRunCancelView(APIView):
         run.status = IngestionRun.Status.CANCELLED
         run.finished_at = timezone.now()
         run.error_summary = "Cancelled by user."
-        run.save(update_fields=["status", "finished_at", "error_summary"])
+        run.save(update_fields=["status", "finished_at", "error_summary", "updated_at"])
         return Response(IngestionRunSerializer(run).data)
 
 
@@ -454,6 +459,7 @@ class BulkIngestionRunCancelView(APIView):
                     status=IngestionRun.Status.CANCELLED,
                     finished_at=timezone.now(),
                     error_summary="Cancelled by user (bulk).",
+                    updated_at=timezone.now(),
                 )
             if resume_ids:
                 from .services.runs import resume_run as _resume_run
@@ -482,6 +488,7 @@ class BulkIngestionRunCancelView(APIView):
             status=IngestionRun.Status.CANCELLED,
             finished_at=timezone.now(),
             error_summary="Cancelled by user (bulk).",
+            updated_at=timezone.now(),
         )
         return Response({"cancelled_count": cancelled_count})
 

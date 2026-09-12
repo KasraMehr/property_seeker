@@ -1,11 +1,13 @@
-import { useState, useEffect } from "react";          // ← useEffect اضافه شد
+import { useState, useEffect } from "react";
 import { GitCommit, List, AlertTriangle } from "lucide-react";
 import Modal from "@/shared/ui/modal/Modal";
 import Button from "@/shared/ui/Button";
 import Tabs from "@/shared/ui/Tabs";
 import StatusBadge from "@/shared/ui/badges/StatusBadge";
 import { INGESTION_RUN_STATUS_CONFIG, INGESTION_RUN_MODE_CONFIG } from "../config";
+import { translateScraperError } from "../utils/scraperErrorMessages";
 import { DetailFieldGrid, DetailListTable } from "@/shared/page/DetailContentRenderer";
+import scraperService from "../services/scraperService";
 
 const SCRAPER_RUN_TABS = [
   { key: "details", label: "جزئیات اجرا", icon: GitCommit },
@@ -46,13 +48,6 @@ const SCRAPER_RUN_DETAIL_FIELDS = [
       { key: "created_at", label: "تاریخ ثبت", type: "dateTime" },
     ],
   },
-  // {
-  //   section: "config",
-  //   sectionLabel: "تنظیمات",
-  //   fields: [
-  //     { key: "configuration", label: "Configuration", type: "json", fullWidth: true },
-  //   ],
-  // },
 ];
 
 const SCRAPER_RUN_ITEM_COLUMNS = [
@@ -64,17 +59,83 @@ const SCRAPER_RUN_ITEM_COLUMNS = [
   { key: "retry_count", header: "تلاش" },
 ];
 
+function ErrorBanner({ summary }) {
+  const translated = translateScraperError(summary);
+  return (
+    <div className="mb-3 rounded-lg border border-danger/30 bg-danger/5 px-3 py-2.5">
+      <div className="flex items-start gap-2">
+        <AlertTriangle className="w-4 h-4 text-danger shrink-0 mt-0.5" />
+        <div className="min-w-0">
+          <p className="text-sm font-medium text-danger">
+            {translated?.fa || "خطای ناشناخته‌ای رخ داده است."}
+          </p>
+          {translated?.raw && (
+            <p className="mt-1 text-[11px] font-mono text-muted-foreground break-all" dir="ltr">
+              {translated.raw}
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ItemErrorCell({ error }) {
+  if (!error) return "—";
+  const translated = translateScraperError(error);
+  return (
+    <div className="flex flex-col gap-0.5 whitespace-normal">
+      {translated?.fa && <span className="text-xs">{translated.fa}</span>}
+      <span className="text-[10px] font-mono text-muted-foreground break-all" dir="ltr">
+        {translated?.raw || error}
+      </span>
+    </div>
+  );
+}
+
 export default function ScraperRunDetailModal({ isOpen, onClose, run }) {
   const [activeTab, setActiveTab] = useState("details");
+  const [runDetail, setRunDetail] = useState(null);
+  const [runItems, setRunItems] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  if (!run) return null;
-
-  // ← useEffect به جای useMemo
   useEffect(() => {
     if (isOpen) setActiveTab("details");
   }, [isOpen, run?.id]);
 
-  const errorItems = (run.items || []).filter((item) => item.status === "failed" || item.error);
+  const runId = run?.id;
+  useEffect(() => {
+    if (!isOpen || !runId) return;
+    let cancelled = false;
+    setLoading(true);
+    setRunItems([]);
+    Promise.all([scraperService.getRunById(runId), scraperService.getRunItems(runId)])
+      .then(([detailRes, itemsRes]) => {
+        if (cancelled) return;
+        setRunDetail(detailRes?.data ?? detailRes);
+        const payload = itemsRes?.data ?? itemsRes;
+        setRunItems(Array.isArray(payload) ? payload : (payload?.results ?? []));
+      })
+      .catch((err) => {
+        console.error("failed to load run details", err);
+        // fall back to the list-row data so the modal is still usable
+        setRunDetail(null);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, runId]);
+
+  if (!run) return null;
+
+  const display = runDetail || run;
+  const items = runDetail ? runItems : (run.items || []);
+  const errorItems = items.filter(
+    (item) => item.status === "failed" || item.status === "removed" || item.error,
+  );
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="xl" title="جزئیات اجرای اسکرپر" className="h-[85vh]">
@@ -84,12 +145,11 @@ export default function ScraperRunDetailModal({ isOpen, onClose, run }) {
           <GitCommit className="w-5 h-5 text-sky-500" />
         </div>
         <div className="min-w-0 flex-1">
-          <h3 className="text-base font-bold text-foreground truncate">{run.target?.name || "اجرای اسکرپر"}</h3>
+          <h3 className="text-base font-bold text-foreground truncate">{display.target?.name || "اجرای اسکرپر"}</h3>
           <div className="flex items-center gap-2 mt-1">
-            {/* ← INGESTION_RUN_MODE_CONFIG (همه حروف بزرگ) */}
-            <StatusBadge status={run.mode} config={INGESTION_RUN_MODE_CONFIG} size="sm" variant="soft" />
-            <StatusBadge status={run.status} config={INGESTION_RUN_STATUS_CONFIG} size="sm" variant="soft" />
-            <span className="text-xs text-muted-foreground font-mono">{run.id?.slice(0, 8)}...</span>
+            <StatusBadge status={display.mode} config={INGESTION_RUN_MODE_CONFIG} size="sm" variant="soft" />
+            <StatusBadge status={display.status} config={INGESTION_RUN_STATUS_CONFIG} size="sm" variant="soft" />
+            <span className="text-xs text-muted-foreground font-mono">{display.id?.slice(0, 8)}...</span>
           </div>
         </div>
       </div>
@@ -104,26 +164,44 @@ export default function ScraperRunDetailModal({ isOpen, onClose, run }) {
 
         <div className="flex-1 min-h-0 overflow-y-auto pr-1">
           <Tabs.Content value="details">
-            <DetailFieldGrid data={run} sections={SCRAPER_RUN_DETAIL_FIELDS} />
+            <DetailFieldGrid data={display} sections={SCRAPER_RUN_DETAIL_FIELDS} />
           </Tabs.Content>
 
           <Tabs.Content value="items">
-            <DetailListTable
-              data={run.items || []}
-              columns={SCRAPER_RUN_ITEM_COLUMNS}
-              emptyText="آیتمی ثبت نشده"
-            />
+            {loading ? (
+              <div className="py-12 text-center text-sm text-muted-foreground">در حال دریافت آیتم‌ها...</div>
+            ) : (
+              <DetailListTable
+                data={items}
+                columns={SCRAPER_RUN_ITEM_COLUMNS}
+                emptyText="آیتمی ثبت نشده"
+              />
+            )}
           </Tabs.Content>
 
           <Tabs.Content value="errors">
-            <DetailListTable
-              data={errorItems}
-              columns={[
-                ...SCRAPER_RUN_ITEM_COLUMNS.slice(0, 3),
-                { key: "error", header: "پیام خطا", fullWidth: true },
-              ]}
-              emptyText="خطایی ثبت نشده"
-            />
+            {loading ? (
+              <div className="py-12 text-center text-sm text-muted-foreground">در حال دریافت خطاها...</div>
+            ) : (
+              <>
+                {display.error_summary && <ErrorBanner summary={display.error_summary} />}
+                {errorItems.length > 0 && (
+                  <DetailListTable
+                    data={errorItems}
+                    columns={[
+                      ...SCRAPER_RUN_ITEM_COLUMNS.slice(0, 3),
+                      {
+                        key: "error",
+                        header: "پیام خطا",
+                        fullWidth: true,
+                        format: (val) => <ItemErrorCell error={val} />,
+                      },
+                    ]}
+                    emptyText="خطایی ثبت نشده"
+                  />
+                )}
+              </>
+            )}
           </Tabs.Content>
         </div>
       </Tabs>
