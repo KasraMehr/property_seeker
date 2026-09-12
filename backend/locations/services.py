@@ -109,10 +109,10 @@ def fetch_divar_neighborhoods(city_slug: str) -> set[str]:
             if names:
                 break
             raise
+        # Every category exposes its own district set — fetch them all,
+        # otherwise the sync would wrongly deactivate real neighborhoods.
         names.update(_extract_district_names(document))
-        if names:
-            break  # one page is enough
-        time.sleep(2)  # pause before falling back to the next category
+        time.sleep(1)  # pause between categories to stay under Divar's radar
 
     if names:
         cache.set(cache_key, names, NEIGHBORHOOD_CACHE_TTL)
